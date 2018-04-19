@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9BCE19D0-F8FA-4F72-9B05-700F7F56F28C}"
+	ProjectSection(SolutionItems) = preProject
+		..\.editorconfig = ..\.editorconfig
+		..\.gitattributes = ..\.gitattributes
+		..\.gitignore = ..\.gitignore
+		..\build\build.bat = ..\build\build.bat
+		Directory.Build.props = Directory.Build.props
+		Milou.Deployer.nuspec = Milou.Deployer.nuspec
+		Milou.ruleset = Milou.ruleset
+		..\version.json = ..\version.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Core", "Milou.Deployer.Core\Milou.Deployer.Core.csproj", "{BC4BDF33-A2E2-43E3-9873-85793E2F5029}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Waws", "Milou.Deployer.Waws\Milou.Deployer.Waws.csproj", "{FB518879-EDFC-44AD-8ECA-4CBD6D174FC4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.ConsoleClient", "Milou.Deployer.ConsoleClient\Milou.Deployer.ConsoleClient.csproj", "{D871FB09-D825-44E2-965A-A7CE3B60C7AF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC4BDF33-A2E2-43E3-9873-85793E2F5029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC4BDF33-A2E2-43E3-9873-85793E2F5029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC4BDF33-A2E2-43E3-9873-85793E2F5029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC4BDF33-A2E2-43E3-9873-85793E2F5029}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB518879-EDFC-44AD-8ECA-4CBD6D174FC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB518879-EDFC-44AD-8ECA-4CBD6D174FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB518879-EDFC-44AD-8ECA-4CBD6D174FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB518879-EDFC-44AD-8ECA-4CBD6D174FC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D871FB09-D825-44E2-965A-A7CE3B60C7AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D871FB09-D825-44E2-965A-A7CE3B60C7AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D871FB09-D825-44E2-965A-A7CE3B60C7AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D871FB09-D825-44E2-965A-A7CE3B60C7AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CA9639FD-67CA-4136-950F-DE6230267423}
+	EndGlobalSection
+EndGlobal
