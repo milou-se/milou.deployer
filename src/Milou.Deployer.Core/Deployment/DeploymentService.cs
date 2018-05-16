@@ -21,7 +21,7 @@ namespace Milou.Deployer.Core.Deployment
 {
     public sealed class DeploymentService
     {
-        private const string AppOfflineHtm = "App_Offline.htm";
+        public const string AppOfflineHtm = "App_Offline.htm";
         private readonly DirectoryCleaner _directoryCleaner;
 
         private readonly FileMatcher _fileMatcher;

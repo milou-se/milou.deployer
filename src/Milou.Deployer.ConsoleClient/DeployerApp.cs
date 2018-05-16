@@ -297,6 +297,15 @@ namespace Milou.Deployer.ConsoleClient
                 temp2.Delete(true);
             }
 
+            var directoryInfo = new DirectoryInfo(currentDirectory);
+
+            FileInfo[] files = directoryInfo.GetFiles(DeploymentService.AppOfflineHtm);
+
+            foreach (FileInfo file in files)
+            {
+                file.Delete();
+            }
+
             _logger.Debug("Updated self done");
 
             return ExitCode.Success;
