@@ -92,9 +92,16 @@ namespace Milou.Deployer.ConsoleClient
                 loggerConfiguration = loggerConfiguration.WriteTo.File(logPath);
             }
 
+            Log.CloseAndFlush();
+
             Log.Logger = loggerConfiguration
                 .MinimumLevel.Is(logLevel)
                 .CreateLogger();
+
+            if (!string.IsNullOrWhiteSpace(machineSettings))
+            {
+                Log.Logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
+            }
 
             var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(true, true, false, true, true));
 
