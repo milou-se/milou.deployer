@@ -6,7 +6,7 @@ namespace Milou.Deployer.ConsoleClient
     {
         public static async Task<int> Main(string[] args)
         {
-            int exitCode = await AppBuilder.BuildApp().ExecuteAsync(args);
+            int exitCode = await AppBuilder.BuildApp(args).ExecuteAsync(args);
 
             return exitCode;
         }
