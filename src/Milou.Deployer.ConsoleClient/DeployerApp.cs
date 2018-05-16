@@ -15,7 +15,6 @@ using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Core.IO;
-
 using Milou.Deployer.Core.Processes;
 using NuGet.Versioning;
 using Serilog;
@@ -49,34 +48,39 @@ namespace Milou.Deployer.ConsoleClient
 
             PrintAvailableArguments(args);
 
-            string[] nonFlagArgs = args.Where(arg => !arg.StartsWith("--", StringComparison.OrdinalIgnoreCase)).ToArray();
+            string[] nonFlagArgs =
+                args.Where(arg => !arg.StartsWith("--", StringComparison.OrdinalIgnoreCase)).ToArray();
 
             if (Debugger.IsAttached && nonFlagArgs.Length > 0
-                && nonFlagArgs.First().Equals("fail"))
+                                    && nonFlagArgs.First().Equals("fail"))
             {
                 return ExitCode.Failure;
             }
 
-            if (!string.IsNullOrWhiteSpace(args.SingleOrDefault(arg => arg.Equals("--help", StringComparison.OrdinalIgnoreCase))))
+            if (!string.IsNullOrWhiteSpace(args.SingleOrDefault(arg =>
+                arg.Equals("--help", StringComparison.OrdinalIgnoreCase))))
             {
-                Serilog.Log.Logger.Information("Help");
+                Log.Logger.Information("Help");
 
                 return ExitCode.Success;
             }
 
             try
             {
-                if (nonFlagArgs.Length == 1 && nonFlagArgs.First().Equals(Commands.Update, StringComparison.OrdinalIgnoreCase))
+                if (nonFlagArgs.Length == 1 &&
+                    nonFlagArgs.First().Equals(Commands.Update, StringComparison.OrdinalIgnoreCase))
                 {
                     return await UpdateSelfAsync();
                 }
 
-                if (nonFlagArgs.Length == 1 && nonFlagArgs.First().Equals(Commands.Updating, StringComparison.OrdinalIgnoreCase))
+                if (nonFlagArgs.Length == 1 &&
+                    nonFlagArgs.First().Equals(Commands.Updating, StringComparison.OrdinalIgnoreCase))
                 {
                     return UpdatingSelf();
                 }
 
-                if (nonFlagArgs.Length == 1 && nonFlagArgs.First().Equals(Commands.Updated, StringComparison.OrdinalIgnoreCase))
+                if (nonFlagArgs.Length == 1 &&
+                    nonFlagArgs.First().Equals(Commands.Updated, StringComparison.OrdinalIgnoreCase))
                 {
                     return UpdatedSelf();
                 }
@@ -104,7 +108,9 @@ namespace Milou.Deployer.ConsoleClient
 
                     if (!hasArgs)
                     {
-                        _logger.Verbose("No arguments were supplied, falling back trying to find a manifest based on current path, looking for '{FallbackManifestPath}'", fallbackManifestPath);
+                        _logger.Verbose(
+                            "No arguments were supplied, falling back trying to find a manifest based on current path, looking for '{FallbackManifestPath}'",
+                            fallbackManifestPath);
                     }
 
                     exitCode = await ExecuteAsync(manifestFile);
@@ -166,7 +172,7 @@ namespace Milou.Deployer.ConsoleClient
             catch (Exception ex)
             {
                 exitCode = ExitCode.Failure;
-                Serilog.Log.Error(ex, "Unhandled application error");
+                Log.Error(ex, "Unhandled application error");
             }
 
             if (Debugger.IsAttached)
@@ -175,7 +181,7 @@ namespace Milou.Deployer.ConsoleClient
                 Console.ReadLine();
             }
 
-            Serilog.Log.Information("Exit code {ExitCode}", exitCode);
+            Log.Information("Exit code {ExitCode}", exitCode);
 
             return exitCode;
         }
@@ -185,7 +191,7 @@ namespace Milou.Deployer.ConsoleClient
             if (StaticKeyValueConfigurationManager.AppSettings is MultiSourceKeyValueConfiguration
                 multiSourceKeyValueConfiguration)
             {
-               Serilog.Log.Logger.Information("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
+                Log.Logger.Information("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
             }
         }
 
@@ -246,10 +252,21 @@ namespace Milou.Deployer.ConsoleClient
 
             _logger.Debug("Deleting files in {FullName}", parent.FullName);
 
+            var exclusionsContains = new List<string> { ".vshost." };
+            var exclusionsStartsWith = new List<string> { Environment.MachineName + "." };
+            var exclusionsByExtension = new List<string> { ".log" };
+
             foreach (
                 FileInfo fileInfo in
                 parent.GetFiles()
-                    .Where(file => file.Name.IndexOf(".vshost.", StringComparison.InvariantCultureIgnoreCase) < 0))
+                    .Where(file =>
+                        !exclusionsContains.Any(exclusion =>
+                            file.Name.IndexOf(exclusion, StringComparison.InvariantCultureIgnoreCase) >= 0) &&
+                        !exclusionsStartsWith.Any(exclusion =>
+                            file.Name.StartsWith(exclusion, StringComparison.OrdinalIgnoreCase)) &&
+                        !exclusionsByExtension.Any(exclusion =>
+                            file.Extension.Equals(exclusion, StringComparison.OrdinalIgnoreCase))
+                    ))
             {
                 fileInfo.Delete();
             }
@@ -327,7 +344,10 @@ namespace Milou.Deployer.ConsoleClient
 
             Type type = typeof(Program);
 
-            _logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion}", type.Namespace, assemblyVersion, fileVersion);
+            _logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion}",
+                type.Namespace,
+                assemblyVersion,
+                fileVersion);
         }
 
         private async Task<ExitCode> ExecuteAsync(string file)
@@ -356,7 +376,8 @@ namespace Milou.Deployer.ConsoleClient
 
             _logger.Information("Found {Length} deployment definitions", deploymentExecutionDefinitions.Length);
 
-            _logger.Verbose("{V}", string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
+            _logger.Verbose("{V}",
+                string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
 
             return await _deploymentService.DeployAsync(deploymentExecutionDefinitions);
         }
