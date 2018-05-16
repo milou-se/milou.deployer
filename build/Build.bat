@@ -47,3 +47,5 @@ SET Arbor.X.Vcs.Branch.Name.Version.OverrideEnabled=
 SET Arbor.X.VariableOverrideEnabled=
 SET Arbor.X.Artifacts.CleanupBeforeBuildEnabled=
 SET Arbor.X.Build.NetAssembly.Configuration=
+
+EXIT /B %ERRORLEVEL%
