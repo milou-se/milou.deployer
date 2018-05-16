@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="Microsoft.Net.Compilers" Version="2.7.0" />
+    <PackageReference Include="Microsoft.Net.Compilers" Version="2.8.0" />
     <PackageReference Include="Microsoft.Web.Deployment" Version="3.6.0" />
     <PackageReference Include="RefactoringEssentials" Version="5.6.0" />
     <PackageReference Include="Serilog" Version="2.6.0" />
