@@ -14,7 +14,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
     public static class ApplicationMetadataCreator
     {
         public static void SetVersionFile(
-            InstalledPackage value,
+            InstalledPackage installedPackage,
             DirectoryInfo targetDirectoryInfo,
             DeploymentExecutionDefinition deploymentExecutionDefinition,
             IEnumerable<string> xmlTransformedFiles,
@@ -37,7 +37,11 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             }
 
             var version = new KeyValue(ConfigurationKeys.SemVer2Normalized,
-                value.Version.ToNormalizedString(),
+                installedPackage.Version.ToNormalizedString(),
+                null);
+
+            var packageId = new KeyValue(ConfigurationKeys.PackageId,
+                installedPackage.PackageId,
                 null);
 
             var deployStartTimeUtc = new KeyValue(
@@ -70,7 +74,8 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 version,
                 deployStartTimeUtc,
                 deployerAssemblyVersion,
-                deployerAssemblyFileVersion
+                deployerAssemblyFileVersion,
+                packageId
             }.ToImmutableArray();
 
             if (!string.IsNullOrWhiteSpace(environmentPackageResult.Package))
