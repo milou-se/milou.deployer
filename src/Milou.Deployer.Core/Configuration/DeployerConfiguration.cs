@@ -14,6 +14,8 @@ namespace Milou.Deployer.Core.Configuration
 
         public string NuGetExePath { get; set; }
 
+        public string NuGetConfig { get; set; }
+
         public bool AllowPreReleaseEnabled { get; set; }
 
         public TimeSpan DefaultWaitTimeAfterAppOffline { get; set; } = TimeSpan.FromSeconds(3);

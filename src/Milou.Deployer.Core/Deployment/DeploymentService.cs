@@ -450,6 +450,13 @@ namespace Milou.Deployer.Core.Deployment
                 "-AllVersions"
             };
 
+            if (!string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetConfig) &&
+                File.Exists(DeployerConfiguration.NuGetConfig))
+            {
+                listCommands.Add("ConfigFile");
+                listCommands.Add(DeployerConfiguration.NuGetConfig);
+            }
+
             if (deploymentExecutionDefinition.IsPreRelease)
             {
                 if (!DeployerConfiguration.AllowPreReleaseEnabled && !deploymentExecutionDefinition.Force)

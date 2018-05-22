@@ -85,5 +85,8 @@ namespace Milou.Deployer.Core.Configuration
                     "urn:milou-deployer:tools:web-deploy:directives:application-insights-profiler-2-directive:enabled";
             }
         }
+
+        [Metadata]
+        public const string NuGetConfig = "urn:milou-deployer:tools:nuget:config";
     }
 }

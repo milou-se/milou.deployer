@@ -115,6 +115,7 @@ namespace Milou.Deployer.ConsoleClient
             var deployerConfiguration = new DeployerConfiguration(webDeployConfig)
             {
                 NuGetExePath = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetExePath],
+                NuGetConfig = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetConfig],
                 AllowPreReleaseEnabled = allowPreReleaseEnabled
             };
 

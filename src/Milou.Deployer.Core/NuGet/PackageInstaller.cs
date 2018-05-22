@@ -79,6 +79,13 @@ namespace Milou.Deployer.Core.NuGet
                 tempDirectory.Create();
             }
 
+            if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig) &&
+                File.Exists(_deployerConfiguration.NuGetConfig))
+            {
+                arguments.Add("ConfigFile");
+                arguments.Add(_deployerConfiguration.NuGetConfig);
+            }
+
             arguments.Add("-OutputDirectory");
             arguments.Add(tempDirectory.FullName);
             arguments.Add("-Verbosity");
