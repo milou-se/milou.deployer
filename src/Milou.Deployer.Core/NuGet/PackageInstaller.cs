@@ -82,7 +82,7 @@ namespace Milou.Deployer.Core.NuGet
             if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig) &&
                 File.Exists(_deployerConfiguration.NuGetConfig))
             {
-                arguments.Add("ConfigFile");
+                arguments.Add("-ConfigFile");
                 arguments.Add(_deployerConfiguration.NuGetConfig);
             }
 

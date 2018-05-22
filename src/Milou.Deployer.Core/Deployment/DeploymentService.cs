@@ -453,7 +453,7 @@ namespace Milou.Deployer.Core.Deployment
             if (!string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetConfig) &&
                 File.Exists(DeployerConfiguration.NuGetConfig))
             {
-                listCommands.Add("ConfigFile");
+                listCommands.Add("-ConfigFile");
                 listCommands.Add(DeployerConfiguration.NuGetConfig);
             }
 
