@@ -4,6 +4,9 @@ namespace Milou.Deployer.Core.Configuration
 {
     public static class ConfigurationKeys
     {
+        [Metadata()]
+        public const string StopStartIisWebSiteEnabled = "urn:milou-deployer:stop-start-iis-website:enabled";
+
         [Metadata]
         public const string KeyValueConfigurationFile = "urn:milou-deployer:configuration-file";
 

@@ -33,7 +33,11 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 string json = File.ReadAllText(applicationMetadataJsonFilePath, Encoding.UTF8);
 
                 ConfigurationItems configurationItems = jsonConfigurationSerializer.Deserialize(json);
-                existingKeys.AddRange(configurationItems.Keys);
+
+                if (!configurationItems.Keys.IsDefaultOrEmpty)
+                {
+                    existingKeys.AddRange(configurationItems.Keys);
+                }
             }
 
             var version = new KeyValue(ConfigurationKeys.SemVer2Normalized,

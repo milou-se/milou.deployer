@@ -17,6 +17,7 @@ namespace Milou.Deployer.Core.Deployment
             string packageId,
             string semanticVersion,
             string targetDirectoryPath,
+            string iisSitename = null,
             bool isPreRelease = false,
             bool force = false,
             string environmentConfig = null,
@@ -58,6 +59,7 @@ namespace Milou.Deployer.Core.Deployment
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
+            IisSitename = iisSitename;
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
@@ -73,6 +75,7 @@ namespace Milou.Deployer.Core.Deployment
             string packageId,
             string targetDirectoryPath,
             MayBe<SemanticVersion> semanticVersion,
+            string iisSitename = null,
             bool isPreRelease = false,
             bool force = false,
             string environmentConfig = null,
@@ -96,6 +99,7 @@ namespace Milou.Deployer.Core.Deployment
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
+            IisSitename = iisSitename;
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
@@ -130,6 +134,8 @@ namespace Milou.Deployer.Core.Deployment
             : "{any version}";
 
         public bool RequireEnvironmentConfig { get; }
+
+        public string IisSitename { get; }
 
         public override string ToString()
         {
