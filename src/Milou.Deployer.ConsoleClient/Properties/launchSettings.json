@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Milou.Deployer.ConsoleClient": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Sites\\DeployTest\\testdeploy.manifest",
+      "environmentVariables": {
+        "MilouDeployer_AllowPreRelease_Enabled": "true"
+      }
+    }
+  }
+}

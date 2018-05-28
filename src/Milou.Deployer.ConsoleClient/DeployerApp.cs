@@ -442,7 +442,7 @@ namespace Milou.Deployer.ConsoleClient
                     packageId,
                     targetDirectory,
                     version,
-                    parsedResultValue,
+                    isPreRelease: parsedResultValue,
                     environmentConfig: environmentConfig,
                     publishSettingsFile: publishSettingsFile)
             }.ToImmutableArray();

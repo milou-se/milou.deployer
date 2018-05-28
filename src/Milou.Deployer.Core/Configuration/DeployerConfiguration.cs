@@ -19,5 +19,7 @@ namespace Milou.Deployer.Core.Configuration
         public bool AllowPreReleaseEnabled { get; set; }
 
         public TimeSpan DefaultWaitTimeAfterAppOffline { get; set; } = TimeSpan.FromSeconds(3);
+
+        public bool StopStartIisWebSiteEnabled { get; set; }
     }
 }

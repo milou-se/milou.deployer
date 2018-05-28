@@ -116,7 +116,8 @@ namespace Milou.Deployer.ConsoleClient
             {
                 NuGetExePath = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetExePath],
                 NuGetConfig = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetConfig],
-                AllowPreReleaseEnabled = allowPreReleaseEnabled
+                AllowPreReleaseEnabled = allowPreReleaseEnabled,
+                StopStartIisWebSiteEnabled = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.StopStartIisWebSiteEnabled].ParseAsBooleanOrDefault(defaultValue: true)
             };
 
             var deploymentService = new DeploymentService(

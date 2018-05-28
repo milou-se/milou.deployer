@@ -5,10 +5,13 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using System.Threading.Tasks;
+using Microsoft.Web.Administration;
 using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.ApplicationMetadata;
 using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Core.Processes;
@@ -82,7 +85,7 @@ namespace Milou.Deployer.Core.Deployment
 
             try
             {
-                _logger.Verbose("Executing deployment executions [{Length}]: {V}",
+                _logger.Verbose("Executing deployment executions [{Length}]: {Executions}",
                     deploymentExecutionDefinitions.Length,
                     string.Join($"{Environment.NewLine}\t", deploymentExecutionDefinitions.Select(_ => $"'{_}'")));
 
@@ -109,8 +112,8 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!installedMainPackage.HasValue)
                     {
-                        _logger.Error("Could not install package defined in {V} {DeploymentExecutionDefinition}",
-                            nameof(DeploymentExecutionDefinition),
+                        _logger.Error(
+                            "Could not install package defined in deployment execution definition {DeploymentExecutionDefinition}",
                             deploymentExecutionDefinition);
                         return ExitCode.Failure;
                     }
@@ -118,7 +121,7 @@ namespace Milou.Deployer.Core.Deployment
                     InstalledPackage installedPackage = installedMainPackage.Value;
 
                     _logger.Information(
-                        "Successfully installed NuGet package '{PackageId}' version '{V}' to path '{NugetPackageFullPath}'",
+                        "Successfully installed NuGet package '{PackageId}' version '{Version}' to path '{NugetPackageFullPath}'",
                         installedPackage.PackageId,
                         installedPackage.Version.ToNormalizedString(),
                         installedPackage.NugetPackageFullPath);
@@ -134,7 +137,7 @@ namespace Milou.Deployer.Core.Deployment
                         packageDirectory,
                         installedPackage.Version);
 
-                    _logger.Verbose("Package version is {V}", version.ToNormalizedString());
+                    _logger.Verbose("Package version is {Version}", version.ToNormalizedString());
 
                     var possibleXmlTransformations = new List<FileMatch>();
                     var replaceFiles = new List<FileMatch>();
@@ -234,7 +237,8 @@ namespace Milou.Deployer.Core.Deployment
 
                     var wwwRootDirectory = new DirectoryInfo(wwwrootPath);
 
-                    DirectoryInfo applicationMetadataTargetDirectory = wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
+                    DirectoryInfo applicationMetadataTargetDirectory =
+                        wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
 
                     ApplicationMetadataCreator.SetVersionFile(installedMainPackage.Value,
                         applicationMetadataTargetDirectory,
@@ -253,7 +257,8 @@ namespace Milou.Deployer.Core.Deployment
 
                     var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, AppOfflineHtm));
 
-                    if (appOfflineEnabled && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
+                    if (appOfflineEnabled &&
+                        string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
                     {
                         string sourceAppOffline = Path.Combine(contentDirectory.FullName, AppOfflineHtm);
 
@@ -349,32 +354,86 @@ namespace Milou.Deployer.Core.Deployment
 
                         if (args.EventLevel == TraceLevel.Verbose)
                         {
-                            _logger.Verbose(args.Message);
+                            _logger.Verbose("{Message}", args.Message);
                             return;
                         }
 
-                        _logger.Information(args.Message);
+                        _logger.Information("{Message}", args.Message);
                     };
 
-                    DeploymentChangeSummary summary = await webDeployHelper.DeployContentToOneSiteAsync(
-                        targetTempDirectoryInfo.FullName,
-                        deploymentExecutionDefinition.PublishSettingsFile,
-                        appOfflineDelay: DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                        doNotDelete: doNotDeleteEnabled,
-                        appOfflineEnabled: appOfflineEnabled,
-                        useChecksum: useChecksumEnabled,
-                        whatIf: whatIfEnabled,
-                        traceLevel: TraceLevel.Verbose,
-                        appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
-                        applicationInsightsProfiler2SkipDirectiveEnabled:
-                        applicationInsightsProfiler2SkipDirectiveEnabled,
-                        logAction: message => _logger.Information(message),
-                        targetPath: hasPublishSettingsFile
-                            ? string.Empty
-                            : deploymentExecutionDefinition.TargetDirectoryPath
-                    );
+                    bool hasIisSiteName = deploymentExecutionDefinition.IisSitename.HasValue();
 
-                    _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
+                    ServerManager serverManager = null;
+                    Site iisSite = null;
+                    var previousSiteState = ObjectState.Unknown;
+
+                    try
+                    {
+                        if (hasIisSiteName)
+                        {
+                            if (DeployerConfiguration.StopStartIisWebSiteEnabled)
+                            {
+                                serverManager = new ServerManager();
+
+                                iisSite = serverManager.Sites[deploymentExecutionDefinition.IisSitename];
+
+                                if (iisSite.HasValue())
+                                {
+                                    previousSiteState = iisSite.State;
+                                    if (previousSiteState == ObjectState.Starting ||
+                                        previousSiteState == ObjectState.Started)
+                                    {
+                                        _logger.Debug("Stopping IIS site '{IISSiteName}'", iisSite.Name);
+                                        iisSite.Stop();
+                                        _logger.Debug("Stopped IIS site '{IISSiteName}'", iisSite.Name);
+                                    }
+                                }
+                            }
+                        }
+
+                        DeploymentChangeSummary summary = await webDeployHelper.DeployContentToOneSiteAsync(
+                            targetTempDirectoryInfo.FullName,
+                            deploymentExecutionDefinition.PublishSettingsFile,
+                            appOfflineDelay: DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                            doNotDelete: doNotDeleteEnabled,
+                            appOfflineEnabled: appOfflineEnabled,
+                            useChecksum: useChecksumEnabled,
+                            whatIf: whatIfEnabled,
+                            traceLevel: TraceLevel.Verbose,
+                            appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
+                            applicationInsightsProfiler2SkipDirectiveEnabled:
+                            applicationInsightsProfiler2SkipDirectiveEnabled,
+                            logAction: message => _logger.Information(message),
+                            targetPath: hasPublishSettingsFile
+                                ? string.Empty
+                                : deploymentExecutionDefinition.TargetDirectoryPath
+                        );
+
+                        _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            if (serverManager.HasValue() && iisSite.HasValue())
+                            {
+                                if (iisSite.State != ObjectState.Starting && iisSite.State != ObjectState.Started)
+                                {
+                                    if (previousSiteState == ObjectState.Starting ||
+                                        previousSiteState == ObjectState.Started)
+                                    {
+                                        _logger.Debug("Starting IIS site '{IISSiteName}'", iisSite.Name);
+                                        iisSite.Start();
+                                        _logger.Debug("Starting IIS site '{IISSiteName}'", iisSite.Name);
+                                    }
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            serverManager?.Dispose();
+                        }
+                    }
                 }
             }
             finally
