@@ -115,9 +115,9 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!string.IsNullOrWhiteSpace(source))
             {
-                _logger.Information("A specific NuGet source is defined in definition: '{Source}'", deploymentExecutionDefinition.NuGetSource);
+                _logger.Information("A specific NuGet source is defined in definition: '{Source}'", deploymentExecutionDefinition.NuGetPackageSource);
                 arguments.Add("-Source");
-                arguments.Add(deploymentExecutionDefinition.NuGetSource);
+                arguments.Add(deploymentExecutionDefinition.NuGetPackageSource);
             }
             else if (!string.IsNullOrWhiteSpace(source))
             {

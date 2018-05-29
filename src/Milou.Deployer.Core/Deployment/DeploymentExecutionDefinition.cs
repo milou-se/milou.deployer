@@ -18,7 +18,7 @@ namespace Milou.Deployer.Core.Deployment
             string semanticVersion,
             string targetDirectoryPath,
             string nuGetConfigFile = null,
-            string nuGetSource = null,
+            string nuGetPackagePackageSource = null,
             string iisSitename = null,
             bool isPreRelease = false,
             bool force = false,
@@ -62,7 +62,7 @@ namespace Milou.Deployer.Core.Deployment
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
             NuGetConfigFile = nuGetConfigFile;
-            NuGetSource = nuGetSource;
+            NuGetPackageSource = nuGetPackagePackageSource;
             IisSitename = iisSitename;
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
             Force = force;
@@ -80,7 +80,7 @@ namespace Milou.Deployer.Core.Deployment
             string targetDirectoryPath,
             MayBe<SemanticVersion> semanticVersion,
             string nuGetConfigFile = null,
-            string nuGetSource = null,
+            string nuGetPackageSource = null,
             string iisSitename = null,
             bool isPreRelease = false,
             bool force = false,
@@ -106,7 +106,7 @@ namespace Milou.Deployer.Core.Deployment
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
             NuGetConfigFile = nuGetConfigFile;
-            NuGetSource = nuGetSource;
+            NuGetPackageSource = nuGetPackageSource;
             IisSitename = iisSitename;
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
             Force = force;
@@ -147,7 +147,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public string NuGetConfigFile { get; }
 
-        public string NuGetSource { get; }
+        public string NuGetPackageSource { get; }
 
         public override string ToString()
         {
