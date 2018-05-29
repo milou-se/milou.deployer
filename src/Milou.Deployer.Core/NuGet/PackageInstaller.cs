@@ -79,8 +79,14 @@ namespace Milou.Deployer.Core.NuGet
                 tempDirectory.Create();
             }
 
-            if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig) &&
-                File.Exists(_deployerConfiguration.NuGetConfig))
+            if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.NuGetConfigFile) &&
+                File.Exists(deploymentExecutionDefinition.NuGetConfigFile))
+            {
+                arguments.Add("-ConfigFile");
+                arguments.Add(deploymentExecutionDefinition.NuGetConfigFile);
+            }
+            else if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig) &&
+                    File.Exists(_deployerConfiguration.NuGetConfig))
             {
                 arguments.Add("-ConfigFile");
                 arguments.Add(_deployerConfiguration.NuGetConfig);
@@ -108,6 +114,12 @@ namespace Milou.Deployer.Core.NuGet
             string source = StaticKeyValueConfigurationManager.AppSettings[sourceKey];
 
             if (!string.IsNullOrWhiteSpace(source))
+            {
+                _logger.Information("A specific NuGet source is defined in definition: '{Source}'", deploymentExecutionDefinition.NuGetSource);
+                arguments.Add("-Source");
+                arguments.Add(deploymentExecutionDefinition.NuGetSource);
+            }
+            else if (!string.IsNullOrWhiteSpace(source))
             {
                 _logger.Information("A specific NuGet source is defined in app settings [key '{SourceKey}']: '{Source}'", sourceKey, source);
                 arguments.Add("-Source");
