@@ -10,6 +10,7 @@ using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
 using Serilog;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace Milou.Deployer.ConsoleClient
@@ -18,9 +19,13 @@ namespace Milou.Deployer.ConsoleClient
     {
         public static DeployerApp BuildApp(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Is(LogEventLevel.Information)
-                .WriteTo.Console()
+            string outputTemplate = GetOutputTemplate(args);
+
+            var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
+
+            Logger logger = new LoggerConfiguration()
+                .WriteTo.Console(outputTemplate: outputTemplate)
+                .MinimumLevel.ControlledBy(levelSwitch)
                 .CreateLogger();
 
             string machineSettings = GetMachineSettingsFile(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory));
@@ -32,16 +37,16 @@ namespace Milou.Deployer.ConsoleClient
 
             if (!string.IsNullOrWhiteSpace(machineSettings))
             {
-                Log.Logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
+                logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
                 appSettingsBuilder =
-                    appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSettings, throwWhenNotExists: false));
+                    appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSettings, false));
             }
 
             string configurationFile = Environment.GetEnvironmentVariable(ConfigurationKeys.KeyValueConfigurationFile);
 
             if (!string.IsNullOrWhiteSpace(configurationFile) && File.Exists(configurationFile))
             {
-                Log.Logger.Information("Using configuration values from file '{ConfigurationFile}'", configurationFile);
+                logger.Information("Using configuration values from file '{ConfigurationFile}'", configurationFile);
                 appSettingsBuilder = appSettingsBuilder.Add(new JsonKeyValueConfiguration(configurationFile, false));
             }
 
@@ -49,7 +54,7 @@ namespace Milou.Deployer.ConsoleClient
                 .Add(new UserConfiguration())
                 .Build();
 
-            Log.Logger.Information("Using configuration: {Configuration}", configuration.SourceChain);
+            logger.Information("Using configuration: {Configuration}", configuration.SourceChain);
 
             StaticKeyValueConfigurationManager.Initialize(configuration);
 
@@ -57,13 +62,11 @@ namespace Milou.Deployer.ConsoleClient
 
             if (string.IsNullOrWhiteSpace(logPath))
             {
-
                 var currentDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
 
                 bool isUpdate = args.Contains(Commands.Update, StringComparer.OrdinalIgnoreCase);
                 bool isUpdating = args.Contains(Commands.Updating, StringComparer.OrdinalIgnoreCase);
                 bool isUpdated = args.Contains(Commands.Updated, StringComparer.OrdinalIgnoreCase);
-
 
                 if (isUpdated || isUpdate || isUpdating)
                 {
@@ -85,25 +88,33 @@ namespace Milou.Deployer.ConsoleClient
                 .TryParseOrDefault(LogEventLevel.Information);
 
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.Console();
+                .WriteTo.Console(outputTemplate: outputTemplate);
 
             if (!string.IsNullOrWhiteSpace(logPath))
             {
                 loggerConfiguration = loggerConfiguration.WriteTo.File(logPath);
             }
 
-            Log.CloseAndFlush();
+            if (logger is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
 
-            Log.Logger = loggerConfiguration
-                .MinimumLevel.Is(logLevel)
+            logger = loggerConfiguration
+                .MinimumLevel.ControlledBy(levelSwitch)
                 .CreateLogger();
 
             if (!string.IsNullOrWhiteSpace(machineSettings))
             {
-                Log.Logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
+                logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
             }
 
-            var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(true, true, false, true, true));
+            var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(
+                true,
+                true,
+                false,
+                true,
+                true));
 
             bool allowPreReleaseEnabled =
                 Environment.GetEnvironmentVariable(ConfigurationKeys.AllowPreReleaseEnvironmentVariable)
@@ -117,12 +128,13 @@ namespace Milou.Deployer.ConsoleClient
                 NuGetExePath = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetExePath],
                 NuGetConfig = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetConfig],
                 AllowPreReleaseEnabled = allowPreReleaseEnabled,
-                StopStartIisWebSiteEnabled = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.StopStartIisWebSiteEnabled].ParseAsBooleanOrDefault(defaultValue: true)
+                StopStartIisWebSiteEnabled = StaticKeyValueConfigurationManager
+                    .AppSettings[ConfigurationKeys.StopStartIisWebSiteEnabled].ParseAsBooleanOrDefault(true)
             };
 
             var deploymentService = new DeploymentService(
                 deployerConfiguration,
-                Log.Logger);
+                logger);
 
             var fileReader = new DeploymentExecutionDefinitionFileReader();
 
@@ -139,12 +151,22 @@ namespace Milou.Deployer.ConsoleClient
                 }
             }
 
-            return new DeployerApp(Log.Logger, deploymentService, fileReader);
+            return new DeployerApp(logger, deploymentService, fileReader);
+        }
+
+        private static string GetOutputTemplate(string[] args)
+        {
+            if (args.Any(arg =>
+                arg.Equals(LoggingConstants.PlainOutputFormatEnabled, StringComparison.OrdinalIgnoreCase)))
+            {
+                return LoggingConstants.PlainFormat;
+            }
+
+            return LoggingConstants.DefaultFormat;
         }
 
         private static string GetMachineSettingsFile(DirectoryInfo currentDirectory)
         {
-
             if (currentDirectory is null)
             {
                 return null;

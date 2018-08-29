@@ -263,9 +263,8 @@ namespace Milou.Deployer.Waws
 
         private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
         {
-            DeploymentRule newRule;
             DeploymentRuleCollection rules = DeploymentSyncOptions.GetAvailableRules();
-            bool added = rules.TryGetValue(name, out newRule);
+            bool added = rules.TryGetValue(name, out DeploymentRule newRule);
 
             if (added)
             {

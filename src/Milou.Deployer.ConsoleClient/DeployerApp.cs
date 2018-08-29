@@ -54,15 +54,17 @@ namespace Milou.Deployer.ConsoleClient
             if (Debugger.IsAttached && nonFlagArgs.Length > 0
                                     && nonFlagArgs.First().Equals("fail"))
             {
-                return ExitCode.Failure;
+                return AppExit.ExitFailure();
             }
 
             if (!string.IsNullOrWhiteSpace(args.SingleOrDefault(arg =>
                 arg.Equals("--help", StringComparison.OrdinalIgnoreCase))))
             {
-                Log.Logger.Information("Help");
+                _logger.Information("Help");
 
-                return ExitCode.Success;
+                _logger.Information("{Help}", Help.ShowHelp());
+
+                return AppExit.ExitSuccess();
             }
 
             try
@@ -70,25 +72,25 @@ namespace Milou.Deployer.ConsoleClient
                 if (nonFlagArgs.Length == 1 &&
                     nonFlagArgs.First().Equals(Commands.Update, StringComparison.OrdinalIgnoreCase))
                 {
-                    return await UpdateSelfAsync();
+                    return AppExit.Exit(await UpdateSelfAsync());
                 }
 
                 if (nonFlagArgs.Length == 1 &&
                     nonFlagArgs.First().Equals(Commands.Updating, StringComparison.OrdinalIgnoreCase))
                 {
-                    return UpdatingSelf();
+                    return AppExit.Exit(UpdatingSelf());
                 }
 
                 if (nonFlagArgs.Length == 1 &&
                     nonFlagArgs.First().Equals(Commands.Updated, StringComparison.OrdinalIgnoreCase))
                 {
-                    return UpdatedSelf();
+                    return AppExit.Exit(UpdatedSelf());
                 }
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error(ex.ToString());
-                return ExitCode.Failure;
+                _logger.Error(ex, "Error");
+                return AppExit.ExitFailure();
             }
 
             ExitCode exitCode;
@@ -118,7 +120,7 @@ namespace Milou.Deployer.ConsoleClient
                 else if (nonFlagArgs.Length == 2)
                 {
                     _logger.Error("Invalid argument count");
-                    return ExitCode.Failure;
+                    return AppExit.ExitFailure();
                 }
                 else
                 {
@@ -165,25 +167,19 @@ namespace Milou.Deployer.ConsoleClient
                     }
                     else
                     {
-                        return ExitCode.Failure;
+                        return AppExit.ExitFailure();
                     }
                 }
             }
             catch (Exception ex)
             {
-                exitCode = ExitCode.Failure;
+                exitCode = AppExit.ExitFailure();
                 Log.Error(ex, "Unhandled application error");
-            }
-
-            if (Debugger.IsAttached)
-            {
-                Console.WriteLine("Press ENTER to continue");
-                Console.ReadLine();
             }
 
             Log.Information("Exit code {ExitCode}", exitCode);
 
-            return exitCode;
+            return AppExit.Exit(exitCode);
         }
 
         private void PrintAvailableArguments(string[] args)
@@ -191,7 +187,7 @@ namespace Milou.Deployer.ConsoleClient
             if (StaticKeyValueConfigurationManager.AppSettings is MultiSourceKeyValueConfiguration
                 multiSourceKeyValueConfiguration)
             {
-                Log.Logger.Information("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
+                _logger.Information("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
             }
         }
 
@@ -287,7 +283,7 @@ namespace Milou.Deployer.ConsoleClient
 
             Process.Start(Path.Combine(parent.FullName, "Milou.Deployer.ConsoleClient.exe"), Commands.Updated);
 
-            return ExitCode.Success;
+            return AppExit.ExitSuccess();
         }
 
         private ExitCode UpdatedSelf()
@@ -325,7 +321,7 @@ namespace Milou.Deployer.ConsoleClient
 
             _logger.Debug("Updated self done");
 
-            return ExitCode.Success;
+            return AppExit.ExitSuccess();
         }
 
         private void PrintVersion()
@@ -423,9 +419,7 @@ namespace Milou.Deployer.ConsoleClient
                 throw new ArgumentNullException(nameof(packageId));
             }
 
-            bool parsedResultValue;
-
-            if (!bool.TryParse(allowPreRelease, out parsedResultValue))
+            if (!bool.TryParse(allowPreRelease, out bool parsedResultValue))
             {
                 parsedResultValue = false;
             }
