@@ -51,14 +51,13 @@ namespace Milou.Deployer.ConsoleClient
             }
 
             MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
+                .Add(new EnvironmentVariableKeyValueConfigurationSource())
                 .Add(new UserConfiguration())
                 .Build();
 
             logger.Information("Using configuration: {Configuration}", configuration.SourceChain);
 
-            StaticKeyValueConfigurationManager.Initialize(configuration);
-
-            string logPath = StaticKeyValueConfigurationManager.AppSettings[ConsoleConfigurationKeys.LoggingFilePath];
+            string logPath = configuration[ConsoleConfigurationKeys.LoggingFilePath];
 
             if (string.IsNullOrWhiteSpace(logPath))
             {
@@ -80,12 +79,14 @@ namespace Milou.Deployer.ConsoleClient
             }
 
             string environmentLogLevel =
-                Environment.GetEnvironmentVariable(ConfigurationKeys.LogLevelEnvironmentVariable);
+                configuration[ConfigurationKeys.LogLevelEnvironmentVariable];
 
-            string configurationLogLevel = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.LogLevel];
+            string configurationLogLevel = configuration[ConfigurationKeys.LogLevel];
 
             LogEventLevel logLevel = environmentLogLevel.WithDefault(configurationLogLevel)
                 .TryParseOrDefault(LogEventLevel.Information);
+
+            levelSwitch.MinimumLevel = logLevel;
 
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
                 .WriteTo.Console(outputTemplate: outputTemplate);
@@ -117,28 +118,27 @@ namespace Milou.Deployer.ConsoleClient
                 true));
 
             bool allowPreReleaseEnabled =
-                Environment.GetEnvironmentVariable(ConfigurationKeys.AllowPreReleaseEnvironmentVariable)
+                configuration[ConfigurationKeys.AllowPreReleaseEnvironmentVariable]
                     .ParseAsBooleanOrDefault(false)
                 || (Debugger.IsAttached
-                    && StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.ForceAllowPreRelease]
+                    && configuration[ConfigurationKeys.ForceAllowPreRelease]
                         .ParseAsBooleanOrDefault());
 
             var deployerConfiguration = new DeployerConfiguration(webDeployConfig)
             {
-                NuGetExePath = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetExePath],
-                NuGetConfig = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetConfig],
+                NuGetExePath = configuration[ConfigurationKeys.NuGetExePath],
+                NuGetConfig = configuration[ConfigurationKeys.NuGetConfig],
                 AllowPreReleaseEnabled = allowPreReleaseEnabled,
-                StopStartIisWebSiteEnabled = StaticKeyValueConfigurationManager
-                    .AppSettings[ConfigurationKeys.StopStartIisWebSiteEnabled].ParseAsBooleanOrDefault(true)
+                StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled].ParseAsBooleanOrDefault(true)
             };
 
             var deploymentService = new DeploymentService(
                 deployerConfiguration,
-                logger);
+                logger, configuration);
 
             var fileReader = new DeploymentExecutionDefinitionFileReader();
 
-            string temp = StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.TempDirectory];
+            string temp = configuration[ConfigurationKeys.TempDirectory];
 
             const string tempEnvironmentVariableName = "temp";
 
@@ -151,7 +151,7 @@ namespace Milou.Deployer.ConsoleClient
                 }
             }
 
-            return new DeployerApp(logger, deploymentService, fileReader);
+            return new DeployerApp(logger, deploymentService, fileReader, configuration);
         }
 
         private static string GetOutputTemplate(string[] args)

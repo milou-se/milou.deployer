@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading.Tasks;
+using Arbor.KVConfiguration.Core;
+using JetBrains.Annotations;
 using Microsoft.Web.Administration;
 using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.ApplicationMetadata;
@@ -37,11 +39,17 @@ namespace Milou.Deployer.Core.Deployment
 
         public DeploymentService(
             DeployerConfiguration deployerConfiguration,
-            ILogger logger)
+            ILogger logger,
+            [NotNull] IKeyValueConfiguration keyValueConfiguration)
         {
             if (logger == null)
             {
                 throw new ArgumentNullException(nameof(logger));
+            }
+
+            if (keyValueConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(keyValueConfiguration));
             }
 
             DeployerConfiguration =
@@ -49,7 +57,7 @@ namespace Milou.Deployer.Core.Deployment
 
             _directoryCleaner = new DirectoryCleaner(logger);
 
-            _packageInstaller = new PackageInstaller(logger, deployerConfiguration);
+            _packageInstaller = new PackageInstaller(logger, deployerConfiguration, keyValueConfiguration);
 
             _fileMatcher = new FileMatcher(logger);
 
@@ -257,8 +265,8 @@ namespace Milou.Deployer.Core.Deployment
 
                     var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, AppOfflineHtm));
 
-                    if (appOfflineEnabled &&
-                        string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
+                    if (appOfflineEnabled
+                        && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
                     {
                         string sourceAppOffline = Path.Combine(contentDirectory.FullName, AppOfflineHtm);
 
@@ -295,8 +303,8 @@ namespace Milou.Deployer.Core.Deployment
                     tempDirectoriesToClean.Add(packageInstallTempDirectoryInfo);
 
                     bool hasPublishSettingsFile =
-                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile) &&
-                        File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
+                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile)
+                        && File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
 
                     if (hasPublishSettingsFile)
                     {
@@ -380,8 +388,8 @@ namespace Milou.Deployer.Core.Deployment
                                 if (iisSite.HasValue())
                                 {
                                     previousSiteState = iisSite.State;
-                                    if (previousSiteState == ObjectState.Starting ||
-                                        previousSiteState == ObjectState.Started)
+                                    if (previousSiteState == ObjectState.Starting
+                                        || previousSiteState == ObjectState.Started)
                                     {
                                         _logger.Debug("Stopping IIS site '{IISSiteName}'", iisSite.Name);
                                         iisSite.Stop();
@@ -403,7 +411,7 @@ namespace Milou.Deployer.Core.Deployment
                             appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
                             applicationInsightsProfiler2SkipDirectiveEnabled:
                             applicationInsightsProfiler2SkipDirectiveEnabled,
-                            logAction: message => _logger.Information(message),
+                            logAction: message => _logger.Information("{Message}", message),
                             targetPath: hasPublishSettingsFile
                                 ? string.Empty
                                 : deploymentExecutionDefinition.TargetDirectoryPath
@@ -419,8 +427,8 @@ namespace Milou.Deployer.Core.Deployment
                             {
                                 if (iisSite.State != ObjectState.Starting && iisSite.State != ObjectState.Started)
                                 {
-                                    if (previousSiteState == ObjectState.Starting ||
-                                        previousSiteState == ObjectState.Started)
+                                    if (previousSiteState == ObjectState.Starting
+                                        || previousSiteState == ObjectState.Started)
                                     {
                                         _logger.Debug("Starting IIS site '{IISSiteName}'", iisSite.Name);
                                         iisSite.Start();
@@ -509,8 +517,8 @@ namespace Milou.Deployer.Core.Deployment
                 "-AllVersions"
             };
 
-            if (!string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetConfig) &&
-                File.Exists(DeployerConfiguration.NuGetConfig))
+            if (!string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetConfig)
+                && File.Exists(DeployerConfiguration.NuGetConfig))
             {
                 listCommands.Add("-ConfigFile");
                 listCommands.Add(DeployerConfiguration.NuGetConfig);

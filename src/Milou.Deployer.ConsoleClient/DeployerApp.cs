@@ -21,21 +21,26 @@ using Serilog;
 
 namespace Milou.Deployer.ConsoleClient
 {
-    public class DeployerApp
+    public sealed class DeployerApp : IDisposable
     {
         private readonly DeploymentService _deploymentService;
         private readonly DeploymentExecutionDefinitionFileReader _fileReader;
+        private readonly IKeyValueConfiguration _appSettings;
 
         private readonly ILogger _logger;
+        private readonly AppExit _appExit;
 
         public DeployerApp(
             [NotNull] ILogger logger,
             [NotNull] DeploymentService deploymentService,
-            [NotNull] DeploymentExecutionDefinitionFileReader fileReader)
+            [NotNull] DeploymentExecutionDefinitionFileReader fileReader,
+            [NotNull] IKeyValueConfiguration appSettings)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
+            _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
+            _appExit = new AppExit(_logger);
         }
 
         public async Task<int> ExecuteAsync(string[] args)
@@ -52,9 +57,9 @@ namespace Milou.Deployer.ConsoleClient
                 args.Where(arg => !arg.StartsWith("--", StringComparison.OrdinalIgnoreCase)).ToArray();
 
             if (Debugger.IsAttached && nonFlagArgs.Length > 0
-                                    && nonFlagArgs.First().Equals("fail"))
+                                    && nonFlagArgs[0].Equals("fail"))
             {
-                return AppExit.ExitFailure();
+                return _appExit.ExitFailure();
             }
 
             if (!string.IsNullOrWhiteSpace(args.SingleOrDefault(arg =>
@@ -64,33 +69,33 @@ namespace Milou.Deployer.ConsoleClient
 
                 _logger.Information("{Help}", Help.ShowHelp());
 
-                return AppExit.ExitSuccess();
+                return _appExit.ExitSuccess();
             }
 
             try
             {
-                if (nonFlagArgs.Length == 1 &&
-                    nonFlagArgs.First().Equals(Commands.Update, StringComparison.OrdinalIgnoreCase))
+                if (nonFlagArgs.Length == 1
+                    && nonFlagArgs[0].Equals(Commands.Update, StringComparison.OrdinalIgnoreCase))
                 {
-                    return AppExit.Exit(await UpdateSelfAsync());
+                    return _appExit.Exit(await UpdateSelfAsync());
                 }
 
-                if (nonFlagArgs.Length == 1 &&
-                    nonFlagArgs.First().Equals(Commands.Updating, StringComparison.OrdinalIgnoreCase))
+                if (nonFlagArgs.Length == 1
+                    && nonFlagArgs[0].Equals(Commands.Updating, StringComparison.OrdinalIgnoreCase))
                 {
-                    return AppExit.Exit(UpdatingSelf());
+                    return _appExit.Exit(UpdatingSelf());
                 }
 
-                if (nonFlagArgs.Length == 1 &&
-                    nonFlagArgs.First().Equals(Commands.Updated, StringComparison.OrdinalIgnoreCase))
+                if (nonFlagArgs.Length == 1
+                    && nonFlagArgs[0].Equals(Commands.Updated, StringComparison.OrdinalIgnoreCase))
                 {
-                    return AppExit.Exit(UpdatedSelf());
+                    return _appExit.Exit(UpdatedSelf());
                 }
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Error");
-                return AppExit.ExitFailure();
+                return _appExit.ExitFailure();
             }
 
             ExitCode exitCode;
@@ -106,7 +111,7 @@ namespace Milou.Deployer.ConsoleClient
 
                     string manifestFile = hasArgs
                         ? fallbackManifestPath
-                        : nonFlagArgs.First();
+                        : nonFlagArgs[0];
 
                     if (!hasArgs)
                     {
@@ -120,7 +125,7 @@ namespace Milou.Deployer.ConsoleClient
                 else if (nonFlagArgs.Length == 2)
                 {
                     _logger.Error("Invalid argument count");
-                    return AppExit.ExitFailure();
+                    return _appExit.ExitFailure();
                 }
                 else
                 {
@@ -128,63 +133,64 @@ namespace Milou.Deployer.ConsoleClient
                     string semanticVersion = nonFlagArgs[1];
                     string targetDirectory = nonFlagArgs[2];
 
-                    if (nonFlagArgs.Length == 3)
+                    switch (nonFlagArgs.Length)
                     {
-                        exitCode = await ExecuteAsync(packageId, semanticVersion, targetDirectory);
-                    }
-                    else if (nonFlagArgs.Length == 4)
-                    {
-                        string allowPreRelease = nonFlagArgs[3];
+                        case 3:
+                            exitCode = await ExecuteAsync(packageId, semanticVersion, targetDirectory);
+                            break;
+                        case 4:
+                        {
+                            string allowPreRelease = nonFlagArgs[3];
 
-                        exitCode = await ExecuteAsync(packageId, semanticVersion, targetDirectory, allowPreRelease);
-                    }
-                    else if (nonFlagArgs.Length == 5)
-                    {
-                        string allowPreRelease = nonFlagArgs[3];
+                            exitCode = await ExecuteAsync(packageId, semanticVersion, targetDirectory, allowPreRelease);
+                            break;
+                        }
+                        case 5:
+                        {
+                            string allowPreRelease = nonFlagArgs[3];
 
-                        string environment = nonFlagArgs[4];
+                            string environment = nonFlagArgs[4];
 
-                        exitCode = await ExecuteAsync(packageId,
-                            semanticVersion,
-                            targetDirectory,
-                            allowPreRelease,
-                            environment);
-                    }
-                    else if (nonFlagArgs.Length == 6)
-                    {
-                        string allowPreRelease = nonFlagArgs[3];
+                            exitCode = await ExecuteAsync(packageId,
+                                semanticVersion,
+                                targetDirectory,
+                                allowPreRelease,
+                                environment);
+                            break;
+                        }
+                        case 6:
+                        {
+                            string allowPreRelease = nonFlagArgs[3];
 
-                        string environment = nonFlagArgs[4];
+                            string environment = nonFlagArgs[4];
 
-                        string publishSettingsFile = nonFlagArgs[5];
+                            string publishSettingsFile = nonFlagArgs[5];
 
-                        exitCode = await ExecuteAsync(packageId,
-                            semanticVersion,
-                            targetDirectory,
-                            allowPreRelease,
-                            environment,
-                            publishSettingsFile);
-                    }
-                    else
-                    {
-                        return AppExit.ExitFailure();
+                            exitCode = await ExecuteAsync(packageId,
+                                semanticVersion,
+                                targetDirectory,
+                                allowPreRelease,
+                                environment,
+                                publishSettingsFile);
+                            break;
+                        }
+                        default:
+                            return _appExit.ExitFailure();
                     }
                 }
             }
             catch (Exception ex)
             {
-                exitCode = AppExit.ExitFailure();
-                Log.Error(ex, "Unhandled application error");
+                _logger.Error(ex, "Unhandled application error");
+                exitCode = _appExit.ExitFailure();
             }
 
-            Log.Information("Exit code {ExitCode}", exitCode);
-
-            return AppExit.Exit(exitCode);
+            return _appExit.Exit(exitCode);
         }
 
         private void PrintAvailableArguments(string[] args)
         {
-            if (StaticKeyValueConfigurationManager.AppSettings is MultiSourceKeyValueConfiguration
+            if (_appSettings is MultiSourceKeyValueConfiguration
                 multiSourceKeyValueConfiguration)
             {
                 _logger.Information("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
@@ -199,26 +205,26 @@ namespace Milou.Deployer.ConsoleClient
             string allowPreRelease =
                 _deploymentService.DeployerConfiguration.AllowPreReleaseEnabled.ToString().ToLowerInvariant();
 
-            ExitCode exicCode = await ExecuteAsync(
+            ExitCode exitCode = await ExecuteAsync(
                 "Milou.Deployer.ConsoleClient",
                 string.Empty,
                 targetTempDirectory,
                 allowPreRelease);
 
-            if (!exicCode.IsSuccess)
+            if (!exitCode.IsSuccess)
             {
-                return exicCode;
+                return exitCode;
             }
 
-            ExitCode exicCode2 = await ExecuteAsync(
+            ExitCode exitCode2 = await ExecuteAsync(
                 "Milou.Deployer.ConsoleClient",
                 string.Empty,
                 targetTempDirectory2,
                 allowPreRelease);
 
-            if (!exicCode2.IsSuccess)
+            if (!exitCode2.IsSuccess)
             {
-                return exicCode2;
+                return exitCode2;
             }
 
             _logger.Debug("Starting process updating process");
@@ -226,7 +232,7 @@ namespace Milou.Deployer.ConsoleClient
             Process.Start(Path.Combine(targetTempDirectory, "Milou.Deployer.ConsoleClient.exe"),
                 nameof(Commands.Updating));
 
-            return exicCode;
+            return exitCode;
         }
 
         private ExitCode UpdatingSelf()
@@ -257,10 +263,10 @@ namespace Milou.Deployer.ConsoleClient
                 parent.GetFiles()
                     .Where(file =>
                         !exclusionsContains.Any(exclusion =>
-                            file.Name.IndexOf(exclusion, StringComparison.InvariantCultureIgnoreCase) >= 0) &&
-                        !exclusionsStartsWith.Any(exclusion =>
-                            file.Name.StartsWith(exclusion, StringComparison.OrdinalIgnoreCase)) &&
-                        !exclusionsByExtension.Any(exclusion =>
+                            file.Name.IndexOf(exclusion, StringComparison.InvariantCultureIgnoreCase) >= 0)
+                        && !exclusionsStartsWith.Any(exclusion =>
+                            file.Name.StartsWith(exclusion, StringComparison.OrdinalIgnoreCase))
+                        && !exclusionsByExtension.Any(exclusion =>
                             file.Extension.Equals(exclusion, StringComparison.OrdinalIgnoreCase))
                     ))
             {
@@ -283,7 +289,7 @@ namespace Milou.Deployer.ConsoleClient
 
             Process.Start(Path.Combine(parent.FullName, "Milou.Deployer.ConsoleClient.exe"), Commands.Updated);
 
-            return AppExit.ExitSuccess();
+            return _appExit.ExitSuccess();
         }
 
         private ExitCode UpdatedSelf()
@@ -321,7 +327,7 @@ namespace Milou.Deployer.ConsoleClient
 
             _logger.Debug("Updated self done");
 
-            return AppExit.ExitSuccess();
+            return _appExit.ExitSuccess();
         }
 
         private void PrintVersion()
@@ -448,12 +454,12 @@ namespace Milou.Deployer.ConsoleClient
         {
             if (args.Any(arg => arg.Equals("--debug")))
             {
-                _logger.Debug("Environment variables:");
+                _logger.Debug("Used variables:");
 
-                foreach (DictionaryEntry environmentVariable in Environment.GetEnvironmentVariables()
-                    .OfType<DictionaryEntry>().OrderBy(entry => entry.Key))
+                foreach (StringPair variable in _appSettings.AllValues
+                    .OrderBy(entry => entry.Key))
                 {
-                    _logger.Debug("ENV '{Key}': '{Value}'", environmentVariable.Key, environmentVariable.Value);
+                    _logger.Debug("ENV '{Key}': '{Value}'", variable.Key, variable.Value);
                 }
             }
         }
@@ -468,6 +474,19 @@ namespace Milou.Deployer.ConsoleClient
                 {
                     _logger.Debug("ARG '{Arg}'", arg);
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_logger is IDisposable disposableLogger)
+            {
+                disposableLogger.Dispose();
+            }
+
+            if (_appSettings is IDisposable disposableSettings)
+            {
+                disposableSettings.Dispose();
             }
         }
     }

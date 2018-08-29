@@ -138,8 +138,8 @@ namespace Milou.Deployer.Waws
 
             if (!doNotDelete)
             {
-                if (targetProvider == DeploymentWellKnownProvider.DirPath && Directory.Exists(destinationPath) &&
-                    string.IsNullOrWhiteSpace(publishSettingsFile))
+                if (targetProvider == DeploymentWellKnownProvider.DirPath && Directory.Exists(destinationPath)
+                    && string.IsNullOrWhiteSpace(publishSettingsFile))
                 {
                     var sourceDir = new DirectoryInfo(sourcePath);
 
@@ -173,8 +173,8 @@ namespace Milou.Deployer.Waws
 
                             currentDirectory.Refresh();
 
-                            if (currentDirectory.GetFiles().Length == 0 &&
-                                currentDirectory.GetDirectories().Length == 0)
+                            if (currentDirectory.GetFiles().Length == 0
+                                && currentDirectory.GetDirectories().Length == 0)
                             {
                                 currentDirectory.Delete();
                                 logAction($"Deleted empty directory '{currentDirectory.FullName}'");
@@ -184,8 +184,8 @@ namespace Milou.Deployer.Waws
                         FileInfo[] toDelete = allTargetFiles
                             .Where(currentFile => !TargetExistsInSource(currentFile))
                             .Where(currentFile =>
-                                !appDataSkipDirectiveEnabled ||
-                                currentFile.FullName.IndexOf("App_Data", StringComparison.OrdinalIgnoreCase) < 0)
+                                !appDataSkipDirectiveEnabled
+                                || currentFile.FullName.IndexOf("App_Data", StringComparison.OrdinalIgnoreCase) < 0)
                             .ToArray();
 
                         foreach (FileInfo fileInfo in toDelete)

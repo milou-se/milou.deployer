@@ -1,13 +1,23 @@
 ﻿using System;
 using System.Diagnostics;
 using Milou.Deployer.Core.Processes;
+using Serilog;
 
 namespace Milou.Deployer.ConsoleClient
 {
-    public static class AppExit
+    internal sealed class AppExit
     {
-        public static ExitCode ExitSuccess()
+        private readonly ILogger _logger;
+
+        public AppExit(ILogger logger)
         {
+            _logger = logger;
+        }
+
+        public ExitCode ExitSuccess()
+        {
+            _logger.Information("Application was successful, {ExitCode}", ExitCode.Success);
+
             BreakApp();
 
             return ExitCode.Success;
@@ -29,14 +39,20 @@ namespace Milou.Deployer.ConsoleClient
             }
         }
 
-        public static ExitCode Exit(ExitCode exitCode)
+        public ExitCode Exit(ExitCode exitCode)
         {
-            BreakApp();
-            return exitCode;
+            if (exitCode.IsSuccess)
+            {
+                return ExitSuccess();
+            }
+
+            return ExitFailure(exitCode.Code);
         }
 
-        public static ExitCode ExitFailure()
+        public ExitCode ExitFailure(int exitCode = 1)
         {
+            _logger.Error("Application failed, {ExitCode}", exitCode);
+
             BreakApp();
 
             return ExitCode.Failure;

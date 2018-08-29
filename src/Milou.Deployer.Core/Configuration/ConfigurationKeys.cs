@@ -13,6 +13,7 @@ namespace Milou.Deployer.Core.Configuration
         [Metadata]
         public const string SemVer2Normalized = "urn:versioning:semver2:normalized";
 
+        [Metadata()]
         public const string PackageId = "urn:nuget:package-id";
 
         [Metadata]
