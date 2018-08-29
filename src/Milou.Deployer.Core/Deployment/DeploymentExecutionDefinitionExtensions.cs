@@ -7,17 +7,94 @@ namespace Milou.Deployer.Core.Deployment
 {
     public static class DeploymentExecutionDefinitionExtensions
     {
-        public static bool WhatIfEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition, bool defaultValue = false)
+        public static bool WhatIfEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = false)
         {
             if (deploymentExecutionDefinition == null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            return GetBoolValue(deploymentExecutionDefinition, defaultValue, ConfigurationKeys.WebDeploy.Rules.WhatIfEnabled);
+            return GetBoolValue(deploymentExecutionDefinition,
+                defaultValue,
+                ConfigurationKeys.WebDeploy.Rules.WhatIfEnabled);
         }
 
-        private static bool GetBoolValue(DeploymentExecutionDefinition deploymentExecutionDefinition, bool defaultValue, string configurationKey)
+        public static bool DoNotDeleteEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = true)
+        {
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition,
+                defaultValue,
+                ConfigurationKeys.WebDeploy.Rules.DoNotDeleteEnabled);
+        }
+
+        public static bool AppOfflineEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = true)
+        {
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition,
+                defaultValue,
+                ConfigurationKeys.WebDeploy.Rules.AppOfflineEnabled);
+        }
+
+        public static bool UseChecksumEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = false)
+        {
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition,
+                defaultValue,
+                ConfigurationKeys.WebDeploy.Rules.UseChecksumEnabled);
+        }
+
+        public static bool AppDataSkipDirectiveEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = false)
+        {
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition,
+                defaultValue,
+                ConfigurationKeys.WebDeploy.Rules.AppDataSkipDirectiveEnabled);
+        }
+
+        public static bool ApplicationInsightsProfiler2SkipDirectiveEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = true)
+        {
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition,
+                defaultValue,
+                ConfigurationKeys.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
+        }
+
+        private static bool GetBoolValue(
+            DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue,
+            string configurationKey)
         {
             deploymentExecutionDefinition.Parameters.TryGetValue(configurationKey,
                 out StringValues values);
@@ -28,55 +105,6 @@ namespace Milou.Deployer.Core.Deployment
             }
 
             return defaultValue;
-        }
-
-        public static bool DoNotDeleteEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition, bool defaultValue = true)
-        {
-            if (deploymentExecutionDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition, defaultValue, ConfigurationKeys.WebDeploy.Rules.DoNotDeleteEnabled);
-        }
-
-        public static bool AppOfflineEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition, bool defaultValue = true)
-        {
-            if (deploymentExecutionDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition, defaultValue, ConfigurationKeys.WebDeploy.Rules.AppOfflineEnabled);
-        }
-
-        public static bool UseChecksumEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition, bool defaultValue = false)
-        {
-            if (deploymentExecutionDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition, defaultValue, ConfigurationKeys.WebDeploy.Rules.UseChecksumEnabled);
-        }
-        public static bool AppDataSkipDirectiveEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition, bool defaultValue = false)
-        {
-            if (deploymentExecutionDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition, defaultValue, ConfigurationKeys.WebDeploy.Rules.AppDataSkipDirectiveEnabled);
-        }
-
-        public static bool ApplicationInsightsProfiler2SkipDirectiveEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition, bool defaultValue = true)
-        {
-            if (deploymentExecutionDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition, defaultValue, ConfigurationKeys.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
         }
     }
 }

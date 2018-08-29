@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.ServiceProcess;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
@@ -402,7 +401,7 @@ namespace Milou.Deployer.Core.Deployment
                         DeploymentChangeSummary summary = await webDeployHelper.DeployContentToOneSiteAsync(
                             targetTempDirectoryInfo.FullName,
                             deploymentExecutionDefinition.PublishSettingsFile,
-                            appOfflineDelay: DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                            DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
                             doNotDelete: doNotDeleteEnabled,
                             appOfflineEnabled: appOfflineEnabled,
                             useChecksum: useChecksumEnabled,
@@ -658,10 +657,10 @@ namespace Milou.Deployer.Core.Deployment
                 if (deploymentExecutionDefinition.RequireEnvironmentConfig)
                 {
                     _logger.Error(
-                    "Environment config was set to {EnvironmentConfig} but no package was found with id {ExpectedPackageId} and version {Version}, deployment definition require the environment config",
-                    deploymentExecutionDefinition.EnvironmentConfig,
-                    expectedPackageId,
-                    expectedVersion.ToNormalizedString());
+                        "Environment config was set to {EnvironmentConfig} but no package was found with id {ExpectedPackageId} and version {Version}, deployment definition require the environment config",
+                        deploymentExecutionDefinition.EnvironmentConfig,
+                        expectedPackageId,
+                        expectedVersion.ToNormalizedString());
                     return new EnvironmentPackageResult(false);
                 }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -23,12 +22,12 @@ namespace Milou.Deployer.ConsoleClient
 {
     public sealed class DeployerApp : IDisposable
     {
+        private readonly AppExit _appExit;
+        private readonly IKeyValueConfiguration _appSettings;
         private readonly DeploymentService _deploymentService;
         private readonly DeploymentExecutionDefinitionFileReader _fileReader;
-        private readonly IKeyValueConfiguration _appSettings;
 
         private readonly ILogger _logger;
-        private readonly AppExit _appExit;
 
         public DeployerApp(
             [NotNull] ILogger logger,
@@ -41,6 +40,19 @@ namespace Milou.Deployer.ConsoleClient
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
             _appExit = new AppExit(_logger);
+        }
+
+        public void Dispose()
+        {
+            if (_logger is IDisposable disposableLogger)
+            {
+                disposableLogger.Dispose();
+            }
+
+            if (_appSettings is IDisposable disposableSettings)
+            {
+                disposableSettings.Dispose();
+            }
         }
 
         public async Task<int> ExecuteAsync(string[] args)
@@ -474,19 +486,6 @@ namespace Milou.Deployer.ConsoleClient
                 {
                     _logger.Debug("ARG '{Arg}'", arg);
                 }
-            }
-        }
-
-        public void Dispose()
-        {
-            if (_logger is IDisposable disposableLogger)
-            {
-                disposableLogger.Dispose();
-            }
-
-            if (_appSettings is IDisposable disposableSettings)
-            {
-                disposableSettings.Dispose();
             }
         }
     }

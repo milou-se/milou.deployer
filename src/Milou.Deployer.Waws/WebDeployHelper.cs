@@ -60,17 +60,17 @@ namespace Milou.Deployer.Waws
             if (appDataSkipDirectiveEnabled)
             {
                 destBaseOptions.SkipDirectives.Add(
-                    new DeploymentSkipDirective("AppData", $"objectName=\"dirpath\",absolutePath=App_Data"));
+                    new DeploymentSkipDirective("AppData", "objectName=\"dirpath\",absolutePath=App_Data"));
             }
 
             if (applicationInsightsProfiler2SkipDirectiveEnabled)
             {
                 destBaseOptions.SkipDirectives.Add(
                     new DeploymentSkipDirective("WebJobs",
-                        $"objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous"));
+                        "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous"));
                 destBaseOptions.SkipDirectives.Add(
                     new DeploymentSkipDirective("ApplicationInsightsProfiler2",
-                        $"objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous\\\\ApplicationInsightsProfiler2"));
+                        "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous\\\\ApplicationInsightsProfiler2"));
             }
 
             if (!string.IsNullOrEmpty(password))
@@ -139,7 +139,8 @@ namespace Milou.Deployer.Waws
             if (!doNotDelete)
             {
                 if (targetProvider == DeploymentWellKnownProvider.DirPath && Directory.Exists(destinationPath)
-                    && string.IsNullOrWhiteSpace(publishSettingsFile))
+                                                                          && string.IsNullOrWhiteSpace(
+                                                                              publishSettingsFile))
                 {
                     var sourceDir = new DirectoryInfo(sourcePath);
 
@@ -226,7 +227,6 @@ namespace Milou.Deployer.Waws
                     {
                         using (FileStream fileStream = File.Create(appOfflineFile.FullName))
                         {
-
                         }
                     }
 

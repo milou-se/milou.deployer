@@ -9,7 +9,8 @@ namespace Milou.Deployer.Core.Deployment
         {
             TargetName = targetName ?? throw new ArgumentNullException(nameof(targetName));
             ActionFile = actionFile ?? throw new ArgumentNullException(nameof(actionFile));
-            ActionFileRootDirectory = actionFileRootDirectory ?? throw new ArgumentNullException(nameof(actionFileRootDirectory));
+            ActionFileRootDirectory = actionFileRootDirectory ??
+                                      throw new ArgumentNullException(nameof(actionFileRootDirectory));
         }
 
         public string TargetName { get; }

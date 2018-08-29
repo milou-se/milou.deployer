@@ -129,12 +129,14 @@ namespace Milou.Deployer.ConsoleClient
                 NuGetExePath = configuration[ConfigurationKeys.NuGetExePath],
                 NuGetConfig = configuration[ConfigurationKeys.NuGetConfig],
                 AllowPreReleaseEnabled = allowPreReleaseEnabled,
-                StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled].ParseAsBooleanOrDefault(true)
+                StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled]
+                    .ParseAsBooleanOrDefault(true)
             };
 
             var deploymentService = new DeploymentService(
                 deployerConfiguration,
-                logger, configuration);
+                logger,
+                configuration);
 
             var fileReader = new DeploymentExecutionDefinitionFileReader();
 

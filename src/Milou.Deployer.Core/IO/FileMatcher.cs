@@ -22,13 +22,19 @@ namespace Milou.Deployer.Core.IO
         {
             string filePattern = $"*{Path.GetExtension(fileMatch.TargetName)}";
 
-            _logger.Debug("Trying to find matches for '{TargetName}', looking in directory '{FullName}' recursively using file pattern '{FilePattern}'", fileMatch.TargetName, rootDirectory.FullName, filePattern);
+            _logger.Debug(
+                "Trying to find matches for '{TargetName}', looking in directory '{FullName}' recursively using file pattern '{FilePattern}'",
+                fileMatch.TargetName,
+                rootDirectory.FullName,
+                filePattern);
 
             List<FileInfo> matchingFiles =
-                rootDirectory.GetFiles(filePattern, searchOption: SearchOption.AllDirectories)
+                rootDirectory.GetFiles(filePattern, SearchOption.AllDirectories)
                     .Tap(
                         file =>
-                            _logger.Debug("Found file '{FullName}' when trying to find matches for '{TargetName}'", file.FullName, fileMatch.TargetName))
+                            _logger.Debug("Found file '{FullName}' when trying to find matches for '{TargetName}'",
+                                file.FullName,
+                                fileMatch.TargetName))
                     .Where(
                         file =>
                         {
@@ -36,7 +42,11 @@ namespace Milou.Deployer.Core.IO
                                 fileMatch.TargetName,
                                 StringComparison.OrdinalIgnoreCase);
 
-                            _logger.Debug("Found file '{FullName}' matches: {IsMatch}, when trying to find matches for '{TargetName}'", file.FullName, isMatch, fileMatch.TargetName);
+                            _logger.Debug(
+                                "Found file '{FullName}' matches: {IsMatch}, when trying to find matches for '{TargetName}'",
+                                file.FullName,
+                                isMatch,
+                                fileMatch.TargetName);
 
                             return isMatch;
                         }).Where(
@@ -51,7 +61,11 @@ namespace Milou.Deployer.Core.IO
                                 sourceRelativePath,
                                 StringComparison.OrdinalIgnoreCase);
 
-                            _logger.Debug("Matching path between '{SourceRelativePath}' and '{TargetFileRelativePath}': {HasSameRelativePath}", sourceRelativePath, targetFileRelativePath, hasSameRelativePath);
+                            _logger.Debug(
+                                "Matching path between '{SourceRelativePath}' and '{TargetFileRelativePath}': {HasSameRelativePath}",
+                                sourceRelativePath,
+                                targetFileRelativePath,
+                                hasSameRelativePath);
 
                             return hasSameRelativePath;
                         }).ToList();

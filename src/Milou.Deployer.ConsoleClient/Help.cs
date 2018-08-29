@@ -12,7 +12,8 @@ namespace Milou.Deployer.ConsoleClient
             {
                 ["--help"] = "shows help",
                 ["--debug"] = "enables debugging",
-                [LoggingConstants.PlainOutputFormatEnabled] = $"uses format '{ LoggingConstants.PlainOutputFormatEnabled }' otherwise '{ LoggingConstants.DefaultFormat }'"
+                [LoggingConstants.PlainOutputFormatEnabled] =
+                    $"uses format '{LoggingConstants.PlainOutputFormatEnabled}' otherwise '{LoggingConstants.DefaultFormat}'"
             };
 
             int longestKey = helpCommands.Keys.Select(key => key.Length).Max();

@@ -13,20 +13,27 @@ namespace Milou.Deployer.Core.Processes
 {
     public static class ProcessRunner
     {
-        public static Task<ExitCode> ExecuteAsync(string executePath,
-            IEnumerable<string> arguments = null, ILogger logger = null,
+        public static Task<ExitCode> ExecuteAsync(
+            string executePath,
+            IEnumerable<string> arguments = null,
+            ILogger logger = null,
             IEnumerable<KeyValuePair<string, string>> environmentVariables = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
-            return ExecuteAsync(executePath, cancellationToken, arguments, standardOutLog: logger.Information,
-                standardErrorAction: logger.Error,
-                verboseAction: logger.Verbose, toolAction: logger.Information,
+            return ExecuteAsync(executePath,
+                cancellationToken,
+                arguments,
+                logger.Information,
+                logger.Error,
+                verboseAction: logger.Verbose,
+                toolAction: logger.Information,
                 environmentVariables: environmentVariables,
                 debugAction: logger.Debug);
         }
 
-        public static async Task<ExitCode> ExecuteAsync(string executePath,
-            CancellationToken cancellationToken = default(CancellationToken),
+        public static async Task<ExitCode> ExecuteAsync(
+            string executePath,
+            CancellationToken cancellationToken = default,
             IEnumerable<string> arguments = null,
             Action<string, string> standardOutLog = null,
             Action<string, string> standardErrorAction = null,
@@ -51,17 +58,28 @@ namespace Milou.Deployer.Core.Processes
 
             string formattedArguments = string.Join(" ", usedArguments.Select(arg => $"\"{arg}\""));
 
-            Task<ExitCode> task = RunProcessAsync(executePath, formattedArguments, standardErrorAction, standardOutLog,
-                cancellationToken, toolAction, verboseAction, environmentVariables, debugAction);
+            Task<ExitCode> task = RunProcessAsync(executePath,
+                formattedArguments,
+                standardErrorAction,
+                standardOutLog,
+                cancellationToken,
+                toolAction,
+                verboseAction,
+                environmentVariables,
+                debugAction);
 
             ExitCode exitCode = await task;
 
             return exitCode;
         }
 
-        private static async Task<ExitCode> RunProcessAsync(string executePath, string formattedArguments,
-            Action<string, string> standardErrorAction, Action<string, string> standardOutputLog,
-            CancellationToken cancellationToken, Action<string, string> toolAction,
+        private static async Task<ExitCode> RunProcessAsync(
+            string executePath,
+            string formattedArguments,
+            Action<string, string> standardErrorAction,
+            Action<string, string> standardOutputLog,
+            CancellationToken cancellationToken,
+            Action<string, string> toolAction,
             Action<string, string> verboseAction = null,
             IEnumerable<KeyValuePair<string, string>> environmentVariables = null,
             Action<string, string> debugAction = null)
@@ -120,6 +138,7 @@ namespace Milou.Deployer.Core.Processes
                     verbose("Task was not completed, but process was disposed", null);
                     taskCompletionSource.TrySetResult(ExitCode.Failure);
                 }
+
                 verbose($"Disposed process '{processWithArgs}'", null);
             };
 
@@ -135,6 +154,7 @@ namespace Milou.Deployer.Core.Processes
                     }
                 };
             }
+
             if (redirectStandardOutput)
             {
                 process.OutputDataReceived += (_, args) =>
@@ -148,7 +168,7 @@ namespace Milou.Deployer.Core.Processes
 
             process.Exited += (sender, _) =>
             {
-                var proc = (Process) sender;
+                var proc = (Process)sender;
                 toolAction?.Invoke($"Process '{processWithArgs}' exited with code {new ExitCode(proc.ExitCode)}", null);
                 taskCompletionSource.SetResult(new ExitCode(proc.ExitCode));
             };
@@ -198,9 +218,11 @@ namespace Milou.Deployer.Core.Processes
                 {
                     throw;
                 }
+
                 errorAction($"An error occured while running process {processWithArgs}: {ex}", null);
                 taskCompletionSource.SetException(ex);
             }
+
             bool done = false;
             try
             {
@@ -210,6 +232,7 @@ namespace Milou.Deployer.Core.Processes
                     {
                         break;
                     }
+
                     Task delay = Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
 
                     await delay;
@@ -244,7 +267,8 @@ namespace Milou.Deployer.Core.Processes
                         {
                             try
                             {
-                                toolAction($"Cancellation is requested, trying to kill process {processWithArgs}", null);
+                                toolAction($"Cancellation is requested, trying to kill process {processWithArgs}",
+                                    null);
 
                                 if (processId > 0)
                                 {
@@ -256,7 +280,8 @@ namespace Milou.Deployer.Core.Processes
                                     Process.Start(killProcessPath, args);
 
                                     errorAction(
-                                        $"Killed process {processWithArgs} because cancellation was requested", null);
+                                        $"Killed process {processWithArgs} because cancellation was requested",
+                                        null);
                                 }
                                 else
                                 {
@@ -276,7 +301,8 @@ namespace Milou.Deployer.Core.Processes
                                     $"ProcessRunner could not kill process {processWithArgs} when cancellation was requested",
                                     null);
                                 errorAction(
-                                    $"Could not kill process {processWithArgs} when cancellation was requested", null);
+                                    $"Could not kill process {processWithArgs} when cancellation was requested",
+                                    null);
                                 errorAction(ex.ToString(), null);
                             }
                         }
@@ -319,14 +345,20 @@ namespace Milou.Deployer.Core.Processes
                 {
                     throw;
                 }
+
                 debugAction($"Could not check processes. {ex}", null);
             }
 
             return exitCode;
         }
 
-        private static bool IsAlive(Process process, Task<ExitCode> task, CancellationToken cancellationToken, bool done,
-            string processWithArgs, Action<string, string> verbose)
+        private static bool IsAlive(
+            Process process,
+            Task<ExitCode> task,
+            CancellationToken cancellationToken,
+            bool done,
+            string processWithArgs,
+            Action<string, string> verbose)
         {
             if (process == null)
             {

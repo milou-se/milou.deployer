@@ -7,7 +7,6 @@ using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
-
 using Milou.Deployer.Core.Processes;
 using NuGet.Packaging;
 using NuGet.Versioning;
@@ -22,7 +21,10 @@ namespace Milou.Deployer.Core.NuGet
 
         private readonly ILogger _logger;
 
-        public PackageInstaller(ILogger logger, DeployerConfiguration deployerConfiguration, IKeyValueConfiguration keyValueConfiguration)
+        public PackageInstaller(
+            ILogger logger,
+            DeployerConfiguration deployerConfiguration,
+            IKeyValueConfiguration keyValueConfiguration)
         {
             _logger = logger;
             _deployerConfiguration = deployerConfiguration;
@@ -88,7 +90,7 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add(deploymentExecutionDefinition.NuGetConfigFile);
             }
             else if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig)
-                    && File.Exists(_deployerConfiguration.NuGetConfig))
+                     && File.Exists(_deployerConfiguration.NuGetConfig))
             {
                 arguments.Add("-ConfigFile");
                 arguments.Add(_deployerConfiguration.NuGetConfig);
@@ -117,13 +119,17 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!string.IsNullOrWhiteSpace(source))
             {
-                _logger.Information("A specific NuGet source is defined in definition: '{Source}'", deploymentExecutionDefinition.NuGetPackageSource);
+                _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
+                    deploymentExecutionDefinition.NuGetPackageSource);
                 arguments.Add("-Source");
                 arguments.Add(deploymentExecutionDefinition.NuGetPackageSource);
             }
             else if (!string.IsNullOrWhiteSpace(source))
             {
-                _logger.Information("A specific NuGet source is defined in app settings [key '{SourceKey}']: '{Source}'", sourceKey, source);
+                _logger.Information(
+                    "A specific NuGet source is defined in app settings [key '{SourceKey}']: '{Source}'",
+                    sourceKey,
+                    source);
                 arguments.Add("-Source");
                 arguments.Add(source);
             }
@@ -158,14 +164,22 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!packageFiles.Any())
             {
-                _logger.Error("Could not find the installed package '{PackageId}' in output directory '{FullName}' or in any of it's sub directories", deploymentExecutionDefinition.PackageId, tempDirectory.FullName);
+                _logger.Error(
+                    "Could not find the installed package '{PackageId}' in output directory '{FullName}' or in any of it's sub directories",
+                    deploymentExecutionDefinition.PackageId,
+                    tempDirectory.FullName);
 
                 return MayBe<InstalledPackage>.Nothing();
             }
 
             if (packageFiles.Count > 1)
             {
-                _logger.Error("Found multiple installed packages matching '{PackageId}' in output directory '{FullName}' or in any of it's sub directories, expected exactly 1. Found files [{Count}]: '{V}", deploymentExecutionDefinition.PackageId, tempDirectory.FullName, packageFiles.Count, string.Join(",", packageFiles.Select(file => $"'{file.FullName}'")));
+                _logger.Error(
+                    "Found multiple installed packages matching '{PackageId}' in output directory '{FullName}' or in any of it's sub directories, expected exactly 1. Found files [{Count}]: '{V}",
+                    deploymentExecutionDefinition.PackageId,
+                    tempDirectory.FullName,
+                    packageFiles.Count,
+                    string.Join(",", packageFiles.Select(file => $"'{file.FullName}'")));
 
                 return MayBe<InstalledPackage>.Nothing();
             }
@@ -183,7 +197,10 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!packageId.Equals(deploymentExecutionDefinition.PackageId, StringComparison.InvariantCultureIgnoreCase))
             {
-                _logger.Error("The installed package id '{PackageId}' is different than the expected package id '{PackageId1}'", packageId, deploymentExecutionDefinition.PackageId);
+                _logger.Error(
+                    "The installed package id '{PackageId}' is different than the expected package id '{PackageId1}'",
+                    packageId,
+                    deploymentExecutionDefinition.PackageId);
                 return MayBe<InstalledPackage>.Nothing();
             }
 

@@ -21,7 +21,7 @@ namespace Milou.Deployer.Core.Extensions
         {
             if (string.IsNullOrWhiteSpace(item))
             {
-                throw new ArgumentNullException($"Type string is null");
+                throw new ArgumentNullException("Type string is null");
             }
 
             return item;

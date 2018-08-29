@@ -16,6 +16,7 @@ namespace Milou.Deployer.Core.XmlTransformation
             {
                 throw new ArgumentNullException(nameof(transformedFiles));
             }
+
             IsSuccess = isSuccess;
             TransformedFiles = transformedFiles.ToImmutableArray();
         }

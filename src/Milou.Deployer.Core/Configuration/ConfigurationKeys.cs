@@ -4,7 +4,7 @@ namespace Milou.Deployer.Core.Configuration
 {
     public static class ConfigurationKeys
     {
-        [Metadata()]
+        [Metadata]
         public const string StopStartIisWebSiteEnabled = "urn:milou-deployer:stop-start-iis-website:enabled";
 
         [Metadata]
@@ -13,7 +13,7 @@ namespace Milou.Deployer.Core.Configuration
         [Metadata]
         public const string SemVer2Normalized = "urn:versioning:semver2:normalized";
 
-        [Metadata()]
+        [Metadata]
         public const string PackageId = "urn:nuget:package-id";
 
         [Metadata]
@@ -61,6 +61,9 @@ namespace Milou.Deployer.Core.Configuration
         [Metadata]
         public const string ForceAllowPreRelease = "urn:milou-deployer:environment:allow-pre-release:enabled";
 
+        [Metadata]
+        public const string NuGetConfig = "urn:milou-deployer:tools:nuget:config";
+
         public static class WebDeploy
         {
             public static class Rules
@@ -89,8 +92,5 @@ namespace Milou.Deployer.Core.Configuration
                     "urn:milou-deployer:tools:web-deploy:directives:application-insights-profiler-2-directive:enabled";
             }
         }
-
-        [Metadata]
-        public const string NuGetConfig = "urn:milou-deployer:tools:nuget:config";
     }
 }

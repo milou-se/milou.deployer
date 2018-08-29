@@ -49,7 +49,9 @@ namespace Milou.Deployer.Core.IO
 
             foreach (FileInfo currentFile in sourceDirectoryInfo.GetFiles())
             {
-                if (_BlackListedExtensions.Any(blackListed => currentFile.Extension.Length > 0 && blackListed.Equals(currentFile.Extension, StringComparison.OrdinalIgnoreCase)))
+                if (_BlackListedExtensions.Any(blackListed =>
+                    currentFile.Extension.Length > 0 &&
+                    blackListed.Equals(currentFile.Extension, StringComparison.OrdinalIgnoreCase)))
                 {
                     logger.Verbose("Skipping black-listed file '{FullName}' due to its file extension",
                         currentFile.FullName);
@@ -60,7 +62,8 @@ namespace Milou.Deployer.Core.IO
                     file.FullName.Equals(currentFile.FullName, StringComparison.OrdinalIgnoreCase)))
                 {
                     logger.Verbose("Skipping black-listed file '{FullName}' due to its file pattern {Patterns}",
-                        currentFile.FullName, excludedFilePatterns);
+                        currentFile.FullName,
+                        excludedFilePatterns);
                     continue;
                 }
 

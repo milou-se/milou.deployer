@@ -101,7 +101,6 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(currentAssembly.Location);
                 string fileVersion = fvi.FileVersion;
 
-
                 return fileVersion;
             }
             catch (Exception)

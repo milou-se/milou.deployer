@@ -23,22 +23,6 @@ namespace Milou.Deployer.ConsoleClient
             return ExitCode.Success;
         }
 
-        private static void BreakApp()
-        {
-            if (Debugger.IsAttached)
-            {
-                if (Environment.UserInteractive)
-                {
-                    Console.WriteLine("Press ENTER to continue");
-                    Console.ReadLine();
-                }
-                else
-                {
-                    Debugger.Break();
-                }
-            }
-        }
-
         public ExitCode Exit(ExitCode exitCode)
         {
             if (exitCode.IsSuccess)
@@ -56,6 +40,22 @@ namespace Milou.Deployer.ConsoleClient
             BreakApp();
 
             return ExitCode.Failure;
+        }
+
+        private static void BreakApp()
+        {
+            if (Debugger.IsAttached)
+            {
+                if (Environment.UserInteractive)
+                {
+                    Console.WriteLine("Press ENTER to continue");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Debugger.Break();
+                }
+            }
         }
     }
 }

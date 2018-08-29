@@ -5,12 +5,12 @@ namespace Milou.Deployer.Core.Configuration
 {
     public class DeployerConfiguration
     {
-        public WebDeployConfig WebDeploy { get; }
-
         public DeployerConfiguration([NotNull] WebDeployConfig webDeployConfig)
         {
             WebDeploy = webDeployConfig ?? throw new ArgumentNullException(nameof(webDeployConfig));
         }
+
+        public WebDeployConfig WebDeploy { get; }
 
         public string NuGetExePath { get; set; }
 
