@@ -4,7 +4,8 @@
       "commandName": "Project",
       "commandLineArgs": "C:\\Sites\\DeployTest\\testdeploy.manifest --plain-console",
       "environmentVariables": {
-        "MilouDeployer_AllowPreRelease_Enabled": "true"
+        "MilouDeployer_AllowPreRelease_Enabled": "true",
+        "urn:milou-deployer:tools:nuget:exe-path": "C:\\Tools\\NuGet\\NuGet.exe"
       }
     }
   }

@@ -33,7 +33,7 @@ SET Arbor.X.NuGet.Package.AllowManifestReWriteEnabled=false
 
 SET Arbor.X.NuGet.Package.ExcludesCommaSeparated=Arbor.X.Bootstrapper.nuspec
 
-CALL "%~dp0\Build.exe"
+CALL dotnet arbor-build
 
 REM Restore variables to default
 

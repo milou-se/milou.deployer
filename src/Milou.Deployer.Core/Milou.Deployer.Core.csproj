@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <CodeAnalysisRuleSet>..\Milou.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="0.15.0" />
+    <PackageReference Include="arbor.xdt" Version="0.2.4" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.1.1" />
     <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">

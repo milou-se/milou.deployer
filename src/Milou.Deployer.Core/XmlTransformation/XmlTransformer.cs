@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Microsoft.Web.XmlTransform;
+using Arbor.Xdt;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.Processes;
@@ -58,7 +58,7 @@ namespace Milou.Deployer.Core.XmlTransformation
             bool succeed;
             using (
                 var transform =
-                    new Microsoft.Web.XmlTransform.XmlTransformation(transformationFile.FullName))
+                    new Arbor.Xdt.XmlTransformation(transformationFile.FullName))
             {
                 succeed = transform.Apply(xmlTransformableDocument);
             }
