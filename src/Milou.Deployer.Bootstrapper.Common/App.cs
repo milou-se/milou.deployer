@@ -4,51 +4,62 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Tooler;
 using Serilog;
-using Serilog.Core;
 
 namespace Milou.Deployer.Bootstrapper.Common
 {
     public sealed class App : IDisposable
     {
+        private readonly bool _disposeNested;
         private HttpClient _httpClient;
         private ILogger _logger;
         private NuGetPackageInstaller _packageInstaller;
 
-        private App(NuGetPackageInstaller packageInstaller, ILogger logger, HttpClient httpClient)
+        private App(NuGetPackageInstaller packageInstaller, ILogger logger, HttpClient httpClient, bool disposeNested)
         {
             _packageInstaller = packageInstaller ?? throw new ArgumentNullException(nameof(packageInstaller));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _disposeNested = disposeNested;
         }
 
-        public static Task<App> CreateAsync(string[] args)
+        public static Task<App> CreateAsync(
+            string[] args,
+            ILogger logger = default,
+            HttpClient httpClient = default,
+            bool disposeNested = true)
         {
-            Logger logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            logger = logger ?? new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
-            var httpClient = new HttpClient();
+            httpClient = httpClient ?? new HttpClient();
             var nuGetPackageInstaller = new NuGetPackageInstaller(new NuGetDownloadClient(httpClient));
 
-            return Task.FromResult(new App(nuGetPackageInstaller, logger, httpClient));
+            return Task.FromResult(new App(nuGetPackageInstaller, logger, httpClient, disposeNested));
         }
 
         public void Dispose()
         {
-            _packageInstaller = null;
-            _httpClient?.Dispose();
-            _httpClient = null;
-
-            if (_logger is IDisposable disposable)
+            if (_disposeNested)
             {
-                disposable.Dispose();
-            }
+                _packageInstaller = null;
+                _httpClient?.Dispose();
+                _httpClient = null;
 
-            _logger = null;
+                if (_logger is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+
+                _logger = null;
+            }
         }
 
-        public async Task<int> ExecuteAsync(ImmutableArray<string> appArgs)
+        public async Task<int> ExecuteAsync(
+            ImmutableArray<string> appArgs,
+            CancellationToken cancellationToken = default)
         {
             if (appArgs.IsDefault)
             {
@@ -65,7 +76,8 @@ namespace Milou.Deployer.Bootstrapper.Common
                 nuGetPackageInstallResult =
                     await _packageInstaller.InstallPackageAsync(
                         new NuGetPackage(new NuGetPackageId(Constants.PackageId), NuGetPackageVersion.LatestAvailable),
-                        new NugetPackageSettings(allowPreRelease));
+                        new NugetPackageSettings(allowPreRelease),
+                        cancellationToken: cancellationToken);
             }
 
             catch (Exception ex)
