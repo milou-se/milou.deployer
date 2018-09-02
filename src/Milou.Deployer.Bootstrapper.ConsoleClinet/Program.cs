@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Milou.Deployer.Bootstrapper.Common;
 
-namespace Milou.Deployer.Bootstrapper
+namespace Milou.Deployer.Bootstrapper.ConsoleClient
 {
     public static class Program
     {

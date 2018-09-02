@@ -27,7 +27,6 @@
 		<tags></tags>
 	</metadata>
 	<files>
-		<file src="bin\$configuration$\netcoreapp2.1\**\*.*" target="tools\netoreapp2.1" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
-		<file src="bin\$configuration$\net472.1\**\*.*" target="tools\net472" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
+		<file src="bin\$configuration$\net472\**\*.*" target="tools\net472" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
 	</files>
 </package>

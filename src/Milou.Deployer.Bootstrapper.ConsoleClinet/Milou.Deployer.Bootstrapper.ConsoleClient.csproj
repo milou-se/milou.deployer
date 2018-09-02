@@ -1,12 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <PackAsTool>true</PackAsTool>
-    <PackageId>Milou.Deployer.Bootstrapper.GlobalTool</PackageId>
-    <OutputType>Exe</OutputType>
-    <AssemblyName>milou-deploy</AssemblyName>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
