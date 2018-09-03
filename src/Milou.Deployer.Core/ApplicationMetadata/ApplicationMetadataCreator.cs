@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using Arbor.KVConfiguration.Schema.Json;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 
@@ -14,13 +15,43 @@ namespace Milou.Deployer.Core.ApplicationMetadata
     public static class ApplicationMetadataCreator
     {
         public static void SetVersionFile(
-            InstalledPackage installedPackage,
-            DirectoryInfo targetDirectoryInfo,
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
-            IEnumerable<string> xmlTransformedFiles,
-            IEnumerable<string> replacedFiles,
-            EnvironmentPackageResult environmentPackageResult)
+            [NotNull] InstalledPackage installedPackage,
+            [NotNull] DirectoryInfo targetDirectoryInfo,
+            [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] IEnumerable<string> xmlTransformedFiles,
+            [NotNull] IEnumerable<string> replacedFiles,
+            [NotNull] EnvironmentPackageResult environmentPackageResult)
         {
+            if (installedPackage == null)
+            {
+                throw new ArgumentNullException(nameof(installedPackage));
+            }
+
+            if (targetDirectoryInfo == null)
+            {
+                throw new ArgumentNullException(nameof(targetDirectoryInfo));
+            }
+
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            if (xmlTransformedFiles == null)
+            {
+                throw new ArgumentNullException(nameof(xmlTransformedFiles));
+            }
+
+            if (replacedFiles == null)
+            {
+                throw new ArgumentNullException(nameof(replacedFiles));
+            }
+
+            if (environmentPackageResult == null)
+            {
+                throw new ArgumentNullException(nameof(environmentPackageResult));
+            }
+
             string applicationMetadataJsonFilePath = Path.Combine(targetDirectoryInfo.FullName,
                 ConfigurationKeys.ApplicationMetadataFileName);
 
@@ -99,6 +130,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             try
             {
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(currentAssembly.Location);
+
                 string fileVersion = fvi.FileVersion;
 
                 return fileVersion;

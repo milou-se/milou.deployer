@@ -150,6 +150,10 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!exitCode.IsSuccess)
             {
+                _logger.Error("The process {Process} {Arguments} failed with exit code {ExitCode}",
+                    executePath,
+                    arguments,
+                    exitCode);
                 return MayBe<InstalledPackage>.Nothing();
             }
 
@@ -201,13 +205,15 @@ namespace Milou.Deployer.Core.NuGet
                     "The installed package id '{PackageId}' is different than the expected package id '{PackageId1}'",
                     packageId,
                     deploymentExecutionDefinition.PackageId);
+
                 return MayBe<InstalledPackage>.Nothing();
             }
 
-            return
-                new MayBe<InstalledPackage>(InstalledPackage.Create(packageId,
-                    semanticVersion,
-                    foundPackageFile.FullName));
+            var installedPackage = new MayBe<InstalledPackage>(InstalledPackage.Create(packageId,
+                semanticVersion,
+                foundPackageFile.FullName));
+
+            return installedPackage;
         }
     }
 }

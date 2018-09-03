@@ -38,7 +38,7 @@ namespace Milou.Deployer.Core.IO
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warning("Could not delete file '{FullName}', {Ex}", file, ex);
+                    _logger.Warning(ex, "Could not delete file '{FullName}'", file);
                 }
             }
         }

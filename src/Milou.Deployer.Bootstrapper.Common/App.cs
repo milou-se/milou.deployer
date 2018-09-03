@@ -79,7 +79,6 @@ namespace Milou.Deployer.Bootstrapper.Common
                         new NugetPackageSettings(allowPreRelease),
                         cancellationToken: cancellationToken);
             }
-
             catch (Exception ex)
             {
                 _logger.Error(ex, "Could not download NuGet packages");

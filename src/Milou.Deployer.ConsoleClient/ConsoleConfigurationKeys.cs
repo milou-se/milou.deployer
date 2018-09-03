@@ -6,5 +6,9 @@ namespace Milou.Deployer.ConsoleClient
     {
         [Metadata]
         public const string LoggingFilePath = "urn:milou-deployer:logging:log-file-path";
+
+        public const string HelpArgument = "--help";
+
+        public const string DebugArgument = "--debug";
     }
 }

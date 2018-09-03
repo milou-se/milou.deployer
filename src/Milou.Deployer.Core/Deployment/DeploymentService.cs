@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
@@ -68,7 +69,7 @@ namespace Milou.Deployer.Core.Deployment
         public DeployerConfiguration DeployerConfiguration { get; }
 
         public async Task<ExitCode> DeployAsync(
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions)
+            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions, CancellationToken cancellationToken = default)
         {
             if (!deploymentExecutionDefinitions.Any())
             {
@@ -158,7 +159,8 @@ namespace Milou.Deployer.Core.Deployment
                             possibleXmlTransformations,
                             replaceFiles,
                             tempDirectoriesToClean,
-                            version);
+                            version,
+                            cancellationToken);
 
                         if (!environmentPackageResult.IsSuccess)
                         {
@@ -167,7 +169,7 @@ namespace Milou.Deployer.Core.Deployment
                     }
                     else
                     {
-                        _logger.Information("Definition has no environment configuration specified");
+                        _logger.Debug("Definition has no environment configuration specified");
                     }
 
                     var contentDirectory =
@@ -235,7 +237,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!targetTempDirectoryInfo.Exists)
                     {
-                        _logger.Information("Creating temp target directory '{FullName}'",
+                        _logger.Debug("Creating temp target directory '{FullName}'",
                             packageInstallTempDirectoryInfo.FullName);
                         targetTempDirectoryInfo.Create();
                     }
@@ -296,7 +298,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     tempDirectoriesToClean.Add(targetTempDirectoryInfo);
 
-                    _logger.Information("Copied content files from '{ContentDirectory}' to '{FullName}'",
+                    _logger.Debug("Copied content files from '{ContentDirectory}' to '{FullName}'",
                         contentDirectory,
                         targetTempDirectoryInfo.FullName);
                     tempDirectoriesToClean.Add(packageInstallTempDirectoryInfo);
@@ -333,22 +335,22 @@ namespace Milou.Deployer.Core.Deployment
 
                     bool whatIfEnabled = deploymentExecutionDefinition.WhatIfEnabled(false);
 
-                    _logger.Information("{RuleName}: {DoNotDeleteEnabled}",
+                    _logger.Debug("{RuleName}: {DoNotDeleteEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.DoNotDeleteRuleEnabled),
                         doNotDeleteEnabled);
-                    _logger.Information("{RuleName}: {AppOfflineEnabled}",
+                    _logger.Debug("{RuleName}: {AppOfflineEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.AppOfflineRuleEnabled),
                         appOfflineEnabled);
-                    _logger.Information("{RuleName}: {UseChecksumEnabled}",
+                    _logger.Debug("{RuleName}: {UseChecksumEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.UseChecksumRuleEnabled),
                         useChecksumEnabled);
-                    _logger.Information("{RuleName}: {AppDataSkipDirectiveEnabled}",
+                    _logger.Debug("{RuleName}: {AppDataSkipDirectiveEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.AppDataSkipDirectiveEnabled),
                         appDataSkipDirectiveEnabled);
-                    _logger.Information("{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
+                    _logger.Debug("{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled),
                         applicationInsightsProfiler2SkipDirectiveEnabled);
-                    _logger.Information("{RuleName}: {WhatIfEnabled}",
+                    _logger.Debug("{RuleName}: {WhatIfEnabled}",
                         nameof(DeploymentExecutionDefinitionExtensions.WhatIfEnabled),
                         whatIfEnabled);
 
@@ -410,7 +412,7 @@ namespace Milou.Deployer.Core.Deployment
                             appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
                             applicationInsightsProfiler2SkipDirectiveEnabled:
                             applicationInsightsProfiler2SkipDirectiveEnabled,
-                            logAction: message => _logger.Information("{Message}", message),
+                            logAction: message => _logger.Debug("{Message}", message),
                             targetPath: hasPublishSettingsFile
                                 ? string.Empty
                                 : deploymentExecutionDefinition.TargetDirectoryPath
@@ -498,9 +500,9 @@ namespace Milou.Deployer.Core.Deployment
             List<FileMatch> possibleXmlTransformations,
             List<FileMatch> replaceFiles,
             List<DirectoryInfo> tempDirectoriesToClean,
-            SemanticVersion version)
+            SemanticVersion version, CancellationToken cancellationToken = default)
         {
-            _logger.Information("Fetching environment configuration {EnvironmentConfig}",
+            _logger.Debug("Fetching environment configuration {EnvironmentConfig}",
                 deploymentExecutionDefinition.EnvironmentConfig);
 
             string usedEnvironmentPackage = "";
@@ -546,7 +548,8 @@ namespace Milou.Deployer.Core.Deployment
                             _logger.Verbose("Found package '{Message}'", message);
                             allFoundEnvironmentPackages.Add(message);
                         },
-                        toolAction: _logger.Verbose);
+                        toolAction: _logger.Verbose,
+                        cancellationToken: cancellationToken);
 
             if (!nugetListPackagesExitCode.IsSuccess)
             {
@@ -620,7 +623,7 @@ namespace Milou.Deployer.Core.Deployment
 
                 if (!configContentDirectory.Exists)
                 {
-                    _logger.Information("The content directory for the environment package does not exist");
+                    _logger.Debug("The content directory for the environment package does not exist");
                 }
                 else
                 {
@@ -642,7 +645,7 @@ namespace Milou.Deployer.Core.Deployment
 
                         string foundFiles = string.Join(", ", fileNamesToConcat);
 
-                        _logger.Information("Could not find any action files in package, all files {FoundFiles}",
+                        _logger.Debug("Could not find any action files in package, all files {FoundFiles}",
                             foundFiles);
                     }
                 }
@@ -664,7 +667,7 @@ namespace Milou.Deployer.Core.Deployment
                     return new EnvironmentPackageResult(false);
                 }
 
-                _logger.Information(
+                _logger.Debug(
                     "Environment config was set to {EnvironmentConfig} but no package was found with id {ExpectedPackageId} and version {Version}",
                     deploymentExecutionDefinition.EnvironmentConfig,
                     expectedPackageId,
@@ -756,7 +759,7 @@ namespace Milou.Deployer.Core.Deployment
             string targetRelativePath = targetFileInfo.GetRelativePath(targetRootDirectory);
             string replacementRelativePath = replacement.GetRelativePath(replacementRootDirectory);
 
-            _logger.Information("Replaced file '{TargetRelativePath}' with new file '{ReplacementRelativePath}'",
+            _logger.Debug("Replaced file '{TargetRelativePath}' with new file '{ReplacementRelativePath}'",
                 targetRelativePath,
                 replacementRelativePath);
 

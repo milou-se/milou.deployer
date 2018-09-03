@@ -22,9 +22,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.ConsoleClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper", "Milou.Deployer.Bootstrapper\Milou.Deployer.Bootstrapper.csproj", "{9C8BD8DC-8B95-4DBD-B634-3F8D6C675874}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Bootstrapper.Common", "Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj", "{555FA0F0-3E56-4F6C-83FC-3F0C52CA0092}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.Common", "Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj", "{555FA0F0-3E56-4F6C-83FC-3F0C52CA0092}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Bootstrapper.ConsoleClient", "Milou.Deployer.Bootstrapper.ConsoleClinet\Milou.Deployer.Bootstrapper.ConsoleClient.csproj", "{408BE227-0D12-48F2-B903-0929977878B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.ConsoleClient", "Milou.Deployer.Bootstrapper.ConsoleClinet\Milou.Deployer.Bootstrapper.ConsoleClient.csproj", "{408BE227-0D12-48F2-B903-0929977878B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Tests.Integration", "Milou.Deployer.Tests.Integration\Milou.Deployer.Tests.Integration.csproj", "{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +58,10 @@ Global
 		{408BE227-0D12-48F2-B903-0929977878B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{408BE227-0D12-48F2-B903-0929977878B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{408BE227-0D12-48F2-B903-0929977878B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

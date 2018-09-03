@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
@@ -16,14 +17,15 @@ namespace Milou.Deployer.ConsoleClient
 {
     public static class AppBuilder
     {
-        public static DeployerApp BuildApp(string[] args)
+        public static DeployerApp BuildApp(string[] args, ILogger logger = null, CancellationToken cancellationToken = default)
         {
+            bool hasDefinedLogger = logger != null;
             //TODO add try catch logic for find errors with Arbor.KVConfiguration.Core
             string outputTemplate = GetOutputTemplate(args);
 
             var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
 
-            Logger logger = new LoggerConfiguration()
+            logger = logger ?? new LoggerConfiguration()
                 .WriteTo.Console(outputTemplate: outputTemplate)
                 .MinimumLevel.ControlledBy(levelSwitch)
                 .CreateLogger();
@@ -31,7 +33,7 @@ namespace Milou.Deployer.ConsoleClient
             try
             {
                 string machineSettings =
-                    GetMachineSettingsFile(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory));
+                    GetMachineSettingsFile(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "tools", "Milou.Deployer")));
 
                 AppSettingsBuilder appSettingsBuilder;
 
@@ -73,25 +75,6 @@ namespace Milou.Deployer.ConsoleClient
 
                 string logPath = configuration[ConsoleConfigurationKeys.LoggingFilePath];
 
-                if (string.IsNullOrWhiteSpace(logPath))
-                {
-                    var currentDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-
-                    bool isUpdate = args.Contains(Commands.Update, StringComparer.OrdinalIgnoreCase);
-                    bool isUpdating = args.Contains(Commands.Updating, StringComparer.OrdinalIgnoreCase);
-                    bool isUpdated = args.Contains(Commands.Updated, StringComparer.OrdinalIgnoreCase);
-
-                    if (isUpdated || isUpdate || isUpdating)
-                    {
-                        if (isUpdating)
-                        {
-                            currentDirectory = currentDirectory.Parent;
-                        }
-
-                        logPath = Path.Combine(currentDirectory.FullName, "Updates.log");
-                    }
-                }
-
                 string environmentLogLevel =
                     configuration[ConfigurationKeys.LogLevelEnvironmentVariable];
 
@@ -110,14 +93,18 @@ namespace Milou.Deployer.ConsoleClient
                     loggerConfiguration = loggerConfiguration.WriteTo.File(logPath);
                 }
 
-                if (logger is IDisposable disposable)
+                if (!hasDefinedLogger)
                 {
-                    disposable.Dispose();
+                    if (logger is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+
+                    logger = loggerConfiguration
+                        .MinimumLevel.ControlledBy(levelSwitch)
+                        .CreateLogger();
                 }
 
-                logger = loggerConfiguration
-                    .MinimumLevel.ControlledBy(levelSwitch)
-                    .CreateLogger();
 
                 if (!string.IsNullOrWhiteSpace(machineSettings))
                 {
@@ -167,9 +154,10 @@ namespace Milou.Deployer.ConsoleClient
                     }
                 }
 
-                return new DeployerApp(logger, deploymentService, fileReader, configuration);
+                var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                return new DeployerApp(logger, deploymentService, fileReader, configuration, cancellationTokenSource);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 logger.Error("Could not build application");
                 throw;
@@ -190,6 +178,11 @@ namespace Milou.Deployer.ConsoleClient
         private static string GetMachineSettingsFile(DirectoryInfo currentDirectory)
         {
             if (currentDirectory is null)
+            {
+                return null;
+            }
+
+            if (currentDirectory.Exists)
             {
                 return null;
             }

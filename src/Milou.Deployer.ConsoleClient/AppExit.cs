@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Processes;
 using Serilog;
 
@@ -9,9 +10,9 @@ namespace Milou.Deployer.ConsoleClient
     {
         private readonly ILogger _logger;
 
-        public AppExit(ILogger logger)
+        public AppExit([NotNull] ILogger logger)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public ExitCode ExitSuccess()

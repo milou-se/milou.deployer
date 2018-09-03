@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
@@ -9,13 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Core;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
-using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.Processes;
-using NuGet.Versioning;
 using Serilog;
 
 namespace Milou.Deployer.ConsoleClient
@@ -23,40 +19,56 @@ namespace Milou.Deployer.ConsoleClient
     public sealed class DeployerApp : IDisposable
     {
         private readonly AppExit _appExit;
-        private readonly IKeyValueConfiguration _appSettings;
         private readonly DeploymentService _deploymentService;
         private readonly DeploymentExecutionDefinitionFileReader _fileReader;
+        private IKeyValueConfiguration _appSettings;
+        private CancellationTokenSource _cancellationTokenSource;
 
-        private readonly ILogger _logger;
+        private ILogger _logger;
 
         public DeployerApp(
             [NotNull] ILogger logger,
             [NotNull] DeploymentService deploymentService,
             [NotNull] DeploymentExecutionDefinitionFileReader fileReader,
-            [NotNull] IKeyValueConfiguration appSettings)
+            [NotNull] IKeyValueConfiguration appSettings,
+            [NotNull] CancellationTokenSource cancellationTokenSource)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
+            _cancellationTokenSource = cancellationTokenSource ??
+                                       throw new ArgumentNullException(nameof(cancellationTokenSource));
             _appExit = new AppExit(_logger);
         }
 
         public void Dispose()
         {
+            _logger?.Verbose("Disposing app");
+
             if (_logger is IDisposable disposableLogger)
             {
                 disposableLogger.Dispose();
+                _logger = null;
             }
 
             if (_appSettings is IDisposable disposableSettings)
             {
+                _appSettings = null;
                 disposableSettings.Dispose();
             }
+
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
         }
 
-        public async Task<int> ExecuteAsync(string[] args)
+        public async Task<int> ExecuteAsync(string[] args, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken == CancellationToken.None)
+            {
+                cancellationToken = _cancellationTokenSource.Token;
+            }
+
             PrintVersion();
 
             PrintCommandLineArguments(args);
@@ -75,39 +87,11 @@ namespace Milou.Deployer.ConsoleClient
             }
 
             if (!string.IsNullOrWhiteSpace(args.SingleOrDefault(arg =>
-                arg.Equals("--help", StringComparison.OrdinalIgnoreCase))))
+                arg.Equals(ConsoleConfigurationKeys.HelpArgument, StringComparison.OrdinalIgnoreCase))))
             {
-                _logger.Information("Help");
-
                 _logger.Information("{Help}", Help.ShowHelp());
 
                 return _appExit.ExitSuccess();
-            }
-
-            try
-            {
-                if (nonFlagArgs.Length == 1
-                    && nonFlagArgs[0].Equals(Commands.Update, StringComparison.OrdinalIgnoreCase))
-                {
-                    return _appExit.Exit(await UpdateSelfAsync());
-                }
-
-                if (nonFlagArgs.Length == 1
-                    && nonFlagArgs[0].Equals(Commands.Updating, StringComparison.OrdinalIgnoreCase))
-                {
-                    return _appExit.Exit(UpdatingSelf());
-                }
-
-                if (nonFlagArgs.Length == 1
-                    && nonFlagArgs[0].Equals(Commands.Updated, StringComparison.OrdinalIgnoreCase))
-                {
-                    return _appExit.Exit(UpdatedSelf());
-                }
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Error");
-                return _appExit.ExitFailure();
             }
 
             ExitCode exitCode;
@@ -132,63 +116,12 @@ namespace Milou.Deployer.ConsoleClient
                             fallbackManifestPath);
                     }
 
-                    exitCode = await ExecuteAsync(manifestFile);
-                }
-                else if (nonFlagArgs.Length == 2)
-                {
-                    _logger.Error("Invalid argument count");
-                    return _appExit.ExitFailure();
+                    exitCode = await ExecuteAsync(manifestFile, cancellationToken);
                 }
                 else
                 {
-                    string packageId = nonFlagArgs[0];
-                    string semanticVersion = nonFlagArgs[1];
-                    string targetDirectory = nonFlagArgs[2];
-
-                    switch (nonFlagArgs.Length)
-                    {
-                        case 3:
-                            exitCode = await ExecuteAsync(packageId, semanticVersion, targetDirectory);
-                            break;
-                        case 4:
-                        {
-                            string allowPreRelease = nonFlagArgs[3];
-
-                            exitCode = await ExecuteAsync(packageId, semanticVersion, targetDirectory, allowPreRelease);
-                            break;
-                        }
-                        case 5:
-                        {
-                            string allowPreRelease = nonFlagArgs[3];
-
-                            string environment = nonFlagArgs[4];
-
-                            exitCode = await ExecuteAsync(packageId,
-                                semanticVersion,
-                                targetDirectory,
-                                allowPreRelease,
-                                environment);
-                            break;
-                        }
-                        case 6:
-                        {
-                            string allowPreRelease = nonFlagArgs[3];
-
-                            string environment = nonFlagArgs[4];
-
-                            string publishSettingsFile = nonFlagArgs[5];
-
-                            exitCode = await ExecuteAsync(packageId,
-                                semanticVersion,
-                                targetDirectory,
-                                allowPreRelease,
-                                environment,
-                                publishSettingsFile);
-                            break;
-                        }
-                        default:
-                            return _appExit.ExitFailure();
-                    }
+                    _logger.Error("Invalid argument count");
+                    return _appExit.ExitFailure();
                 }
             }
             catch (Exception ex)
@@ -207,139 +140,6 @@ namespace Milou.Deployer.ConsoleClient
             {
                 _logger.Information("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
             }
-        }
-
-        private async Task<ExitCode> UpdateSelfAsync()
-        {
-            string targetTempDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tmp");
-            string targetTempDirectory2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tmp2");
-
-            string allowPreRelease =
-                _deploymentService.DeployerConfiguration.AllowPreReleaseEnabled.ToString().ToLowerInvariant();
-
-            ExitCode exitCode = await ExecuteAsync(
-                "Milou.Deployer.ConsoleClient",
-                string.Empty,
-                targetTempDirectory,
-                allowPreRelease);
-
-            if (!exitCode.IsSuccess)
-            {
-                return exitCode;
-            }
-
-            ExitCode exitCode2 = await ExecuteAsync(
-                "Milou.Deployer.ConsoleClient",
-                string.Empty,
-                targetTempDirectory2,
-                allowPreRelease);
-
-            if (!exitCode2.IsSuccess)
-            {
-                return exitCode2;
-            }
-
-            _logger.Debug("Starting process updating process");
-
-            Process.Start(Path.Combine(targetTempDirectory, "Milou.Deployer.ConsoleClient.exe"),
-                nameof(Commands.Updating));
-
-            return exitCode;
-        }
-
-        private ExitCode UpdatingSelf()
-        {
-            Thread.Sleep(TimeSpan.FromSeconds(2));
-
-            _logger.Debug("Updating self");
-
-            string targetTempDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory);
-
-            var tempDirectory = new DirectoryInfo(targetTempDirectory);
-
-            if (tempDirectory.Name != "tmp")
-            {
-                return ExitCode.Failure;
-            }
-
-            DirectoryInfo parent = tempDirectory.Parent.ThrowIfNull();
-
-            _logger.Debug("Deleting files in {FullName}", parent.FullName);
-
-            var exclusionsContains = new List<string> { ".vshost." };
-            var exclusionsStartsWith = new List<string> { Environment.MachineName + "." };
-            var exclusionsByExtension = new List<string> { ".log" };
-
-            foreach (
-                FileInfo fileInfo in
-                parent.GetFiles()
-                    .Where(file =>
-                        !exclusionsContains.Any(exclusion =>
-                            file.Name.IndexOf(exclusion, StringComparison.InvariantCultureIgnoreCase) >= 0)
-                        && !exclusionsStartsWith.Any(exclusion =>
-                            file.Name.StartsWith(exclusion, StringComparison.OrdinalIgnoreCase))
-                        && !exclusionsByExtension.Any(exclusion =>
-                            file.Extension.Equals(exclusion, StringComparison.OrdinalIgnoreCase))
-                    ))
-            {
-                fileInfo.Delete();
-            }
-
-            _logger.Debug("Deleting directories in '{FullName}'", parent.FullName);
-
-            foreach (DirectoryInfo directory in parent.GetDirectories()
-                .Where(dir => !dir.Name.StartsWith("tmp", StringComparison.OrdinalIgnoreCase)))
-            {
-                directory.Delete(true);
-            }
-
-            var temp2 = new DirectoryInfo(Path.Combine(parent.FullName, "tmp2"));
-
-            RecursiveIO.RecursiveCopy(temp2, parent, _logger, ImmutableArray<string>.Empty);
-
-            _logger.Debug("Starting updated process");
-
-            Process.Start(Path.Combine(parent.FullName, "Milou.Deployer.ConsoleClient.exe"), Commands.Updated);
-
-            return _appExit.ExitSuccess();
-        }
-
-        private ExitCode UpdatedSelf()
-        {
-            _logger.Debug("Updated self");
-
-            Thread.Sleep(TimeSpan.FromSeconds(2));
-
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            var temp1 = new DirectoryInfo(Path.Combine(currentDirectory, "tmp"));
-            var temp2 = new DirectoryInfo(Path.Combine(currentDirectory, "tmp2"));
-
-            if (temp1.Exists)
-            {
-                _logger.Debug("Deleting directory {FullName}", temp1.FullName);
-
-                temp1.Delete(true);
-            }
-
-            if (temp2.Exists)
-            {
-                _logger.Debug("Deleting directory {FullName}", temp2.FullName);
-                temp2.Delete(true);
-            }
-
-            var directoryInfo = new DirectoryInfo(currentDirectory);
-
-            FileInfo[] files = directoryInfo.GetFiles(DeploymentService.AppOfflineHtm);
-
-            foreach (FileInfo file in files)
-            {
-                file.Delete();
-            }
-
-            _logger.Debug("Updated self done");
-
-            return _appExit.ExitSuccess();
         }
 
         private void PrintVersion()
@@ -364,7 +164,7 @@ namespace Milou.Deployer.ConsoleClient
                 fileVersion);
         }
 
-        private async Task<ExitCode> ExecuteAsync(string file)
+        private async Task<ExitCode> ExecuteAsync(string file, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -382,89 +182,44 @@ namespace Milou.Deployer.ConsoleClient
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions =
                 new DeploymentExecutionDefinitionParser().Deserialize(data);
 
-            if (!deploymentExecutionDefinitions.Any())
+            if (deploymentExecutionDefinitions.Length == 0)
             {
                 _logger.Error("Could not find any deployment definitions in file '{File}'", file);
                 return ExitCode.Failure;
             }
 
-            _logger.Information("Found {Length} deployment definitions", deploymentExecutionDefinitions.Length);
+            if (deploymentExecutionDefinitions.Length == 1)
+            {
+                _logger.Information("Found 1 deployment definition");
+            }
+            else
+            {
+                _logger.Information("Found {Length} deployment definitions", deploymentExecutionDefinitions.Length);
+            }
 
-            _logger.Verbose("{V}",
+            _logger.Verbose("{Definitions}",
                 string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
 
-            return await _deploymentService.DeployAsync(deploymentExecutionDefinitions);
-        }
+            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, cancellationToken);
 
-        private async Task<ExitCode> ExecuteAsync(string packageId, string semanticVersion, string targetDirectory)
-        {
-            if (string.IsNullOrWhiteSpace(packageId))
+            if (exitCode.IsSuccess)
             {
-                throw new ArgumentNullException(nameof(packageId));
+                _logger.Information(
+                    "Successfully deployed deployment execution definition {DeploymentExecutionDefinition}",
+                    deploymentExecutionDefinitions);
+            }
+            else
+            {
+                _logger.Error("Failed to deploy definition {DeploymentExecutionDefinition}",
+                    deploymentExecutionDefinitions);
             }
 
-            if (string.IsNullOrWhiteSpace(targetDirectory))
-            {
-                throw new ArgumentException("Argument is null or whitespace", nameof(targetDirectory));
-            }
-
-            MayBe<SemanticVersion> version = string.IsNullOrWhiteSpace(semanticVersion)
-                ? MayBe<SemanticVersion>.Nothing()
-                : new MayBe<SemanticVersion>(SemanticVersion.Parse(semanticVersion));
-
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions = new List
-                <DeploymentExecutionDefinition>
-                {
-                    new DeploymentExecutionDefinition(
-                        packageId,
-                        targetDirectory,
-                        version)
-                }.ToImmutableArray();
-
-            return await _deploymentService.DeployAsync(deploymentExecutionDefinitions);
-        }
-
-        private async Task<ExitCode> ExecuteAsync(
-            string packageId,
-            string semanticVersion,
-            string targetDirectory,
-            string allowPreRelease,
-            string environmentConfig = "",
-            string publishSettingsFile = null)
-        {
-            if (string.IsNullOrWhiteSpace(packageId))
-            {
-                throw new ArgumentNullException(nameof(packageId));
-            }
-
-            if (!bool.TryParse(allowPreRelease, out bool parsedResultValue))
-            {
-                parsedResultValue = false;
-            }
-
-            _logger.Verbose("Parsed pre-release flag as {ParsedResultValue}", parsedResultValue);
-
-            MayBe<SemanticVersion> version = string.IsNullOrWhiteSpace(semanticVersion)
-                ? MayBe<SemanticVersion>.Nothing()
-                : new MayBe<SemanticVersion>(SemanticVersion.Parse(semanticVersion));
-
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions = new[]
-            {
-                new DeploymentExecutionDefinition(
-                    packageId,
-                    targetDirectory,
-                    version,
-                    isPreRelease: parsedResultValue,
-                    environmentConfig: environmentConfig,
-                    publishSettingsFile: publishSettingsFile)
-            }.ToImmutableArray();
-
-            return await _deploymentService.DeployAsync(deploymentExecutionDefinitions);
+            return exitCode;
         }
 
         private void PrintEnvironmentVariables(string[] args)
         {
-            if (args.Any(arg => arg.Equals("--debug")))
+            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument)))
             {
                 _logger.Debug("Used variables:");
 
@@ -478,7 +233,7 @@ namespace Milou.Deployer.ConsoleClient
 
         private void PrintCommandLineArguments(string[] args)
         {
-            if (args.Any(arg => arg.Equals("--debug")))
+            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument)))
             {
                 _logger.Debug("Command line arguments:");
 

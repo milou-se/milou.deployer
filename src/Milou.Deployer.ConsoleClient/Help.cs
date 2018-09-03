@@ -10,8 +10,8 @@ namespace Milou.Deployer.ConsoleClient
         {
             var helpCommands = new Dictionary<string, string>
             {
-                ["--help"] = "shows help",
-                ["--debug"] = "enables debugging",
+                [ConsoleConfigurationKeys.HelpArgument] = "shows help",
+                [ConsoleConfigurationKeys.DebugArgument] = "enables debugging",
                 [LoggingConstants.PlainOutputFormatEnabled] =
                     $"uses format '{LoggingConstants.PlainOutputFormatEnabled}' otherwise '{LoggingConstants.DefaultFormat}'"
             };
