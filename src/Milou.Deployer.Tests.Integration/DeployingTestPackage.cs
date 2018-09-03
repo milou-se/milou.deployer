@@ -55,7 +55,7 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public async Task RunAsync()
         {
-            for (int i = 1; i <= 100; i++)
+            for (int i = 1; i <= 3; i++)
             {
                 _output.WriteLine($"RUN {i}");
                 int exitCode;
