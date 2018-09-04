@@ -35,7 +35,9 @@ namespace Milou.Deployer.Bootstrapper.Common
             logger = logger ?? new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
             httpClient = httpClient ?? new HttpClient();
-            var nuGetPackageInstaller = new NuGetPackageInstaller(new NuGetDownloadClient(httpClient));
+            var nuGetPackageInstaller = new NuGetPackageInstaller(new NuGetDownloadClient(httpClient),
+                logger: logger,
+                nugetCliSettings: new NuGetCliSettings());
 
             return Task.FromResult(new App(nuGetPackageInstaller, logger, httpClient, disposeNested));
         }
@@ -69,14 +71,21 @@ namespace Milou.Deployer.Bootstrapper.Common
             NuGetPackageInstallResult nuGetPackageInstallResult;
 
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
+
             try
             {
                 bool allowPreRelease = appArgs.Any(arg =>
                     arg.Equals(Constants.AllowPreRelease, StringComparison.OrdinalIgnoreCase));
 
+                _logger.Debug("Pre-release flag set to {Flag}", allowPreRelease);
+
+                var nuGetPackage = new NuGetPackage(nuGetPackageId, NuGetPackageVersion.LatestAvailable);
+
+                _logger.Debug("Downloading package {Package}", nuGetPackage);
+
                 nuGetPackageInstallResult =
                     await _packageInstaller.InstallPackageAsync(
-                        new NuGetPackage(nuGetPackageId, NuGetPackageVersion.LatestAvailable),
+                        nuGetPackage,
                         new NugetPackageSettings(allowPreRelease),
                         cancellationToken: cancellationToken);
             }
@@ -149,7 +158,10 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             if (exitCode != 0)
             {
-                _logger.Error("The process {Process} {Arguments} failed with exit code {ExitCode}", startInfoFileName, startInfoArguments, exitCode);
+                _logger.Error("The process {Process} {Arguments} failed with exit code {ExitCode}",
+                    startInfoFileName,
+                    startInfoArguments,
+                    exitCode);
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
 
