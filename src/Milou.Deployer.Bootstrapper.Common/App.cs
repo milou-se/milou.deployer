@@ -83,12 +83,18 @@ namespace Milou.Deployer.Bootstrapper.Common
             catch (Exception ex)
             {
                 _logger.Error(ex, "Could not download NuGet packages");
-                return new NuGetPackageInstallResult(nuGetPackageId, null, null);
+                return NuGetPackageInstallResult.Failed(nuGetPackageId);
+            }
+
+            if (nuGetPackageInstallResult.PackageDirectory is null || nuGetPackageInstallResult.SemanticVersion is null)
+            {
+                _logger.Error("Could not download NuGet package {PackageId}", nuGetPackageId);
+                return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
 
             if (appArgs.Any(arg => arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase)))
             {
-                return new NuGetPackageInstallResult(nuGetPackageId, null, null);
+                return nuGetPackageInstallResult;
             }
 
             var deployerToolFile = new FileInfo(Path.Combine(nuGetPackageInstallResult.PackageDirectory.FullName,
@@ -96,15 +102,24 @@ namespace Milou.Deployer.Bootstrapper.Common
                 "net472",
                 "Milou.Deployer.ConsoleClient.exe"));
 
+            if (!deployerToolFile.Exists)
+            {
+                _logger.Error("The extracted file '{File}' does not exist", deployerToolFile.FullName);
+                return NuGetPackageInstallResult.Failed(nuGetPackageId);
+            }
+
             int exitCode;
+
+            string startInfoArguments = string.Join(" ", appArgs.Select(arg => $"\"{arg}\""));
+            string startInfoFileName = deployerToolFile.FullName;
 
             using (var process = new Process())
             {
-                process.StartInfo.Arguments = string.Join(" ", appArgs.Select(arg => $"\"{arg}\""));
+                process.StartInfo.Arguments = startInfoArguments;
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.FileName = deployerToolFile.FullName;
+                process.StartInfo.FileName = startInfoFileName;
                 process.EnableRaisingEvents = true;
 
                 process.OutputDataReceived += (sender, args) =>
@@ -130,6 +145,12 @@ namespace Milou.Deployer.Bootstrapper.Common
                 process.WaitForExit();
 
                 exitCode = process.ExitCode;
+            }
+
+            if (exitCode != 0)
+            {
+                _logger.Error("The process {Process} {Arguments} failed with exit code {ExitCode}", startInfoFileName, startInfoArguments, exitCode);
+                return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
 
             return nuGetPackageInstallResult;
