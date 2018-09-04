@@ -5,7 +5,7 @@ namespace Milou.Deployer.Bootstrapper.Common
     public static class Constants
     {
         [Metadata]
-        public const string PackageId = "Milou.Deployer";
+        public const string PackageId = "Milou.Deployer.ConsoleClient";
 
         [Metadata]
         public const string DownloadOnly = "--download-only";
