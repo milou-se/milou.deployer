@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.15.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.1.0-build.8" />
+    <PackageReference Include="Arbor.Tooler" Version="0.1.0-build.9" />
     <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
