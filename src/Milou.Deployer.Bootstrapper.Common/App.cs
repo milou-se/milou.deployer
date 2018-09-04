@@ -57,7 +57,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             }
         }
 
-        public async Task<int> ExecuteAsync(
+        public async Task<NuGetPackageInstallResult> ExecuteAsync(
             ImmutableArray<string> appArgs,
             CancellationToken cancellationToken = default)
         {
@@ -68,6 +68,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             NuGetPackageInstallResult nuGetPackageInstallResult;
 
+            var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
             try
             {
                 bool allowPreRelease = appArgs.Any(arg =>
@@ -75,19 +76,19 @@ namespace Milou.Deployer.Bootstrapper.Common
 
                 nuGetPackageInstallResult =
                     await _packageInstaller.InstallPackageAsync(
-                        new NuGetPackage(new NuGetPackageId(Constants.PackageId), NuGetPackageVersion.LatestAvailable),
+                        new NuGetPackage(nuGetPackageId, NuGetPackageVersion.LatestAvailable),
                         new NugetPackageSettings(allowPreRelease),
                         cancellationToken: cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Could not download NuGet packages");
-                return 1;
+                return new NuGetPackageInstallResult(nuGetPackageId, null, null);
             }
 
             if (appArgs.Any(arg => arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase)))
             {
-                return 0;
+                return new NuGetPackageInstallResult(nuGetPackageId, null, null);
             }
 
             var deployerToolFile = new FileInfo(Path.Combine(nuGetPackageInstallResult.PackageDirectory.FullName,
@@ -131,7 +132,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                 exitCode = process.ExitCode;
             }
 
-            return exitCode;
+            return nuGetPackageInstallResult;
         }
     }
 }
