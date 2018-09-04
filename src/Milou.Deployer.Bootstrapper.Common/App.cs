@@ -118,7 +118,11 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             if (!deployerToolFile.Exists)
             {
-                _logger.Error("The extracted file '{File}' does not exist", deployerToolFile.FullName);
+                var existingFiles =
+                    nuGetPackageInstallResult.PackageDirectory.GetFiles("", SearchOption.AllDirectories).Select(file => file.FullName).ToArray();
+
+                _logger.Error("The extracted file '{File}' does not exist, existing files {ExistingFiles}", deployerToolFile.FullName, existingFiles);
+
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
 
