@@ -40,7 +40,7 @@ namespace Milou.Deployer.Core.Processes
                 if (_taskCompletionSource != null && !_taskCompletionSource.Task.CanBeAwaited())
                 {
                     _standardErrorAction.Invoke("Task completion was not set on dispose, setting to failure", null);
-                    _taskCompletionSource.SetResult(ExitCode.Failure);
+                    _taskCompletionSource.TrySetResult(ExitCode.Failure);
                 }
 
                 _taskCompletionSource = null;
@@ -514,7 +514,7 @@ namespace Milou.Deployer.Core.Processes
                     $"Task result has already been set to {_taskCompletionSource.Task.Status}, cannot re-set to exit code to {result}");
             }
 
-            _taskCompletionSource.SetResult(result);
+            _taskCompletionSource.TrySetResult(result);
         }
 
         private void SetResultException(Exception ex)
@@ -529,7 +529,7 @@ namespace Milou.Deployer.Core.Processes
                     ex);
             }
 
-            _taskCompletionSource.SetException(ex);
+            _taskCompletionSource.TrySetException(ex);
         }
 
         private void SetFailureResult()
@@ -543,7 +543,7 @@ namespace Milou.Deployer.Core.Processes
                     $"Task result has already been set to {_taskCompletionSource.Task.Status}, cannot re-set to exit code to {ExitCode.Failure}");
             }
 
-            _taskCompletionSource.SetResult(ExitCode.Failure);
+            _taskCompletionSource.TrySetResult(ExitCode.Failure);
         }
 
         private void OnDisposed(object sender, EventArgs _)
