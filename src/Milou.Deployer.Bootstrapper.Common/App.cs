@@ -35,9 +35,14 @@ namespace Milou.Deployer.Bootstrapper.Common
             logger = logger ?? new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
             httpClient = httpClient ?? new HttpClient();
-            var nuGetPackageInstaller = new NuGetPackageInstaller(new NuGetDownloadClient(httpClient),
-                logger: logger,
-                nugetCliSettings: new NuGetCliSettings());
+            var nuGetDownloadClient = new NuGetDownloadClient(httpClient);
+            var nuGetCliSettings = new NuGetCliSettings();
+            var nuGetDownloadSettings = new NuGetDownloadSettings();
+            var nuGetPackageInstaller = new NuGetPackageInstaller(
+                nuGetDownloadClient,
+                nuGetCliSettings,
+                nuGetDownloadSettings,
+                logger);
 
             return Task.FromResult(new App(nuGetPackageInstaller, logger, httpClient, disposeNested));
         }
