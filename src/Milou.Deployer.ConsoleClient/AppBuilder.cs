@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
+using Arbor.Tooler;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
@@ -17,7 +19,7 @@ namespace Milou.Deployer.ConsoleClient
 {
     public static class AppBuilder
     {
-        public static DeployerApp BuildApp(string[] args, ILogger logger = null, CancellationToken cancellationToken = default)
+        public static async Task<DeployerApp> BuildAppAsync(string[] args, ILogger logger = null, CancellationToken cancellationToken = default)
         {
             bool hasDefinedLogger = logger != null;
             //TODO add try catch logic for find errors with Arbor.KVConfiguration.Core
@@ -125,9 +127,34 @@ namespace Milou.Deployer.ConsoleClient
                         && configuration[ConfigurationKeys.ForceAllowPreRelease]
                             .ParseAsBooleanOrDefault());
 
+                string nuGetExePath = configuration[ConfigurationKeys.NuGetExePath];
+
+                if (string.IsNullOrWhiteSpace(nuGetExePath))
+                {
+                    logger.Debug("nuget.exe is not specified, downloading");
+
+                    using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                    {
+                        NuGetDownloadClient nuGetDownloadClient = NuGetDownloadClient.CreateDefault();
+
+                        NuGetDownloadResult nuGetDownloadResult = await nuGetDownloadClient
+                            .DownloadNuGetAsync(NuGetDownloadSettings.Default, cts.Token);
+
+                        if (!nuGetDownloadResult.Succeeded)
+                        {
+                            throw new InvalidOperationException(
+                                "NuGet exe is not specified and nuget.exe could not be downloaded");
+                        }
+
+                        nuGetExePath = nuGetDownloadResult.NuGetExePath;
+                    }
+
+                    logger.Debug("Successfully downloaded nuget.exe to '{DownloadedPath}'", nuGetExePath);
+                }
+
                 var deployerConfiguration = new DeployerConfiguration(webDeployConfig)
                 {
-                    NuGetExePath = configuration[ConfigurationKeys.NuGetExePath],
+                    NuGetExePath = nuGetExePath,
                     NuGetConfig = configuration[ConfigurationKeys.NuGetConfig],
                     AllowPreReleaseEnabled = allowPreReleaseEnabled,
                     StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled]

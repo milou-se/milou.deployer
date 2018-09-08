@@ -8,7 +8,7 @@ namespace Milou.Deployer.ConsoleClient
         {
             int exitCode;
 
-            using (DeployerApp deployerApp = AppBuilder.BuildApp(args))
+            using (DeployerApp deployerApp = await AppBuilder.BuildAppAsync(args))
             {
                 exitCode = await deployerApp.ExecuteAsync(args);
             }

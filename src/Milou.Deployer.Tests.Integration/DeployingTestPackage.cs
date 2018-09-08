@@ -76,8 +76,8 @@ namespace Milou.Deployer.Tests.Integration
 
                             using (logger)
                             {
-                                using (DeployerApp deployerApp =
-                                    AppBuilder.BuildApp(args, logger, cancellationTokenSource.Token))
+                                using (DeployerApp deployerApp = await
+                                    AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                 {
                                     exitCode = await deployerApp.ExecuteAsync(args, cancellationTokenSource.Token);
                                 }
