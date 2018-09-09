@@ -33,7 +33,6 @@ namespace Milou.Deployer.Tests.Integration
                 _helper.WriteLine(format);
                 Debug.WriteLine(format);
             }
-
         }
     }
 }

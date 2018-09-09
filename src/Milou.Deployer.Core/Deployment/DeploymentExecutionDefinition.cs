@@ -19,7 +19,7 @@ namespace Milou.Deployer.Core.Deployment
             string targetDirectoryPath,
             string nuGetConfigFile = null,
             string nuGetPackagePackageSource = null,
-            string iisSitename = null,
+            string iisSiteName = null,
             bool isPreRelease = false,
             bool force = false,
             string environmentConfig = null,
@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.Deployment
             TargetDirectoryPath = targetDirectoryPath;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackagePackageSource;
-            IisSitename = iisSitename;
+            IisSiteName = iisSiteName;
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
@@ -81,7 +81,7 @@ namespace Milou.Deployer.Core.Deployment
             MayBe<SemanticVersion> semanticVersion,
             string nuGetConfigFile = null,
             string nuGetPackageSource = null,
-            string iisSitename = null,
+            string iisSiteName = null,
             bool isPreRelease = false,
             bool force = false,
             string environmentConfig = null,
@@ -107,7 +107,7 @@ namespace Milou.Deployer.Core.Deployment
             TargetDirectoryPath = targetDirectoryPath;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
-            IisSitename = iisSitename;
+            IisSiteName = iisSiteName;
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
@@ -143,7 +143,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public bool RequireEnvironmentConfig { get; }
 
-        public string IisSitename { get; }
+        public string IisSiteName { get; }
 
         public string NuGetConfigFile { get; }
 

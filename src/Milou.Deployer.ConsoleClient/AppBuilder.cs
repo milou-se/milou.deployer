@@ -8,6 +8,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
 using Arbor.Tooler;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
@@ -21,10 +22,15 @@ namespace Milou.Deployer.ConsoleClient
 {
     public static class AppBuilder
     {
-        public static async Task<DeployerApp> BuildAppAsync(string[] args, ILogger logger = null, CancellationToken cancellationToken = default)
+        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] args, ILogger logger = null, CancellationToken cancellationToken = default)
         {
+            if (args == null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
+
             bool hasDefinedLogger = logger != null;
-            //TODO add try catch logic for find errors with Arbor.KVConfiguration.Core
+
             string outputTemplate = GetOutputTemplate(args);
 
             var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
@@ -108,7 +114,6 @@ namespace Milou.Deployer.ConsoleClient
                         .MinimumLevel.ControlledBy(levelSwitch)
                         .CreateLogger();
                 }
-
 
                 if (!string.IsNullOrWhiteSpace(machineSettings))
                 {

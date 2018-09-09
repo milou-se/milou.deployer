@@ -42,12 +42,7 @@ namespace Milou.Deployer.Core
 
         public static implicit operator MayBe<T>(T item)
         {
-            if (item == null)
-            {
-                return Nothing();
-            }
-
-            return new MayBe<T>(item);
+            return item == null ? Nothing() : new MayBe<T>(item);
         }
 
         public static MayBe<T> Nothing()

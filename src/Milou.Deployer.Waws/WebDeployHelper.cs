@@ -124,7 +124,7 @@ namespace Milou.Deployer.Waws
 
             if (appOfflineEnabled)
             {
-                string ruleName = "AppOffline";
+                const string ruleName = "AppOffline";
                 bool added = AddDeploymentRule(syncOptions, ruleName);
 
                 if (added)
@@ -346,6 +346,5 @@ namespace Milou.Deployer.Waws
         }
 
         public event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
-
     }
 }

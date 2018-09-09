@@ -5,6 +5,7 @@ using Milou.Deployer.Bootstrapper.Common;
 using Serilog;
 using Serilog.Core;
 using Xunit;
+using Constants = Milou.Deployer.Bootstrapper.Common.Constants;
 
 namespace Milou.Deployer.Bootstrapper.Tests.Integration
 {
@@ -13,9 +14,12 @@ namespace Milou.Deployer.Bootstrapper.Tests.Integration
         [Fact]
         public async Task DownloadAsync()
         {
-            string[] args = { "--prerelease", "--download-only" };
+            string[] args = { Constants.AllowPreRelease, Constants.DownloadOnly };
 
-            using (Logger logger = new LoggerConfiguration().WriteTo.Debug().MinimumLevel.Verbose().CreateLogger())
+            using (Logger logger = new LoggerConfiguration()
+                .WriteTo.Debug()
+                .MinimumLevel.Verbose()
+                .CreateLogger())
             {
                 using (App app = await App.CreateAsync(args, logger))
                 {

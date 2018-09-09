@@ -372,7 +372,7 @@ namespace Milou.Deployer.Core.Deployment
                         _logger.Information("{Message}", args.Message);
                     };
 
-                    bool hasIisSiteName = deploymentExecutionDefinition.IisSitename.HasValue();
+                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
                     IDeploymentChangeSummary summary;
                     using (IIISManager manager = _iisManager())
                     {
@@ -725,11 +725,5 @@ namespace Milou.Deployer.Core.Deployment
 
             return ExitCode.Success;
         }
-    }
-
-
-    public interface IIISManager : IDisposable
-    {
-        void StopSiteIfApplicable(DeploymentExecutionDefinition deploymentExecutionDefinition);
     }
 }

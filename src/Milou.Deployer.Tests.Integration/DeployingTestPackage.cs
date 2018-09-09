@@ -67,11 +67,9 @@ namespace Milou.Deployer.Tests.Integration
                         {
                             string[] args = { tempFile.File.FullName };
 
-                            Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
-                                @"C:\Tools\NuGet\nuget.exe"); //TODO make nuget.exe path use default if not specified
-
-                            Logger logger = new LoggerConfiguration().WriteTo.TestSink(_output).MinimumLevel
-                                .Information()
+                            Logger logger = new LoggerConfiguration()
+                                .WriteTo.TestSink(_output)
+                                .MinimumLevel.Information()
                                 .CreateLogger();
 
                             using (logger)

@@ -32,6 +32,11 @@ namespace Milou.Deployer.Bootstrapper.Common
             HttpClient httpClient = default,
             bool disposeNested = true)
         {
+            if (args == null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
+
             logger = logger ?? new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
             httpClient = httpClient ?? new HttpClient();
@@ -118,10 +123,13 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             if (!deployerToolFile.Exists)
             {
-                var existingFiles =
-                    nuGetPackageInstallResult.PackageDirectory.GetFiles("", SearchOption.AllDirectories).Select(file => file.FullName).ToArray();
+                string[] existingFiles =
+                    nuGetPackageInstallResult.PackageDirectory.GetFiles("", SearchOption.AllDirectories)
+                        .Select(file => file.FullName).ToArray();
 
-                _logger.Error("The extracted file '{File}' does not exist, existing files {ExistingFiles}", deployerToolFile.FullName, existingFiles);
+                _logger.Error("The extracted file '{File}' does not exist, existing files {ExistingFiles}",
+                    deployerToolFile.FullName,
+                    existingFiles);
 
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
@@ -171,6 +179,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                     startInfoFileName,
                     startInfoArguments,
                     exitCode);
+
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
 
