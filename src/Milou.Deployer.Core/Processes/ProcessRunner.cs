@@ -12,6 +12,35 @@ namespace Milou.Deployer.Core.Processes
 {
     public sealed class ProcessRunner : IDisposable
     {
+        public static async Task<ExitCode> ExecuteProcessAsync(
+            string executePath,
+            IEnumerable<string> arguments = null,
+            Action<string, string> standardOutLog = null,
+            Action<string, string> standardErrorAction = null,
+            Action<string, string> toolAction = null,
+            Action<string, string> verboseAction = null,
+            IEnumerable<KeyValuePair<string, string>> environmentVariables = null,
+            Action<string, string> debugAction = null,
+            CancellationToken cancellationToken = default)
+        {
+            ExitCode exitCode;
+
+            using (var runner = new ProcessRunner())
+            {
+                exitCode = await runner.ExecuteAsync(executePath,
+                    arguments,
+                    standardOutLog,
+                    standardErrorAction,
+                    toolAction,
+                    verboseAction,
+                    environmentVariables,
+                    debugAction,
+                    cancellationToken);
+            }
+
+            return exitCode;
+        }
+
         private Action<string, string> _debugAction;
         private bool _disposed;
         private bool _disposing;
