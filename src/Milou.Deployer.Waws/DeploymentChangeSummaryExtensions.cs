@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.Web.Deployment;
 using Newtonsoft.Json;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Waws
 {
     public static class DeploymentChangeSummaryExtensions
     {

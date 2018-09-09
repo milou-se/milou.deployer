@@ -7,10 +7,11 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Web.Deployment;
+using Milou.Deployer.Core.Deployment;
 
 namespace Milou.Deployer.Waws
 {
-    public class WebDeployHelper
+    public class WebDeployHelper : IWebDeployHelper
     {
         private const string AppOfflineHtm = "App_Offline.htm";
 
@@ -30,7 +31,7 @@ namespace Milou.Deployer.Waws
         /// <param name="logAction">todo: describe logAction parameter on DeployContentToOneSite</param>
         /// <param name="appDataSkipDirectiveEnabled">todo: describe appDataSkipDirectiveEnabled parameter on DeployContentToOneSite</param>
         /// <returns>DeploymentChangeSummary.</returns>
-        public async Task<DeploymentChangeSummary> DeployContentToOneSiteAsync(
+        private async Task<DeploymentChangeSummary> DeployContentToOneSiteAsync2(
             string sourcePath,
             string publishSettingsFile,
             TimeSpan appOfflineDelay,
@@ -306,9 +307,45 @@ namespace Milou.Deployer.Waws
 
         private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e)
         {
-            DeploymentTraceEventHandler?.Invoke(sender, e);
+            DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
         }
 
-        public event EventHandler<DeploymentTraceEventArgs> DeploymentTraceEventHandler;
+        public async Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
+            string sourcePath,
+            string publishSettingsFile,
+            TimeSpan appOfflineDelay,
+            string password = null,
+            bool allowUntrusted = false,
+            bool doNotDelete = true,
+            TraceLevel traceLevel = TraceLevel.Off,
+            bool whatIf = false,
+            string targetPath = null,
+            bool useChecksum = false,
+            bool appOfflineEnabled = false,
+            bool appDataSkipDirectiveEnabled = false,
+            bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
+            Action<string> logAction = null)
+        {
+            DeploymentChangeSummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
+                publishSettingsFile,
+                appOfflineDelay,
+                password,
+                allowUntrusted,
+                doNotDelete,
+                traceLevel,
+                whatIf,
+                targetPath,
+                useChecksum,
+                appOfflineEnabled,
+                appDataSkipDirectiveEnabled,
+                applicationInsightsProfiler2SkipDirectiveEnabled,
+                logAction
+            );
+
+            return new ResultAdapter(deploymentChangeSummary);
+        }
+
+        public event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
+
     }
 }

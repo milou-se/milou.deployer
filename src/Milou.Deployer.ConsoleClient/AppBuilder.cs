@@ -11,6 +11,8 @@ using Arbor.Tooler;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.IIS;
+using Milou.Deployer.Waws;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -164,7 +166,9 @@ namespace Milou.Deployer.ConsoleClient
                 var deploymentService = new DeploymentService(
                     deployerConfiguration,
                     logger,
-                    configuration);
+                    configuration,
+                    new WebDeployHelper(),
+                    () => IISManager.Create(deployerConfiguration, logger));
 
                 var fileReader = new DeploymentExecutionDefinitionFileReader();
 

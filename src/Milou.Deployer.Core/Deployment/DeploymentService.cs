@@ -9,8 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
-using Microsoft.Web.Administration;
-using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.ApplicationMetadata;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Extensions;
@@ -18,7 +16,6 @@ using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Core.XmlTransformation;
-using Milou.Deployer.Waws;
 using NuGet.Versioning;
 using Serilog;
 
@@ -32,6 +29,8 @@ namespace Milou.Deployer.Core.Deployment
         private readonly FileMatcher _fileMatcher;
 
         private readonly ILogger _logger;
+        private readonly IWebDeployHelper _webDeployHelper;
+        private readonly Func<IIISManager> _iisManager;
 
         private readonly PackageInstaller _packageInstaller;
 
@@ -40,7 +39,9 @@ namespace Milou.Deployer.Core.Deployment
         public DeploymentService(
             DeployerConfiguration deployerConfiguration,
             ILogger logger,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration)
+            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+            IWebDeployHelper webDeployHelper,
+            Func<IIISManager> iisManager)
         {
             if (logger == null)
             {
@@ -64,6 +65,8 @@ namespace Milou.Deployer.Core.Deployment
             _xmlTransformer = new XmlTransformer(logger, _fileMatcher);
 
             _logger = logger;
+            _webDeployHelper = webDeployHelper;
+            _iisManager = iisManager;
         }
 
         public DeployerConfiguration DeployerConfiguration { get; }
@@ -78,13 +81,13 @@ namespace Milou.Deployer.Core.Deployment
 
             if (string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetExePath))
             {
-                throw new ConfigurationErrorsException(
+                throw new InvalidOperationException(
                     $"The NuGet exe path is not defined, try set key '{ConfigurationKeys.NuGetExePath}'");
             }
 
             if (!File.Exists(DeployerConfiguration.NuGetExePath))
             {
-                throw new ConfigurationErrorsException(
+                throw new InvalidOperationException(
                     $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
             }
 
@@ -317,7 +320,6 @@ namespace Milou.Deployer.Core.Deployment
                         _logger.Debug("The deployment definition has no publish setting file");
                     }
 
-                    var webDeployHelper = new WebDeployHelper();
                     bool doNotDeleteEnabled = deploymentExecutionDefinition.DoNotDeleteEnabled(DeployerConfiguration
                         .WebDeploy.Rules.DoNotDeleteRuleEnabled);
 
@@ -354,7 +356,7 @@ namespace Milou.Deployer.Core.Deployment
                         nameof(DeploymentExecutionDefinitionExtensions.WhatIfEnabled),
                         whatIfEnabled);
 
-                    webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
+                    _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
                     {
                         if (string.IsNullOrWhiteSpace(args.Message))
                         {
@@ -371,36 +373,12 @@ namespace Milou.Deployer.Core.Deployment
                     };
 
                     bool hasIisSiteName = deploymentExecutionDefinition.IisSitename.HasValue();
-
-                    ServerManager serverManager = null;
-                    Site iisSite = null;
-                    var previousSiteState = ObjectState.Unknown;
-
-                    try
+                    IDeploymentChangeSummary summary;
+                    using (IIISManager manager = _iisManager())
                     {
-                        if (hasIisSiteName)
-                        {
-                            if (DeployerConfiguration.StopStartIisWebSiteEnabled)
-                            {
-                                serverManager = new ServerManager();
+                        manager.StopSiteIfApplicable(deploymentExecutionDefinition);
 
-                                iisSite = serverManager.Sites[deploymentExecutionDefinition.IisSitename];
-
-                                if (iisSite.HasValue())
-                                {
-                                    previousSiteState = iisSite.State;
-                                    if (previousSiteState == ObjectState.Starting
-                                        || previousSiteState == ObjectState.Started)
-                                    {
-                                        _logger.Debug("Stopping IIS site '{IISSiteName}'", iisSite.Name);
-                                        iisSite.Stop();
-                                        _logger.Debug("Stopped IIS site '{IISSiteName}'", iisSite.Name);
-                                    }
-                                }
-                            }
-                        }
-
-                        DeploymentChangeSummary summary = await webDeployHelper.DeployContentToOneSiteAsync(
+                        summary = await _webDeployHelper.DeployContentToOneSiteAsync(
                             targetTempDirectoryInfo.FullName,
                             deploymentExecutionDefinition.PublishSettingsFile,
                             DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
@@ -417,32 +395,9 @@ namespace Milou.Deployer.Core.Deployment
                                 ? string.Empty
                                 : deploymentExecutionDefinition.TargetDirectoryPath
                         );
+                    }
 
-                        _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            if (serverManager.HasValue() && iisSite.HasValue())
-                            {
-                                if (iisSite.State != ObjectState.Starting && iisSite.State != ObjectState.Started)
-                                {
-                                    if (previousSiteState == ObjectState.Starting
-                                        || previousSiteState == ObjectState.Started)
-                                    {
-                                        _logger.Debug("Starting IIS site '{IISSiteName}'", iisSite.Name);
-                                        iisSite.Start();
-                                        _logger.Debug("Starting IIS site '{IISSiteName}'", iisSite.Name);
-                                    }
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            serverManager?.Dispose();
-                        }
-                    }
+                    _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
                 }
             }
             finally
@@ -770,5 +725,11 @@ namespace Milou.Deployer.Core.Deployment
 
             return ExitCode.Success;
         }
+    }
+
+
+    public interface IIISManager : IDisposable
+    {
+        void StopSiteIfApplicable(DeploymentExecutionDefinition deploymentExecutionDefinition);
     }
 }
