@@ -83,9 +83,16 @@ namespace Milou.Deployer.IIS
                 if (_previousSiteState == ObjectState.Starting
                     || _previousSiteState == ObjectState.Started)
                 {
-                    _logger.Debug("Stopping IIS site '{IISSiteName}'", _site.Name);
-                    _site.Stop();
-                    _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
+                    _logger.Debug("Running stop IIS site '{IISSiteName}'", _site.Name);
+                    ObjectState objectState = _site.Stop();
+                    if (objectState == ObjectState.Stopped)
+                    {
+                        _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
+                    }
+                    if (objectState == ObjectState.Stopping)
+                    {
+                        _logger.Debug("Stopping IIS site '{IISSiteName}'", _site.Name);
+                    }
                 }
             }
             catch (Exception ex)
@@ -105,9 +112,20 @@ namespace Milou.Deployer.IIS
                     && (_previousSiteState == ObjectState.Starting
                         || _previousSiteState == ObjectState.Started))
                 {
-                    _logger.Debug("Starting IIS site '{IISSiteName}'", _site.Name);
-                    _site.Start();
-                    _logger.Debug("Starting IIS site '{IISSiteName}'", _site.Name);
+                    _logger.Debug("Running start IIS site '{IISSiteName}'", _site.Name);
+                    ObjectState objectState = _site.Start();
+
+                    if (objectState == ObjectState.Started)
+                    {
+                        _logger.Debug("Started IIS site '{IISSiteName}'", _site.Name);
+
+                    }
+
+                    if (objectState == ObjectState.Starting)
+                    {
+                        _logger.Debug("Starting IIS site '{IISSiteName}'", _site.Name);
+
+                    }
                 }
             }
             finally
