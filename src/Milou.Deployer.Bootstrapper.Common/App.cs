@@ -97,7 +97,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                     await _packageInstaller.InstallPackageAsync(
                         nuGetPackage,
                         new NugetPackageSettings(allowPreRelease),
-                        cancellationToken: cancellationToken);
+                        cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

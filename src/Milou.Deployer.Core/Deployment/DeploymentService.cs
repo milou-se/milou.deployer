@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -107,7 +108,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     const string TempPrefix = "MD-";
 
-                    string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff");
+                    string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
 
                     string tempPath = Path.Combine(
                         Path.GetTempPath(),
@@ -119,7 +120,7 @@ namespace Milou.Deployer.Core.Deployment
                     MayBe<InstalledPackage> installedMainPackage =
                         await _packageInstaller.InstallPackageAsync(deploymentExecutionDefinition,
                             packageInstallTempDirectoryInfo,
-                            false);
+                            false).ConfigureAwait(false);
 
                     if (!installedMainPackage.HasValue)
                     {
@@ -142,7 +143,7 @@ namespace Milou.Deployer.Core.Deployment
                     DirectoryInfo[] packagesDirectory = directoryInfo.GetDirectories();
 
                     DirectoryInfo packageDirectory =
-                        packagesDirectory.Single(directory => directory.Name.Equals(installedPackage.PackageId));
+                        packagesDirectory.Single(directory => directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
 
                     SemanticVersion version = GetSemanticVersionFromDefinition(deploymentExecutionDefinition,
                         packageDirectory,
@@ -163,7 +164,7 @@ namespace Milou.Deployer.Core.Deployment
                             replaceFiles,
                             tempDirectoriesToClean,
                             version,
-                            cancellationToken);
+                            cancellationToken).ConfigureAwait(false);
 
                         if (!environmentPackageResult.IsSuccess)
                         {
@@ -229,7 +230,7 @@ namespace Milou.Deployer.Core.Deployment
                         replacedFiles.AddRange(result.ReplacedFiles);
                     }
 
-                    string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff");
+                    string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
 
                     string uniqueTargetTempPath = Path.Combine(
                         Path.GetTempPath(),
@@ -286,7 +287,7 @@ namespace Milou.Deployer.Core.Deployment
 
                                 if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
                                 {
-                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline);
+                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline).ConfigureAwait(false);
                                 }
 
                                 tempFilesToClean.Add(targetAppOffline.FullName);
@@ -374,9 +375,19 @@ namespace Milou.Deployer.Core.Deployment
 
                     bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
                     IDeploymentChangeSummary summary;
+
                     using (IIISManager manager = _iisManager())
                     {
-                        manager.StopSiteIfApplicable(deploymentExecutionDefinition);
+                        if (hasIisSiteName)
+                        {
+                            bool stopped = manager.StopSiteIfApplicable(deploymentExecutionDefinition);
+
+                            if (!stopped)
+                            {
+                                _logger.Error("Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}", deploymentExecutionDefinition);
+                                return ExitCode.Failure;
+                            }
+                        }
 
                         summary = await _webDeployHelper.DeployContentToOneSiteAsync(
                             targetTempDirectoryInfo.FullName,
@@ -394,7 +405,7 @@ namespace Milou.Deployer.Core.Deployment
                             targetPath: hasPublishSettingsFile
                                 ? string.Empty
                                 : deploymentExecutionDefinition.TargetDirectoryPath
-                        );
+                        ).ConfigureAwait(false);
                     }
 
                     _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
@@ -508,7 +519,7 @@ namespace Milou.Deployer.Core.Deployment
                                 allFoundEnvironmentPackages.Add(message);
                             },
                             toolAction: _logger.Verbose,
-                            cancellationToken: cancellationToken);
+                            cancellationToken: cancellationToken).ConfigureAwait(false);
             }
 
             if (!nugetListPackagesExitCode.IsSuccess)
@@ -564,7 +575,7 @@ namespace Milou.Deployer.Core.Deployment
                         _packageInstaller.InstallPackageAsync(
                             deploymentDefinition,
                             tempOutputDirectory,
-                            false);
+                            false).ConfigureAwait(false);
 
                 if (!installedEnvironmentPackage.HasValue)
                 {

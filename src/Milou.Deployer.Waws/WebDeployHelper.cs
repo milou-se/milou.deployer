@@ -219,7 +219,7 @@ namespace Milou.Deployer.Waws
 
                 if (appOfflineFile != null)
                 {
-                    await Task.Delay(appOfflineDelay);
+                    await Task.Delay(appOfflineDelay).ConfigureAwait(false);
                 }
 
                 try
@@ -340,7 +340,7 @@ namespace Milou.Deployer.Waws
                 appDataSkipDirectiveEnabled,
                 applicationInsightsProfiler2SkipDirectiveEnabled,
                 logAction
-            );
+            ).ConfigureAwait(false);
 
             return new ResultAdapter(deploymentChangeSummary);
         }

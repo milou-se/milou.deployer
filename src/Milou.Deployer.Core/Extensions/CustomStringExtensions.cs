@@ -1,6 +1,6 @@
 ﻿namespace Milou.Deployer.Core.Extensions
 {
-    public static class StringExtensions
+    public static class CustomStringExtensions
     {
         public static bool ParseAsBooleanOrDefault(this string text, bool defaultValue = false)
         {

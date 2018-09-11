@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -81,7 +82,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
             var deployStartTimeUtc = new KeyValue(
                 ConfigurationKeys.DeployStartTimeUtc,
-                DateTime.UtcNow.ToString("o"),
+                DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
                 null);
 
             var deployedFromMachine = new KeyValue(

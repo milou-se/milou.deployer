@@ -11,9 +11,9 @@ namespace Milou.Deployer.Bootstrapper.ConsoleClient
         {
             int exitCode;
 
-            using (App app = await App.CreateAsync(args))
+            using (App app = await App.CreateAsync(args).ConfigureAwait(false))
             {
-                NuGetPackageInstallResult nuGetPackageInstallResult = await app.ExecuteAsync(args.ToImmutableArray());
+                NuGetPackageInstallResult nuGetPackageInstallResult = await app.ExecuteAsync(args.ToImmutableArray()).ConfigureAwait(false);
 
                 exitCode = nuGetPackageInstallResult.SemanticVersion != null && nuGetPackageInstallResult.PackageDirectory != null ? 0 : 1;
             }

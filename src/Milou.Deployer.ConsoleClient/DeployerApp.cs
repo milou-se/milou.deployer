@@ -81,7 +81,7 @@ namespace Milou.Deployer.ConsoleClient
                 args.Where(arg => !arg.StartsWith("--", StringComparison.OrdinalIgnoreCase)).ToArray();
 
             if (Debugger.IsAttached && nonFlagArgs.Length > 0
-                                    && nonFlagArgs[0].Equals("fail"))
+                                    && nonFlagArgs[0].Equals("fail", StringComparison.OrdinalIgnoreCase))
             {
                 return _appExit.ExitFailure();
             }
@@ -116,7 +116,7 @@ namespace Milou.Deployer.ConsoleClient
                             fallbackManifestPath);
                     }
 
-                    exitCode = await ExecuteAsync(manifestFile, cancellationToken);
+                    exitCode = await ExecuteAsync(manifestFile, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -200,7 +200,7 @@ namespace Milou.Deployer.ConsoleClient
             _logger.Verbose("{Definitions}",
                 string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
 
-            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, cancellationToken);
+            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, cancellationToken).ConfigureAwait(false);
 
             if (exitCode.IsSuccess)
             {
@@ -219,7 +219,7 @@ namespace Milou.Deployer.ConsoleClient
 
         private void PrintEnvironmentVariables(string[] args)
         {
-            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument)))
+            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument, StringComparison.OrdinalIgnoreCase)))
             {
                 _logger.Debug("Used variables:");
 
@@ -233,7 +233,7 @@ namespace Milou.Deployer.ConsoleClient
 
         private void PrintCommandLineArguments(string[] args)
         {
-            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument)))
+            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument, StringComparison.OrdinalIgnoreCase)))
             {
                 _logger.Debug("Command line arguments:");
 

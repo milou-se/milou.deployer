@@ -35,7 +35,7 @@ namespace Milou.Deployer.Core.Processes
                     verboseAction,
                     environmentVariables,
                     debugAction,
-                    cancellationToken);
+                    cancellationToken).ConfigureAwait(false);
             }
 
             return exitCode;
@@ -66,7 +66,7 @@ namespace Milou.Deployer.Core.Processes
             {
                 _disposing = true;
 
-                if (_taskCompletionSource != null && !_taskCompletionSource.Task.CanBeAwaited())
+                if (_taskCompletionSource?.Task.CanBeAwaited() == false)
                 {
                     _standardErrorAction.Invoke("Task completion was not set on dispose, setting to failure", null);
                     _taskCompletionSource.TrySetResult(ExitCode.Failure);
@@ -280,7 +280,7 @@ namespace Milou.Deployer.Core.Processes
 
                     SetFailureResult();
 
-                    return await _taskCompletionSource.Task;
+                    return await _taskCompletionSource.Task.ConfigureAwait(false);
                 }
 
                 if (redirectStandardError)
@@ -325,7 +325,7 @@ namespace Milou.Deployer.Core.Processes
 
             if (_taskCompletionSource.Task.CanBeAwaited())
             {
-                return await _taskCompletionSource.Task;
+                return await _taskCompletionSource.Task.ConfigureAwait(false);
             }
 
             try
@@ -339,20 +339,20 @@ namespace Milou.Deployer.Core.Processes
 
                     Task delay = Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
 
-                    await delay;
+                    await delay.ConfigureAwait(false);
 
                     if (_taskCompletionSource.Task.IsCompleted)
                     {
                         done = true;
-                        _exitCode = await _taskCompletionSource.Task;
+                        _exitCode = await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
                     else if (_taskCompletionSource.Task.IsCanceled)
                     {
-                        _exitCode = await _taskCompletionSource.Task;
+                        _exitCode = await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
                     else if (_taskCompletionSource.Task.IsFaulted)
                     {
-                        _exitCode = await _taskCompletionSource.Task;
+                        _exitCode = await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
                     else
                     {
@@ -452,7 +452,7 @@ namespace Milou.Deployer.Core.Processes
                             null);
                         SetFailureResult();
 
-                        return await _taskCompletionSource.Task;
+                        return await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
                 }
             }
@@ -466,12 +466,12 @@ namespace Milou.Deployer.Core.Processes
                 debugAction($"Could not check processes. {ex}", null);
             }
 
-            return await _taskCompletionSource.Task;
+            return await _taskCompletionSource.Task.ConfigureAwait(false);
         }
 
         private void EnsureTaskIsCompleted()
         {
-            if (!CheckedDisposed() && _taskCompletionSource != null && !_taskCompletionSource.Task.CanBeAwaited())
+            if (!CheckedDisposed() && _taskCompletionSource?.Task.CanBeAwaited() == false)
             {
                 _taskCompletionSource.TrySetCanceled();
             }

@@ -6,7 +6,6 @@ namespace Milou.Deployer.Core.Deployment
 {
     public interface IWebDeployHelper
     {
-
     event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
 
         Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(

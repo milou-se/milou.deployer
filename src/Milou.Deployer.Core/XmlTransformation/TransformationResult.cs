@@ -6,7 +6,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 {
     public class TransformationResult
     {
-        public TransformationResult(bool isSuccess) : this(isSuccess, new string[] { })
+        public TransformationResult(bool isSuccess) : this(isSuccess, Array.Empty<string>())
         {
         }
 

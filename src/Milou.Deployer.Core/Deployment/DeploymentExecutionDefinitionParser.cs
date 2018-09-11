@@ -11,9 +11,7 @@ namespace Milou.Deployer.Core.Deployment
                 data,
                 new
                 {
-                    definitions = new DeploymentExecutionDefinition[]
-                    {
-                    }
+                    definitions = System.Array.Empty<DeploymentExecutionDefinition>()
                 }).definitions.ToImmutableArray();
         }
     }

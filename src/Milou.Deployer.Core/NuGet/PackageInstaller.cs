@@ -150,7 +150,7 @@ namespace Milou.Deployer.Core.NuGet
                             _logger.Verbose,
                             _logger.Error,
                             _logger.Verbose,
-                            debugAction: _logger.Debug);
+                            debugAction: _logger.Debug).ConfigureAwait(false);
             }
 
             if (!exitCode.IsSuccess)
@@ -159,7 +159,7 @@ namespace Milou.Deployer.Core.NuGet
                     executePath,
                     arguments,
                     exitCode);
-                return MayBe<InstalledPackage>.Nothing();
+                return MayBe<InstalledPackage>.Nothing;
             }
 
             List<FileInfo> packageFiles =
@@ -178,7 +178,7 @@ namespace Milou.Deployer.Core.NuGet
                     deploymentExecutionDefinition.PackageId,
                     tempDirectory.FullName);
 
-                return MayBe<InstalledPackage>.Nothing();
+                return MayBe<InstalledPackage>.Nothing;
             }
 
             if (packageFiles.Count > 1)
@@ -190,7 +190,7 @@ namespace Milou.Deployer.Core.NuGet
                     packageFiles.Count,
                     string.Join(",", packageFiles.Select(file => $"'{file.FullName}'")));
 
-                return MayBe<InstalledPackage>.Nothing();
+                return MayBe<InstalledPackage>.Nothing;
             }
 
             FileInfo foundPackageFile = packageFiles.Single();
@@ -211,7 +211,7 @@ namespace Milou.Deployer.Core.NuGet
                     packageId,
                     deploymentExecutionDefinition.PackageId);
 
-                return MayBe<InstalledPackage>.Nothing();
+                return MayBe<InstalledPackage>.Nothing;
             }
 
             var installedPackage = new MayBe<InstalledPackage>(InstalledPackage.Create(packageId,

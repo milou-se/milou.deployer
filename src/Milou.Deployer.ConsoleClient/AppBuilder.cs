@@ -145,7 +145,7 @@ namespace Milou.Deployer.ConsoleClient
                         NuGetDownloadClient nuGetDownloadClient = NuGetDownloadClient.CreateDefault();
 
                         NuGetDownloadResult nuGetDownloadResult = await nuGetDownloadClient
-                            .DownloadNuGetAsync(NuGetDownloadSettings.Default, cts.Token);
+                            .DownloadNuGetAsync(NuGetDownloadSettings.Default, cts.Token).ConfigureAwait(false);
 
                         if (!nuGetDownloadResult.Succeeded)
                         {

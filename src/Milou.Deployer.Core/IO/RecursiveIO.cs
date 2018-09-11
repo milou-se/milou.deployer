@@ -10,8 +10,9 @@ namespace Milou.Deployer.Core.IO
 {
     public static class RecursiveIO
     {
-        private static readonly HashSet<string> _BlackListedExtensions =
-            new HashSet<string> { ".user", ".ncrunchproject", ".dotsettings", ".csproj" };
+        private static readonly ImmutableHashSet<string> _DeniedExtensions =
+            new HashSet<string> { ".user", ".ncrunchproject", ".dotsettings", ".csproj" }
+                .ToImmutableHashSet();
 
         public static void RecursiveCopy(
             DirectoryInfo sourceDirectoryInfo,
@@ -43,25 +44,25 @@ namespace Milou.Deployer.Core.IO
                 targetDirectoryInfo.Create();
             }
 
-            ImmutableArray<FileInfo> blackListedFilesInDirectory = excludedFilePatterns
+            ImmutableArray<FileInfo> deniedFilesInDirectory = excludedFilePatterns
                 .Select(sourceDirectoryInfo.GetFiles).SelectMany(files => files)
                 .ToImmutableArray();
 
             foreach (FileInfo currentFile in sourceDirectoryInfo.GetFiles())
             {
-                if (_BlackListedExtensions.Any(blackListed =>
-                    currentFile.Extension.Length > 0 &&
-                    blackListed.Equals(currentFile.Extension, StringComparison.OrdinalIgnoreCase)))
+                if (_DeniedExtensions.Any(denied =>
+                    currentFile.Extension.Length > 0
+                    && denied.Equals(currentFile.Extension, StringComparison.OrdinalIgnoreCase)))
                 {
-                    logger.Verbose("Skipping black-listed file '{FullName}' due to its file extension",
+                    logger.Verbose("Skipping denied file '{FullName}' due to its file extension",
                         currentFile.FullName);
                     continue;
                 }
 
-                if (blackListedFilesInDirectory.Any(file =>
+                if (deniedFilesInDirectory.Any(file =>
                     file.FullName.Equals(currentFile.FullName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    logger.Verbose("Skipping black-listed file '{FullName}' due to its file pattern {Patterns}",
+                    logger.Verbose("Skipping denied file '{FullName}' due to its file pattern {Patterns}",
                         currentFile.FullName,
                         excludedFilePatterns);
                     continue;
@@ -110,10 +111,12 @@ namespace Milou.Deployer.Core.IO
             {
                 logger.Verbose("Deleting file '{FullName}'", fileInfo.FullName);
                 fileInfo.Delete();
+                logger.Verbose("Deleted file '{FullName}'", fileInfo.FullName);
             }
 
             logger.Verbose("Deleting directory '{FullName}'", sourceDirectoryInfo.FullName);
             sourceDirectoryInfo.Delete(true);
+            logger.Verbose("Deleted directory '{FullName}'", sourceDirectoryInfo.FullName);
         }
     }
 }

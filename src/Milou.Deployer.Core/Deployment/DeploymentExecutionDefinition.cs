@@ -90,7 +90,7 @@ namespace Milou.Deployer.Core.Deployment
             string excludedFilePatterns = null,
             bool requireEnvironmentConfig = false)
         {
-            SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing();
+            SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing;
             if (string.IsNullOrWhiteSpace(packageId))
             {
                 throw new ArgumentNullException(nameof(packageId));

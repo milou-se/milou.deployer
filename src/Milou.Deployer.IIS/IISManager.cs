@@ -41,10 +41,19 @@ namespace Milou.Deployer.IIS
 
         public void Dispose()
         {
-            RestoreState();
+            bool restored = RestoreState();
+
+            if (restored)
+            {
+                _logger.Debug("Restored iis site state");
+            }
+            else
+            {
+                _logger.Debug("Failed to restore iis site state");
+            }
         }
 
-        public void StopSiteIfApplicable([NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
+        public bool StopSiteIfApplicable([NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
         {
             if (deploymentExecutionDefinition == null)
             {
@@ -56,26 +65,38 @@ namespace Milou.Deployer.IIS
 
             if (_serverManager is null)
             {
-                return;
+                _logger.Error(
+                    "There is no ServerManager instance when trying to stop IIS site defined in {DeploymentExecutionDefinition}",
+                    deploymentExecutionDefinition);
+                return false;
             }
 
             try
             {
                 if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.IisSiteName))
                 {
-                    return;
+                    _logger.Debug(
+                        "The deployment execution definition {DeploymentExecutionDefinition} has no site named defined",
+                        deploymentExecutionDefinition);
+                    return false;
                 }
 
                 if (!_configuration.StopStartIisWebSiteEnabled)
                 {
-                    return;
+                    _logger.Warning("The deployer configuration has {Property} set to false",
+                        nameof(_configuration.StopStartIisWebSiteEnabled));
+                    return false;
                 }
 
                 _site = _serverManager.Sites[deploymentExecutionDefinition.IisSiteName];
 
                 if (!_site.HasValue())
                 {
-                    return;
+                    _logger.Error(
+                        "Could not find IIS site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
+                        deploymentExecutionDefinition.IisSiteName,
+                        deploymentExecutionDefinition);
+                    return false;
                 }
 
                 _previousSiteState = _site.State;
@@ -89,6 +110,7 @@ namespace Milou.Deployer.IIS
                     {
                         _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
                     }
+
                     if (objectState == ObjectState.Stopping)
                     {
                         _logger.Debug("Stopping IIS site '{IISSiteName}'", _site.Name);
@@ -98,10 +120,13 @@ namespace Milou.Deployer.IIS
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error while trying to stop IIS site");
+                return false;
             }
+
+            return true;
         }
 
-        private void RestoreState()
+        private bool RestoreState()
         {
             try
             {
@@ -118,15 +143,17 @@ namespace Milou.Deployer.IIS
                     if (objectState == ObjectState.Started)
                     {
                         _logger.Debug("Started IIS site '{IISSiteName}'", _site.Name);
-
                     }
 
                     if (objectState == ObjectState.Starting)
                     {
                         _logger.Debug("Starting IIS site '{IISSiteName}'", _site.Name);
-
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not restart site {IISSiteName}", _site.Name);
             }
             finally
             {
@@ -134,6 +161,8 @@ namespace Milou.Deployer.IIS
                 _serverManager = null;
                 _site = null;
             }
+
+            return true;
         }
     }
 }
