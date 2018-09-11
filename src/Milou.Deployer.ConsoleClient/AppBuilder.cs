@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
@@ -142,10 +143,15 @@ namespace Milou.Deployer.ConsoleClient
 
                     using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                     {
-                        NuGetDownloadClient nuGetDownloadClient = NuGetDownloadClient.CreateDefault();
+                        NuGetDownloadClient nuGetDownloadClient = new NuGetDownloadClient();
+                        NuGetDownloadResult nuGetDownloadResult;
 
-                        NuGetDownloadResult nuGetDownloadResult = await nuGetDownloadClient
-                            .DownloadNuGetAsync(NuGetDownloadSettings.Default, cts.Token).ConfigureAwait(false);
+                        using (var httpClient = new HttpClient())
+                        {
+                            nuGetDownloadResult = await nuGetDownloadClient
+                                .DownloadNuGetAsync(NuGetDownloadSettings.Default, logger, httpClient, cts.Token)
+                                .ConfigureAwait(false);
+                        }
 
                         if (!nuGetDownloadResult.Succeeded)
                         {
