@@ -57,7 +57,7 @@ namespace Milou.Deployer.Core.Processes
         public ProcessRunner()
         {
             _process = new Process();
-            _taskCompletionSource = new TaskCompletionSource<ExitCode>();
+            _taskCompletionSource = new TaskCompletionSource<ExitCode>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         public void Dispose()
@@ -68,7 +68,7 @@ namespace Milou.Deployer.Core.Processes
 
                 if (_taskCompletionSource?.Task.CanBeAwaited() == false)
                 {
-                    _standardErrorAction.Invoke("Task completion was not set on dispose, setting to failure", null);
+                    _standardErrorAction?.Invoke("Task completion was not set on dispose, setting to failure", null);
                     _taskCompletionSource.TrySetResult(ExitCode.Failure);
                 }
 
@@ -138,7 +138,7 @@ namespace Milou.Deployer.Core.Processes
         {
             if (CheckedDisposed())
             {
-                _verboseAction($"Process {processWithArgs} does no longer exist", null);
+                _verboseAction?.Invoke($"Process {processWithArgs} does no longer exist", null);
                 return false;
             }
 
@@ -164,19 +164,19 @@ namespace Milou.Deployer.Core.Processes
             if (_taskCompletionSource.Task.CanBeAwaited())
             {
                 TaskStatus status = _taskCompletionSource.Task.Status;
-                _verboseAction($"Task status for process {processWithArgs} is {status}", null);
+                _verboseAction?.Invoke($"Task status for process {processWithArgs} is {status}", null);
                 return false;
             }
 
             if (cancellationToken.IsCancellationRequested)
             {
-                _verboseAction($"Cancellation is requested for process {processWithArgs}", null);
+                _verboseAction?.Invoke($"Cancellation is requested for process {processWithArgs}", null);
                 return false;
             }
 
             if (done)
             {
-                _verboseAction($"Process {processWithArgs} is flagged as done", null);
+                _verboseAction?.Invoke($"Process {processWithArgs} is flagged as done", null);
                 return false;
             }
 
@@ -206,15 +206,15 @@ namespace Milou.Deployer.Core.Processes
 
             cancellationToken.Register(EnsureTaskIsCompleted);
 
-            _toolAction = toolAction ?? ((_, __) => { });
-            _standardOutLog = standardOutputLog ?? ((_, __) => { });
-            _standardErrorAction = standardErrorAction ?? ((_, __) => { });
-            _verboseAction = verboseAction ?? ((_, __) => { });
-            _debugAction = debugAction ?? ((_, __) => { });
+            _toolAction = toolAction;
+            _standardOutLog = standardOutputLog;
+            _standardErrorAction = standardErrorAction;
+            _verboseAction = verboseAction;
+            _debugAction = debugAction;
 
             string processWithArgs = $"\"{executePath}\" {formattedArguments}".Trim();
 
-            _toolAction($"[{typeof(ProcessRunner).Name}] Executing: {processWithArgs}", null);
+            _toolAction?.Invoke($"[{typeof(ProcessRunner).Name}] Executing: {processWithArgs}", null);
 
             bool useShellExecute = standardErrorAction == null && standardOutputLog == null;
 
@@ -250,12 +250,12 @@ namespace Milou.Deployer.Core.Processes
                 {
                     if (args.Data != null)
                     {
-                        _standardErrorAction(args.Data, null);
+                        _standardErrorAction?.Invoke(args.Data, null);
                     }
                 };
             }
 
-            if (redirectStandardOutput)
+            if (redirectStandardOutput && _standardOutLog != null)
             {
                 _process.OutputDataReceived += (_, args) =>
                 {
@@ -276,7 +276,7 @@ namespace Milou.Deployer.Core.Processes
 
                 if (!started)
                 {
-                    _standardErrorAction($"Process '{processWithArgs}' could not be started", null);
+                    _standardErrorAction?.Invoke($"Process '{processWithArgs}' could not be started", null);
 
                     SetFailureResult();
 
@@ -301,12 +301,12 @@ namespace Milou.Deployer.Core.Processes
                 }
                 catch (InvalidOperationException ex)
                 {
-                    _debugAction($"Could not get process id for process '{processWithArgs}'. {ex}", null);
+                    _debugAction?.Invoke($"Could not get process id for process '{processWithArgs}'. {ex}", null);
                 }
 
                 string temp = _process.HasExited ? "was" : "is";
 
-                _verboseAction(
+                _verboseAction?.Invoke(
                     $"The process '{processWithArgs}' {temp} running in {bits}-bit mode",
                     null);
             }
@@ -317,7 +317,7 @@ namespace Milou.Deployer.Core.Processes
                     throw;
                 }
 
-                _standardErrorAction($"An error occured while running process {processWithArgs}: {ex}", null);
+                _standardErrorAction?.Invoke($"An error occured while running process {processWithArgs}: {ex}", null);
                 SetResultException(ex);
             }
 
@@ -387,7 +387,7 @@ namespace Milou.Deployer.Core.Processes
                                     {
                                     }
 
-                                    _standardErrorAction(
+                                    _standardErrorAction?.Invoke(
                                         $"Killed process {processWithArgs} because cancellation was requested",
                                         null);
                                 }
@@ -405,13 +405,13 @@ namespace Milou.Deployer.Core.Processes
                                     throw;
                                 }
 
-                                _standardErrorAction(
+                                _standardErrorAction?.Invoke(
                                     $"ProcessRunner could not kill process {processWithArgs} when cancellation was requested",
                                     null);
-                                _standardErrorAction(
+                                _standardErrorAction?.Invoke(
                                     $"Could not kill process {processWithArgs} when cancellation was requested",
                                     null);
-                                _standardErrorAction(ex.ToString(), null);
+                                _standardErrorAction?.Invoke(ex.ToString(), null);
                             }
                         }
                     }
@@ -419,14 +419,14 @@ namespace Milou.Deployer.Core.Processes
 
                 using (_process)
                 {
-                    _verboseAction(
+                    _verboseAction?.Invoke(
                         $"Task status: {_taskCompletionSource.Task.Status}, {_taskCompletionSource.Task.IsCompleted}",
                         null);
-                    _verboseAction($"Disposing process {processWithArgs}", null);
+                    _verboseAction?.Invoke($"Disposing process {processWithArgs}", null);
                 }
             }
 
-            _verboseAction($"Process runner exit code {_exitCode} for process {processWithArgs}", null);
+            _verboseAction?.Invoke($"Process runner exit code {_exitCode} for process {processWithArgs}", null);
 
             try
             {
@@ -447,7 +447,7 @@ namespace Milou.Deployer.Core.Processes
 
                     if (stillAlive)
                     {
-                        _verboseAction(
+                        _verboseAction?.Invoke(
                             $"The process with ID {processId.ToString(CultureInfo.InvariantCulture)} '{processWithArgs}' is still running",
                             null);
                         SetFailureResult();
@@ -483,7 +483,7 @@ namespace Milou.Deployer.Core.Processes
             {
                 if (!_taskCompletionSource.Task.CanBeAwaited())
                 {
-                    _standardErrorAction("Task is not in a valid state, sender is not process", null);
+                    _standardErrorAction?.Invoke("Task is not in a valid state, sender is not process", null);
                     SetFailureResult();
                 }
 
@@ -517,7 +517,7 @@ namespace Milou.Deployer.Core.Processes
             }
             catch (Exception ex)
             {
-                _standardErrorAction($"Failed to get exit code from process {ex}", null);
+                _standardErrorAction?.Invoke($"Failed to get exit code from process {ex}", null);
 
                 SetResultException(ex);
                 return;
@@ -579,11 +579,11 @@ namespace Milou.Deployer.Core.Processes
         {
             if (!_taskCompletionSource.Task.CanBeAwaited())
             {
-                _verboseAction("Task was not completed, but process was disposed", null);
+                _verboseAction?.Invoke("Task was not completed, but process was disposed", null);
                 SetFailureResult();
             }
 
-            _verboseAction("Disposed process", null);
+            _verboseAction?.Invoke("Disposed process", null);
         }
 
         private void ThrowIfDisposed()
