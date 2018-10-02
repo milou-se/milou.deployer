@@ -10,6 +10,7 @@ using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
 using Arbor.Tooler;
 using JetBrains.Annotations;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
