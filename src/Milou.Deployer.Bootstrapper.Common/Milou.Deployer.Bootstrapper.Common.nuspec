@@ -21,7 +21,7 @@
     <licenseUrl>https://github.com/milou-se/milou.deployer/blob/master/LICENSE.txt</licenseUrl>
     <copyright>Copyright Milou Communication AB 2015-2018</copyright>
     <dependencies>
-      <dependency id="Arbor.KVConfiguration.Urns" version="[0.15.0,2.0.0)" />
+      <dependency id="Arbor.KVConfiguration.Urns" version="[0.15.1,2.0.0)" />
       <dependency id="Arbor.Tooler" version="[0.1.0-build.4,2.0.0)" />
       <dependency id="Serilog.Sinks.Console" version="[3.0.0,4.0.0)" />
       <dependency id="Microsoft.Extensions.Primitives" version="[2.1.1,3.0.0)" />
