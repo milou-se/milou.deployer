@@ -73,6 +73,7 @@ namespace Milou.Deployer.Core.Deployment
                                  pair => new StringValues(pair.Value ?? Array.Empty<string>()))
                              .ToImmutableDictionary() ??
                          ImmutableDictionary<string, StringValues>.Empty;
+            ExcludedFilePatternsCombined = excludedFilePatterns;
         }
 
         public DeploymentExecutionDefinition(
@@ -117,9 +118,14 @@ namespace Milou.Deployer.Core.Deployment
                                  pair => new StringValues(pair.Value ?? Array.Empty<string>()))
                              .ToImmutableDictionary() ??
                          ImmutableDictionary<string, StringValues>.Empty;
+            ExcludedFilePatternsCombined = excludedFilePatterns;
         }
 
+        [JsonIgnore]
         public ImmutableArray<string> ExcludedFilePatterns { get; }
+
+        [JsonProperty(PropertyName = nameof(ExcludedFilePatterns))]
+        public string ExcludedFilePatternsCombined { get; }
 
         public string EnvironmentConfig { get; }
 
@@ -131,12 +137,18 @@ namespace Milou.Deployer.Core.Deployment
 
         public ImmutableDictionary<string, StringValues> Parameters { get; }
 
+        [JsonIgnore]
         public MayBe<SemanticVersion> SemanticVersion { get; }
+
+        [JsonProperty(PropertyName = nameof(SemanticVersion))]
+        public string NormalizedVersion =>
+            (SemanticVersion.HasValue ? SemanticVersion.Value.ToNormalizedString(): null);
 
         public string TargetDirectoryPath { get; }
 
         public bool IsPreRelease { get; private set; }
 
+        [JsonIgnore]
         public string Version => SemanticVersion.HasValue
             ? SemanticVersion.Value.ToNormalizedString()
             : "{any version}";
