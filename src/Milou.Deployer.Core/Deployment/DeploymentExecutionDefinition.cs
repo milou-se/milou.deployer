@@ -142,7 +142,7 @@ namespace Milou.Deployer.Core.Deployment
 
         [JsonProperty(PropertyName = nameof(SemanticVersion))]
         public string NormalizedVersion =>
-            (SemanticVersion.HasValue ? SemanticVersion.Value.ToNormalizedString(): null);
+            SemanticVersion.HasValue ? SemanticVersion.Value.ToNormalizedString(): null;
 
         public string TargetDirectoryPath { get; }
 
