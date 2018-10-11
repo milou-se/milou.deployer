@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.Xdt;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.ApplicationMetadata;
 using Milou.Deployer.Core.Configuration;
@@ -228,6 +229,61 @@ namespace Milou.Deployer.Core.Deployment
                         }
 
                         replacedFiles.AddRange(result.ReplacedFiles);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
+                    {
+                        _logger.Debug(
+                            "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
+                            deploymentExecutionDefinition.WebConfigTransformFile,
+                            deploymentExecutionDefinition);
+
+                        var transformFile = new FileInfo(deploymentExecutionDefinition.WebConfigTransformFile);
+
+                        if (transformFile.Exists)
+                        {
+                            string tempFileName = Path.GetTempFileName();
+
+                            var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
+
+                            if (webConfig.Exists)
+                            {
+                                using (var x = new XmlTransformableDocument())
+                                {
+                                    x.PreserveWhitespace = true;
+                                    x.Load(webConfig.FullName);
+
+                                    using (var transform = new Arbor.Xdt.XmlTransformation(transformFile.FullName))
+                                    {
+                                        bool succeed = transform.Apply(x);
+
+                                        if (succeed)
+                                        {
+                                            using (var fsDestFileStream = new FileStream(tempFileName, FileMode.OpenOrCreate))
+                                            {
+                                                x.Save(fsDestFileStream);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            var tempFileInfo = new FileInfo(tempFileName);
+
+
+                            if (tempFileInfo.Exists && tempFileInfo.Length > 0)
+                            {
+                                _logger.Information("Successfully transformed web.config with transformation {Transformation}", deploymentExecutionDefinition.WebConfigTransformFile);
+                                tempFileInfo.CopyTo(webConfig.FullName);
+                            }
+                            else
+                            {
+                                _logger.Warning("Failed to transform web.config with transformation {Transformation}", deploymentExecutionDefinition.WebConfigTransformFile);
+                            }
+
+                            tempFileInfo.Delete();
+                        }
+
                     }
 
                     string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);

@@ -26,7 +26,8 @@ namespace Milou.Deployer.Core.Deployment
             string publishSettingsFile = null,
             Dictionary<string, string[]> parameters = null,
             string excludedFilePatterns = null,
-            bool requireEnvironmentConfig = false)
+            bool requireEnvironmentConfig = false,
+            string webConfigTransformFile = null)
         {
             SemanticVersion version = null;
 
@@ -69,6 +70,7 @@ namespace Milou.Deployer.Core.Deployment
             EnvironmentConfig = environmentConfig;
             PublishSettingsFile = publishSettingsFile;
             RequireEnvironmentConfig = requireEnvironmentConfig;
+            WebConfigTransformFile = webConfigTransformFile;
             Parameters = parameters?.ToDictionary(pair => pair.Key,
                                  pair => new StringValues(pair.Value ?? Array.Empty<string>()))
                              .ToImmutableDictionary() ??
@@ -89,7 +91,8 @@ namespace Milou.Deployer.Core.Deployment
             string publishSettingsFile = null,
             Dictionary<string, string[]> parameters = null,
             string excludedFilePatterns = null,
-            bool requireEnvironmentConfig = false)
+            bool requireEnvironmentConfig = false,
+            string webConfigTransformFile = null)
         {
             SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing;
             if (string.IsNullOrWhiteSpace(packageId))
@@ -114,6 +117,7 @@ namespace Milou.Deployer.Core.Deployment
             EnvironmentConfig = environmentConfig;
             PublishSettingsFile = publishSettingsFile;
             RequireEnvironmentConfig = requireEnvironmentConfig;
+            WebConfigTransformFile = webConfigTransformFile;
             Parameters = parameters?.ToDictionary(pair => pair.Key,
                                  pair => new StringValues(pair.Value ?? Array.Empty<string>()))
                              .ToImmutableDictionary() ??
@@ -154,6 +158,7 @@ namespace Milou.Deployer.Core.Deployment
             : "{any version}";
 
         public bool RequireEnvironmentConfig { get; }
+        public string WebConfigTransformFile { get; }
 
         public string IisSiteName { get; }
 
