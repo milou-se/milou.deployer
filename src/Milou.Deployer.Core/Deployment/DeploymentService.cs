@@ -273,7 +273,7 @@ namespace Milou.Deployer.Core.Deployment
                             if (tempFileInfo.Exists && tempFileInfo.Length > 0)
                             {
                                 _logger.Information("Successfully transformed web.config with transformation {Transformation}", deploymentExecutionDefinition.WebConfigTransformFile);
-                                tempFileInfo.CopyTo(webConfig.FullName);
+                                tempFileInfo.CopyTo(webConfig.FullName, overwrite: true);
                             }
                             else
                             {
