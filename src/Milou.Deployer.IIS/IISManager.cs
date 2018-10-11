@@ -60,6 +60,12 @@ namespace Milou.Deployer.IIS
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
+            if (!UserHelper.IsAdministrator())
+            {
+                _logger.Warning("Current user does not have administrative privileges, cannot start/stop site");
+                return false;
+            }
+
             _site = null;
             _previousSiteState = ObjectState.Unknown;
 
@@ -130,6 +136,12 @@ namespace Milou.Deployer.IIS
         {
             try
             {
+                if (!UserHelper.IsAdministrator())
+                {
+                    _logger.Warning("Current user does not have administrative privileges, cannot start/stop site");
+                    return false;
+                }
+
                 if (_serverManager.HasValue()
                     && _site.HasValue()
                     && _site.State != ObjectState.Starting

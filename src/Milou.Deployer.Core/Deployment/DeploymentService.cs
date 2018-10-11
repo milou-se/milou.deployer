@@ -89,6 +89,7 @@ namespace Milou.Deployer.Core.Deployment
 
             if (!File.Exists(DeployerConfiguration.NuGetExePath))
             {
+                _logger.Error("The nuget.exe at '{Path}' does not exist", DeployerConfiguration.NuGetExePath);
                 throw new InvalidOperationException(
                     $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
             }
@@ -233,54 +234,67 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
                     {
-                        _logger.Debug(
-                            "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
-                            deploymentExecutionDefinition.WebConfigTransformFile,
-                            deploymentExecutionDefinition);
-
-                        var transformFile = new FileInfo(deploymentExecutionDefinition.WebConfigTransformFile);
-
-                        if (transformFile.Exists)
+                        try
                         {
-                            string tempFileName = Path.GetTempFileName();
+                            _logger.Debug(
+                                "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
+                                deploymentExecutionDefinition.WebConfigTransformFile,
+                                deploymentExecutionDefinition);
 
-                            var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
+                            var transformFile = new FileInfo(deploymentExecutionDefinition.WebConfigTransformFile);
 
-                            if (webConfig.Exists)
+                            if (transformFile.Exists)
                             {
-                                using (var x = new XmlTransformableDocument())
+                                string tempFileName = Path.GetTempFileName();
+
+                                var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
+
+                                if (webConfig.Exists)
                                 {
-                                    x.PreserveWhitespace = true;
-                                    x.Load(webConfig.FullName);
-
-                                    using (var transform = new Arbor.Xdt.XmlTransformation(transformFile.FullName))
+                                    using (var x = new XmlTransformableDocument())
                                     {
-                                        bool succeed = transform.Apply(x);
+                                        x.PreserveWhitespace = true;
+                                        x.Load(webConfig.FullName);
 
-                                        if (succeed)
+                                        using (var transform = new Arbor.Xdt.XmlTransformation(transformFile.FullName))
                                         {
-                                            using (var fsDestFileStream = new FileStream(tempFileName, FileMode.OpenOrCreate))
+                                            bool succeed = transform.Apply(x);
+
+                                            if (succeed)
                                             {
-                                                x.Save(fsDestFileStream);
+                                                using (var fsDestFileStream =
+                                                    new FileStream(tempFileName, FileMode.OpenOrCreate))
+                                                {
+                                                    x.Save(fsDestFileStream);
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            var tempFileInfo = new FileInfo(tempFileName);
+                                var tempFileInfo = new FileInfo(tempFileName);
 
-                            if (tempFileInfo.Exists && tempFileInfo.Length > 0)
-                            {
-                                _logger.Information("Successfully transformed web.config with transformation {Transformation}", deploymentExecutionDefinition.WebConfigTransformFile);
-                                tempFileInfo.CopyTo(webConfig.FullName, overwrite: true);
-                            }
-                            else
-                            {
-                                _logger.Warning("Failed to transform web.config with transformation {Transformation}", deploymentExecutionDefinition.WebConfigTransformFile);
-                            }
+                                if (tempFileInfo.Exists && tempFileInfo.Length > 0)
+                                {
+                                    _logger.Information(
+                                        "Successfully transformed web.config with transformation {Transformation}",
+                                        deploymentExecutionDefinition.WebConfigTransformFile);
+                                    tempFileInfo.CopyTo(webConfig.FullName, overwrite: true);
+                                }
+                                else
+                                {
+                                    _logger.Warning(
+                                        "Failed to transform web.config with transformation {Transformation}",
+                                        deploymentExecutionDefinition.WebConfigTransformFile);
+                                }
 
-                            tempFileInfo.Delete();
+                                tempFileInfo.Delete();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(ex, "Could not apply web.config transform with {Transform}", deploymentExecutionDefinition.WebConfigTransformFile);
+                            throw;
                         }
                     }
 
@@ -430,36 +444,46 @@ namespace Milou.Deployer.Core.Deployment
                     bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
                     IDeploymentChangeSummary summary;
 
-                    using (IIISManager manager = _iisManager())
+                    try
                     {
-                        if (hasIisSiteName)
+                        using (IIISManager manager = _iisManager())
                         {
-                            bool stopped = manager.StopSiteIfApplicable(deploymentExecutionDefinition);
-
-                            if (!stopped)
+                            if (hasIisSiteName)
                             {
-                                _logger.Error("Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}", deploymentExecutionDefinition);
-                                return ExitCode.Failure;
-                            }
-                        }
+                                bool stopped = manager.StopSiteIfApplicable(deploymentExecutionDefinition);
 
-                        summary = await _webDeployHelper.DeployContentToOneSiteAsync(
-                            targetTempDirectoryInfo.FullName,
-                            deploymentExecutionDefinition.PublishSettingsFile,
-                            DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                            doNotDelete: doNotDeleteEnabled,
-                            appOfflineEnabled: appOfflineEnabled,
-                            useChecksum: useChecksumEnabled,
-                            whatIf: whatIfEnabled,
-                            traceLevel: TraceLevel.Verbose,
-                            appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
-                            applicationInsightsProfiler2SkipDirectiveEnabled:
-                            applicationInsightsProfiler2SkipDirectiveEnabled,
-                            logAction: message => _logger.Debug("{Message}", message),
-                            targetPath: hasPublishSettingsFile
-                                ? string.Empty
-                                : deploymentExecutionDefinition.TargetDirectoryPath
-                        ).ConfigureAwait(false);
+                                if (!stopped)
+                                {
+                                    _logger.Error(
+                                        "Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}",
+                                        deploymentExecutionDefinition);
+                                    return ExitCode.Failure;
+                                }
+                            }
+
+                            summary = await _webDeployHelper.DeployContentToOneSiteAsync(
+                                targetTempDirectoryInfo.FullName,
+                                deploymentExecutionDefinition.PublishSettingsFile,
+                                DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                                doNotDelete: doNotDeleteEnabled,
+                                appOfflineEnabled: appOfflineEnabled,
+                                useChecksum: useChecksumEnabled,
+                                whatIf: whatIfEnabled,
+                                traceLevel: TraceLevel.Verbose,
+                                appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
+                                applicationInsightsProfiler2SkipDirectiveEnabled:
+                                applicationInsightsProfiler2SkipDirectiveEnabled,
+                                logAction: message => _logger.Debug("{Message}", message),
+                                targetPath: hasPublishSettingsFile
+                                    ? string.Empty
+                                    : deploymentExecutionDefinition.TargetDirectoryPath
+                            ).ConfigureAwait(false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex, "Could not handle start/stop for iis site {Site}", deploymentExecutionDefinition.IisSiteName);
+                        throw;
                     }
 
                     _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
