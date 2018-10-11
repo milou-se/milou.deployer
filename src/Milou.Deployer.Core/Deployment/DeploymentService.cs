@@ -270,7 +270,6 @@ namespace Milou.Deployer.Core.Deployment
 
                             var tempFileInfo = new FileInfo(tempFileName);
 
-
                             if (tempFileInfo.Exists && tempFileInfo.Length > 0)
                             {
                                 _logger.Information("Successfully transformed web.config with transformation {Transformation}", deploymentExecutionDefinition.WebConfigTransformFile);
@@ -283,7 +282,6 @@ namespace Milou.Deployer.Core.Deployment
 
                             tempFileInfo.Delete();
                         }
-
                     }
 
                     string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
