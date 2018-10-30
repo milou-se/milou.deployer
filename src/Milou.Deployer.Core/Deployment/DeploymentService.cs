@@ -584,11 +584,9 @@ namespace Milou.Deployer.Core.Deployment
 
             ExitCode nugetListPackagesExitCode;
 
-            using (var processRunner = new ProcessRunner())
-            {
                 nugetListPackagesExitCode =
                     await
-                        processRunner.ExecuteAsync(
+                        ProcessRunner.ExecuteProcessAsync(
                             DeployerConfiguration.NuGetExePath,
                             arguments: listCommands,
                             standardOutLog: (message, _) =>
@@ -598,7 +596,7 @@ namespace Milou.Deployer.Core.Deployment
                             },
                             toolAction: _logger.Verbose,
                             cancellationToken: cancellationToken).ConfigureAwait(false);
-            }
+
 
             if (!nugetListPackagesExitCode.IsSuccess)
             {

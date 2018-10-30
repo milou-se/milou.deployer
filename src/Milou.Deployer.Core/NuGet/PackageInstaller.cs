@@ -138,20 +138,14 @@ namespace Milou.Deployer.Core.NuGet
                 _logger.Debug("A specific NuGet source is not defined in app settings");
             }
 
-            ExitCode exitCode;
-
-            using (var processRunner = new ProcessRunner())
-            {
-                exitCode =
-                    await
-                        processRunner.ExecuteAsync(
-                            executePath,
-                            arguments,
-                            _logger.Verbose,
-                            _logger.Error,
-                            _logger.Verbose,
-                            debugAction: _logger.Debug).ConfigureAwait(false);
-            }
+            ExitCode exitCode = await
+                ProcessRunner.ExecuteProcessAsync(
+                    executePath,
+                    arguments,
+                    _logger.Verbose,
+                    _logger.Error,
+                    _logger.Verbose,
+                    debugAction: _logger.Debug).ConfigureAwait(false);
 
             if (!exitCode.IsSuccess)
             {

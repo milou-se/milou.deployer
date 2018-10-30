@@ -32,7 +32,7 @@ namespace Milou.Deployer.Core
 
         public static implicit operator T(MayBe<T> mayBe)
         {
-            if (mayBe == null)
+            if (mayBe is null)
             {
                 throw new ArgumentNullException(nameof(mayBe));
             }
