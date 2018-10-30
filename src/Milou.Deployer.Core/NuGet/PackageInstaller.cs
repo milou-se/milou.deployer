@@ -83,17 +83,34 @@ namespace Milou.Deployer.Core.NuGet
                 tempDirectory.Create();
             }
 
-            if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.NuGetConfigFile)
-                && File.Exists(deploymentExecutionDefinition.NuGetConfigFile))
+            if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.NuGetConfigFile))
             {
-                arguments.Add("-ConfigFile");
-                arguments.Add(deploymentExecutionDefinition.NuGetConfigFile);
+                if (File.Exists(deploymentExecutionDefinition.NuGetConfigFile))
+                {
+                    arguments.Add("-ConfigFile");
+                    arguments.Add(deploymentExecutionDefinition.NuGetConfigFile);
+                }
+                else
+                {
+                    _logger.Warning(
+                        "The deployment execution definition {Definition} has nuget config file set to {ConfigFile} but it does not exist",
+                        deploymentExecutionDefinition,
+                        deploymentExecutionDefinition.NuGetConfigFile);
+                }
             }
-            else if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig)
-                     && File.Exists(_deployerConfiguration.NuGetConfig))
+            else if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig))
             {
-                arguments.Add("-ConfigFile");
-                arguments.Add(_deployerConfiguration.NuGetConfig);
+                if (File.Exists(_deployerConfiguration.NuGetConfig))
+                {
+                    arguments.Add("-ConfigFile");
+                    arguments.Add(_deployerConfiguration.NuGetConfig);
+                }
+                else
+                {
+                    _logger.Warning(
+                        "The deployment configuration has nuget config file set to {ConfigFile} but it does not exist",
+                        _deployerConfiguration.NuGetConfig);
+                }
             }
 
             arguments.Add("-OutputDirectory");
@@ -141,7 +158,8 @@ namespace Milou.Deployer.Core.NuGet
             }
             else
             {
-                _logger.Debug("A specific NuGet source is not defined in settings or in deployment execution definition");
+                _logger.Debug(
+                    "A specific NuGet source is not defined in settings or in deployment execution definition");
             }
 
             ExitCode exitCode = await

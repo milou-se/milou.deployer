@@ -39,6 +39,9 @@ namespace Milou.Deployer.Core.Processes
                     environmentVariables,
                     debugAction,
                     cancellationToken).ConfigureAwait(false);
+
+                await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             processStopWatch.Stop();
