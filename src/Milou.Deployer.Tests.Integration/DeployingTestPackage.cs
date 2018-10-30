@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.ConsoleClient;
+using Milou.Deployer.Core.Deployment;
+using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
 using Xunit;
@@ -39,7 +42,7 @@ namespace Milou.Deployer.Tests.Integration
       ""RequireEnvironmentConfig"": false,
       ""IisSitename"": null,
       ""NuGetConfigFile"": null,
-      ""NuGetPackageSource"": null
+      ""NuGetPackageSource"": ""nuget.org""
     }}
   ]
 }}
@@ -65,6 +68,19 @@ namespace Milou.Deployer.Tests.Integration
                     {
                         using (TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
                         {
+                            string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
+
+                            _output.WriteLine(json);
+
+                            var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json, new {definitions=Array.Empty<DeploymentExecutionDefinition>()});
+
+                            Assert.NotNull(deploymentExecutionDefinition);
+                            Assert.NotNull(deploymentExecutionDefinition.definitions);
+
+                            Assert.Single(deploymentExecutionDefinition.definitions);
+
+                            Assert.Equal("nuget.org", deploymentExecutionDefinition.definitions[0].NuGetPackageSource);
+
                             string[] args = { tempFile.File.FullName };
 
                             Logger logger = new LoggerConfiguration()

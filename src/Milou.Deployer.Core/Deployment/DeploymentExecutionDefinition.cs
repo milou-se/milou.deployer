@@ -18,7 +18,7 @@ namespace Milou.Deployer.Core.Deployment
             string semanticVersion,
             string targetDirectoryPath,
             string nuGetConfigFile = null,
-            string nuGetPackagePackageSource = null,
+            string nuGetPackageSource = null,
             string iisSiteName = null,
             bool isPreRelease = false,
             bool force = false,
@@ -29,6 +29,11 @@ namespace Milou.Deployer.Core.Deployment
             bool requireEnvironmentConfig = false,
             string webConfigTransformFile = null)
         {
+            if (string.IsNullOrWhiteSpace(packageId))
+            {
+                throw new ArgumentNullException(nameof(packageId));
+            }
+
             SemanticVersion version = null;
 
             if (!string.IsNullOrWhiteSpace(semanticVersion))
@@ -50,11 +55,6 @@ namespace Milou.Deployer.Core.Deployment
 
             SetPreRelease(isPreRelease);
 
-            if (string.IsNullOrWhiteSpace(packageId))
-            {
-                throw new ArgumentNullException(nameof(packageId));
-            }
-
             if (string.IsNullOrWhiteSpace(targetDirectoryPath))
             {
                 throw new ArgumentNullException(nameof(targetDirectoryPath));
@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.Deployment
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
             NuGetConfigFile = nuGetConfigFile;
-            NuGetPackageSource = nuGetPackagePackageSource;
+            NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
             Force = force;
@@ -158,6 +158,7 @@ namespace Milou.Deployer.Core.Deployment
             : "{any version}";
 
         public bool RequireEnvironmentConfig { get; }
+
         public string WebConfigTransformFile { get; }
 
         public string IisSiteName { get; }

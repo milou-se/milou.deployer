@@ -115,27 +115,33 @@ namespace Milou.Deployer.Core.NuGet
             }
 
             const string sourceKey = ConfigurationKeys.NuGetSource;
-            string source = _keyValueConfiguration[sourceKey];
+            string nugetSourceInConfiguration = _keyValueConfiguration[sourceKey];
+            string nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
 
-            if (!string.IsNullOrWhiteSpace(source))
+            if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
             {
-                _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
-                    deploymentExecutionDefinition.NuGetPackageSource);
+                if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
+                {
+                    _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
+                        nugetSourceInDeploymentExecution);
+                }
+
                 arguments.Add("-Source");
-                arguments.Add(deploymentExecutionDefinition.NuGetPackageSource);
+                arguments.Add(nugetSourceInDeploymentExecution);
             }
-            else if (!string.IsNullOrWhiteSpace(source))
+            else if (!string.IsNullOrWhiteSpace(nugetSourceInConfiguration))
             {
                 _logger.Information(
                     "A specific NuGet source is defined in app settings [key '{SourceKey}']: '{Source}'",
                     sourceKey,
-                    source);
+                    nugetSourceInConfiguration);
+
                 arguments.Add("-Source");
-                arguments.Add(source);
+                arguments.Add(nugetSourceInConfiguration);
             }
             else
             {
-                _logger.Debug("A specific NuGet source is not defined in app settings");
+                _logger.Debug("A specific NuGet source is not defined in settings or in deployment execution definition");
             }
 
             ExitCode exitCode = await
@@ -145,7 +151,7 @@ namespace Milou.Deployer.Core.NuGet
                         _logger.Debug,
                         _logger.Error,
                         _logger.Debug,
-                        verboseAction: _logger.Verbose,
+                        _logger.Verbose,
                         debugAction: _logger.Debug)
                     .ConfigureAwait(false);
 

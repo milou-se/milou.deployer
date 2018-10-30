@@ -18,6 +18,7 @@ using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Core.XmlTransformation;
+using Newtonsoft.Json;
 using NuGet.Versioning;
 using Serilog;
 
@@ -99,14 +100,15 @@ namespace Milou.Deployer.Core.Deployment
 
             try
             {
-                _logger.Verbose("Executing deployment executions [{Length}]: {Executions}",
+                _logger.Verbose("Executing deployment execution definitions [{Length}]: {Executions}",
                     deploymentExecutionDefinitions.Length,
                     string.Join($"{Environment.NewLine}\t", deploymentExecutionDefinitions.Select(_ => $"'{_}'")));
 
                 foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
                 {
-                    _logger.Information("Executing deployment execution: '{DeploymentExecutionDefinition}'",
-                        deploymentExecutionDefinition);
+                    string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
+                    _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
+                        asJson);
 
                     const string TempPrefix = "MD-";
 
