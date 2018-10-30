@@ -140,18 +140,20 @@ namespace Milou.Deployer.Core.NuGet
 
             ExitCode exitCode = await
                 ProcessRunner.ExecuteProcessAsync(
-                    executePath,
-                    arguments,
-                    _logger.Verbose,
-                    _logger.Error,
-                    _logger.Verbose,
-                    debugAction: _logger.Debug).ConfigureAwait(false);
+                        executePath,
+                        arguments,
+                        _logger.Debug,
+                        _logger.Error,
+                        _logger.Debug,
+                        verboseAction: _logger.Verbose,
+                        debugAction: _logger.Debug)
+                    .ConfigureAwait(false);
 
             if (!exitCode.IsSuccess)
             {
-                _logger.Error("The process {Process} {Arguments} failed with exit code {ExitCode}",
+                _logger.Error("The package installer process '{Process}' {Arguments} failed with exit code {ExitCode}",
                     executePath,
-                    arguments,
+                    string.Join(" ", arguments.Select(arg => $"\"{arg}\"")),
                     exitCode);
                 return MayBe<InstalledPackage>.Nothing;
             }

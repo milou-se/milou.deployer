@@ -139,7 +139,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             string startInfoArguments = string.Join(" ", appArgs.Select(arg => $"\"{arg}\""));
             string startInfoFileName = deployerToolFile.FullName;
 
-            _logger.Verbose("Running process {Process} with arguments {Args}", startInfoFileName, startInfoArguments);
+            _logger.Verbose("Running deployer process '{Process}' with arguments {Args}", startInfoFileName, startInfoArguments);
 
             using (var process = new Process())
             {
