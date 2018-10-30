@@ -538,8 +538,12 @@ namespace Milou.Deployer.Core.Processes
 
             if (_taskCompletionSource.Task.CanBeAwaited())
             {
-                throw new InvalidOperationException(
-                    $"Task result has already been set to {_taskCompletionSource.Task.Status}, cannot re-set to exit code to {result}");
+                if (_taskCompletionSource.Task.IsCompleted && _taskCompletionSource.Task.Result != result)
+                {
+                    _toolAction.Invoke(
+                        $"Task result has already been set to {_taskCompletionSource.Task.Status}, cannot re-set to exit code to {result}",
+                        null);
+                }
             }
 
             _taskCompletionSource.TrySetResult(result);
