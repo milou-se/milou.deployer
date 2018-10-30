@@ -124,9 +124,8 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add("-ExcludeVersion");
             }
 
-            if (
-                _keyValueConfiguration[ConfigurationKeys.NuGetNoCache]
-                    .ParseAsBooleanOrDefault())
+            if (_keyValueConfiguration[ConfigurationKeys.NuGetNoCache]
+                .ParseAsBooleanOrDefault())
             {
                 arguments.Add("-NoCache");
             }
@@ -166,11 +165,11 @@ namespace Milou.Deployer.Core.NuGet
                 ProcessRunner.ExecuteProcessAsync(
                         executePath,
                         arguments,
-                        _logger.Debug,
-                        _logger.Error,
-                        _logger.Debug,
-                        _logger.Verbose,
-                        debugAction: _logger.Debug)
+                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                        (message, category) => _logger.Error("{Category} {Message}", category, message),
+                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                        (message, category) => _logger.Verbose("{Category} {Message}", category, message),
+                        debugAction: (message, category) => _logger.Debug("{Category} {Message}", category, message))
                     .ConfigureAwait(false);
 
             if (!exitCode.IsSuccess)

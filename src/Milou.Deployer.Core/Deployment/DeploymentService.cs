@@ -584,20 +584,17 @@ namespace Milou.Deployer.Core.Deployment
 
             var allFoundEnvironmentPackages = new List<string>();
 
-            ExitCode nugetListPackagesExitCode;
-
-                nugetListPackagesExitCode =
-                    await
-                        ProcessRunner.ExecuteProcessAsync(
-                            DeployerConfiguration.NuGetExePath,
-                            arguments: listCommands,
-                            standardOutLog: (message, _) =>
-                            {
-                                _logger.Verbose("Found package '{Message}'", message);
-                                allFoundEnvironmentPackages.Add(message);
-                            },
-                            toolAction: _logger.Verbose,
-                            cancellationToken: cancellationToken).ConfigureAwait(false);
+            ExitCode nugetListPackagesExitCode = await
+                ProcessRunner.ExecuteProcessAsync(
+                    DeployerConfiguration.NuGetExePath,
+                    arguments: listCommands,
+                    standardOutLog: (message, category) =>
+                    {
+                        _logger.Verbose("{Category} Found package '{Message}'",category, message);
+                        allFoundEnvironmentPackages.Add(message);
+                    },
+                    toolAction: (category, message) =>_logger.Verbose("{Category} {Message}", category, message),
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
 
 
             if (!nugetListPackagesExitCode.IsSuccess)

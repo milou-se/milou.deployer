@@ -42,7 +42,7 @@ namespace Milou.Deployer.Tests.Integration
       ""RequireEnvironmentConfig"": false,
       ""IisSitename"": null,
       ""NuGetConfigFile"": null,
-      ""NuGetPackageSource"": ""nuget.org""
+      ""NuGetPackageSource"": null
     }}
   ]
 }}
@@ -79,13 +79,11 @@ namespace Milou.Deployer.Tests.Integration
 
                             Assert.Single(deploymentExecutionDefinition.definitions);
 
-                            Assert.Equal("nuget.org", deploymentExecutionDefinition.definitions[0].NuGetPackageSource);
-
                             string[] args = { tempFile.File.FullName };
 
                             Logger logger = new LoggerConfiguration()
                                 .WriteTo.TestSink(_output)
-                                .MinimumLevel.Information()
+                                .MinimumLevel.Verbose()
                                 .CreateLogger();
 
                             using (logger)
@@ -104,7 +102,7 @@ namespace Milou.Deployer.Tests.Integration
 
                 if (exitCode != 0)
                 {
-                    break;
+                   // break;
                 }
 
                 Assert.Equal(0, exitCode);
