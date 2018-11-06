@@ -349,13 +349,8 @@ namespace Milou.Deployer.Core.Processes
                     $"The process '{processWithArgs}' {temp} running in {bits}-bit mode",
                     ProcessRunnerName);
             }
-            catch (Exception ex)
+            catch (Exception ex) when(!ex.IsFatal())
             {
-                if (ex.IsFatal())
-                {
-                    throw;
-                }
-
                 _standardErrorAction?.Invoke($"An error occured while running process {processWithArgs}: {ex}", ProcessRunnerName);
                 SetResultException(ex);
             }
@@ -478,13 +473,8 @@ namespace Milou.Deployer.Core.Processes
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when(!ex.IsFatal())
             {
-                if (ex.IsFatal())
-                {
-                    throw;
-                }
-
                 debugAction($"Could not check processes. {ex}", ProcessRunnerName);
             }
 
@@ -530,7 +520,7 @@ namespace Milou.Deployer.Core.Processes
 
                 procExitCode = proc.ExitCode;
             }
-            catch (Exception ex)
+            catch (Exception ex) when(!ex.IsFatal())
             {
                 _standardErrorAction?.Invoke($"Failed to get exit code from process {ex}", ProcessRunnerName);
 

@@ -124,7 +124,7 @@ namespace Milou.Deployer.ConsoleClient
                     return _appExit.ExitFailure();
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when(!ex.IsFatal())
             {
                 _logger.Error(ex, "Unhandled application error");
                 exitCode = _appExit.ExitFailure();

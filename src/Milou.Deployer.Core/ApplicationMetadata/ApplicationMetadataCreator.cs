@@ -10,6 +10,7 @@ using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Core.ApplicationMetadata
 {
@@ -136,13 +137,13 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
                 return fileVersion;
             }
-            catch (Exception)
+            catch (Exception ex) when(!ex.IsFatal())
             {
                 try
                 {
                     return currentAssembly.ImageRuntimeVersion;
                 }
-                catch (Exception)
+                catch (Exception innerEx) when(!innerEx.IsFatal())
                 {
                     // ignored
                 }

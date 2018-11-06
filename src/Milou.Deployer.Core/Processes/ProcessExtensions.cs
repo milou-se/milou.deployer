@@ -18,13 +18,8 @@ namespace Milou.Deployer.Core.Processes
                 {
                     processHandle = Process.GetProcessById(process.Id).Handle;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when(!ex.IsFatal())
                 {
-                    if (ex.IsFatal())
-                    {
-                        throw;
-                    }
-
                     return false;
                 }
 

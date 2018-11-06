@@ -33,7 +33,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private readonly ILogger _logger;
         private readonly IWebDeployHelper _webDeployHelper;
-        private readonly Func<IIISManager> _iisManager;
+        private readonly Func<DeploymentExecutionDefinition, IIISManager> _iisManager;
 
         private readonly PackageInstaller _packageInstaller;
 
@@ -44,7 +44,7 @@ namespace Milou.Deployer.Core.Deployment
             ILogger logger,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
-            Func<IIISManager> iisManager)
+            Func<DeploymentExecutionDefinition, IIISManager> iisManager)
         {
             if (logger == null)
             {
@@ -293,7 +293,7 @@ namespace Milou.Deployer.Core.Deployment
                                 tempFileInfo.Delete();
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) when(!ex.IsFatal())
                         {
                             _logger.Error(ex, "Could not apply web.config transform with {Transform}", deploymentExecutionDefinition.WebConfigTransformFile);
                             throw;
@@ -448,11 +448,11 @@ namespace Milou.Deployer.Core.Deployment
 
                     try
                     {
-                        using (IIISManager manager = _iisManager())
+                        using (IIISManager manager = _iisManager(deploymentExecutionDefinition))
                         {
                             if (hasIisSiteName)
                             {
-                                bool stopped = manager.StopSiteIfApplicable(deploymentExecutionDefinition);
+                                bool stopped = manager.StopSiteIfApplicable();
 
                                 if (!stopped)
                                 {
@@ -482,7 +482,7 @@ namespace Milou.Deployer.Core.Deployment
                             ).ConfigureAwait(false);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when(!ex.IsFatal())
                     {
                         _logger.Error(ex, "Could not handle start/stop for iis site {Site}", deploymentExecutionDefinition.IisSiteName);
                         throw;
@@ -590,10 +590,13 @@ namespace Milou.Deployer.Core.Deployment
                     arguments: listCommands,
                     standardOutLog: (message, category) =>
                     {
-                        _logger.Verbose("{Category} Found package '{Message}'",category, message);
+                        _logger.Verbose("{Category} Found package '{Message}'", category, message);
                         allFoundEnvironmentPackages.Add(message);
                     },
-                    toolAction: (category, message) =>_logger.Verbose("{Category} {Message}", category, message),
+                    toolAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
+                    debugAction: (category, message) => _logger.Debug("{Category} {Message}", category, message),
+                    verboseAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
+                    standardErrorAction: (category, message) => _logger.Error("{Category} {Message}", category, message),
                     cancellationToken: cancellationToken).ConfigureAwait(false);
 
 

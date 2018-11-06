@@ -55,7 +55,7 @@ namespace Milou.Deployer.ConsoleClient
                         .Add(new ReflectionKeyValueConfiguration(typeof(AppBuilder).Assembly))
                         .Add(new ReflectionKeyValueConfiguration(typeof(ConfigurationKeys).Assembly));
                 }
-                catch (Exception ex)
+                catch (Exception ex) when(!ex.IsFatal())
                 {
                     logger.Error(ex, "Could note create settings");
                     throw;
@@ -180,7 +180,7 @@ namespace Milou.Deployer.ConsoleClient
                     logger,
                     configuration,
                     new WebDeployHelper(),
-                    () => IISManager.Create(deployerConfiguration, logger));
+                    deploymentExecutionDefinition => IISManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition));
 
                 var fileReader = new DeploymentExecutionDefinitionFileReader();
 
@@ -246,7 +246,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 return file.FullName;
             }
-            catch (Exception)
+            catch (Exception ex) when(!ex.IsFatal())
             {
                 // ignore
                 return null;

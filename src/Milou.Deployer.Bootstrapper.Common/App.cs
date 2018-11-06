@@ -99,7 +99,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                         new NugetPackageSettings(allowPreRelease),
                         cancellationToken: cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when(!ex.IsFatal())
             {
                 _logger.Error(ex, "Could not download NuGet packages");
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
