@@ -158,10 +158,11 @@ namespace Milou.Deployer.ConsoleClient
 
             Type type = typeof(Program);
 
-            _logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion}",
+            _logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
                 type.Namespace,
                 assemblyVersion,
-                fileVersion);
+                fileVersion,
+                executingAssembly.Location);
         }
 
         private async Task<ExitCode> ExecuteAsync(string file, CancellationToken cancellationToken = default)

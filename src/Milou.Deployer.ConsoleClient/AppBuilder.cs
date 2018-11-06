@@ -144,7 +144,7 @@ namespace Milou.Deployer.ConsoleClient
 
                     using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                     {
-                        NuGetDownloadClient nuGetDownloadClient = new NuGetDownloadClient();
+                        var nuGetDownloadClient = new NuGetDownloadClient();
                         NuGetDownloadResult nuGetDownloadResult;
 
                         using (var httpClient = new HttpClient())
@@ -197,7 +197,7 @@ namespace Milou.Deployer.ConsoleClient
                     }
                 }
 
-                var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 return new DeployerApp(logger, deploymentService, fileReader, configuration, cancellationTokenSource);
             }
             catch (Exception ex) when (!ex.IsFatal())
