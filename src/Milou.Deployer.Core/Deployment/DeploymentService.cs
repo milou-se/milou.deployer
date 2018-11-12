@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Web.Deployment;
+using Arbor.KVConfiguration.Core;
+using Arbor.Xdt;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.ApplicationMetadata;
 using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Core.XmlTransformation;
-using Milou.Deployer.Waws;
+using Newtonsoft.Json;
 using NuGet.Versioning;
 using Serilog;
 
@@ -21,12 +26,14 @@ namespace Milou.Deployer.Core.Deployment
 {
     public sealed class DeploymentService
     {
-        private const string AppOfflineHtm = "App_Offline.htm";
+        public const string AppOfflineHtm = "App_Offline.htm";
         private readonly DirectoryCleaner _directoryCleaner;
 
         private readonly FileMatcher _fileMatcher;
 
         private readonly ILogger _logger;
+        private readonly IWebDeployHelper _webDeployHelper;
+        private readonly Func<DeploymentExecutionDefinition, IIISManager> _iisManager;
 
         private readonly PackageInstaller _packageInstaller;
 
@@ -34,11 +41,19 @@ namespace Milou.Deployer.Core.Deployment
 
         public DeploymentService(
             DeployerConfiguration deployerConfiguration,
-            ILogger logger)
+            ILogger logger,
+            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+            IWebDeployHelper webDeployHelper,
+            Func<DeploymentExecutionDefinition, IIISManager> iisManager)
         {
             if (logger == null)
             {
                 throw new ArgumentNullException(nameof(logger));
+            }
+
+            if (keyValueConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(keyValueConfiguration));
             }
 
             DeployerConfiguration =
@@ -46,19 +61,21 @@ namespace Milou.Deployer.Core.Deployment
 
             _directoryCleaner = new DirectoryCleaner(logger);
 
-            _packageInstaller = new PackageInstaller(logger, deployerConfiguration);
+            _packageInstaller = new PackageInstaller(logger, deployerConfiguration, keyValueConfiguration);
 
             _fileMatcher = new FileMatcher(logger);
 
             _xmlTransformer = new XmlTransformer(logger, _fileMatcher);
 
             _logger = logger;
+            _webDeployHelper = webDeployHelper;
+            _iisManager = iisManager;
         }
 
         public DeployerConfiguration DeployerConfiguration { get; }
 
         public async Task<ExitCode> DeployAsync(
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions)
+            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions, CancellationToken cancellationToken = default)
         {
             if (!deploymentExecutionDefinitions.Any())
             {
@@ -67,13 +84,14 @@ namespace Milou.Deployer.Core.Deployment
 
             if (string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetExePath))
             {
-                throw new ConfigurationErrorsException(
+                throw new InvalidOperationException(
                     $"The NuGet exe path is not defined, try set key '{ConfigurationKeys.NuGetExePath}'");
             }
 
             if (!File.Exists(DeployerConfiguration.NuGetExePath))
             {
-                throw new ConfigurationErrorsException(
+                _logger.Error("The nuget.exe at '{Path}' does not exist", DeployerConfiguration.NuGetExePath);
+                throw new InvalidOperationException(
                     $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
             }
 
@@ -82,18 +100,19 @@ namespace Milou.Deployer.Core.Deployment
 
             try
             {
-                _logger.Verbose("Executing deployment executions [{Length}]: {V}",
+                _logger.Verbose("Executing deployment execution definitions [{Length}]: {Executions}",
                     deploymentExecutionDefinitions.Length,
                     string.Join($"{Environment.NewLine}\t", deploymentExecutionDefinitions.Select(_ => $"'{_}'")));
 
                 foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
                 {
-                    _logger.Information("Executing deployment execution: '{DeploymentExecutionDefinition}'",
-                        deploymentExecutionDefinition);
+                    string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
+                    _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
+                        asJson);
 
                     const string TempPrefix = "MD-";
 
-                    string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff");
+                    string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
 
                     string tempPath = Path.Combine(
                         Path.GetTempPath(),
@@ -105,12 +124,12 @@ namespace Milou.Deployer.Core.Deployment
                     MayBe<InstalledPackage> installedMainPackage =
                         await _packageInstaller.InstallPackageAsync(deploymentExecutionDefinition,
                             packageInstallTempDirectoryInfo,
-                            false);
+                            false).ConfigureAwait(false);
 
                     if (!installedMainPackage.HasValue)
                     {
-                        _logger.Error("Could not install package defined in {V} {DeploymentExecutionDefinition}",
-                            nameof(DeploymentExecutionDefinition),
+                        _logger.Error(
+                            "Could not install package defined in deployment execution definition {DeploymentExecutionDefinition}",
                             deploymentExecutionDefinition);
                         return ExitCode.Failure;
                     }
@@ -118,7 +137,7 @@ namespace Milou.Deployer.Core.Deployment
                     InstalledPackage installedPackage = installedMainPackage.Value;
 
                     _logger.Information(
-                        "Successfully installed NuGet package '{PackageId}' version '{V}' to path '{NugetPackageFullPath}'",
+                        "Successfully installed NuGet package '{PackageId}' version '{Version}' to path '{NugetPackageFullPath}'",
                         installedPackage.PackageId,
                         installedPackage.Version.ToNormalizedString(),
                         installedPackage.NugetPackageFullPath);
@@ -128,13 +147,13 @@ namespace Milou.Deployer.Core.Deployment
                     DirectoryInfo[] packagesDirectory = directoryInfo.GetDirectories();
 
                     DirectoryInfo packageDirectory =
-                        packagesDirectory.Single(directory => directory.Name.Equals(installedPackage.PackageId));
+                        packagesDirectory.Single(directory => directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
 
                     SemanticVersion version = GetSemanticVersionFromDefinition(deploymentExecutionDefinition,
                         packageDirectory,
                         installedPackage.Version);
 
-                    _logger.Verbose("Package version is {V}", version.ToNormalizedString());
+                    _logger.Verbose("Package version is {Version}", version.ToNormalizedString());
 
                     var possibleXmlTransformations = new List<FileMatch>();
                     var replaceFiles = new List<FileMatch>();
@@ -148,7 +167,8 @@ namespace Milou.Deployer.Core.Deployment
                             possibleXmlTransformations,
                             replaceFiles,
                             tempDirectoriesToClean,
-                            version);
+                            version,
+                            cancellationToken).ConfigureAwait(false);
 
                         if (!environmentPackageResult.IsSuccess)
                         {
@@ -157,7 +177,7 @@ namespace Milou.Deployer.Core.Deployment
                     }
                     else
                     {
-                        _logger.Information("Definition has no environment configuration specified");
+                        _logger.Debug("Definition has no environment configuration specified");
                     }
 
                     var contentDirectory =
@@ -214,7 +234,73 @@ namespace Milou.Deployer.Core.Deployment
                         replacedFiles.AddRange(result.ReplacedFiles);
                     }
 
-                    string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff");
+                    if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
+                    {
+                        try
+                        {
+                            _logger.Debug(
+                                "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
+                                deploymentExecutionDefinition.WebConfigTransformFile,
+                                deploymentExecutionDefinition);
+
+                            var transformFile = new FileInfo(deploymentExecutionDefinition.WebConfigTransformFile);
+
+                            if (transformFile.Exists)
+                            {
+                                string tempFileName = Path.GetTempFileName();
+
+                                var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
+
+                                if (webConfig.Exists)
+                                {
+                                    using (var x = new XmlTransformableDocument())
+                                    {
+                                        x.PreserveWhitespace = true;
+                                        x.Load(webConfig.FullName);
+
+                                        using (var transform = new Arbor.Xdt.XmlTransformation(transformFile.FullName))
+                                        {
+                                            bool succeed = transform.Apply(x);
+
+                                            if (succeed)
+                                            {
+                                                using (var fsDestFileStream =
+                                                    new FileStream(tempFileName, FileMode.OpenOrCreate))
+                                                {
+                                                    x.Save(fsDestFileStream);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                var tempFileInfo = new FileInfo(tempFileName);
+
+                                if (tempFileInfo.Exists && tempFileInfo.Length > 0)
+                                {
+                                    _logger.Information(
+                                        "Successfully transformed web.config with transformation {Transformation}",
+                                        deploymentExecutionDefinition.WebConfigTransformFile);
+                                    tempFileInfo.CopyTo(webConfig.FullName, overwrite: true);
+                                }
+                                else
+                                {
+                                    _logger.Warning(
+                                        "Failed to transform web.config with transformation {Transformation}",
+                                        deploymentExecutionDefinition.WebConfigTransformFile);
+                                }
+
+                                tempFileInfo.Delete();
+                            }
+                        }
+                        catch (Exception ex) when(!ex.IsFatal())
+                        {
+                            _logger.Error(ex, "Could not apply web.config transform with {Transform}", deploymentExecutionDefinition.WebConfigTransformFile);
+                            throw;
+                        }
+                    }
+
+                    string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
 
                     string uniqueTargetTempPath = Path.Combine(
                         Path.GetTempPath(),
@@ -225,7 +311,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!targetTempDirectoryInfo.Exists)
                     {
-                        _logger.Information("Creating temp target directory '{FullName}'",
+                        _logger.Debug("Creating temp target directory '{FullName}'",
                             packageInstallTempDirectoryInfo.FullName);
                         targetTempDirectoryInfo.Create();
                     }
@@ -234,7 +320,8 @@ namespace Milou.Deployer.Core.Deployment
 
                     var wwwRootDirectory = new DirectoryInfo(wwwrootPath);
 
-                    DirectoryInfo applicationMetadataTargetDirectory = wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
+                    DirectoryInfo applicationMetadataTargetDirectory =
+                        wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
 
                     ApplicationMetadataCreator.SetVersionFile(installedMainPackage.Value,
                         applicationMetadataTargetDirectory,
@@ -253,7 +340,8 @@ namespace Milou.Deployer.Core.Deployment
 
                     var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, AppOfflineHtm));
 
-                    if (appOfflineEnabled && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
+                    if (appOfflineEnabled
+                        && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
                     {
                         string sourceAppOffline = Path.Combine(contentDirectory.FullName, AppOfflineHtm);
 
@@ -269,7 +357,7 @@ namespace Milou.Deployer.Core.Deployment
 
                                 if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
                                 {
-                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline);
+                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline).ConfigureAwait(false);
                                 }
 
                                 tempFilesToClean.Add(targetAppOffline.FullName);
@@ -284,14 +372,14 @@ namespace Milou.Deployer.Core.Deployment
 
                     tempDirectoriesToClean.Add(targetTempDirectoryInfo);
 
-                    _logger.Information("Copied content files from '{ContentDirectory}' to '{FullName}'",
+                    _logger.Debug("Copied content files from '{ContentDirectory}' to '{FullName}'",
                         contentDirectory,
                         targetTempDirectoryInfo.FullName);
                     tempDirectoriesToClean.Add(packageInstallTempDirectoryInfo);
 
                     bool hasPublishSettingsFile =
-                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile) &&
-                        File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
+                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile)
+                        && File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
 
                     if (hasPublishSettingsFile)
                     {
@@ -303,7 +391,6 @@ namespace Milou.Deployer.Core.Deployment
                         _logger.Debug("The deployment definition has no publish setting file");
                     }
 
-                    var webDeployHelper = new WebDeployHelper();
                     bool doNotDeleteEnabled = deploymentExecutionDefinition.DoNotDeleteEnabled(DeployerConfiguration
                         .WebDeploy.Rules.DoNotDeleteRuleEnabled);
 
@@ -321,26 +408,26 @@ namespace Milou.Deployer.Core.Deployment
 
                     bool whatIfEnabled = deploymentExecutionDefinition.WhatIfEnabled(false);
 
-                    _logger.Information("{RuleName}: {DoNotDeleteEnabled}",
+                    _logger.Debug("{RuleName}: {DoNotDeleteEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.DoNotDeleteRuleEnabled),
                         doNotDeleteEnabled);
-                    _logger.Information("{RuleName}: {AppOfflineEnabled}",
+                    _logger.Debug("{RuleName}: {AppOfflineEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.AppOfflineRuleEnabled),
                         appOfflineEnabled);
-                    _logger.Information("{RuleName}: {UseChecksumEnabled}",
+                    _logger.Debug("{RuleName}: {UseChecksumEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.UseChecksumRuleEnabled),
                         useChecksumEnabled);
-                    _logger.Information("{RuleName}: {AppDataSkipDirectiveEnabled}",
+                    _logger.Debug("{RuleName}: {AppDataSkipDirectiveEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.AppDataSkipDirectiveEnabled),
                         appDataSkipDirectiveEnabled);
-                    _logger.Information("{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
+                    _logger.Debug("{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
                         nameof(DeployerConfiguration.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled),
                         applicationInsightsProfiler2SkipDirectiveEnabled);
-                    _logger.Information("{RuleName}: {WhatIfEnabled}",
+                    _logger.Debug("{RuleName}: {WhatIfEnabled}",
                         nameof(DeploymentExecutionDefinitionExtensions.WhatIfEnabled),
                         whatIfEnabled);
 
-                    webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
+                    _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
                     {
                         if (string.IsNullOrWhiteSpace(args.Message))
                         {
@@ -349,30 +436,57 @@ namespace Milou.Deployer.Core.Deployment
 
                         if (args.EventLevel == TraceLevel.Verbose)
                         {
-                            _logger.Verbose(args.Message);
+                            _logger.Verbose("{Message}", args.Message);
                             return;
                         }
 
-                        _logger.Information(args.Message);
+                        _logger.Information("{Message}", args.Message);
                     };
 
-                    DeploymentChangeSummary summary = await webDeployHelper.DeployContentToOneSiteAsync(
-                        targetTempDirectoryInfo.FullName,
-                        deploymentExecutionDefinition.PublishSettingsFile,
-                        appOfflineDelay: DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                        doNotDelete: doNotDeleteEnabled,
-                        appOfflineEnabled: appOfflineEnabled,
-                        useChecksum: useChecksumEnabled,
-                        whatIf: whatIfEnabled,
-                        traceLevel: TraceLevel.Verbose,
-                        appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
-                        applicationInsightsProfiler2SkipDirectiveEnabled:
-                        applicationInsightsProfiler2SkipDirectiveEnabled,
-                        logAction: message => _logger.Information(message),
-                        targetPath: hasPublishSettingsFile
-                            ? string.Empty
-                            : deploymentExecutionDefinition.TargetDirectoryPath
-                    );
+                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
+                    IDeploymentChangeSummary summary;
+
+                    try
+                    {
+                        using (IIISManager manager = _iisManager(deploymentExecutionDefinition))
+                        {
+                            if (hasIisSiteName)
+                            {
+                                bool stopped = manager.StopSiteIfApplicable();
+
+                                if (!stopped)
+                                {
+                                    _logger.Error(
+                                        "Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}",
+                                        deploymentExecutionDefinition);
+                                    return ExitCode.Failure;
+                                }
+                            }
+
+                            summary = await _webDeployHelper.DeployContentToOneSiteAsync(
+                                targetTempDirectoryInfo.FullName,
+                                deploymentExecutionDefinition.PublishSettingsFile,
+                                DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                                doNotDelete: doNotDeleteEnabled,
+                                appOfflineEnabled: appOfflineEnabled,
+                                useChecksum: useChecksumEnabled,
+                                whatIf: whatIfEnabled,
+                                traceLevel: TraceLevel.Verbose,
+                                appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
+                                applicationInsightsProfiler2SkipDirectiveEnabled:
+                                applicationInsightsProfiler2SkipDirectiveEnabled,
+                                logAction: message => _logger.Debug("{Message}", message),
+                                targetPath: hasPublishSettingsFile
+                                    ? string.Empty
+                                    : deploymentExecutionDefinition.TargetDirectoryPath
+                            ).ConfigureAwait(false);
+                        }
+                    }
+                    catch (Exception ex) when(!ex.IsFatal())
+                    {
+                        _logger.Error(ex, "Could not handle start/stop for iis site {Site}", deploymentExecutionDefinition.IisSiteName);
+                        throw;
+                    }
 
                     _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
                 }
@@ -432,9 +546,9 @@ namespace Milou.Deployer.Core.Deployment
             List<FileMatch> possibleXmlTransformations,
             List<FileMatch> replaceFiles,
             List<DirectoryInfo> tempDirectoriesToClean,
-            SemanticVersion version)
+            SemanticVersion version, CancellationToken cancellationToken = default)
         {
-            _logger.Information("Fetching environment configuration {EnvironmentConfig}",
+            _logger.Debug("Fetching environment configuration {EnvironmentConfig}",
                 deploymentExecutionDefinition.EnvironmentConfig);
 
             string usedEnvironmentPackage = "";
@@ -450,6 +564,13 @@ namespace Milou.Deployer.Core.Deployment
                 "-AllVersions"
             };
 
+            if (!string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetConfig)
+                && File.Exists(DeployerConfiguration.NuGetConfig))
+            {
+                listCommands.Add("-ConfigFile");
+                listCommands.Add(DeployerConfiguration.NuGetConfig);
+            }
+
             if (deploymentExecutionDefinition.IsPreRelease)
             {
                 if (!DeployerConfiguration.AllowPreReleaseEnabled && !deploymentExecutionDefinition.Force)
@@ -463,17 +584,21 @@ namespace Milou.Deployer.Core.Deployment
 
             var allFoundEnvironmentPackages = new List<string>();
 
-            ExitCode nugetListPackagesExitCode =
-                await
-                    ProcessRunner.ExecuteAsync(
-                        DeployerConfiguration.NuGetExePath,
-                        arguments: listCommands,
-                        standardOutLog: (message, _) =>
-                        {
-                            _logger.Verbose("Found package '{Message}'", message);
-                            allFoundEnvironmentPackages.Add(message);
-                        },
-                        toolAction: _logger.Verbose);
+            ExitCode nugetListPackagesExitCode = await
+                ProcessRunner.ExecuteProcessAsync(
+                    DeployerConfiguration.NuGetExePath,
+                    arguments: listCommands,
+                    standardOutLog: (message, category) =>
+                    {
+                        _logger.Verbose("{Category} Found package '{Message}'", category, message);
+                        allFoundEnvironmentPackages.Add(message);
+                    },
+                    toolAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
+                    debugAction: (category, message) => _logger.Debug("{Category} {Message}", category, message),
+                    verboseAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
+                    standardErrorAction: (category, message) => _logger.Error("{Category} {Message}", category, message),
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
+
 
             if (!nugetListPackagesExitCode.IsSuccess)
             {
@@ -528,7 +653,7 @@ namespace Milou.Deployer.Core.Deployment
                         _packageInstaller.InstallPackageAsync(
                             deploymentDefinition,
                             tempOutputDirectory,
-                            false);
+                            false).ConfigureAwait(false);
 
                 if (!installedEnvironmentPackage.HasValue)
                 {
@@ -547,7 +672,7 @@ namespace Milou.Deployer.Core.Deployment
 
                 if (!configContentDirectory.Exists)
                 {
-                    _logger.Information("The content directory for the environment package does not exist");
+                    _logger.Debug("The content directory for the environment package does not exist");
                 }
                 else
                 {
@@ -569,7 +694,7 @@ namespace Milou.Deployer.Core.Deployment
 
                         string foundFiles = string.Join(", ", fileNamesToConcat);
 
-                        _logger.Information("Could not find any action files in package, all files {FoundFiles}",
+                        _logger.Debug("Could not find any action files in package, all files {FoundFiles}",
                             foundFiles);
                     }
                 }
@@ -584,14 +709,14 @@ namespace Milou.Deployer.Core.Deployment
                 if (deploymentExecutionDefinition.RequireEnvironmentConfig)
                 {
                     _logger.Error(
-                    "Environment config was set to {EnvironmentConfig} but no package was found with id {ExpectedPackageId} and version {Version}, deployment definition require the environment config",
-                    deploymentExecutionDefinition.EnvironmentConfig,
-                    expectedPackageId,
-                    expectedVersion.ToNormalizedString());
+                        "Environment config was set to {EnvironmentConfig} but no package was found with id {ExpectedPackageId} and version {Version}, deployment definition require the environment config",
+                        deploymentExecutionDefinition.EnvironmentConfig,
+                        expectedPackageId,
+                        expectedVersion.ToNormalizedString());
                     return new EnvironmentPackageResult(false);
                 }
 
-                _logger.Information(
+                _logger.Debug(
                     "Environment config was set to {EnvironmentConfig} but no package was found with id {ExpectedPackageId} and version {Version}",
                     deploymentExecutionDefinition.EnvironmentConfig,
                     expectedPackageId,
@@ -683,7 +808,7 @@ namespace Milou.Deployer.Core.Deployment
             string targetRelativePath = targetFileInfo.GetRelativePath(targetRootDirectory);
             string replacementRelativePath = replacement.GetRelativePath(replacementRootDirectory);
 
-            _logger.Information("Replaced file '{TargetRelativePath}' with new file '{ReplacementRelativePath}'",
+            _logger.Debug("Replaced file '{TargetRelativePath}' with new file '{ReplacementRelativePath}'",
                 targetRelativePath,
                 replacementRelativePath);
 

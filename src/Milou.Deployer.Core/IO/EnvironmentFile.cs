@@ -7,14 +7,14 @@ namespace Milou.Deployer.Core.IO
 {
     public sealed class EnvironmentFile
     {
-        public FileInfo File { get; }
-
-        public ImmutableArray<string> FileNameParts { get; }
-
         public EnvironmentFile(FileInfo fileInfo, IEnumerable<string> fileNameParts)
         {
             File = fileInfo ?? throw new ArgumentNullException(nameof(fileInfo));
             FileNameParts = fileNameParts?.ToImmutableArray() ?? throw new ArgumentNullException(nameof(fileNameParts));
         }
+
+        public FileInfo File { get; }
+
+        public ImmutableArray<string> FileNameParts { get; }
     }
 }

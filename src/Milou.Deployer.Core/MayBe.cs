@@ -30,14 +30,9 @@ namespace Milou.Deployer.Core
             }
         }
 
-        public static MayBe<T> Nothing()
-        {
-            return _Nothing.Value;
-        }
-
         public static implicit operator T(MayBe<T> mayBe)
         {
-            if (mayBe == null)
+            if (mayBe is null)
             {
                 throw new ArgumentNullException(nameof(mayBe));
             }
@@ -47,12 +42,14 @@ namespace Milou.Deployer.Core
 
         public static implicit operator MayBe<T>(T item)
         {
-            if (item == null)
-            {
-                return Nothing();
-            }
+            return item == null ? Nothing : new MayBe<T>(item);
+        }
 
-            return new MayBe<T>(item);
+        public static MayBe<T> Nothing => _Nothing.Value;
+
+        public MayBe<T> ToMayBe(T item)
+        {
+            return item == null ? Nothing : new MayBe<T>(item);
         }
     }
 }

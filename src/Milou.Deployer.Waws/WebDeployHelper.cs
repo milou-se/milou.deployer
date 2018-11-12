@@ -7,10 +7,11 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Web.Deployment;
+using Milou.Deployer.Core.Deployment;
 
 namespace Milou.Deployer.Waws
 {
-    public class WebDeployHelper
+    public class WebDeployHelper : IWebDeployHelper
     {
         private const string AppOfflineHtm = "App_Offline.htm";
 
@@ -30,7 +31,7 @@ namespace Milou.Deployer.Waws
         /// <param name="logAction">todo: describe logAction parameter on DeployContentToOneSite</param>
         /// <param name="appDataSkipDirectiveEnabled">todo: describe appDataSkipDirectiveEnabled parameter on DeployContentToOneSite</param>
         /// <returns>DeploymentChangeSummary.</returns>
-        public async Task<DeploymentChangeSummary> DeployContentToOneSiteAsync(
+        private async Task<DeploymentChangeSummary> DeployContentToOneSiteAsync2(
             string sourcePath,
             string publishSettingsFile,
             TimeSpan appOfflineDelay,
@@ -60,17 +61,17 @@ namespace Milou.Deployer.Waws
             if (appDataSkipDirectiveEnabled)
             {
                 destBaseOptions.SkipDirectives.Add(
-                    new DeploymentSkipDirective("AppData", $"objectName=\"dirpath\",absolutePath=App_Data"));
+                    new DeploymentSkipDirective("AppData", "objectName=\"dirpath\",absolutePath=App_Data"));
             }
 
             if (applicationInsightsProfiler2SkipDirectiveEnabled)
             {
                 destBaseOptions.SkipDirectives.Add(
                     new DeploymentSkipDirective("WebJobs",
-                        $"objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous"));
+                        "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous"));
                 destBaseOptions.SkipDirectives.Add(
                     new DeploymentSkipDirective("ApplicationInsightsProfiler2",
-                        $"objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous\\\\ApplicationInsightsProfiler2"));
+                        "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous\\\\ApplicationInsightsProfiler2"));
             }
 
             if (!string.IsNullOrEmpty(password))
@@ -123,7 +124,7 @@ namespace Milou.Deployer.Waws
 
             if (appOfflineEnabled)
             {
-                string ruleName = "AppOffline";
+                const string ruleName = "AppOffline";
                 bool added = AddDeploymentRule(syncOptions, ruleName);
 
                 if (added)
@@ -138,8 +139,9 @@ namespace Milou.Deployer.Waws
 
             if (!doNotDelete)
             {
-                if (targetProvider == DeploymentWellKnownProvider.DirPath && Directory.Exists(destinationPath) &&
-                    string.IsNullOrWhiteSpace(publishSettingsFile))
+                if (targetProvider == DeploymentWellKnownProvider.DirPath && Directory.Exists(destinationPath)
+                                                                          && string.IsNullOrWhiteSpace(
+                                                                              publishSettingsFile))
                 {
                     var sourceDir = new DirectoryInfo(sourcePath);
 
@@ -173,8 +175,8 @@ namespace Milou.Deployer.Waws
 
                             currentDirectory.Refresh();
 
-                            if (currentDirectory.GetFiles().Length == 0 &&
-                                currentDirectory.GetDirectories().Length == 0)
+                            if (currentDirectory.GetFiles().Length == 0
+                                && currentDirectory.GetDirectories().Length == 0)
                             {
                                 currentDirectory.Delete();
                                 logAction($"Deleted empty directory '{currentDirectory.FullName}'");
@@ -184,8 +186,8 @@ namespace Milou.Deployer.Waws
                         FileInfo[] toDelete = allTargetFiles
                             .Where(currentFile => !TargetExistsInSource(currentFile))
                             .Where(currentFile =>
-                                !appDataSkipDirectiveEnabled ||
-                                currentFile.FullName.IndexOf("App_Data", StringComparison.OrdinalIgnoreCase) < 0)
+                                !appDataSkipDirectiveEnabled
+                                || currentFile.FullName.IndexOf("App_Data", StringComparison.OrdinalIgnoreCase) < 0)
                             .ToArray();
 
                         foreach (FileInfo fileInfo in toDelete)
@@ -217,7 +219,7 @@ namespace Milou.Deployer.Waws
 
                 if (appOfflineFile != null)
                 {
-                    await Task.Delay(appOfflineDelay);
+                    await Task.Delay(appOfflineDelay).ConfigureAwait(false);
                 }
 
                 try
@@ -226,7 +228,6 @@ namespace Milou.Deployer.Waws
                     {
                         using (FileStream fileStream = File.Create(appOfflineFile.FullName))
                         {
-
                         }
                     }
 
@@ -263,9 +264,8 @@ namespace Milou.Deployer.Waws
 
         private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
         {
-            DeploymentRule newRule;
             DeploymentRuleCollection rules = DeploymentSyncOptions.GetAvailableRules();
-            bool added = rules.TryGetValue(name, out newRule);
+            bool added = rules.TryGetValue(name, out DeploymentRule newRule);
 
             if (added)
             {
@@ -307,9 +307,44 @@ namespace Milou.Deployer.Waws
 
         private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e)
         {
-            DeploymentTraceEventHandler?.Invoke(sender, e);
+            DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
         }
 
-        public event EventHandler<DeploymentTraceEventArgs> DeploymentTraceEventHandler;
+        public async Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
+            string sourcePath,
+            string publishSettingsFile,
+            TimeSpan appOfflineDelay,
+            string password = null,
+            bool allowUntrusted = false,
+            bool doNotDelete = true,
+            TraceLevel traceLevel = TraceLevel.Off,
+            bool whatIf = false,
+            string targetPath = null,
+            bool useChecksum = false,
+            bool appOfflineEnabled = false,
+            bool appDataSkipDirectiveEnabled = false,
+            bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
+            Action<string> logAction = null)
+        {
+            DeploymentChangeSummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
+                publishSettingsFile,
+                appOfflineDelay,
+                password,
+                allowUntrusted,
+                doNotDelete,
+                traceLevel,
+                whatIf,
+                targetPath,
+                useChecksum,
+                appOfflineEnabled,
+                appDataSkipDirectiveEnabled,
+                applicationInsightsProfiler2SkipDirectiveEnabled,
+                logAction
+            ).ConfigureAwait(false);
+
+            return new ResultAdapter(deploymentChangeSummary);
+        }
+
+        public event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
     }
 }

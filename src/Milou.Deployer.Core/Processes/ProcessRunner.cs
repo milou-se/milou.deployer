@@ -7,34 +7,133 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.Core.Extensions;
-using Serilog;
 
 namespace Milou.Deployer.Core.Processes
 {
-    public static class ProcessRunner
+    public sealed class ProcessRunner : IDisposable
     {
-        public static Task<ExitCode> ExecuteAsync(string executePath,
-            IEnumerable<string> arguments = null, ILogger logger = null,
-            IEnumerable<KeyValuePair<string, string>> environmentVariables = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+        private const string ProcessRunnerName = "["+ nameof(ProcessRunner) +"]";
+        private Action<string, string> _debugAction;
+        private bool _disposed;
+        private bool _disposing;
+
+        private ExitCode? _exitCode;
+        private Process _process;
+        private Action<string, string> _standardErrorAction;
+
+        private Action<string, string> _standardOutLog;
+        private TaskCompletionSource<ExitCode> _taskCompletionSource;
+        private Action<string, string> _toolAction;
+        private Action<string, string> _verboseAction;
+
+        private ProcessRunner()
         {
-            return ExecuteAsync(executePath, cancellationToken, arguments, standardOutLog: logger.Information,
-                standardErrorAction: logger.Error,
-                verboseAction: logger.Verbose, toolAction: logger.Information,
-                environmentVariables: environmentVariables,
-                debugAction: logger.Debug);
+            _process = new Process();
+            _taskCompletionSource =
+                new TaskCompletionSource<ExitCode>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
-        public static async Task<ExitCode> ExecuteAsync(string executePath,
-            CancellationToken cancellationToken = default(CancellationToken),
+        public static async Task<ExitCode> ExecuteProcessAsync(
+            string executePath,
             IEnumerable<string> arguments = null,
             Action<string, string> standardOutLog = null,
             Action<string, string> standardErrorAction = null,
             Action<string, string> toolAction = null,
             Action<string, string> verboseAction = null,
             IEnumerable<KeyValuePair<string, string>> environmentVariables = null,
-            Action<string, string> debugAction = null)
+            Action<string, string> debugAction = null,
+            CancellationToken cancellationToken = default)
         {
+            ExitCode exitCode;
+            Stopwatch processStopWatch = Stopwatch.StartNew();
+
+            string[] args = arguments?.ToArray() ?? Array.Empty<string>();
+
+            using (var runner = new ProcessRunner())
+            {
+                exitCode = await runner.ExecuteAsync(executePath,
+                    args,
+                    standardOutLog,
+                    standardErrorAction,
+                    toolAction,
+                    verboseAction,
+                    environmentVariables,
+                    debugAction,
+                    cancellationToken).ConfigureAwait(false);
+
+                await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            processStopWatch.Stop();
+            string processWithArgs = $"\"{executePath}\" {string.Join(" ", args.Select(arg => $"\"{arg}\""))}";
+            toolAction?.Invoke(
+                $"Running process {processWithArgs} took {processStopWatch.Elapsed.TotalMilliseconds:F1}",
+                ProcessRunnerName);
+
+            return exitCode;
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed && !_disposing)
+            {
+                _disposing = true;
+
+                _verboseAction?.Invoke(
+                    $"Task status: {_taskCompletionSource.Task.Status}, {_taskCompletionSource.Task.IsCompleted}",
+                    ProcessRunnerName);
+
+                _verboseAction?.Invoke("Disposing process", ProcessRunnerName);
+
+                if (_taskCompletionSource?.Task.CanBeAwaited() == false)
+                {
+                    _standardErrorAction?.Invoke("Task completion was not set on dispose, setting to failure", ProcessRunnerName);
+                    _taskCompletionSource.TrySetResult(ExitCode.Failure);
+                }
+
+                bool needsDisposeCheck = _taskCompletionSource?.Task.IsCompleted == false;
+
+                _taskCompletionSource = null;
+
+                if (_process != null)
+                {
+                    if (!needsDisposeCheck)
+                    {
+                        _process.Disposed -= OnDisposed;
+                    }
+
+                    _process.Dispose();
+
+                    if (needsDisposeCheck)
+                    {
+                        _process.Disposed -= OnDisposed;
+                    }
+
+                    _process.Exited -= OnExited;
+                }
+
+                _disposed = true;
+                _disposing = false;
+            }
+
+            _process = null;
+        }
+
+        private Task<ExitCode> ExecuteAsync(
+            string executePath,
+            IEnumerable<string> arguments = null,
+            Action<string, string> standardOutLog = null,
+            Action<string, string> standardErrorAction = null,
+            Action<string, string> toolAction = null,
+            Action<string, string> verboseAction = null,
+            IEnumerable<KeyValuePair<string, string>> environmentVariables = null,
+            Action<string, string> debugAction = null,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfDisposed();
+            ThrowIfDisposing();
+
             if (string.IsNullOrWhiteSpace(executePath))
             {
                 throw new ArgumentNullException(nameof(executePath));
@@ -51,32 +150,111 @@ namespace Milou.Deployer.Core.Processes
 
             string formattedArguments = string.Join(" ", usedArguments.Select(arg => $"\"{arg}\""));
 
-            Task<ExitCode> task = RunProcessAsync(executePath, formattedArguments, standardErrorAction, standardOutLog,
-                cancellationToken, toolAction, verboseAction, environmentVariables, debugAction);
+            Task<ExitCode> task = RunProcessAsync(executePath,
+                formattedArguments,
+                standardErrorAction,
+                standardOutLog,
+                toolAction,
+                verboseAction,
+                environmentVariables,
+                debugAction,
+                cancellationToken);
 
-            ExitCode exitCode = await task;
-
-            return exitCode;
+            return task;
         }
 
-        private static async Task<ExitCode> RunProcessAsync(string executePath, string formattedArguments,
-            Action<string, string> standardErrorAction, Action<string, string> standardOutputLog,
-            CancellationToken cancellationToken, Action<string, string> toolAction,
+        private bool IsAlive(
+            string processWithArgs,
+            CancellationToken cancellationToken)
+        {
+            if (CheckedDisposed())
+            {
+                _verboseAction?.Invoke($"Process {processWithArgs} does no longer exist", ProcessRunnerName);
+                return false;
+            }
+
+            if (_taskCompletionSource.Task.IsCompleted)
+            {
+                return false;
+            }
+
+            _process?.Refresh();
+
+            try
+            {
+                if (_process?.HasExited == true)
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                //ignore
+            }
+
+            if (_taskCompletionSource.Task.CanBeAwaited())
+            {
+                TaskStatus status = _taskCompletionSource.Task.Status;
+                _verboseAction?.Invoke($"Task status for process {processWithArgs} is {status}", ProcessRunnerName);
+                return false;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _verboseAction?.Invoke($"Cancellation is requested for process {processWithArgs}", ProcessRunnerName);
+                return false;
+            }
+
+            if (_exitCode.HasValue)
+            {
+                _verboseAction?.Invoke($"Process {processWithArgs} is flagged as done with exit code {_exitCode.Value}", ProcessRunnerName);
+                return false;
+            }
+
+            bool canBeAlive = !_taskCompletionSource.Task.CanBeAwaited();
+
+            return canBeAlive;
+        }
+
+        private bool CheckedDisposed()
+        {
+            return _disposed || _disposing;
+        }
+
+        private async Task<ExitCode> RunProcessAsync(
+            string executePath,
+            string formattedArguments,
+            Action<string, string> standardErrorAction,
+            Action<string, string> standardOutputLog,
+            Action<string, string> toolAction,
             Action<string, string> verboseAction = null,
             IEnumerable<KeyValuePair<string, string>> environmentVariables = null,
-            Action<string, string> debugAction = null)
+            Action<string, string> debugAction = null,
+            CancellationToken cancellationToken = default)
         {
-            Action<string, string> usedToolAction = toolAction ?? ((_, __) => { });
-            Action<string, string> standardAction = standardOutputLog ?? ((_, __) => { });
-            Action<string, string> errorAction = standardErrorAction ?? ((_, __) => { });
-            Action<string, string> verbose = verboseAction ?? ((_, __) => { });
-            Action<string, string> debug = debugAction ?? ((_, __) => { });
+            ThrowIfDisposed();
+            ThrowIfDisposing();
 
-            var taskCompletionSource = new TaskCompletionSource<ExitCode>();
+            cancellationToken.Register(EnsureTaskIsCompleted);
+
+            _toolAction = toolAction;
+            _standardOutLog = standardOutputLog;
+            _standardErrorAction = standardErrorAction;
+            _verboseAction = verboseAction;
+            _debugAction = debugAction;
+
+            if (!File.Exists(executePath))
+            {
+                throw new InvalidOperationException($"The executable file '{executePath}' does not exist");
+            }
+
+            var executableFile = new FileInfo(executePath);
+
+            string processName = $"[{ProcessRunnerName}][{executableFile.Name}]";
 
             string processWithArgs = $"\"{executePath}\" {formattedArguments}".Trim();
 
-            usedToolAction($"[{typeof(ProcessRunner).Name}] Executing: {processWithArgs}", null);
+            _toolAction?.Invoke($"{ProcessRunnerName} Executing: {processWithArgs}", ProcessRunnerName);
 
             bool useShellExecute = standardErrorAction == null && standardOutputLog == null;
 
@@ -89,10 +267,9 @@ namespace Milou.Deployer.Core.Processes
                 Arguments = formattedArguments,
                 RedirectStandardError = redirectStandardError,
                 RedirectStandardOutput = redirectStandardOutput,
-                UseShellExecute = useShellExecute
+                UseShellExecute = useShellExecute,
+                CreateNoWindow = true
             };
-
-#if !DOTNET5_4
 
             if (environmentVariables != null)
             {
@@ -102,149 +279,128 @@ namespace Milou.Deployer.Core.Processes
                 }
             }
 
-#endif
-
-            var exitCode = new ExitCode(-1);
-
-            var process = new Process
-            {
-                StartInfo = processStartInfo,
-                EnableRaisingEvents = true
-            };
-
-#if !DOTNET5_4
-            process.Disposed += (_, __) =>
-            {
-                if (!taskCompletionSource.Task.IsCompleted)
-                {
-                    verbose("Task was not completed, but process was disposed", null);
-                    taskCompletionSource.TrySetResult(ExitCode.Failure);
-                }
-                verbose($"Disposed process '{processWithArgs}'", null);
-            };
-
-#endif
+            _process.StartInfo = processStartInfo;
+            _process.Exited += OnExited;
+            _process.Disposed += OnDisposed;
 
             if (redirectStandardError)
             {
-                process.ErrorDataReceived += (_, args) =>
+                _process.ErrorDataReceived += (_, args) =>
                 {
                     if (args.Data != null)
                     {
-                        errorAction(args.Data, null);
-                    }
-                };
-            }
-            if (redirectStandardOutput)
-            {
-                process.OutputDataReceived += (_, args) =>
-                {
-                    if (args.Data != null)
-                    {
-                        standardAction(args.Data, null);
+                        _standardErrorAction?.Invoke(args.Data, null);
                     }
                 };
             }
 
-            process.Exited += (sender, _) =>
+            if (redirectStandardOutput && _standardOutLog != null)
             {
-                var proc = (Process) sender;
-                toolAction?.Invoke($"Process '{processWithArgs}' exited with code {new ExitCode(proc.ExitCode)}", null);
-                taskCompletionSource.SetResult(new ExitCode(proc.ExitCode));
-            };
+                _process.OutputDataReceived += (_, args) =>
+                {
+                    if (args.Data != null)
+                    {
+                        _standardOutLog(args.Data, processName);
+                    }
+                };
+            }
+
+            _process.EnableRaisingEvents = true;
 
             int processId = -1;
 
             try
             {
-                bool started = process.Start();
+                bool started = _process.Start();
 
                 if (!started)
                 {
-                    errorAction($"Process '{processWithArgs}' could not be started", null);
-                    return ExitCode.Failure;
+                    _standardErrorAction?.Invoke($"Process '{processWithArgs}' could not be started", null);
+
+                    SetFailureResult();
+
+                    return await _taskCompletionSource.Task.ConfigureAwait(false);
                 }
 
                 if (redirectStandardError)
                 {
-                    process.BeginErrorReadLine();
+                    _process.BeginErrorReadLine();
                 }
 
                 if (redirectStandardOutput)
                 {
-                    process.BeginOutputReadLine();
+                    _process.BeginOutputReadLine();
                 }
 
-                int bits = process.IsWin64() ? 64 : 32;
+                int bits = _process.IsWin64() ? 64 : 32;
 
                 try
                 {
-                    processId = process.Id;
+                    processId = _process.Id;
                 }
                 catch (InvalidOperationException ex)
                 {
-                    debug($"Could not get process id for process '{processWithArgs}'. {ex}", null);
+                    _debugAction?.Invoke($"Could not get process id for process '{processWithArgs}'. {ex}", null);
                 }
 
-                string temp = process.HasExited ? "was" : "is";
+                string temp = _process.HasExited ? "was" : "is";
 
-                verbose(
+                _verboseAction?.Invoke(
                     $"The process '{processWithArgs}' {temp} running in {bits}-bit mode",
-                    null);
+                    ProcessRunnerName);
             }
-            catch (Exception ex)
+            catch (Exception ex) when(!ex.IsFatal())
             {
-                if (ex.IsFatal())
-                {
-                    throw;
-                }
-                errorAction($"An error occured while running process {processWithArgs}: {ex}", null);
-                taskCompletionSource.SetException(ex);
+                _standardErrorAction?.Invoke($"An error occured while running process {processWithArgs}: {ex}", ProcessRunnerName);
+                SetResultException(ex);
             }
-            bool done = false;
+
+            if (_taskCompletionSource.Task.CanBeAwaited())
+            {
+                return await _taskCompletionSource.Task.ConfigureAwait(false);
+            }
+
             try
             {
-                while (IsAlive(process, taskCompletionSource.Task, cancellationToken, done, processWithArgs, verbose))
+                while (IsAlive(processWithArgs, cancellationToken))
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
                         break;
                     }
+
                     Task delay = Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
 
-                    await delay;
+                    await delay.ConfigureAwait(false);
 
-                    if (taskCompletionSource.Task.IsCompleted)
+                    if (_taskCompletionSource.Task.IsCompleted)
                     {
-                        done = true;
-                        exitCode = await taskCompletionSource.Task;
+                        _exitCode = await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
-                    else if (taskCompletionSource.Task.IsCanceled)
+                    else if (_taskCompletionSource.Task.IsCanceled)
                     {
-                        exitCode = ExitCode.Failure;
+                        _exitCode = await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
-                    else if (taskCompletionSource.Task.IsFaulted)
+                    else if (_taskCompletionSource.Task.IsFaulted)
                     {
-                        exitCode = ExitCode.Failure;
-                    }
-                    else
-                    {
-                        exitCode = ExitCode.Failure;
+                        _exitCode = await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
                 }
             }
             finally
             {
-#if !DOTNET5_4
-                if (!exitCode.IsSuccess)
+                if (_exitCode?.IsSuccess is null || !_exitCode.Value.IsSuccess)
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
-                        if (process != null && !process.HasExited)
+                        _process?.Refresh();
+
+                        if (_process?.HasExited == false)
                         {
                             try
                             {
-                                toolAction($"Cancellation is requested, trying to kill process {processWithArgs}", null);
+                                toolAction($"Cancellation is requested, trying to kill process {processWithArgs}",
+                                    ProcessRunnerName);
 
                                 if (processId > 0)
                                 {
@@ -252,108 +408,211 @@ namespace Milou.Deployer.Core.Processes
                                     string killProcessPath =
                                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),
                                             "taskkill.exe");
-                                    toolAction($"Running {killProcessPath} {args}", null);
-                                    Process.Start(killProcessPath, args);
+                                    toolAction($"Running {killProcessPath} {args}", ProcessRunnerName);
 
-                                    errorAction(
-                                        $"Killed process {processWithArgs} because cancellation was requested", null);
+                                    using (Process.Start(killProcessPath, args))
+                                    {
+                                    }
+
+                                    _standardErrorAction?.Invoke(
+                                        $"Killed process {processWithArgs} because cancellation was requested",
+                                        ProcessRunnerName);
                                 }
                                 else
                                 {
                                     debugAction(
                                         $"Could not kill process '{processWithArgs}', missing process id",
-                                        null);
+                                        ProcessRunnerName);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception ex) when (!ex.IsFatal())
                             {
-                                if (ex.IsFatal())
-                                {
-                                    throw;
-                                }
-
-                                errorAction(
+                                _standardErrorAction?.Invoke(
                                     $"ProcessRunner could not kill process {processWithArgs} when cancellation was requested",
-                                    null);
-                                errorAction(
-                                    $"Could not kill process {processWithArgs} when cancellation was requested", null);
-                                errorAction(ex.ToString(), null);
+                                    ProcessRunnerName);
+
+                                _standardErrorAction?.Invoke(
+                                    $"Could not kill process {processWithArgs} when cancellation was requested",
+                                    ProcessRunnerName);
+
+                                _standardErrorAction?.Invoke(ex.ToString(), ProcessRunnerName);
                             }
                         }
                     }
                 }
-#endif
-                using (process)
-                {
-                    verbose(
-                        $"Task status: {taskCompletionSource.Task.Status}, {taskCompletionSource.Task.IsCompleted}",
-                        null);
-                    verbose($"Disposing process {processWithArgs}", null);
-                }
+
             }
 
-            verbose($"Process runner exit code {exitCode} for process {processWithArgs}", null);
+            _verboseAction?.Invoke($"Process runner exit code {_exitCode} for process {processWithArgs}", ProcessRunnerName);
 
             try
             {
                 if (processId > 0)
                 {
-                    Process stillRunningProcess = Process.GetProcesses().SingleOrDefault(p => p.Id == processId);
+                    bool stillAlive = false;
 
-                    if (stillRunningProcess != null)
+                    using (Process stillRunningProcess = Process.GetProcesses().SingleOrDefault(p => p.Id == processId))
                     {
-                        if (!stillRunningProcess.HasExited)
+                        if (stillRunningProcess != null)
                         {
-                            errorAction(
-                                $"The process with ID {processId.ToString(CultureInfo.InvariantCulture)} '{processWithArgs}' is still running",
-                                null);
-
-                            return ExitCode.Failure;
+                            if (!stillRunningProcess.HasExited)
+                            {
+                                stillAlive = true;
+                            }
                         }
+                    }
+
+                    if (stillAlive)
+                    {
+                        _verboseAction?.Invoke(
+                            $"The process with ID {processId.ToString(CultureInfo.InvariantCulture)} '{processWithArgs}' is still running",
+                            ProcessRunnerName);
+                        SetFailureResult();
+
+                        return await _taskCompletionSource.Task.ConfigureAwait(false);
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when(!ex.IsFatal())
             {
-                if (ex.IsFatal())
-                {
-                    throw;
-                }
-                debugAction($"Could not check processes. {ex}", null);
+                debugAction($"Could not check processes. {ex}", ProcessRunnerName);
             }
 
-            return exitCode;
+            return await _taskCompletionSource.Task.ConfigureAwait(false);
         }
 
-        private static bool IsAlive(Process process, Task<ExitCode> task, CancellationToken cancellationToken, bool done,
-            string processWithArgs, Action<string, string> verbose)
+        private void EnsureTaskIsCompleted()
         {
-            if (process == null)
+            if (!CheckedDisposed() && _taskCompletionSource?.Task.CanBeAwaited() == false)
             {
-                verbose($"Process {processWithArgs} does no longer exist", null);
-                return false;
+                _taskCompletionSource.TrySetCanceled();
+            }
+        }
+
+        private void OnExited(object sender, EventArgs e)
+        {
+            if (!(sender is Process proc))
+            {
+                if (!_taskCompletionSource.Task.CanBeAwaited())
+                {
+                    _standardErrorAction?.Invoke("Task is not in a valid state, sender is not process", ProcessRunnerName);
+                    SetFailureResult();
+                }
+
+                return;
             }
 
-            if (task.IsCompleted || task.IsFaulted || task.IsCanceled)
+            proc.EnableRaisingEvents = false;
+
+            if (_taskCompletionSource.Task.CanBeAwaited())
             {
-                TaskStatus status = task.Status;
-                verbose($"Task status for process {processWithArgs} is {status}", null);
-                return false;
+                return;
             }
 
-            if (cancellationToken.IsCancellationRequested)
+            proc.Refresh();
+            int procExitCode;
+            try
             {
-                verbose($"Cancellation is requested for process {processWithArgs}", null);
-                return false;
+                if (_taskCompletionSource.Task.CanBeAwaited())
+                {
+                    return;
+                }
+
+                procExitCode = proc.ExitCode;
+            }
+            catch (Exception ex) when(!ex.IsFatal())
+            {
+                _standardErrorAction?.Invoke($"Failed to get exit code from process {ex}", ProcessRunnerName);
+
+                SetResultException(ex);
+
+                return;
             }
 
-            if (done)
+            var result = new ExitCode(procExitCode);
+            _toolAction?.Invoke($"Process '{_process.StartInfo.Arguments}' exited with code {result}", ProcessRunnerName);
+
+            if (!_taskCompletionSource.Task.CanBeAwaited())
             {
-                verbose($"Process {processWithArgs} is flagged as done", null);
-                return false;
+                SetSuccessResult(result);
+            }
+        }
+
+        private void SetSuccessResult(ExitCode result)
+        {
+            ThrowIfDisposed();
+            ThrowIfDisposing();
+
+            if (_taskCompletionSource.Task.CanBeAwaited())
+            {
+                if (_taskCompletionSource.Task.IsCompleted && _taskCompletionSource.Task.Result != result)
+                {
+                    _toolAction.Invoke(
+                        $"Task result has already been set to {_taskCompletionSource.Task.Status}, cannot re-set to exit code to {result}",
+                        ProcessRunnerName);
+                }
             }
 
-            return true;
+            _taskCompletionSource.TrySetResult(result);
+        }
+
+        private void SetResultException(Exception ex)
+        {
+            ThrowIfDisposed();
+            ThrowIfDisposing();
+
+            if (_taskCompletionSource.Task.CanBeAwaited())
+            {
+                throw new InvalidOperationException(
+                    $"Task result has already been set to {_taskCompletionSource.Task.Status}, cannot re-set to with exception",
+                    ex);
+            }
+
+            _taskCompletionSource.TrySetException(ex);
+        }
+
+        private void SetFailureResult()
+        {
+            ThrowIfDisposed();
+            ThrowIfDisposing();
+
+            if (_taskCompletionSource.Task.CanBeAwaited())
+            {
+                if (!_taskCompletionSource.Task.IsCompleted || _taskCompletionSource.Task.Result != ExitCode.Failure)
+                {
+                    throw new InvalidOperationException(
+                        $"Task result has already been set to {_taskCompletionSource.Task.Status}, cannot re-set to exit code to {ExitCode.Failure}");
+                }
+            }
+
+            _taskCompletionSource.TrySetResult(ExitCode.Failure);
+        }
+
+        private void OnDisposed(object sender, EventArgs _)
+        {
+            if (!_taskCompletionSource.Task.CanBeAwaited())
+            {
+                _verboseAction?.Invoke("Task was not completed, but process was disposed", ProcessRunnerName);
+                SetFailureResult();
+            }
+
+            _verboseAction?.Invoke("Disposed process", ProcessRunnerName);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(ProcessRunnerName);
+            }
+        }
+
+        private void ThrowIfDisposing()
+        {
+            if (_disposed)
+            {
+                throw new InvalidOperationException("Disposing in progress");
+            }
         }
     }
 }
