@@ -16,6 +16,8 @@ namespace Milou.Deployer.Tests.Integration
 {
     public class DeployingTestPackage
     {
+        public const string PackageId = "MilouDeployerWebTest";
+
         public DeployingTestPackage(ITestOutputHelper output)
         {
             _output = output;
@@ -34,7 +36,7 @@ namespace Milou.Deployer.Tests.Integration
       ""EnvironmentConfig"": null,
       ""PublishSettingsFile"": null,
       ""Force"": false,
-      ""PackageId"": ""MilouDeployerWebTest"",
+      ""PackageId"": ""{PackageId}"",
       ""Parameters"": {{}},
       ""TargetDirectoryPath"": ""{testTargetDirectory.FullName.Replace("\\", "\\\\")}"",
       ""IsPreRelease"": false,
