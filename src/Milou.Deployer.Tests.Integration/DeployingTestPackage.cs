@@ -16,12 +16,12 @@ namespace Milou.Deployer.Tests.Integration
 {
     public class DeployingTestPackage
     {
-        public const string PackageId = "MilouDeployerWebTest";
-
         public DeployingTestPackage(ITestOutputHelper output)
         {
             _output = output;
         }
+
+        public const string PackageId = "MilouDeployerWebTest";
 
         private readonly ITestOutputHelper _output;
 
@@ -60,58 +60,95 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public async Task RunAsync()
         {
-            for (int i = 1; i <= 3; i++)
+            string oldTemp = Path.GetTempPath();
+
+            using (TempDirectory tempDir = TempDirectory.CreateTempDirectory())
             {
-                _output.WriteLine($"RUN {i}");
-                int exitCode;
-                using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                try
                 {
-                    using (TempDirectory testTargetDirectory = TempDirectory.CreateTempDirectory())
+                    Environment.SetEnvironmentVariable("TEMP", tempDir.Directory.FullName);
+
+                    for (int i = 1; i <= 3; i++)
                     {
-                        using (TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
+                        _output.WriteLine($"RUN {i}");
+                        int exitCode;
+                        using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                         {
-                            string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
-
-                            _output.WriteLine(json);
-
-                            var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json, new {definitions=Array.Empty<DeploymentExecutionDefinition>()});
-
-                            Assert.NotNull(deploymentExecutionDefinition);
-                            Assert.NotNull(deploymentExecutionDefinition.definitions);
-
-                            Assert.Single(deploymentExecutionDefinition.definitions);
-
-                            string[] args = { tempFile.File.FullName };
-
-                            Logger logger = new LoggerConfiguration()
-                                .WriteTo.TestSink(_output)
-                                .MinimumLevel.Verbose()
-                                .CreateLogger();
-
-                            using (logger)
+                            using (TempDirectory testTargetDirectory = TempDirectory.CreateTempDirectory())
                             {
-                                using (DeployerApp deployerApp = await
-                                    AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
+                                using (TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
                                 {
-                                    exitCode = await deployerApp.ExecuteAsync(args, cancellationTokenSource.Token);
+                                    string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
+
+                                    _output.WriteLine(json);
+
+                                    var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json,
+                                        new { definitions = Array.Empty<DeploymentExecutionDefinition>() });
+
+                                    Assert.NotNull(deploymentExecutionDefinition);
+                                    Assert.NotNull(deploymentExecutionDefinition.definitions);
+
+                                    Assert.Single(deploymentExecutionDefinition.definitions);
+
+                                    string[] args = { tempFile.File.FullName };
+
+                                    Logger logger = new LoggerConfiguration()
+                                        .WriteTo.TestSink(_output)
+                                        .MinimumLevel.Verbose()
+                                        .CreateLogger();
+
+                                    using (logger)
+                                    {
+                                        using (DeployerApp deployerApp = await
+                                            AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
+                                        {
+                                            exitCode = await deployerApp.ExecuteAsync(args,
+                                                cancellationTokenSource.Token);
+                                        }
+
+                                        logger?.Dispose();
+                                    }
                                 }
 
-                                logger?.Dispose();
+                                FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
+
+                                Assert.NotNull(indexHtml);
                             }
                         }
+
+                        if (exitCode != 0)
+                        {
+                            // break;
+                        }
+
+                        Assert.Equal(0, exitCode);
+
+                        GC.Collect(0, GCCollectionMode.Forced);
+                        GC.Collect(1, GCCollectionMode.Forced);
+                        GC.Collect(2, GCCollectionMode.Forced);
                     }
                 }
-
-                if (exitCode != 0)
+                finally
                 {
-                   // break;
+                    tempDir.Directory.Refresh();
+                    FileInfo[] files = tempDir.Directory.GetFiles();
+                    DirectoryInfo[] directories = tempDir.Directory.GetDirectories();
+
+                    foreach (DirectoryInfo dir in directories)
+                    {
+                        dir.Delete(true);
+                    }
+
+                    foreach (FileInfo file in files)
+                    {
+                        file.Delete();
+                    }
+
+                    Environment.SetEnvironmentVariable("TEMP", oldTemp);
+
+                    Assert.Empty(files);
+                    Assert.Empty(directories);
                 }
-
-                Assert.Equal(0, exitCode);
-
-                GC.Collect(0, GCCollectionMode.Forced);
-                GC.Collect(1, GCCollectionMode.Forced);
-                GC.Collect(2, GCCollectionMode.Forced);
             }
         }
     }
