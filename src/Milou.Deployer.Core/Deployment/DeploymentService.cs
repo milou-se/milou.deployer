@@ -26,7 +26,6 @@ namespace Milou.Deployer.Core.Deployment
 {
     public sealed class DeploymentService
     {
-        public const string AppOfflineHtm = "App_Offline.htm";
         private readonly DirectoryCleaner _directoryCleaner;
 
         private readonly FileMatcher _fileMatcher;
@@ -288,7 +287,7 @@ namespace Milou.Deployer.Core.Deployment
                     bool usePublishSettingsFile =
                         !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile);
 
-                    var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, AppOfflineHtm));
+                    var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, DeploymentConstants.AppOfflineHtm));
 
                     RuleConfiguration ruleConfiguration = RuleConfiguration.Get(deploymentExecutionDefinition,
                         DeployerConfiguration,
@@ -296,7 +295,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (ruleConfiguration.AppOfflineEnabled && usePublishSettingsFile)
                     {
-                        string sourceAppOffline = Path.Combine(contentDirectory.FullName, AppOfflineHtm);
+                        string sourceAppOffline = Path.Combine(contentDirectory.FullName, DeploymentConstants.AppOfflineHtm);
 
                         if (!File.Exists(sourceAppOffline))
                         {
@@ -411,8 +410,17 @@ namespace Milou.Deployer.Core.Deployment
             }
             finally
             {
-                _directoryCleaner.CleanFiles(tempFilesToClean);
-                _directoryCleaner.CleanDirectories(tempDirectoriesToClean);
+                string[] targetPaths = deploymentExecutionDefinitions
+                    .Select(deploymentExecutionDefinition =>
+                        deploymentExecutionDefinition.TargetDirectoryPath)
+                    .Where(targetPath => !string.IsNullOrWhiteSpace(targetPath))
+                    .Select(path => Path.Combine(path, DeploymentConstants.AppOfflineHtm))
+                    .ToArray();
+
+                tempFilesToClean.AddRange(targetPaths);
+
+                await _directoryCleaner.CleanFilesAsync(tempFilesToClean);
+                await _directoryCleaner.CleanDirectoriesAsync(tempDirectoriesToClean);
             }
 
             return ExitCode.Success;

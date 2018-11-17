@@ -13,8 +13,6 @@ namespace Milou.Deployer.Waws
 {
     public class WebDeployHelper : IWebDeployHelper
     {
-        private const string AppOfflineHtm = "App_Offline.htm";
-
         /// <summary>
         /// Deploys the content to one site.
         /// </summary>
@@ -212,21 +210,22 @@ namespace Milou.Deployer.Waws
                     && Directory.Exists(destinationPath)
                     && string.IsNullOrWhiteSpace(publishSettingsFile))
                 {
-                    string appOfflineFilePath = Path.Combine(destinationPath, AppOfflineHtm);
+                    string appOfflineFilePath = Path.Combine(destinationPath, DeploymentConstants.AppOfflineHtm);
 
                     appOfflineFile = new FileInfo(appOfflineFilePath);
                 }
 
-                if (appOfflineFile != null)
+                if (appOfflineFile != null && appOfflineDelay.TotalMilliseconds >= 1)
                 {
                     await Task.Delay(appOfflineDelay).ConfigureAwait(false);
                 }
 
                 try
                 {
-                    if (appOfflineFile != null && !appOfflineFile.Exists)
+                    appOfflineFile?.Refresh();
+                    if (appOfflineFile?.Exists == false)
                     {
-                        using (FileStream fileStream = File.Create(appOfflineFile.FullName))
+                        using (File.Create(appOfflineFile.FullName))
                         {
                         }
                     }
@@ -242,9 +241,9 @@ namespace Milou.Deployer.Waws
 
                         if (appOfflineFile.Exists)
                         {
-                            logAction($"Deleting {AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction($"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                             appOfflineFile.Delete();
-                            logAction($"Deleted {AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction($"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                         }
                     }
                 }
