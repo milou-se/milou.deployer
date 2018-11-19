@@ -181,6 +181,10 @@ namespace Milou.Deployer.Core.Deployment
                             return exitCode;
                         }
                     }
+                    else
+                    {
+                        _logger.Debug("No file contentFiles.json was found in package directory {PackageDirectory}", packageDirectory.FullName);
+                    }
 
                     if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.EnvironmentConfig))
                     {
@@ -428,9 +432,17 @@ namespace Milou.Deployer.Core.Deployment
 
         private ExitCode VerifyFiles(string fileListFile, DirectoryInfo contentDirectory)
         {
-            string[] contentFiles = contentDirectory
+            var existingFiles = contentDirectory
                 .GetFiles("*", SearchOption.AllDirectories)
-                .Select(s => s.FullName.Substring(contentDirectory.FullName.Length).TrimStart('\\'))
+                .Select(file => new
+                {
+                    File = file,
+                    RelativePath = file.FullName.Substring(contentDirectory.FullName.Length).TrimStart('\\')
+                })
+                .ToArray();
+
+            string[] contentFiles = existingFiles
+                .Select(s => s.RelativePath)
                 .ToArray();
 
             string json = File.ReadAllText(fileListFile, Encoding.UTF8);
@@ -438,8 +450,10 @@ namespace Milou.Deployer.Core.Deployment
             var fileList = JsonConvert.DeserializeAnonymousType(json,
                 new { files = new[] { new { file = "", sha512Base64Encoded = "" } } });
 
+            _logger.Debug("Verifying file list containing {FileCount} files", fileList.files.Length);
+
             string[] expectedFiles = fileList.files
-                .Select(s => s.file)
+                .Select(s => s.file.TrimStart('\\'))
                 .ToArray();
 
             string[] extraFiles = contentFiles
@@ -456,6 +470,7 @@ namespace Milou.Deployer.Core.Deployment
                 {
                     _logger.Error("Found extra files {Files} on disk", extraFiles);
                 }
+
                 if (missingFiles.Length > 0)
                 {
                     _logger.Error("Could not find defined files {Files} on disk defined in NuGet package", missingFiles);
@@ -464,23 +479,29 @@ namespace Milou.Deployer.Core.Deployment
                 return ExitCode.Failure;
             }
 
+            Dictionary<string, string> dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'), s => s.sha512Base64Encoded, StringComparer.OrdinalIgnoreCase);
+
             using (SHA512 hashAlgorithm = SHA512.Create())
             {
-                foreach (var item in fileList.files)
+                foreach (var item in existingFiles)
                 {
-                    using (var fs = new FileStream(item.file, FileMode.Open))
+                    string expectedChecksum = dictionary[item.RelativePath];
+
+                    using (var fs = new FileStream(item.File.FullName, FileMode.Open))
                     {
                         byte[] fileHash = hashAlgorithm.ComputeHash(fs);
 
                         string base64 = Convert.ToBase64String(fileHash);
 
-                        if (!base64.Equals(item.sha512Base64Encoded, StringComparison.Ordinal))
+                        if (!base64.Equals(expectedChecksum, StringComparison.Ordinal))
                         {
-                            throw new InvalidOperationException($"Checksum differs for file {item.file}");
+                            throw new InvalidOperationException($"Checksum differs for file {item}");
                         }
                     }
                 }
             }
+
+            _logger.Debug("Successfully verified all content files in extracted package directory");
 
             return ExitCode.Success;
         }
