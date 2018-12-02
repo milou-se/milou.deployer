@@ -131,23 +131,26 @@ namespace Milou.Deployer.Tests.Integration
                 finally
                 {
                     tempDir.Directory.Refresh();
-                    FileInfo[] files = tempDir.Directory.GetFiles();
-                    DirectoryInfo[] directories = tempDir.Directory.GetDirectories();
-
-                    foreach (DirectoryInfo dir in directories)
+                    if (tempDir.Directory.Exists)
                     {
-                        dir.Delete(true);
+                        FileInfo[] files = tempDir.Directory.GetFiles();
+                        DirectoryInfo[] directories = tempDir.Directory.GetDirectories();
+
+                        foreach (DirectoryInfo dir in directories)
+                        {
+                            dir.Delete(true);
+                        }
+
+                        foreach (FileInfo file in files)
+                        {
+                            file.Delete();
+                        }
+
+                        Environment.SetEnvironmentVariable("TEMP", oldTemp);
+
+                        Assert.Empty(files);
+                        Assert.Empty(directories);
                     }
-
-                    foreach (FileInfo file in files)
-                    {
-                        file.Delete();
-                    }
-
-                    Environment.SetEnvironmentVariable("TEMP", oldTemp);
-
-                    Assert.Empty(files);
-                    Assert.Empty(directories);
                 }
             }
         }
