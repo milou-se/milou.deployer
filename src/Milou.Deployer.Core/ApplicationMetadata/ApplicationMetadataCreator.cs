@@ -2,25 +2,58 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using Arbor.KVConfiguration.Schema.Json;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Core.ApplicationMetadata
 {
     public static class ApplicationMetadataCreator
     {
         public static void SetVersionFile(
-            InstalledPackage value,
-            DirectoryInfo targetDirectoryInfo,
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
-            IEnumerable<string> xmlTransformedFiles,
-            IEnumerable<string> replacedFiles,
-            EnvironmentPackageResult environmentPackageResult)
+            [NotNull] InstalledPackage installedPackage,
+            [NotNull] DirectoryInfo targetDirectoryInfo,
+            [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] IEnumerable<string> xmlTransformedFiles,
+            [NotNull] IEnumerable<string> replacedFiles,
+            [NotNull] EnvironmentPackageResult environmentPackageResult)
         {
+            if (installedPackage == null)
+            {
+                throw new ArgumentNullException(nameof(installedPackage));
+            }
+
+            if (targetDirectoryInfo == null)
+            {
+                throw new ArgumentNullException(nameof(targetDirectoryInfo));
+            }
+
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            if (xmlTransformedFiles == null)
+            {
+                throw new ArgumentNullException(nameof(xmlTransformedFiles));
+            }
+
+            if (replacedFiles == null)
+            {
+                throw new ArgumentNullException(nameof(replacedFiles));
+            }
+
+            if (environmentPackageResult == null)
+            {
+                throw new ArgumentNullException(nameof(environmentPackageResult));
+            }
+
             string applicationMetadataJsonFilePath = Path.Combine(targetDirectoryInfo.FullName,
                 ConfigurationKeys.ApplicationMetadataFileName);
 
@@ -33,16 +66,24 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 string json = File.ReadAllText(applicationMetadataJsonFilePath, Encoding.UTF8);
 
                 ConfigurationItems configurationItems = jsonConfigurationSerializer.Deserialize(json);
-                existingKeys.AddRange(configurationItems.Keys);
+
+                if (!configurationItems.Keys.IsDefaultOrEmpty)
+                {
+                    existingKeys.AddRange(configurationItems.Keys);
+                }
             }
 
             var version = new KeyValue(ConfigurationKeys.SemVer2Normalized,
-                value.Version.ToNormalizedString(),
+                installedPackage.Version.ToNormalizedString(),
+                null);
+
+            var packageId = new KeyValue(ConfigurationKeys.PackageId,
+                installedPackage.PackageId,
                 null);
 
             var deployStartTimeUtc = new KeyValue(
                 ConfigurationKeys.DeployStartTimeUtc,
-                DateTime.UtcNow.ToString("o"),
+                DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
                 null);
 
             var deployedFromMachine = new KeyValue(
@@ -70,7 +111,8 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 version,
                 deployStartTimeUtc,
                 deployerAssemblyVersion,
-                deployerAssemblyFileVersion
+                deployerAssemblyFileVersion,
+                packageId
             }.ToImmutableArray();
 
             if (!string.IsNullOrWhiteSpace(environmentPackageResult.Package))
@@ -90,18 +132,18 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             try
             {
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(currentAssembly.Location);
-                string fileVersion = fvi.FileVersion;
 
+                string fileVersion = fvi.FileVersion;
 
                 return fileVersion;
             }
-            catch (Exception)
+            catch (Exception ex) when(!ex.IsFatal())
             {
                 try
                 {
                     return currentAssembly.ImageRuntimeVersion;
                 }
-                catch (Exception)
+                catch (Exception innerEx) when(!innerEx.IsFatal())
                 {
                     // ignored
                 }

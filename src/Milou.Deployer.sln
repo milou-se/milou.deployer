@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitignore = ..\.gitignore
 		..\build\build.bat = ..\build\build.bat
 		Directory.Build.props = Directory.Build.props
-		Milou.Deployer.nuspec = Milou.Deployer.nuspec
+		global.json = global.json
 		Milou.ruleset = Milou.ruleset
 		..\version.json = ..\version.json
 	EndProjectSection
@@ -20,6 +20,18 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Waws", "Milou.Deployer.Waws\Milou.Deployer.Waws.csproj", "{FB518879-EDFC-44AD-8ECA-4CBD6D174FC4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.ConsoleClient", "Milou.Deployer.ConsoleClient\Milou.Deployer.ConsoleClient.csproj", "{D871FB09-D825-44E2-965A-A7CE3B60C7AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper", "Milou.Deployer.Bootstrapper\Milou.Deployer.Bootstrapper.csproj", "{9C8BD8DC-8B95-4DBD-B634-3F8D6C675874}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.Common", "Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj", "{555FA0F0-3E56-4F6C-83FC-3F0C52CA0092}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.ConsoleClient", "Milou.Deployer.Bootstrapper.ConsoleClinet\Milou.Deployer.Bootstrapper.ConsoleClient.csproj", "{408BE227-0D12-48F2-B903-0929977878B4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Tests.Integration", "Milou.Deployer.Tests.Integration\Milou.Deployer.Tests.Integration.csproj", "{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.Tests.Integration", "Milou.Deployer.Bootstrapper.Tests.Integration\Milou.Deployer.Bootstrapper.Tests.Integration.csproj", "{25594590-A1AF-4B9E-840F-16F7C0FB9A87}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.IIS", "Milou.Deployer.IIS\Milou.Deployer.IIS.csproj", "{1CDBFF1D-1B84-404A-97DC-2A2D9841B2EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +51,30 @@ Global
 		{D871FB09-D825-44E2-965A-A7CE3B60C7AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D871FB09-D825-44E2-965A-A7CE3B60C7AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D871FB09-D825-44E2-965A-A7CE3B60C7AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C8BD8DC-8B95-4DBD-B634-3F8D6C675874}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C8BD8DC-8B95-4DBD-B634-3F8D6C675874}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C8BD8DC-8B95-4DBD-B634-3F8D6C675874}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C8BD8DC-8B95-4DBD-B634-3F8D6C675874}.Release|Any CPU.Build.0 = Release|Any CPU
+		{555FA0F0-3E56-4F6C-83FC-3F0C52CA0092}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{555FA0F0-3E56-4F6C-83FC-3F0C52CA0092}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{555FA0F0-3E56-4F6C-83FC-3F0C52CA0092}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{555FA0F0-3E56-4F6C-83FC-3F0C52CA0092}.Release|Any CPU.Build.0 = Release|Any CPU
+		{408BE227-0D12-48F2-B903-0929977878B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{408BE227-0D12-48F2-B903-0929977878B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{408BE227-0D12-48F2-B903-0929977878B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{408BE227-0D12-48F2-B903-0929977878B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25594590-A1AF-4B9E-840F-16F7C0FB9A87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25594590-A1AF-4B9E-840F-16F7C0FB9A87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25594590-A1AF-4B9E-840F-16F7C0FB9A87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25594590-A1AF-4B9E-840F-16F7C0FB9A87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CDBFF1D-1B84-404A-97DC-2A2D9841B2EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CDBFF1D-1B84-404A-97DC-2A2D9841B2EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CDBFF1D-1B84-404A-97DC-2A2D9841B2EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CDBFF1D-1B84-404A-97DC-2A2D9841B2EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

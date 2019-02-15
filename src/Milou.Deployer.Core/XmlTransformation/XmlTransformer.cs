@@ -2,10 +2,9 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Microsoft.Web.XmlTransform;
+using Arbor.Xdt;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.IO;
-
 using Milou.Deployer.Core.Processes;
 using Serilog;
 
@@ -38,13 +37,19 @@ namespace Milou.Deployer.Core.XmlTransformation
 
             if (!transformationFile.Exists)
             {
-                _logger.Error("The transformation file '{FullName}' to transform '{FullName1}' does not exist", transformationFile.FullName, originalFile.FullName);
+                _logger.Error("The transformation file '{FullName}' to transform '{FullName1}' does not exist",
+                    transformationFile.FullName,
+                    originalFile.FullName);
                 return ExitCode.Failure;
             }
 
             string destFilePath = Path.GetTempFileName();
 
-            _logger.Debug("Transforming original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'", originalFile.FullName, transformationFile.FullName, destFilePath);
+            _logger.Debug(
+                "Transforming original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
+                originalFile.FullName,
+                transformationFile.FullName,
+                destFilePath);
 
             var xmlTransformableDocument =
                 new XmlTransformableDocument { PreserveWhitespace = true };
@@ -53,17 +58,26 @@ namespace Milou.Deployer.Core.XmlTransformation
             bool succeed;
             using (
                 var transform =
-                    new Microsoft.Web.XmlTransform.XmlTransformation(transformationFile.FullName))
+                    new Arbor.Xdt.XmlTransformation(transformationFile.FullName))
             {
                 succeed = transform.Apply(xmlTransformableDocument);
             }
 
             if (!succeed)
             {
-                _logger.Error("Transforming failed, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'", originalFile.FullName, transformationFile.FullName, destFilePath);
+                _logger.Error(
+                    "Transforming failed, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
+                    originalFile.FullName,
+                    transformationFile.FullName,
+                    destFilePath);
                 return ExitCode.Failure;
             }
-            _logger.Debug("Transforming succeeded, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'", originalFile.FullName, transformationFile.FullName, destFilePath);
+
+            _logger.Debug(
+                "Transforming succeeded, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
+                originalFile.FullName,
+                transformationFile.FullName,
+                destFilePath);
 
             using (var fsDestFile = new FileStream(destFilePath, FileMode.OpenOrCreate))
             {
@@ -72,12 +86,19 @@ namespace Milou.Deployer.Core.XmlTransformation
 
             File.Copy(destFilePath, originalFile.FullName, true);
 
-            _logger.Debug("Rewritten original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'", originalFile.FullName, transformationFile.FullName, destFilePath);
+            _logger.Debug(
+                "Rewritten original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
+                originalFile.FullName,
+                transformationFile.FullName,
+                destFilePath);
 
             string originalRelativePath = originalFile.GetRelativePath(originalFileRootDirectory);
             string transformRelativePath = transformationFile.GetRelativePath(transformationFileRootDirectory);
 
-            _logger.Information("Transformed original '{OriginalRelativePath}' with transformation '{TransformRelativePath}'", originalRelativePath, transformRelativePath);
+            _logger.Information(
+                "Transformed original '{OriginalRelativePath}' with transformation '{TransformRelativePath}'",
+                originalRelativePath,
+                transformRelativePath);
 
             if (File.Exists(destFilePath))
             {
@@ -105,7 +126,8 @@ namespace Milou.Deployer.Core.XmlTransformation
 
             if (matchingFiles.Length > 1)
             {
-                _logger.Error("Could not find a single matching file to transform, found multiple: {V}", string.Join(", ", matchingFiles.Select(file => $"'{file.FullName}'")));
+                _logger.Error("Could not find a single matching file to transform, found multiple: {V}",
+                    string.Join(", ", matchingFiles.Select(file => $"'{file.FullName}'")));
                 return new TransformationResult(false);
             }
 
@@ -128,7 +150,8 @@ namespace Milou.Deployer.Core.XmlTransformation
             }
             else
             {
-                _logger.Debug("Could not find any matching file for transform, looked for '{TargetName}'", possibleXmlTransformation.TargetName);
+                _logger.Debug("Could not find any matching file for transform, looked for '{TargetName}'",
+                    possibleXmlTransformation.TargetName);
             }
 
             return new TransformationResult(true, transformedFiles);

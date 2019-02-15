@@ -7,7 +7,6 @@ using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
-
 using Milou.Deployer.Core.Processes;
 using NuGet.Packaging;
 using NuGet.Versioning;
@@ -18,13 +17,18 @@ namespace Milou.Deployer.Core.NuGet
     public class PackageInstaller
     {
         private readonly DeployerConfiguration _deployerConfiguration;
+        private readonly IKeyValueConfiguration _keyValueConfiguration;
 
         private readonly ILogger _logger;
 
-        public PackageInstaller(ILogger logger, DeployerConfiguration deployerConfiguration)
+        public PackageInstaller(
+            ILogger logger,
+            DeployerConfiguration deployerConfiguration,
+            IKeyValueConfiguration keyValueConfiguration)
         {
             _logger = logger;
             _deployerConfiguration = deployerConfiguration;
+            _keyValueConfiguration = keyValueConfiguration;
         }
 
         public async Task<MayBe<InstalledPackage>> InstallPackageAsync(
@@ -79,6 +83,36 @@ namespace Milou.Deployer.Core.NuGet
                 tempDirectory.Create();
             }
 
+            if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.NuGetConfigFile))
+            {
+                if (File.Exists(deploymentExecutionDefinition.NuGetConfigFile))
+                {
+                    arguments.Add("-ConfigFile");
+                    arguments.Add(deploymentExecutionDefinition.NuGetConfigFile);
+                }
+                else
+                {
+                    _logger.Warning(
+                        "The deployment execution definition {Definition} has nuget config file set to {ConfigFile} but it does not exist",
+                        deploymentExecutionDefinition,
+                        deploymentExecutionDefinition.NuGetConfigFile);
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetConfig))
+            {
+                if (File.Exists(_deployerConfiguration.NuGetConfig))
+                {
+                    arguments.Add("-ConfigFile");
+                    arguments.Add(_deployerConfiguration.NuGetConfig);
+                }
+                else
+                {
+                    _logger.Warning(
+                        "The deployment configuration has nuget config file set to {ConfigFile} but it does not exist",
+                        _deployerConfiguration.NuGetConfig);
+                }
+            }
+
             arguments.Add("-OutputDirectory");
             arguments.Add(tempDirectory.FullName);
             arguments.Add("-Verbosity");
@@ -90,40 +124,61 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add("-ExcludeVersion");
             }
 
-            if (
-                StaticKeyValueConfigurationManager.AppSettings[ConfigurationKeys.NuGetNoCache]
-                    .ParseAsBooleanOrDefault())
+            if (_keyValueConfiguration[ConfigurationKeys.NuGetNoCache]
+                .ParseAsBooleanOrDefault())
             {
                 arguments.Add("-NoCache");
             }
 
             const string sourceKey = ConfigurationKeys.NuGetSource;
-            string source = StaticKeyValueConfigurationManager.AppSettings[sourceKey];
+            string nugetSourceInConfiguration = _keyValueConfiguration[sourceKey];
+            string nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
 
-            if (!string.IsNullOrWhiteSpace(source))
+            if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
             {
-                _logger.Information("A specific NuGet source is defined in app settings [key '{SourceKey}']: '{Source}'", sourceKey, source);
+                if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
+                {
+                    _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
+                        nugetSourceInDeploymentExecution);
+                }
+
                 arguments.Add("-Source");
-                arguments.Add(source);
+                arguments.Add(nugetSourceInDeploymentExecution);
+            }
+            else if (!string.IsNullOrWhiteSpace(nugetSourceInConfiguration))
+            {
+                _logger.Information(
+                    "A specific NuGet source is defined in app settings [key '{SourceKey}']: '{Source}'",
+                    sourceKey,
+                    nugetSourceInConfiguration);
+
+                arguments.Add("-Source");
+                arguments.Add(nugetSourceInConfiguration);
             }
             else
             {
-                _logger.Debug("A specific NuGet source is not defined in app settings");
+                _logger.Debug(
+                    "A specific NuGet source is not defined in settings or in deployment execution definition");
             }
 
-            ExitCode exitCode =
-                await
-                    ProcessRunner.ExecuteAsync(
+            ExitCode exitCode = await
+                ProcessRunner.ExecuteProcessAsync(
                         executePath,
-                        arguments: arguments,
-                        standardOutLog: _logger.Verbose,
-                        standardErrorAction: _logger.Error,
-                        toolAction: _logger.Verbose,
-                        debugAction: _logger.Debug);
+                        arguments,
+                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                        (message, category) => _logger.Error("{Category} {Message}", category, message),
+                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                        (message, category) => _logger.Verbose("{Category} {Message}", category, message),
+                        debugAction: (message, category) => _logger.Debug("{Category} {Message}", category, message))
+                    .ConfigureAwait(false);
 
             if (!exitCode.IsSuccess)
             {
-                return MayBe<InstalledPackage>.Nothing();
+                _logger.Error("The package installer process '{Process}' {Arguments} failed with exit code {ExitCode}",
+                    executePath,
+                    string.Join(" ", arguments.Select(arg => $"\"{arg}\"")),
+                    exitCode);
+                return MayBe<InstalledPackage>.Nothing;
             }
 
             List<FileInfo> packageFiles =
@@ -137,16 +192,24 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!packageFiles.Any())
             {
-                _logger.Error("Could not find the installed package '{PackageId}' in output directory '{FullName}' or in any of it's sub directories", deploymentExecutionDefinition.PackageId, tempDirectory.FullName);
+                _logger.Error(
+                    "Could not find the installed package '{PackageId}' in output directory '{FullName}' or in any of it's sub directories",
+                    deploymentExecutionDefinition.PackageId,
+                    tempDirectory.FullName);
 
-                return MayBe<InstalledPackage>.Nothing();
+                return MayBe<InstalledPackage>.Nothing;
             }
 
             if (packageFiles.Count > 1)
             {
-                _logger.Error("Found multiple installed packages matching '{PackageId}' in output directory '{FullName}' or in any of it's sub directories, expected exactly 1. Found files [{Count}]: '{V}", deploymentExecutionDefinition.PackageId, tempDirectory.FullName, packageFiles.Count, string.Join(",", packageFiles.Select(file => $"'{file.FullName}'")));
+                _logger.Error(
+                    "Found multiple installed packages matching '{PackageId}' in output directory '{FullName}' or in any of it's sub directories, expected exactly 1. Found files [{Count}]: '{V}",
+                    deploymentExecutionDefinition.PackageId,
+                    tempDirectory.FullName,
+                    packageFiles.Count,
+                    string.Join(",", packageFiles.Select(file => $"'{file.FullName}'")));
 
-                return MayBe<InstalledPackage>.Nothing();
+                return MayBe<InstalledPackage>.Nothing;
             }
 
             FileInfo foundPackageFile = packageFiles.Single();
@@ -162,14 +225,19 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!packageId.Equals(deploymentExecutionDefinition.PackageId, StringComparison.InvariantCultureIgnoreCase))
             {
-                _logger.Error("The installed package id '{PackageId}' is different than the expected package id '{PackageId1}'", packageId, deploymentExecutionDefinition.PackageId);
-                return MayBe<InstalledPackage>.Nothing();
+                _logger.Error(
+                    "The installed package id '{PackageId}' is different than the expected package id '{PackageId1}'",
+                    packageId,
+                    deploymentExecutionDefinition.PackageId);
+
+                return MayBe<InstalledPackage>.Nothing;
             }
 
-            return
-                new MayBe<InstalledPackage>(InstalledPackage.Create(packageId,
-                    semanticVersion,
-                    foundPackageFile.FullName));
+            var installedPackage = new MayBe<InstalledPackage>(InstalledPackage.Create(packageId,
+                semanticVersion,
+                foundPackageFile.FullName));
+
+            return installedPackage;
         }
     }
 }

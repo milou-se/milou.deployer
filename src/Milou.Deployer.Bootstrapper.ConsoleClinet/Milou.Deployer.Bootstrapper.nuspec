@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <package >
 	<metadata>
-		<id>Milou.Deployer.ConsoleClient</id>
+		<id>Milou.Deployer.Bootstrapper</id>
 		<version>0.0.1</version>
-		<title>Milou.Deployer.ConsoleClient</title>
+		<title>Milou.Deployer.Bootstrapper</title>
 		<authors>Milou Communication AB</authors>
 		<owners></owners>
 		<description>
-			Milou.Deployer.ConsoleClient
+			Milou.Deployer.Bootstrapper
 		</description>
 		<releaseNotes>
 		</releaseNotes>
 		<summary>
-			Milou.Deployer.ConsoleClient
+			Milou.Deployer.Bootstrapper
 		</summary>
 		<language>en-US</language>
 		<projectUrl>https://github.com/milou-se/milou.deployer</projectUrl>
@@ -27,6 +27,6 @@
 		<tags></tags>
 	</metadata>
 	<files>
-		<file src="..\Artifacts\LibZ\AnyCPU\release\**\Milou.Deployer.ConsoleClient.exe*" target="Content" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
+		<file src="bin\$configuration$\net472\**\*.*" target="tools\net472" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
 	</files>
 </package>

@@ -31,14 +31,16 @@ namespace Milou.Deployer.Core.IO
                 {
                     if (File.Exists(file))
                     {
+                        _logger.Verbose("Deleting clean file '{CleanFile}'", file);
+
                         File.Delete(file);
 
                         _logger.Verbose("Deleted clean file '{CleanFile}'", file);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception ex) when(!ex.IsFatal())
                 {
-                    _logger.Warning("Could not delete file '{FullName}', {Ex}", file, ex);
+                    _logger.Warning(ex, "Could not delete file '{FullName}'", file);
                 }
             }
         }
@@ -54,7 +56,7 @@ namespace Milou.Deployer.Core.IO
                 DirectoryInfo tempDirectory in
                 directoriesToClean.OrderByDescending(directory => directory.FullName.Length))
             {
-                _logger.Debug("Deleting temp directory '{FullName}'", tempDirectory.FullName);
+                _logger.Verbose("Deleting temp directory '{FullName}'", tempDirectory.FullName);
 
                 try
                 {
@@ -75,9 +77,9 @@ namespace Milou.Deployer.Core.IO
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Warning("Could not delete directory or any of it's sub paths '{FullName}', {Ex}",
-                        tempDirectory.FullName,
-                        ex);
+                    _logger.Warning(ex,
+                        "Could not delete directory or any of it's sub paths '{FullName}'",
+                        tempDirectory.FullName);
                 }
             }
         }

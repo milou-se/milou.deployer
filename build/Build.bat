@@ -11,10 +11,6 @@ SET Arbor.X.Build.NetAssembly.Configuration=
 SET Arbor.X.Tools.External.LibZ.Enabled=true
 SET Arbor.X.MSBuild.NuGetRestore.Enabled=true
 
-IF "%Arbor.X.Vcs.Branch.Name%" == "" (
-	SET Arbor.X.Vcs.Branch.Name=develop
-)
-
 SET Arbor.X.NuGet.ReinstallArborPackageEnabled=true
 SET Arbor.X.NuGet.VersionUpdateEnabled=false
 SET Arbor.X.Artifacts.PdbArtifacts.Enabled=true
@@ -33,7 +29,7 @@ SET Arbor.X.NuGet.Package.AllowManifestReWriteEnabled=false
 
 SET Arbor.X.NuGet.Package.ExcludesCommaSeparated=Arbor.X.Bootstrapper.nuspec
 
-CALL "%~dp0\Build.exe"
+CALL dotnet arbor-build
 
 REM Restore variables to default
 
@@ -47,3 +43,5 @@ SET Arbor.X.Vcs.Branch.Name.Version.OverrideEnabled=
 SET Arbor.X.VariableOverrideEnabled=
 SET Arbor.X.Artifacts.CleanupBeforeBuildEnabled=
 SET Arbor.X.Build.NetAssembly.Configuration=
+
+EXIT /B %ERRORLEVEL%

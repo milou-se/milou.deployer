@@ -8,9 +8,7 @@ namespace Milou.Deployer.Core.Deployment
     {
         public ReplaceResult(bool isSuccess)
             : this(isSuccess,
-                new string[]
-                {
-                })
+                Array.Empty<string>())
         {
         }
 

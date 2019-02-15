@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Core.Deployment
@@ -12,9 +11,7 @@ namespace Milou.Deployer.Core.Deployment
                 data,
                 new
                 {
-                    definitions = new DeploymentExecutionDefinition[]
-                    {
-                    }
+                    definitions = System.Array.Empty<DeploymentExecutionDefinition>()
                 }).definitions.ToImmutableArray();
         }
     }

@@ -6,7 +6,7 @@ namespace Milou.Deployer.Core.IO
 {
     public static class PathExtensions
     {
-        public static string NormalizePath([NotNull] string path)
+        private static string NormalizePath([NotNull] string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -34,7 +34,9 @@ namespace Milou.Deployer.Core.IO
             return GetRelativePath(fullPath, rootFullPath);
         }
 
-        public static string GetRelativePath([NotNull] this DirectoryInfo directoryInfo, [NotNull] DirectoryInfo rootPath)
+        public static string GetRelativePath(
+            [NotNull] this DirectoryInfo directoryInfo,
+            [NotNull] DirectoryInfo rootPath)
         {
             if (directoryInfo == null)
             {

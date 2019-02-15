@@ -13,23 +13,17 @@ namespace Milou.Deployer.Core.Processes
                 || ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor >= 1)))
             {
                 IntPtr processHandle;
-                bool retVal;
 
                 try
                 {
                     processHandle = Process.GetProcessById(process.Id).Handle;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when(!ex.IsFatal())
                 {
-                    if (ex.IsFatal())
-                    {
-                        throw;
-                    }
-
                     return false;
                 }
 
-                return NativeMethods.IsWow64Process(processHandle, out retVal) && retVal;
+                return NativeMethods.IsWow64Process(processHandle, out bool retVal) && retVal;
             }
 
 #endif
