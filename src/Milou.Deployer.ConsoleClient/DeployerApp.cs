@@ -7,11 +7,11 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
-using Milou.Deployer.Core.Processes;
 using Serilog;
 
 namespace Milou.Deployer.ConsoleClient

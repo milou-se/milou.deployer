@@ -6,5 +6,7 @@
 
         public const string EnvironmentPackagePattern =
             "{Name}." + EnvironmentLiteral + ".{EnvironmentName}.{action}.{extension}";
+
+        public const string AppOfflineHtm = "App_Offline.htm";
     }
 }
