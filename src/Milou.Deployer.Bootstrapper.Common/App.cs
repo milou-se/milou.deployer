@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.Processing;
 using Arbor.Tooler;
 using Serilog;
 
@@ -31,8 +30,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             string[] args,
             ILogger logger = default,
             HttpClient httpClient = default,
-            bool disposeNested = true,
-            CancellationToken cancellationToken = default)
+            bool disposeNested = true)
         {
             if (args == null)
             {
@@ -73,8 +71,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         public async Task<NuGetPackageInstallResult> ExecuteAsync(
             ImmutableArray<string> appArgs,
-            CancellationToken cancellationToken = default,
-            TimeSpan? processTimeout = default)
+            CancellationToken cancellationToken = default)
         {
             if (appArgs.IsDefault)
             {
@@ -137,18 +134,52 @@ namespace Milou.Deployer.Bootstrapper.Common
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
 
-            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(deployerToolFile.FullName,
-                appArgs,
-                standardOutLog: (message, category) =>
-                    _logger.Information("[{Category}] {Message}", category, message),
-                standardErrorAction:(message, category) =>_logger.Error("[{Category}] {Message}", category, message),
-                cancellationToken: cancellationToken).ConfigureAwait(false);
+            int exitCode;
 
-            if (!exitCode.IsSuccess)
+            string startInfoArguments = string.Join(" ", appArgs.Select(arg => $"\"{arg}\""));
+            string startInfoFileName = deployerToolFile.FullName;
+
+            _logger.Verbose("Running deployer process '{Process}' with arguments {Args}", startInfoFileName, startInfoArguments);
+
+            using (var process = new Process())
+            {
+                process.StartInfo.Arguments = startInfoArguments;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.FileName = startInfoFileName;
+                process.EnableRaisingEvents = true;
+
+                process.OutputDataReceived += (sender, args) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(args.Data))
+                    {
+                        _logger.Information("{Message}", args.Data);
+                    }
+                };
+
+                process.ErrorDataReceived += (sender, args) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(args.Data))
+                    {
+                        _logger.Error("{Error}", args.Data);
+                    }
+                };
+
+                process.Start();
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+
+                process.WaitForExit();
+
+                exitCode = process.ExitCode;
+            }
+
+            if (exitCode != 0)
             {
                 _logger.Error("The process {Process} {Arguments} failed with exit code {ExitCode}",
-                    deployerToolFile,
-                    appArgs,
+                    startInfoFileName,
+                    startInfoArguments,
                     exitCode);
 
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);

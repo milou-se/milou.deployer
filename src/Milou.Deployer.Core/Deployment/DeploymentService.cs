@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
-using Arbor.Processing;
+using Arbor.Xdt;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.ApplicationMetadata;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.NuGet;
+using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Core.XmlTransformation;
 using Newtonsoft.Json;
 using NuGet.Versioning;
@@ -26,6 +26,7 @@ namespace Milou.Deployer.Core.Deployment
 {
     public sealed class DeploymentService
     {
+        public const string AppOfflineHtm = "App_Offline.htm";
         private readonly DirectoryCleaner _directoryCleaner;
 
         private readonly FileMatcher _fileMatcher;
@@ -117,14 +118,12 @@ namespace Milou.Deployer.Core.Deployment
                         Path.GetTempPath(),
                         $"{TempPrefix}{uniqueSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
 
-                    var tempWorkingDirectory = new DirectoryInfo(tempPath);
-                    DirectoryInfo packageInstallTempDirectory = tempWorkingDirectory;
-
-                    tempDirectoriesToClean.Add(packageInstallTempDirectory);
+                    var directoryInfo = new DirectoryInfo(tempPath);
+                    DirectoryInfo packageInstallTempDirectoryInfo = directoryInfo;
 
                     MayBe<InstalledPackage> installedMainPackage =
                         await _packageInstaller.InstallPackageAsync(deploymentExecutionDefinition,
-                            packageInstallTempDirectory,
+                            packageInstallTempDirectoryInfo,
                             false).ConfigureAwait(false);
 
                     if (!installedMainPackage.HasValue)
@@ -143,9 +142,9 @@ namespace Milou.Deployer.Core.Deployment
                         installedPackage.Version.ToNormalizedString(),
                         installedPackage.NugetPackageFullPath);
 
-                    tempWorkingDirectory.Refresh();
+                    directoryInfo.Refresh();
 
-                    DirectoryInfo[] packagesDirectory = tempWorkingDirectory.GetDirectories();
+                    DirectoryInfo[] packagesDirectory = directoryInfo.GetDirectories();
 
                     DirectoryInfo packageDirectory =
                         packagesDirectory.Single(directory => directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
@@ -161,35 +160,10 @@ namespace Milou.Deployer.Core.Deployment
 
                     var environmentPackageResult = new EnvironmentPackageResult(true);
 
-                    var contentDirectory =
-                        new DirectoryInfo(Path.Combine(packageDirectory.FullName, "Content"));
-
-                    if (!contentDirectory.Exists)
-                    {
-                        _logger.Error("Content directory '{FullName}' does not exist", contentDirectory.FullName);
-                        return ExitCode.Failure;
-                    }
-
-                    FileInfo contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
-
-                    if (contentFilesJson?.Exists == true)
-                    {
-                        ExitCode exitCode = VerifyFiles(contentFilesJson.FullName, contentDirectory);
-
-                        if (!exitCode.IsSuccess)
-                        {
-                            return exitCode;
-                        }
-                    }
-                    else
-                    {
-                        _logger.Debug("No file contentFiles.json was found in package directory {PackageDirectory}", packageDirectory.FullName);
-                    }
-
                     if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.EnvironmentConfig))
                     {
                         environmentPackageResult = await AddEnvironmentPackageAsync(deploymentExecutionDefinition,
-                            packageInstallTempDirectory,
+                            packageInstallTempDirectoryInfo,
                             possibleXmlTransformations,
                             replaceFiles,
                             tempDirectoriesToClean,
@@ -204,6 +178,15 @@ namespace Milou.Deployer.Core.Deployment
                     else
                     {
                         _logger.Debug("Definition has no environment configuration specified");
+                    }
+
+                    var contentDirectory =
+                        new DirectoryInfo(Path.Combine(packageDirectory.FullName, "Content"));
+
+                    if (!contentDirectory.Exists)
+                    {
+                        _logger.Error("Content directory '{FullName}' does not exist", contentDirectory.FullName);
+                        return ExitCode.Failure;
                     }
 
                     if (possibleXmlTransformations.Any())
@@ -253,7 +236,68 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
                     {
-                        DeploymentTransformation.Transform(deploymentExecutionDefinition, contentDirectory, _logger);
+                        try
+                        {
+                            _logger.Debug(
+                                "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
+                                deploymentExecutionDefinition.WebConfigTransformFile,
+                                deploymentExecutionDefinition);
+
+                            var transformFile = new FileInfo(deploymentExecutionDefinition.WebConfigTransformFile);
+
+                            if (transformFile.Exists)
+                            {
+                                string tempFileName = Path.GetTempFileName();
+
+                                var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
+
+                                if (webConfig.Exists)
+                                {
+                                    using (var x = new XmlTransformableDocument())
+                                    {
+                                        x.PreserveWhitespace = true;
+                                        x.Load(webConfig.FullName);
+
+                                        using (var transform = new Arbor.Xdt.XmlTransformation(transformFile.FullName))
+                                        {
+                                            bool succeed = transform.Apply(x);
+
+                                            if (succeed)
+                                            {
+                                                using (var fsDestFileStream =
+                                                    new FileStream(tempFileName, FileMode.OpenOrCreate))
+                                                {
+                                                    x.Save(fsDestFileStream);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                var tempFileInfo = new FileInfo(tempFileName);
+
+                                if (tempFileInfo.Exists && tempFileInfo.Length > 0)
+                                {
+                                    _logger.Information(
+                                        "Successfully transformed web.config with transformation {Transformation}",
+                                        deploymentExecutionDefinition.WebConfigTransformFile);
+                                    tempFileInfo.CopyTo(webConfig.FullName, overwrite: true);
+                                }
+                                else
+                                {
+                                    _logger.Warning(
+                                        "Failed to transform web.config with transformation {Transformation}",
+                                        deploymentExecutionDefinition.WebConfigTransformFile);
+                                }
+
+                                tempFileInfo.Delete();
+                            }
+                        }
+                        catch (Exception ex) when(!ex.IsFatal())
+                        {
+                            _logger.Error(ex, "Could not apply web.config transform with {Transform}", deploymentExecutionDefinition.WebConfigTransformFile);
+                            throw;
+                        }
                     }
 
                     string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
@@ -268,7 +312,7 @@ namespace Milou.Deployer.Core.Deployment
                     if (!targetTempDirectoryInfo.Exists)
                     {
                         _logger.Debug("Creating temp target directory '{FullName}'",
-                            packageInstallTempDirectory.FullName);
+                            packageInstallTempDirectoryInfo.FullName);
                         targetTempDirectoryInfo.Create();
                     }
 
@@ -288,18 +332,18 @@ namespace Milou.Deployer.Core.Deployment
 
                     _logger.Verbose("Copying content files to '{FullName}'", targetTempDirectoryInfo.FullName);
 
+                    bool appOfflineEnabled = deploymentExecutionDefinition.AppOfflineEnabled(DeployerConfiguration
+                        .WebDeploy.Rules.AppOfflineRuleEnabled);
+
                     bool usePublishSettingsFile =
                         !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile);
 
-                    var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, DeploymentConstants.AppOfflineHtm));
+                    var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, AppOfflineHtm));
 
-                    RuleConfiguration ruleConfiguration = RuleConfiguration.Get(deploymentExecutionDefinition,
-                        DeployerConfiguration,
-                        _logger);
-
-                    if (ruleConfiguration.AppOfflineEnabled && usePublishSettingsFile)
+                    if (appOfflineEnabled
+                        && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
                     {
-                        string sourceAppOffline = Path.Combine(contentDirectory.FullName, DeploymentConstants.AppOfflineHtm);
+                        string sourceAppOffline = Path.Combine(contentDirectory.FullName, AppOfflineHtm);
 
                         if (!File.Exists(sourceAppOffline))
                         {
@@ -331,7 +375,7 @@ namespace Milou.Deployer.Core.Deployment
                     _logger.Debug("Copied content files from '{ContentDirectory}' to '{FullName}'",
                         contentDirectory,
                         targetTempDirectoryInfo.FullName);
-                    tempDirectoriesToClean.Add(packageInstallTempDirectory);
+                    tempDirectoriesToClean.Add(packageInstallTempDirectoryInfo);
 
                     bool hasPublishSettingsFile =
                         !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile)
@@ -346,6 +390,42 @@ namespace Milou.Deployer.Core.Deployment
                     {
                         _logger.Debug("The deployment definition has no publish setting file");
                     }
+
+                    bool doNotDeleteEnabled = deploymentExecutionDefinition.DoNotDeleteEnabled(DeployerConfiguration
+                        .WebDeploy.Rules.DoNotDeleteRuleEnabled);
+
+                    bool useChecksumEnabled = deploymentExecutionDefinition.UseChecksumEnabled(DeployerConfiguration
+                        .WebDeploy.Rules.UseChecksumRuleEnabled);
+
+                    bool appDataSkipDirectiveEnabled = deploymentExecutionDefinition.AppDataSkipDirectiveEnabled(
+                        DeployerConfiguration
+                            .WebDeploy.Rules.AppDataSkipDirectiveEnabled);
+
+                    bool applicationInsightsProfiler2SkipDirectiveEnabled =
+                        deploymentExecutionDefinition.ApplicationInsightsProfiler2SkipDirectiveEnabled(
+                            DeployerConfiguration
+                                .WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
+
+                    bool whatIfEnabled = deploymentExecutionDefinition.WhatIfEnabled(false);
+
+                    _logger.Debug("{RuleName}: {DoNotDeleteEnabled}",
+                        nameof(DeployerConfiguration.WebDeploy.Rules.DoNotDeleteRuleEnabled),
+                        doNotDeleteEnabled);
+                    _logger.Debug("{RuleName}: {AppOfflineEnabled}",
+                        nameof(DeployerConfiguration.WebDeploy.Rules.AppOfflineRuleEnabled),
+                        appOfflineEnabled);
+                    _logger.Debug("{RuleName}: {UseChecksumEnabled}",
+                        nameof(DeployerConfiguration.WebDeploy.Rules.UseChecksumRuleEnabled),
+                        useChecksumEnabled);
+                    _logger.Debug("{RuleName}: {AppDataSkipDirectiveEnabled}",
+                        nameof(DeployerConfiguration.WebDeploy.Rules.AppDataSkipDirectiveEnabled),
+                        appDataSkipDirectiveEnabled);
+                    _logger.Debug("{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
+                        nameof(DeployerConfiguration.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled),
+                        applicationInsightsProfiler2SkipDirectiveEnabled);
+                    _logger.Debug("{RuleName}: {WhatIfEnabled}",
+                        nameof(DeploymentExecutionDefinitionExtensions.WhatIfEnabled),
+                        whatIfEnabled);
 
                     _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
                     {
@@ -383,19 +463,18 @@ namespace Milou.Deployer.Core.Deployment
                                 }
                             }
 
-
                             summary = await _webDeployHelper.DeployContentToOneSiteAsync(
                                 targetTempDirectoryInfo.FullName,
                                 deploymentExecutionDefinition.PublishSettingsFile,
                                 DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                                doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
-                                appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
-                                useChecksum: ruleConfiguration.UseChecksumEnabled,
-                                whatIf: ruleConfiguration.WhatIfEnabled,
+                                doNotDelete: doNotDeleteEnabled,
+                                appOfflineEnabled: appOfflineEnabled,
+                                useChecksum: useChecksumEnabled,
+                                whatIf: whatIfEnabled,
                                 traceLevel: TraceLevel.Verbose,
-                                appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
+                                appDataSkipDirectiveEnabled: appDataSkipDirectiveEnabled,
                                 applicationInsightsProfiler2SkipDirectiveEnabled:
-                                ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
+                                applicationInsightsProfiler2SkipDirectiveEnabled,
                                 logAction: message => _logger.Debug("{Message}", message),
                                 targetPath: hasPublishSettingsFile
                                     ? string.Empty
@@ -414,94 +493,9 @@ namespace Milou.Deployer.Core.Deployment
             }
             finally
             {
-                string[] targetPaths = deploymentExecutionDefinitions
-                    .Select(deploymentExecutionDefinition =>
-                        deploymentExecutionDefinition.TargetDirectoryPath)
-                    .Where(targetPath => !string.IsNullOrWhiteSpace(targetPath))
-                    .Select(path => Path.Combine(path, DeploymentConstants.AppOfflineHtm))
-                    .ToArray();
-
-                tempFilesToClean.AddRange(targetPaths);
-
-                await _directoryCleaner.CleanFilesAsync(tempFilesToClean);
-                await _directoryCleaner.CleanDirectoriesAsync(tempDirectoriesToClean);
+                _directoryCleaner.CleanFiles(tempFilesToClean);
+                _directoryCleaner.CleanDirectories(tempDirectoriesToClean);
             }
-
-            return ExitCode.Success;
-        }
-
-        private ExitCode VerifyFiles(string fileListFile, DirectoryInfo contentDirectory)
-        {
-            var existingFiles = contentDirectory
-                .GetFiles("*", SearchOption.AllDirectories)
-                .Select(file => new
-                {
-                    File = file,
-                    RelativePath = file.FullName.Substring(contentDirectory.FullName.Length).TrimStart('\\')
-                })
-                .ToArray();
-
-            string[] contentFiles = existingFiles
-                .Select(s => s.RelativePath)
-                .ToArray();
-
-            string json = File.ReadAllText(fileListFile, Encoding.UTF8);
-
-            var fileList = JsonConvert.DeserializeAnonymousType(json,
-                new { files = new[] { new { file = "", sha512Base64Encoded = "" } } });
-
-            _logger.Debug("Verifying file list containing {FileCount} files", fileList.files.Length);
-
-            string[] expectedFiles = fileList.files
-                .Select(s => s.file.TrimStart('\\'))
-                .ToArray();
-
-            string[] extraFiles = contentFiles
-                .Except(expectedFiles, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            string[] missingFiles = expectedFiles
-                .Except(contentFiles, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            if (extraFiles.Length > 0 || missingFiles.Length > 0)
-            {
-                if (extraFiles.Length > 0)
-                {
-                    _logger.Error("Found extra files {Files} on disk", extraFiles);
-                }
-
-                if (missingFiles.Length > 0)
-                {
-                    _logger.Error("Could not find defined files {Files} on disk defined in NuGet package", missingFiles);
-                }
-
-                return ExitCode.Failure;
-            }
-
-            Dictionary<string, string> dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'), s => s.sha512Base64Encoded, StringComparer.OrdinalIgnoreCase);
-
-            using (SHA512 hashAlgorithm = SHA512.Create())
-            {
-                foreach (var item in existingFiles)
-                {
-                    string expectedChecksum = dictionary[item.RelativePath];
-
-                    using (var fs = new FileStream(item.File.FullName, FileMode.Open))
-                    {
-                        byte[] fileHash = hashAlgorithm.ComputeHash(fs);
-
-                        string base64 = Convert.ToBase64String(fileHash);
-
-                        if (!base64.Equals(expectedChecksum, StringComparison.Ordinal))
-                        {
-                            throw new InvalidOperationException($"Checksum differs for file {item}");
-                        }
-                    }
-                }
-            }
-
-            _logger.Debug("Successfully verified all content files in extracted package directory");
 
             return ExitCode.Success;
         }

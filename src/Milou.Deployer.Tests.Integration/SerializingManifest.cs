@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Milou.Deployer.Tests.Integration
 {
-    public class WhenSerializingManifest
+    public class SerializingManifest
     {
-        public WhenSerializingManifest(ITestOutputHelper output)
+        public SerializingManifest(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -19,7 +19,7 @@ namespace Milou.Deployer.Tests.Integration
         private readonly ITestOutputHelper _output;
 
         [Fact]
-        public void ItShouldFind1DeploymentExecutionDefinition()
+        public void Do()
         {
             var parameters = new Dictionary<string, string[]>
             {
@@ -40,8 +40,7 @@ namespace Milou.Deployer.Tests.Integration
                     parameters: parameters)
             };
 
-            string serialized = JsonConvert.SerializeObject(
-                new { definitions = deploymentExecutionDefinitions },
+            string serialized = JsonConvert.SerializeObject(new { definitions = deploymentExecutionDefinitions },
                 Formatting.Indented);
 
             _output.WriteLine(serialized);

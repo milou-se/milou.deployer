@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using Arbor.Processing;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.Processes;
 using Serilog;
 
 namespace Milou.Deployer.ConsoleClient
