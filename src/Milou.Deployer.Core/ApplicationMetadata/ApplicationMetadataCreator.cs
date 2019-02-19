@@ -59,13 +59,11 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
             var existingKeys = new List<KeyValue>();
 
-            var jsonConfigurationSerializer = new JsonConfigurationSerializer();
-
             if (File.Exists(applicationMetadataJsonFilePath))
             {
                 string json = File.ReadAllText(applicationMetadataJsonFilePath, Encoding.UTF8);
 
-                ConfigurationItems configurationItems = jsonConfigurationSerializer.Deserialize(json);
+                ConfigurationItems configurationItems = JsonConfigurationSerializer.Deserialize(json);
 
                 if (!configurationItems.Keys.IsDefaultOrEmpty)
                 {
@@ -120,7 +118,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 keys.Add(environmentConfiguration);
             }
 
-            string serialized = jsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
+            string serialized = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
 
             File.WriteAllText(applicationMetadataJsonFilePath, serialized, Encoding.UTF8);
         }
