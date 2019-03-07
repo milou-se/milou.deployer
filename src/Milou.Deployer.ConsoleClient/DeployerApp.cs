@@ -120,7 +120,8 @@ namespace Milou.Deployer.ConsoleClient
                 }
                 else
                 {
-                    _logger.Error("Invalid argument count");
+                    var actualArgs = string.Join(" ", args);
+                    _logger.Error("Invalid argument count, got arguments {Args}", actualArgs);
                     return _appExit.ExitFailure();
                 }
             }
