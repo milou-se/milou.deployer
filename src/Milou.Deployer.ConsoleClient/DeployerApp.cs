@@ -24,6 +24,8 @@ namespace Milou.Deployer.ConsoleClient
         private IKeyValueConfiguration _appSettings;
         private CancellationTokenSource _cancellationTokenSource;
 
+        public ILogger Logger => _logger;
+
         private ILogger _logger;
 
         public DeployerApp(

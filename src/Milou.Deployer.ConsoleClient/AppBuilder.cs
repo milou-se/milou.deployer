@@ -35,12 +35,12 @@ namespace Milou.Deployer.ConsoleClient
 
             string outputTemplate = GetOutputTemplate(args);
 
-            var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
+            var levelSwitch = new LoggingLevelSwitch();
 
             logger = logger ?? new LoggerConfiguration()
-                .WriteTo.Console(outputTemplate: outputTemplate)
-                .MinimumLevel.ControlledBy(levelSwitch)
-                .CreateLogger();
+                         .WriteTo.Console(outputTemplate: outputTemplate)
+                         .MinimumLevel.ControlledBy(levelSwitch)
+                         .CreateLogger();
 
             try
             {
