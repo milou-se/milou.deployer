@@ -35,12 +35,12 @@ namespace Milou.Deployer.ConsoleClient
 
             string outputTemplate = GetOutputTemplate(args);
 
-            var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
+            var levelSwitch = new LoggingLevelSwitch();
 
             logger = logger ?? new LoggerConfiguration()
-                .WriteTo.Console(outputTemplate: outputTemplate)
-                .MinimumLevel.ControlledBy(levelSwitch)
-                .CreateLogger();
+                         .WriteTo.Console(outputTemplate: outputTemplate)
+                         .MinimumLevel.ControlledBy(levelSwitch)
+                         .CreateLogger();
 
             try
             {
@@ -80,7 +80,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
                     .Add(new EnvironmentVariableKeyValueConfigurationSource())
-                    .Add(new UserConfiguration())
+                    .Add(new UserJsonConfiguration())
                     .Build();
 
                 logger.Information("Using configuration: {Configuration}", configuration.SourceChain);

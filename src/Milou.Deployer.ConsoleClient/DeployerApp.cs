@@ -24,6 +24,8 @@ namespace Milou.Deployer.ConsoleClient
         private IKeyValueConfiguration _appSettings;
         private CancellationTokenSource _cancellationTokenSource;
 
+        public ILogger Logger => _logger;
+
         private ILogger _logger;
 
         public DeployerApp(
@@ -120,7 +122,8 @@ namespace Milou.Deployer.ConsoleClient
                 }
                 else
                 {
-                    _logger.Error("Invalid argument count");
+                    var actualArgs = string.Join(" ", args);
+                    _logger.Error("Invalid argument count, got arguments {Args}", actualArgs);
                     return _appExit.ExitFailure();
                 }
             }
