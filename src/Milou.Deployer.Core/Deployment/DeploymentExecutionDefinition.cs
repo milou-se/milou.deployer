@@ -55,11 +55,6 @@ namespace Milou.Deployer.Core.Deployment
 
             SetPreRelease(isPreRelease);
 
-            if (string.IsNullOrWhiteSpace(targetDirectoryPath))
-            {
-                throw new ArgumentNullException(nameof(targetDirectoryPath));
-            }
-
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
             NuGetConfigFile = nuGetConfigFile;
@@ -98,11 +93,6 @@ namespace Milou.Deployer.Core.Deployment
             if (string.IsNullOrWhiteSpace(packageId))
             {
                 throw new ArgumentNullException(nameof(packageId));
-            }
-
-            if (string.IsNullOrWhiteSpace(targetDirectoryPath))
-            {
-                throw new ArgumentNullException(nameof(targetDirectoryPath));
             }
 
             ExcludedFilePatterns = excludedFilePatterns?.Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
