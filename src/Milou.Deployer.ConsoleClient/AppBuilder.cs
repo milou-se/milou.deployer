@@ -179,7 +179,7 @@ namespace Milou.Deployer.ConsoleClient
                     deployerConfiguration,
                     logger,
                     configuration,
-                    new WebDeployHelper(),
+                    new WebDeployHelper(logger),
                     deploymentExecutionDefinition => IISManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition));
 
                 var fileReader = new DeploymentExecutionDefinitionFileReader();

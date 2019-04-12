@@ -29,12 +29,12 @@ namespace Milou.Deployer.Core.Deployment
         private readonly DirectoryCleaner _directoryCleaner;
 
         private readonly FileMatcher _fileMatcher;
-
-        private readonly ILogger _logger;
-        private readonly IWebDeployHelper _webDeployHelper;
         private readonly Func<DeploymentExecutionDefinition, IIISManager> _iisManager;
 
+        private readonly ILogger _logger;
+
         private readonly PackageInstaller _packageInstaller;
+        private readonly IWebDeployHelper _webDeployHelper;
 
         private readonly XmlTransformer _xmlTransformer;
 
@@ -72,363 +72,6 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         public DeployerConfiguration DeployerConfiguration { get; }
-
-        public async Task<ExitCode> DeployAsync(
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions, CancellationToken cancellationToken = default)
-        {
-            if (!deploymentExecutionDefinitions.Any())
-            {
-                throw new ArgumentException("Argument is empty collection", nameof(deploymentExecutionDefinitions));
-            }
-
-            if (string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetExePath))
-            {
-                throw new InvalidOperationException(
-                    $"The NuGet exe path is not defined, try set key '{ConfigurationKeys.NuGetExePath}'");
-            }
-
-            if (!File.Exists(DeployerConfiguration.NuGetExePath))
-            {
-                _logger.Error("The nuget.exe at '{Path}' does not exist", DeployerConfiguration.NuGetExePath);
-                throw new InvalidOperationException(
-                    $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
-            }
-
-            var tempDirectoriesToClean = new List<DirectoryInfo>();
-            var tempFilesToClean = new List<string>();
-
-            try
-            {
-                _logger.Verbose("Executing deployment execution definitions [{Length}]: {Executions}",
-                    deploymentExecutionDefinitions.Length,
-                    string.Join($"{Environment.NewLine}\t", deploymentExecutionDefinitions.Select(_ => $"'{_}'")));
-
-                foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
-                {
-                    string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
-                    _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
-                        asJson);
-
-                    const string TempPrefix = "MD-";
-
-                    string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
-
-                    string tempPath = Path.Combine(
-                        Path.GetTempPath(),
-                        $"{TempPrefix}{uniqueSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
-
-                    var tempWorkingDirectory = new DirectoryInfo(tempPath);
-                    DirectoryInfo packageInstallTempDirectory = tempWorkingDirectory;
-
-                    tempDirectoriesToClean.Add(packageInstallTempDirectory);
-
-                    MayBe<InstalledPackage> installedMainPackage =
-                        await _packageInstaller.InstallPackageAsync(deploymentExecutionDefinition,
-                            packageInstallTempDirectory,
-                            false).ConfigureAwait(false);
-
-                    if (!installedMainPackage.HasValue)
-                    {
-                        _logger.Error(
-                            "Could not install package defined in deployment execution definition {DeploymentExecutionDefinition}",
-                            deploymentExecutionDefinition);
-                        return ExitCode.Failure;
-                    }
-
-                    InstalledPackage installedPackage = installedMainPackage.Value;
-
-                    _logger.Information(
-                        "Successfully installed NuGet package '{PackageId}' version '{Version}' to path '{NugetPackageFullPath}'",
-                        installedPackage.PackageId,
-                        installedPackage.Version.ToNormalizedString(),
-                        installedPackage.NugetPackageFullPath);
-
-                    tempWorkingDirectory.Refresh();
-
-                    DirectoryInfo[] packagesDirectory = tempWorkingDirectory.GetDirectories();
-
-                    DirectoryInfo packageDirectory =
-                        packagesDirectory.Single(directory => directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
-
-                    SemanticVersion version = GetSemanticVersionFromDefinition(deploymentExecutionDefinition,
-                        packageDirectory,
-                        installedPackage.Version);
-
-                    _logger.Verbose("Package version is {Version}", version.ToNormalizedString());
-
-                    var possibleXmlTransformations = new List<FileMatch>();
-                    var replaceFiles = new List<FileMatch>();
-
-                    var environmentPackageResult = new EnvironmentPackageResult(true);
-
-                    var contentDirectory =
-                        new DirectoryInfo(Path.Combine(packageDirectory.FullName, "Content"));
-
-                    if (!contentDirectory.Exists)
-                    {
-                        _logger.Error("Content directory '{FullName}' does not exist", contentDirectory.FullName);
-                        return ExitCode.Failure;
-                    }
-
-                    FileInfo contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
-
-                    if (contentFilesJson?.Exists == true)
-                    {
-                        ExitCode exitCode = VerifyFiles(contentFilesJson.FullName, contentDirectory);
-
-                        if (!exitCode.IsSuccess)
-                        {
-                            return exitCode;
-                        }
-                    }
-                    else
-                    {
-                        _logger.Debug("No file contentFiles.json was found in package directory {PackageDirectory}", packageDirectory.FullName);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.EnvironmentConfig))
-                    {
-                        environmentPackageResult = await AddEnvironmentPackageAsync(deploymentExecutionDefinition,
-                            packageInstallTempDirectory,
-                            possibleXmlTransformations,
-                            replaceFiles,
-                            tempDirectoriesToClean,
-                            version,
-                            cancellationToken).ConfigureAwait(false);
-
-                        if (!environmentPackageResult.IsSuccess)
-                        {
-                            return ExitCode.Failure;
-                        }
-                    }
-                    else
-                    {
-                        _logger.Debug("Definition has no environment configuration specified");
-                    }
-
-                    if (possibleXmlTransformations.Any())
-                    {
-                        _logger.Debug("Possible Xml transformation files {V}",
-                            string.Join(", ",
-                                possibleXmlTransformations.Select(fileMatch =>
-                                    $"'{fileMatch.TargetName}' replaced by --> '{fileMatch.ActionFile.FullName}'")));
-                    }
-
-                    var xmlTransformedFiles = new List<string>();
-
-                    foreach (FileMatch possibleXmlTransformation in possibleXmlTransformations)
-                    {
-                        TransformationResult result = _xmlTransformer.TransformMatch(possibleXmlTransformation,
-                            contentDirectory);
-
-                        if (!result.IsSuccess)
-                        {
-                            return ExitCode.Failure;
-                        }
-
-                        xmlTransformedFiles.AddRange(result.TransformedFiles);
-                    }
-
-                    if (replaceFiles.Any())
-                    {
-                        _logger.Debug("Possible replacing files {V}",
-                            string.Join(", ",
-                                replaceFiles.Select(fileMatch =>
-                                    $"'{fileMatch.TargetName}' replaced by --> '{fileMatch.ActionFile.FullName}'")));
-                    }
-
-                    var replacedFiles = new List<string>();
-
-                    foreach (FileMatch replacement in replaceFiles)
-                    {
-                        ReplaceResult result = ReplaceFileIfMatchingFiles(replacement, contentDirectory);
-
-                        if (!result.IsSuccess)
-                        {
-                            return ExitCode.Failure;
-                        }
-
-                        replacedFiles.AddRange(result.ReplacedFiles);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
-                    {
-                        DeploymentTransformation.Transform(deploymentExecutionDefinition, contentDirectory, _logger);
-                    }
-
-                    string uniqueTargetTempSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
-
-                    string uniqueTargetTempPath = Path.Combine(
-                        Path.GetTempPath(),
-                        $"{TempPrefix}t{uniqueTargetTempSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
-
-                    var targetTempDirectoryInfo =
-                        new DirectoryInfo(uniqueTargetTempPath);
-
-                    if (!targetTempDirectoryInfo.Exists)
-                    {
-                        _logger.Debug("Creating temp target directory '{FullName}'",
-                            packageInstallTempDirectory.FullName);
-                        targetTempDirectoryInfo.Create();
-                    }
-
-                    string wwwrootPath = Path.Combine(contentDirectory.FullName, "wwwroot");
-
-                    var wwwRootDirectory = new DirectoryInfo(wwwrootPath);
-
-                    DirectoryInfo applicationMetadataTargetDirectory =
-                        wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
-
-                    ApplicationMetadataCreator.SetVersionFile(installedMainPackage.Value,
-                        applicationMetadataTargetDirectory,
-                        deploymentExecutionDefinition,
-                        xmlTransformedFiles,
-                        replacedFiles,
-                        environmentPackageResult);
-
-                    _logger.Verbose("Copying content files to '{FullName}'", targetTempDirectoryInfo.FullName);
-
-                    bool usePublishSettingsFile =
-                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile);
-
-                    var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName, DeploymentConstants.AppOfflineHtm));
-
-                    RuleConfiguration ruleConfiguration = RuleConfiguration.Get(deploymentExecutionDefinition,
-                        DeployerConfiguration,
-                        _logger);
-
-                    if (ruleConfiguration.AppOfflineEnabled && usePublishSettingsFile)
-                    {
-                        string sourceAppOffline = Path.Combine(contentDirectory.FullName, DeploymentConstants.AppOfflineHtm);
-
-                        if (!File.Exists(sourceAppOffline))
-                        {
-                            if (!targetAppOffline.Exists)
-                            {
-                                using (File.Create(targetAppOffline.FullName))
-                                {
-                                }
-
-                                _logger.Debug("Created offline file '{File}'", targetAppOffline.FullName);
-
-                                if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
-                                {
-                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline).ConfigureAwait(false);
-                                }
-
-                                tempFilesToClean.Add(targetAppOffline.FullName);
-                            }
-                        }
-                    }
-
-                    RecursiveIO.RecursiveCopy(contentDirectory,
-                        targetTempDirectoryInfo,
-                        _logger,
-                        deploymentExecutionDefinition.ExcludedFilePatterns);
-
-                    tempDirectoriesToClean.Add(targetTempDirectoryInfo);
-
-                    _logger.Debug("Copied content files from '{ContentDirectory}' to '{FullName}'",
-                        contentDirectory,
-                        targetTempDirectoryInfo.FullName);
-                    tempDirectoriesToClean.Add(packageInstallTempDirectory);
-
-                    bool hasPublishSettingsFile =
-                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile)
-                        && File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
-
-                    if (hasPublishSettingsFile)
-                    {
-                        _logger.Debug("The publish settings file '{PublishSettingsFile}' exist",
-                            deploymentExecutionDefinition.PublishSettingsFile);
-                    }
-                    else
-                    {
-                        _logger.Debug("The deployment definition has no publish setting file");
-                    }
-
-                    _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
-                    {
-                        if (string.IsNullOrWhiteSpace(args.Message))
-                        {
-                            return;
-                        }
-
-                        if (args.EventLevel == TraceLevel.Verbose)
-                        {
-                            _logger.Verbose("{Message}", args.Message);
-                            return;
-                        }
-
-                        _logger.Information("{Message}", args.Message);
-                    };
-
-                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
-                    IDeploymentChangeSummary summary;
-
-                    try
-                    {
-                        using (IIISManager manager = _iisManager(deploymentExecutionDefinition))
-                        {
-                            if (hasIisSiteName)
-                            {
-                                bool stopped = manager.StopSiteIfApplicable();
-
-                                if (!stopped)
-                                {
-                                    _logger.Error(
-                                        "Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}",
-                                        deploymentExecutionDefinition);
-                                    return ExitCode.Failure;
-                                }
-                            }
-
-
-                            summary = await _webDeployHelper.DeployContentToOneSiteAsync(
-                                targetTempDirectoryInfo.FullName,
-                                deploymentExecutionDefinition.PublishSettingsFile,
-                                DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                                doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
-                                appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
-                                useChecksum: ruleConfiguration.UseChecksumEnabled,
-                                whatIf: ruleConfiguration.WhatIfEnabled,
-                                traceLevel: TraceLevel.Verbose,
-                                appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
-                                applicationInsightsProfiler2SkipDirectiveEnabled:
-                                ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
-                                logAction: message => _logger.Debug("{Message}", message),
-                                targetPath: hasPublishSettingsFile
-                                    ? string.Empty
-                                    : deploymentExecutionDefinition.TargetDirectoryPath
-                            ).ConfigureAwait(false);
-                        }
-                    }
-                    catch (Exception ex) when(!ex.IsFatal())
-                    {
-                        _logger.Error(ex, "Could not handle start/stop for iis site {Site}", deploymentExecutionDefinition.IisSiteName);
-                        throw;
-                    }
-
-                    _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
-                }
-            }
-            finally
-            {
-                string[] targetPaths = deploymentExecutionDefinitions
-                    .Select(deploymentExecutionDefinition =>
-                        deploymentExecutionDefinition.TargetDirectoryPath)
-                    .Where(targetPath => !string.IsNullOrWhiteSpace(targetPath))
-                    .Select(path => Path.Combine(path, DeploymentConstants.AppOfflineHtm))
-                    .ToArray();
-
-                tempFilesToClean.AddRange(targetPaths);
-
-                await _directoryCleaner.CleanFilesAsync(tempFilesToClean);
-                await _directoryCleaner.CleanDirectoriesAsync(tempDirectoriesToClean);
-            }
-
-            return ExitCode.Success;
-        }
 
         private ExitCode VerifyFiles(string fileListFile, DirectoryInfo contentDirectory)
         {
@@ -473,13 +116,16 @@ namespace Milou.Deployer.Core.Deployment
 
                 if (missingFiles.Length > 0)
                 {
-                    _logger.Error("Could not find defined files {Files} on disk defined in NuGet package", missingFiles);
+                    _logger.Error("Could not find defined files {Files} on disk defined in NuGet package",
+                        missingFiles);
                 }
 
                 return ExitCode.Failure;
             }
 
-            Dictionary<string, string> dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'), s => s.sha512Base64Encoded, StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, string> dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'),
+                s => s.sha512Base64Encoded,
+                StringComparer.OrdinalIgnoreCase);
 
             using (SHA512 hashAlgorithm = SHA512.Create())
             {
@@ -552,7 +198,8 @@ namespace Milou.Deployer.Core.Deployment
             List<FileMatch> possibleXmlTransformations,
             List<FileMatch> replaceFiles,
             List<DirectoryInfo> tempDirectoriesToClean,
-            SemanticVersion version, CancellationToken cancellationToken = default)
+            SemanticVersion version,
+            CancellationToken cancellationToken = default)
         {
             _logger.Debug("Fetching environment configuration {EnvironmentConfig}",
                 deploymentExecutionDefinition.EnvironmentConfig);
@@ -593,8 +240,8 @@ namespace Milou.Deployer.Core.Deployment
             ExitCode nugetListPackagesExitCode = await
                 ProcessRunner.ExecuteProcessAsync(
                     DeployerConfiguration.NuGetExePath,
-                    arguments: listCommands,
-                    standardOutLog: (message, category) =>
+                    listCommands,
+                    (message, category) =>
                     {
                         _logger.Verbose("{Category} Found package '{Message}'", category, message);
                         allFoundEnvironmentPackages.Add(message);
@@ -602,7 +249,8 @@ namespace Milou.Deployer.Core.Deployment
                     toolAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
                     debugAction: (category, message) => _logger.Debug("{Category} {Message}", category, message),
                     verboseAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
-                    standardErrorAction: (category, message) => _logger.Error("{Category} {Message}", category, message),
+                    standardErrorAction: (category, message) =>
+                        _logger.Error("{Category} {Message}", category, message),
                     cancellationToken: cancellationToken).ConfigureAwait(false);
 
 
@@ -817,6 +465,383 @@ namespace Milou.Deployer.Core.Deployment
             _logger.Debug("Replaced file '{TargetRelativePath}' with new file '{ReplacementRelativePath}'",
                 targetRelativePath,
                 replacementRelativePath);
+
+            return ExitCode.Success;
+        }
+
+        public async Task<ExitCode> DeployAsync(
+            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
+            CancellationToken cancellationToken = default)
+        {
+            if (!deploymentExecutionDefinitions.Any())
+            {
+                throw new ArgumentException("Argument is empty collection", nameof(deploymentExecutionDefinitions));
+            }
+
+            if (string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetExePath))
+            {
+                throw new InvalidOperationException(
+                    $"The NuGet exe path is not defined, try set key '{ConfigurationKeys.NuGetExePath}'");
+            }
+
+            if (!File.Exists(DeployerConfiguration.NuGetExePath))
+            {
+                _logger.Error("The nuget.exe at '{Path}' does not exist", DeployerConfiguration.NuGetExePath);
+                throw new InvalidOperationException(
+                    $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
+            }
+
+            var tempDirectoriesToClean = new List<DirectoryInfo>();
+            var tempFilesToClean = new List<string>();
+
+            try
+            {
+                _logger.Verbose("Executing deployment execution definitions [{Length}]: {Executions}",
+                    deploymentExecutionDefinitions.Length,
+                    string.Join($"{Environment.NewLine}\t", deploymentExecutionDefinitions.Select(_ => $"'{_}'")));
+
+                foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
+                {
+                    string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
+                    _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
+                        asJson);
+
+                    const string TempPrefix = "MD-";
+
+                    string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
+
+                    string tempPath = Path.Combine(
+                        Path.GetTempPath(),
+                        $"{TempPrefix}{uniqueSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
+
+                    var tempWorkingDirectory = new DirectoryInfo(tempPath);
+                    DirectoryInfo packageInstallTempDirectory = tempWorkingDirectory;
+
+                    tempDirectoriesToClean.Add(packageInstallTempDirectory);
+
+                    MayBe<InstalledPackage> installedMainPackage =
+                        await _packageInstaller.InstallPackageAsync(deploymentExecutionDefinition,
+                            packageInstallTempDirectory,
+                            false).ConfigureAwait(false);
+
+                    if (!installedMainPackage.HasValue)
+                    {
+                        _logger.Error(
+                            "Could not install package defined in deployment execution definition {DeploymentExecutionDefinition}",
+                            deploymentExecutionDefinition);
+                        return ExitCode.Failure;
+                    }
+
+                    InstalledPackage installedPackage = installedMainPackage.Value;
+
+                    _logger.Information(
+                        "Successfully installed NuGet package '{PackageId}' version '{Version}' to path '{NugetPackageFullPath}'",
+                        installedPackage.PackageId,
+                        installedPackage.Version.ToNormalizedString(),
+                        installedPackage.NugetPackageFullPath);
+
+                    tempWorkingDirectory.Refresh();
+
+                    DirectoryInfo[] packagesDirectory = tempWorkingDirectory.GetDirectories();
+
+                    DirectoryInfo packageDirectory =
+                        packagesDirectory.Single(directory =>
+                            directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
+
+                    SemanticVersion version = GetSemanticVersionFromDefinition(deploymentExecutionDefinition,
+                        packageDirectory,
+                        installedPackage.Version);
+
+                    _logger.Verbose("Package version is {Version}", version.ToNormalizedString());
+
+                    var possibleXmlTransformations = new List<FileMatch>();
+                    var replaceFiles = new List<FileMatch>();
+
+                    var environmentPackageResult = new EnvironmentPackageResult(true);
+
+                    var contentDirectory =
+                        new DirectoryInfo(Path.Combine(packageDirectory.FullName, "Content"));
+
+                    if (!contentDirectory.Exists)
+                    {
+                        _logger.Error("Content directory '{FullName}' does not exist", contentDirectory.FullName);
+                        return ExitCode.Failure;
+                    }
+
+                    FileInfo contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
+
+                    if (contentFilesJson?.Exists == true)
+                    {
+                        ExitCode exitCode = VerifyFiles(contentFilesJson.FullName, contentDirectory);
+
+                        if (!exitCode.IsSuccess)
+                        {
+                            return exitCode;
+                        }
+                    }
+                    else
+                    {
+                        _logger.Debug("No file contentFiles.json was found in package directory {PackageDirectory}",
+                            packageDirectory.FullName);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.EnvironmentConfig))
+                    {
+                        environmentPackageResult = await AddEnvironmentPackageAsync(deploymentExecutionDefinition,
+                            packageInstallTempDirectory,
+                            possibleXmlTransformations,
+                            replaceFiles,
+                            tempDirectoriesToClean,
+                            version,
+                            cancellationToken).ConfigureAwait(false);
+
+                        if (!environmentPackageResult.IsSuccess)
+                        {
+                            return ExitCode.Failure;
+                        }
+                    }
+                    else
+                    {
+                        _logger.Debug("Definition has no environment configuration specified");
+                    }
+
+                    if (possibleXmlTransformations.Any())
+                    {
+                        _logger.Debug("Possible Xml transformation files {V}",
+                            string.Join(", ",
+                                possibleXmlTransformations.Select(fileMatch =>
+                                    $"'{fileMatch.TargetName}' replaced by --> '{fileMatch.ActionFile.FullName}'")));
+                    }
+
+                    var xmlTransformedFiles = new List<string>();
+
+                    foreach (FileMatch possibleXmlTransformation in possibleXmlTransformations)
+                    {
+                        TransformationResult result = _xmlTransformer.TransformMatch(possibleXmlTransformation,
+                            contentDirectory);
+
+                        if (!result.IsSuccess)
+                        {
+                            return ExitCode.Failure;
+                        }
+
+                        xmlTransformedFiles.AddRange(result.TransformedFiles);
+                    }
+
+                    if (replaceFiles.Any())
+                    {
+                        _logger.Debug("Possible replacing files {V}",
+                            string.Join(", ",
+                                replaceFiles.Select(fileMatch =>
+                                    $"'{fileMatch.TargetName}' replaced by --> '{fileMatch.ActionFile.FullName}'")));
+                    }
+
+                    var replacedFiles = new List<string>();
+
+                    foreach (FileMatch replacement in replaceFiles)
+                    {
+                        ReplaceResult result = ReplaceFileIfMatchingFiles(replacement, contentDirectory);
+
+                        if (!result.IsSuccess)
+                        {
+                            return ExitCode.Failure;
+                        }
+
+                        replacedFiles.AddRange(result.ReplacedFiles);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
+                    {
+                        DeploymentTransformation.Transform(deploymentExecutionDefinition, contentDirectory, _logger);
+                    }
+
+                    string uniqueTargetTempSuffix =
+                        DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
+
+                    string uniqueTargetTempPath = Path.Combine(
+                        Path.GetTempPath(),
+                        $"{TempPrefix}t{uniqueTargetTempSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
+
+                    var targetTempDirectoryInfo =
+                        new DirectoryInfo(uniqueTargetTempPath);
+
+                    if (!targetTempDirectoryInfo.Exists)
+                    {
+                        _logger.Debug("Creating temp target directory '{FullName}'",
+                            packageInstallTempDirectory.FullName);
+                        targetTempDirectoryInfo.Create();
+                    }
+
+                    string wwwrootPath = Path.Combine(contentDirectory.FullName, "wwwroot");
+
+                    var wwwRootDirectory = new DirectoryInfo(wwwrootPath);
+
+                    DirectoryInfo applicationMetadataTargetDirectory =
+                        wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
+
+                    ApplicationMetadataCreator.SetVersionFile(installedMainPackage.Value,
+                        applicationMetadataTargetDirectory,
+                        deploymentExecutionDefinition,
+                        xmlTransformedFiles,
+                        replacedFiles,
+                        environmentPackageResult);
+
+                    _logger.Verbose("Copying content files to '{FullName}'", targetTempDirectoryInfo.FullName);
+
+                    bool usePublishSettingsFile =
+                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile);
+
+                    var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName,
+                        DeploymentConstants.AppOfflineHtm));
+
+                    RuleConfiguration ruleConfiguration = RuleConfiguration.Get(deploymentExecutionDefinition,
+                        DeployerConfiguration,
+                        _logger);
+
+                    if (ruleConfiguration.AppOfflineEnabled && usePublishSettingsFile)
+                    {
+                        string sourceAppOffline =
+                            Path.Combine(contentDirectory.FullName, DeploymentConstants.AppOfflineHtm);
+
+                        if (!File.Exists(sourceAppOffline))
+                        {
+                            if (!targetAppOffline.Exists)
+                            {
+                                using (File.Create(targetAppOffline.FullName))
+                                {
+                                }
+
+                                _logger.Debug("Created offline file '{File}'", targetAppOffline.FullName);
+
+                                if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
+                                {
+                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline)
+                                        .ConfigureAwait(false);
+                                }
+
+                                tempFilesToClean.Add(targetAppOffline.FullName);
+                            }
+                        }
+                    }
+
+                    RecursiveIO.RecursiveCopy(contentDirectory,
+                        targetTempDirectoryInfo,
+                        _logger,
+                        deploymentExecutionDefinition.ExcludedFilePatterns);
+
+                    tempDirectoriesToClean.Add(targetTempDirectoryInfo);
+
+                    _logger.Debug("Copied content files from '{ContentDirectory}' to '{FullName}'",
+                        contentDirectory,
+                        targetTempDirectoryInfo.FullName);
+                    tempDirectoriesToClean.Add(packageInstallTempDirectory);
+
+                    bool hasPublishSettingsFile =
+                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile)
+                        && File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
+
+                    if (hasPublishSettingsFile)
+                    {
+                        _logger.Debug("The publish settings file '{PublishSettingsFile}' exist",
+                            deploymentExecutionDefinition.PublishSettingsFile);
+                    }
+                    else
+                    {
+                        _logger.Debug("The deployment definition has no publish setting file");
+                    }
+
+                    _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
+                    {
+                        if (string.IsNullOrWhiteSpace(args.Message))
+                        {
+                            return;
+                        }
+
+                        if (args.EventLevel == TraceLevel.Verbose)
+                        {
+                            _logger.Verbose("{Message}", args.Message);
+                            return;
+                        }
+
+                        _logger.Information("{Message}", args.Message);
+                    };
+
+                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
+                    IDeploymentChangeSummary summary;
+
+                    try
+                    {
+                        using (IIISManager manager = _iisManager(deploymentExecutionDefinition))
+                        {
+                            if (hasIisSiteName)
+                            {
+                                bool stopped = manager.StopSiteIfApplicable();
+
+                                if (!stopped)
+                                {
+                                    _logger.Error(
+                                        "Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}",
+                                        deploymentExecutionDefinition);
+                                    return ExitCode.Failure;
+                                }
+                            }
+
+                            try
+                            {
+                                summary = await _webDeployHelper.DeployContentToOneSiteAsync(
+                                    targetTempDirectoryInfo.FullName,
+                                    deploymentExecutionDefinition.PublishSettingsFile,
+                                    DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                                    doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
+                                    appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
+                                    useChecksum: ruleConfiguration.UseChecksumEnabled,
+                                    whatIf: ruleConfiguration.WhatIfEnabled,
+                                    traceLevel: TraceLevel.Verbose,
+                                    appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
+                                    applicationInsightsProfiler2SkipDirectiveEnabled:
+                                    ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
+                                    logAction: message => _logger.Debug("{Message}", message),
+                                    targetPath: hasPublishSettingsFile
+                                        ? string.Empty
+                                        : deploymentExecutionDefinition.TargetDirectoryPath
+                                ).ConfigureAwait(false);
+                            }
+                            catch (Exception ex) when (!ex.IsFatal())
+                            {
+                                _logger.Error(ex,
+                                    "Could not deploy site {DeploymentExecutionDefinition}",
+                                    deploymentExecutionDefinition);
+
+                                return ExitCode.Failure;
+                            }
+                        }
+                    }
+                    catch (Exception ex) when (!ex.IsFatal())
+                    {
+                        _logger.Error(ex,
+                            "Could not handle start/stop for iis site {Site}",
+                            deploymentExecutionDefinition.IisSiteName);
+
+                        return ExitCode.Failure;
+                    }
+
+                    _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
+                }
+            }
+            finally
+            {
+                string[] targetPaths = deploymentExecutionDefinitions
+                    .Select(deploymentExecutionDefinition =>
+                        deploymentExecutionDefinition.TargetDirectoryPath)
+                    .Where(targetPath => !string.IsNullOrWhiteSpace(targetPath))
+                    .Select(path => Path.Combine(path, DeploymentConstants.AppOfflineHtm))
+                    .ToArray();
+
+                tempFilesToClean.AddRange(targetPaths);
+
+                await _directoryCleaner.CleanFilesAsync(tempFilesToClean);
+                await _directoryCleaner.CleanDirectoriesAsync(tempDirectoriesToClean);
+            }
 
             return ExitCode.Success;
         }

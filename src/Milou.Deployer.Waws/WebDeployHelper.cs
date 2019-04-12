@@ -8,13 +8,21 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.Deployment;
+using Serilog;
 
 namespace Milou.Deployer.Waws
 {
     public class WebDeployHelper : IWebDeployHelper
     {
+        private readonly ILogger _logger;
+
+        public WebDeployHelper(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         /// <summary>
-        /// Deploys the content to one site.
+        ///     Deploys the content to one site.
         /// </summary>
         /// <param name="sourcePath">The content path.</param>
         /// <param name="publishSettingsFile">The publish settings file.</param>
@@ -27,7 +35,10 @@ namespace Milou.Deployer.Waws
         /// <param name="useChecksum">todo: describe useChecksum parameter on DeployContentToOneSite</param>
         /// <param name="appOfflineEnabled">todo: describe appOfflineEnabled parameter on DeployContentToOneSite</param>
         /// <param name="logAction">todo: describe logAction parameter on DeployContentToOneSite</param>
-        /// <param name="appDataSkipDirectiveEnabled">todo: describe appDataSkipDirectiveEnabled parameter on DeployContentToOneSite</param>
+        /// <param name="appDataSkipDirectiveEnabled">
+        ///     todo: describe appDataSkipDirectiveEnabled parameter on
+        ///     DeployContentToOneSite
+        /// </param>
         /// <returns>DeploymentChangeSummary.</returns>
         private async Task<DeploymentChangeSummary> DeployContentToOneSiteAsync2(
             string sourcePath,
@@ -49,7 +60,14 @@ namespace Milou.Deployer.Waws
 
             var sourceBaseOptions = new DeploymentBaseOptions();
 
-            string destinationPath = SetBaseOptions(publishSettingsFile,
+            PublishSettings publishSettings = default;
+
+            if (File.Exists(publishSettingsFile))
+            {
+                publishSettings = new PublishSettings(publishSettingsFile);
+            }
+
+            string destinationPath = SetBaseOptions(publishSettings,
                 out DeploymentBaseOptions destBaseOptions,
                 allowUntrusted);
 
@@ -199,11 +217,11 @@ namespace Milou.Deployer.Waws
                 }
             }
 
+            DeploymentChangeSummary deployContentToOneSite;
+
             using (DeploymentObject deploymentObject =
                 DeploymentManager.CreateObject(sourceProvider, sourcePath, sourceBaseOptions))
             {
-                DeploymentChangeSummary deployContentToOneSite;
-
                 FileInfo appOfflineFile = null;
 
                 if (targetProvider == DeploymentWellKnownProvider.DirPath
@@ -247,9 +265,34 @@ namespace Milou.Deployer.Waws
                         }
                     }
                 }
-
-                return deployContentToOneSite;
             }
+
+            string siteName = SetBaseOptions(publishSettings,
+                out DeploymentBaseOptions destDeleteBaseOptions,
+                allowUntrusted);
+
+            var syncDeleteOptions = new DeploymentSyncOptions
+            {
+                DeleteDestination = true
+            };
+
+            if (publishSettings?.SiteName is object)
+            {
+                DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(
+                    DeploymentWellKnownProvider.ContentPath,
+                    siteName + "/App_Offline.htm",
+                    destBaseOptions);
+
+                destDeleteBaseOptions.TraceLevel = traceLevel;
+                destDeleteBaseOptions.Trace += DestBaseOptions_Trace;
+
+                DeploymentChangeSummary results =
+                    deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
+
+                _logger.Debug("AppOffline result: {AppOffline}", results.ToDisplayValue());
+            }
+
+            return deployContentToOneSite;
         }
 
         private static bool AllowCertificateCallback(
@@ -275,14 +318,12 @@ namespace Milou.Deployer.Waws
         }
 
         private static string SetBaseOptions(
-            string publishSettingsPath,
+            PublishSettings publishSettings,
             out DeploymentBaseOptions deploymentBaseOptions,
             bool allowUntrusted)
         {
-            if (File.Exists(publishSettingsPath))
+            if (publishSettings is object)
             {
-                var publishSettings = new PublishSettings(publishSettingsPath);
-
                 deploymentBaseOptions = new DeploymentBaseOptions
                 {
                     ComputerName = publishSettings.ComputerName,
