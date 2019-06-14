@@ -102,7 +102,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                         new NugetPackageSettings(allowPreRelease),
                         cancellationToken: cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when(!ex.IsFatal())
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Could not download NuGet packages");
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
@@ -141,7 +141,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                 appArgs,
                 standardOutLog: (message, category) =>
                     _logger.Information("[{Category}] {Message}", category, message),
-                standardErrorAction:(message, category) =>_logger.Error("[{Category}] {Message}", category, message),
+                standardErrorAction: (message, category) => _logger.Error("[{Category}] {Message}", category, message),
                 cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (!exitCode.IsSuccess)
