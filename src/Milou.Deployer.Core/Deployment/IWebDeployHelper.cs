@@ -6,8 +6,6 @@ namespace Milou.Deployer.Core.Deployment
 {
     public interface IWebDeployHelper
     {
-    event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
-
         Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
             string sourcePath,
             string publishSettingsFile,
@@ -23,5 +21,7 @@ namespace Milou.Deployer.Core.Deployment
             bool appDataSkipDirectiveEnabled = false,
             bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
             Action<string> logAction = null);
+
+        event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
     }
 }

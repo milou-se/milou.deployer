@@ -27,7 +27,9 @@ namespace Milou.Deployer.Core.Deployment
             Dictionary<string, string[]> parameters = null,
             string excludedFilePatterns = null,
             bool requireEnvironmentConfig = false,
-            string webConfigTransformFile = null)
+            string publishType = null,
+            string webConfigTransformFile = null,
+            string ftpPath = null)
         {
             if (string.IsNullOrWhiteSpace(packageId))
             {
@@ -57,6 +59,7 @@ namespace Milou.Deployer.Core.Deployment
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
+            FtpPath = ftpPath;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
@@ -71,6 +74,10 @@ namespace Milou.Deployer.Core.Deployment
                              .ToImmutableDictionary() ??
                          ImmutableDictionary<string, StringValues>.Empty;
             ExcludedFilePatternsCombined = excludedFilePatterns;
+
+            _ = PublishType.TryParseOrDefault(publishType, out PublishType publishTypeValue);
+
+            PublishType = publishTypeValue;
         }
 
         public DeploymentExecutionDefinition(
@@ -87,7 +94,9 @@ namespace Milou.Deployer.Core.Deployment
             Dictionary<string, string[]> parameters = null,
             string excludedFilePatterns = null,
             bool requireEnvironmentConfig = false,
-            string webConfigTransformFile = null)
+            string webConfigTransformFile = null,
+            string publishType = null,
+            string ftpPath = null)
         {
             SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing;
             if (string.IsNullOrWhiteSpace(packageId))
@@ -99,6 +108,7 @@ namespace Milou.Deployer.Core.Deployment
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
+            FtpPath = ftpPath;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
@@ -112,11 +122,22 @@ namespace Milou.Deployer.Core.Deployment
                                  pair => new StringValues(pair.Value ?? Array.Empty<string>()))
                              .ToImmutableDictionary() ??
                          ImmutableDictionary<string, StringValues>.Empty;
+
+            _ = PublishType.TryParseOrDefault(publishType, out PublishType publishTypeValue);
+
+            PublishType = publishTypeValue;
+
             ExcludedFilePatternsCombined = excludedFilePatterns;
         }
 
         [JsonIgnore]
         public ImmutableArray<string> ExcludedFilePatterns { get; }
+
+        [JsonIgnore]
+        public PublishType PublishType { get; }
+
+        [JsonProperty(nameof(PublishType))]
+        public string PublishTypeValue => PublishType.Name;
 
         [JsonProperty(PropertyName = nameof(ExcludedFilePatterns))]
         public string ExcludedFilePatternsCombined { get; }
@@ -136,7 +157,7 @@ namespace Milou.Deployer.Core.Deployment
 
         [JsonProperty(PropertyName = nameof(SemanticVersion))]
         public string NormalizedVersion =>
-            SemanticVersion.HasValue ? SemanticVersion.Value.ToNormalizedString(): null;
+            SemanticVersion.HasValue ? SemanticVersion.Value.ToNormalizedString() : null;
 
         public string TargetDirectoryPath { get; }
 
@@ -157,14 +178,16 @@ namespace Milou.Deployer.Core.Deployment
 
         public string NuGetPackageSource { get; }
 
-        public override string ToString()
-        {
-            return $"{PackageId} {Version} {TargetDirectoryPath} {EnvironmentConfig}";
-        }
+        public string FtpPath { get; }
 
         private void SetPreRelease(bool isPreRelease)
         {
             IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
+        }
+
+        public override string ToString()
+        {
+            return $"{PackageId} {Version} {TargetDirectoryPath} {EnvironmentConfig}";
         }
     }
 }

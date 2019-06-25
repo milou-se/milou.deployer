@@ -1,13 +1,38 @@
-﻿using Milou.Deployer.Core.Configuration;
+﻿using System.Collections.Generic;
+using Milou.Deployer.Core.Configuration;
 using Serilog;
 
 namespace Milou.Deployer.Core.Deployment
 {
     public class RuleConfiguration
     {
-        public static RuleConfiguration Get(DeploymentExecutionDefinition deploymentExecutionDefinition, DeployerConfiguration DeployerConfiguration, ILogger _logger)
+        private static readonly List<string> DefaultExcludes = new List<string>
         {
+            "/locks",
+            "/deployments",
+            "/site/locks/",
+            "/site/deployments/",
+        };
 
+        public List<string> Excludes { get; private set; } = DefaultExcludes;
+
+        public bool AppOfflineEnabled { get; set; } = true;
+
+        public bool DoNotDeleteEnabled { get; set; }
+
+        public bool WhatIfEnabled { get; set; }
+
+        public bool ApplicationInsightsProfiler2SkipDirectiveEnabled { get; set; }
+
+        public bool AppDataSkipDirectiveEnabled { get; set; } = true;
+
+        public bool UseChecksumEnabled { get; set; }
+
+        public static RuleConfiguration Get(
+            DeploymentExecutionDefinition deploymentExecutionDefinition,
+            DeployerConfiguration DeployerConfiguration,
+            ILogger _logger)
+        {
             bool doNotDeleteEnabled = deploymentExecutionDefinition.DoNotDeleteEnabled(DeployerConfiguration
                 .WebDeploy.Rules.DoNotDeleteRuleEnabled);
 
@@ -26,7 +51,7 @@ namespace Milou.Deployer.Core.Deployment
             bool appOfflineEnabled = deploymentExecutionDefinition.AppOfflineEnabled(DeployerConfiguration
                 .WebDeploy.Rules.AppOfflineRuleEnabled);
 
-            bool whatIfEnabled = deploymentExecutionDefinition.WhatIfEnabled(false);
+            bool whatIfEnabled = deploymentExecutionDefinition.WhatIfEnabled();
 
             _logger.Debug("{RuleName}: {DoNotDeleteEnabled}",
                 nameof(DeployerConfiguration.WebDeploy.Rules.DoNotDeleteRuleEnabled),
@@ -54,20 +79,9 @@ namespace Milou.Deployer.Core.Deployment
                 ApplicationInsightsProfiler2SkipDirectiveEnabled = applicationInsightsProfiler2SkipDirectiveEnabled,
                 WhatIfEnabled = whatIfEnabled,
                 DoNotDeleteEnabled = doNotDeleteEnabled,
-                AppOfflineEnabled = appOfflineEnabled
+                AppOfflineEnabled = appOfflineEnabled,
+                Excludes = DefaultExcludes
             };
         }
-
-        public bool AppOfflineEnabled { get; set; }
-
-        public bool DoNotDeleteEnabled { get; set; }
-
-        public bool WhatIfEnabled { get; set; }
-
-        public bool ApplicationInsightsProfiler2SkipDirectiveEnabled { get; set; }
-
-        public bool AppDataSkipDirectiveEnabled { get; set; }
-
-        public bool UseChecksumEnabled { get; set; }
     }
 }

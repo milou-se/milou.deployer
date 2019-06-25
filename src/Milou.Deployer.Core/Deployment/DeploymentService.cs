@@ -788,23 +788,41 @@ namespace Milou.Deployer.Core.Deployment
 
                             try
                             {
-                                summary = await _webDeployHelper.DeployContentToOneSiteAsync(
-                                    targetTempDirectoryInfo.FullName,
-                                    deploymentExecutionDefinition.PublishSettingsFile,
-                                    DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                                    doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
-                                    appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
-                                    useChecksum: ruleConfiguration.UseChecksumEnabled,
-                                    whatIf: ruleConfiguration.WhatIfEnabled,
-                                    traceLevel: TraceLevel.Verbose,
-                                    appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
-                                    applicationInsightsProfiler2SkipDirectiveEnabled:
-                                    ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
-                                    logAction: message => _logger.Debug("{Message}", message),
-                                    targetPath: hasPublishSettingsFile
-                                        ? string.Empty
-                                        : deploymentExecutionDefinition.TargetDirectoryPath
-                                ).ConfigureAwait(false);
+                                if (deploymentExecutionDefinition.PublishType == PublishType.WebDeploy)
+                                {
+                                    summary = await _webDeployHelper.DeployContentToOneSiteAsync(
+                                        targetTempDirectoryInfo.FullName,
+                                        deploymentExecutionDefinition.PublishSettingsFile,
+                                        DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                                        doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
+                                        appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
+                                        useChecksum: ruleConfiguration.UseChecksumEnabled,
+                                        whatIf: ruleConfiguration.WhatIfEnabled,
+                                        traceLevel: TraceLevel.Verbose,
+                                        appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
+                                        applicationInsightsProfiler2SkipDirectiveEnabled:
+                                        ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
+                                        logAction: message => _logger.Debug("{Message}", message),
+                                        targetPath: hasPublishSettingsFile
+                                            ? string.Empty
+                                            : deploymentExecutionDefinition.TargetDirectoryPath
+                                    ).ConfigureAwait(false);
+                                }
+                                else if (deploymentExecutionDefinition.PublishType == PublishType.Ftp)
+                                {
+                                    FtpHandler ftpHandler =
+                                        FtpHandler.CreateWithPublishSettings(deploymentExecutionDefinition
+                                            .PublishSettingsFile, deploymentExecutionDefinition.FtpPath);
+
+                                    summary = await ftpHandler.PublishAsync(ruleConfiguration,
+                                        targetTempDirectoryInfo,
+                                        cancellationToken);
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException(
+                                        $"Publish type {deploymentExecutionDefinition.PublishType} is not supported");
+                                }
                             }
                             catch (Exception ex) when (!ex.IsFatal())
                             {
