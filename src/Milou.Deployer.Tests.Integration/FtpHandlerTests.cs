@@ -18,8 +18,7 @@ namespace Milou.Deployer.Tests.Integration
 
         private readonly ITestOutputHelper _testOutputHelper;
 
-        //[Fact(Skip = "Depending on publish settings")]
-        [Fact]
+        [Fact(Skip = "Depending on publish settings")]
         public async Task PublishFilesShouldSyncFiles()
         {
             FtpHandler handler =
