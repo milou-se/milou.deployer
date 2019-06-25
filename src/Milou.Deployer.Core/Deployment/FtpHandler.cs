@@ -44,6 +44,11 @@ namespace Milou.Deployer.Core.Deployment
 
         private static FtpPath ParseLine(string currentLine)
         {
+            if (string.IsNullOrWhiteSpace(currentLine))
+            {
+                throw new FtpException("Current line is null or whitespace");
+            }
+
             int metadataLength = 40;
 
             string metadata = currentLine.Substring(0, metadataLength);
@@ -110,10 +115,25 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         public async Task UploadFileAsync(
-            FtpPath filePath,
-            FileInfo sourceFile,
+            [NotNull] FtpPath filePath,
+            [NotNull] FileInfo sourceFile,
             CancellationToken cancellationToken = default)
         {
+            if (filePath == null)
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
+
+            if (sourceFile == null)
+            {
+                throw new ArgumentNullException(nameof(sourceFile));
+            }
+
+            if (!sourceFile.Exists)
+            {
+                throw new FtpException($"Source file '{sourceFile.FullName}' does not exist");
+            }
+
             FtpRequest request = CreateRequest(filePath, FtpMethod.UploadFile);
 
             request.Request.ContentLength = sourceFile.Length;
@@ -122,6 +142,11 @@ namespace Milou.Deployer.Core.Deployment
             {
                 using (Stream requestStream = await request.Request.GetRequestStreamAsync())
                 {
+                    if (requestStream is null)
+                    {
+                        throw new FtpException("FTP request stream is null");
+                    }
+
                     await sourceStream.CopyToAsync(requestStream, DefaultBufferSize, cancellationToken);
                 }
             }
@@ -273,8 +298,13 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public static FtpHandler CreateWithPublishSettings(string publishSettingsFile, string uriPath = null)
+        public static FtpHandler CreateWithPublishSettings([NotNull] string publishSettingsFile, string uriPath = null)
         {
+            if (string.IsNullOrWhiteSpace(publishSettingsFile))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(publishSettingsFile));
+            }
+
             FtpPublishSettings ftpPublishSettings = FtpPublishSettings.Load(publishSettingsFile);
 
             var credentials = new NetworkCredential(ftpPublishSettings.UserName, ftpPublishSettings.Password);
@@ -292,11 +322,26 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         public async Task<FtpSummary> UploadDirectoryAsync(
-            RuleConfiguration ruleConfiguration,
-            DirectoryInfo sourceDirectory,
-            DirectoryInfo baseDirectory,
+            [NotNull] RuleConfiguration ruleConfiguration,
+            [NotNull] DirectoryInfo sourceDirectory,
+            [NotNull] DirectoryInfo baseDirectory,
             CancellationToken cancellationToken)
         {
+            if (ruleConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(ruleConfiguration));
+            }
+
+            if (sourceDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(sourceDirectory));
+            }
+
+            if (baseDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(baseDirectory));
+            }
+
             var dir = new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
                 FileSystemType.Directory);
 
@@ -329,10 +374,20 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         public async Task<IDeploymentChangeSummary> PublishAsync(
-            RuleConfiguration ruleConfiguration,
-            DirectoryInfo sourceDirectory,
+            [NotNull] RuleConfiguration ruleConfiguration,
+            [NotNull] DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken)
         {
+            if (ruleConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(ruleConfiguration));
+            }
+
+            if (sourceDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(sourceDirectory));
+            }
+
             var deploymentChangeSummary = new FtpSummary();
             ImmutableArray<FtpPath> fileSystemItems =
                 await ListDirectoryAsync(FtpPath.Root, cancellationToken: cancellationToken);
