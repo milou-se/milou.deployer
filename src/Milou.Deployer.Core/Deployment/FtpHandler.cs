@@ -138,25 +138,39 @@ namespace Milou.Deployer.Core.Deployment
 
             request.Request.ContentLength = sourceFile.Length;
 
-            using (var sourceStream = new FileStream(sourceFile.FullName, FileMode.Open))
+            try
             {
-                using (Stream requestStream = await request.Request.GetRequestStreamAsync())
+                using (var sourceStream = new FileStream(sourceFile.FullName, FileMode.Open))
                 {
-                    if (requestStream is null)
+                    using (Stream requestStream = await request.Request.GetRequestStreamAsync())
                     {
-                        throw new FtpException("FTP request stream is null");
-                    }
+                        if (requestStream is null)
+                        {
+                            throw new FtpException("FTP request stream is null");
+                        }
 
-                    await sourceStream.CopyToAsync(requestStream, DefaultBufferSize, cancellationToken);
+                        await sourceStream.CopyToAsync(requestStream, DefaultBufferSize, cancellationToken);
+                    }
                 }
             }
-
-            using (FtpResponse response = await GetFtpResponseAsync(request))
+            catch (Exception ex)
             {
-                if (response.Response.StatusCode != FtpStatusCode.ClosingData)
+                throw new FtpException($"Could not copy source file {sourceFile.FullName} to path {filePath.Path} stream", ex);
+            }
+
+            try
+            {
+                using (FtpResponse response = await GetFtpResponseAsync(request))
                 {
-                    throw new FtpException($"Could not upload file '{filePath}'", response.Response.StatusCode);
+                    if (response.Response.StatusCode != FtpStatusCode.ClosingData)
+                    {
+                        throw new FtpException($"Could not upload file '{filePath}'", response.Response.StatusCode);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new FtpException("Could not get response for FTP file upload to path " + filePath.Path, ex);
             }
         }
 
@@ -307,7 +321,7 @@ namespace Milou.Deployer.Core.Deployment
 
             FtpPublishSettings ftpPublishSettings = FtpPublishSettings.Load(publishSettingsFile);
 
-            var credentials = new NetworkCredential(ftpPublishSettings.UserName, ftpPublishSettings.Password);
+            var credentials = new NetworkCredential(ftpPublishSettings.UserName, ftpPublishSettings.Password, "");
 
             Uri fullUri = ftpPublishSettings.FtpBaseUri;
 
