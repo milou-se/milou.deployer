@@ -810,7 +810,7 @@ namespace Milou.Deployer.Core.Deployment
                                 }
                                 else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType)
                                 {
-                                    var basePath = string.IsNullOrWhiteSpace(deploymentExecutionDefinition.FtpPath) ? null : new FtpPath(deploymentExecutionDefinition.FtpPath, FileSystemType.Directory);
+                                    var basePath = deploymentExecutionDefinition.FtpPath;
 
                                     bool isSecure = deploymentExecutionDefinition.PublishType == PublishType.Ftps;
 
