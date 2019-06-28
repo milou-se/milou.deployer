@@ -101,7 +101,27 @@ namespace Milou.Deployer.Core.Deployment
 
                 bool isRootPath = dir.IsRoot;
 
-                if (!isRootPath)
+                if (isRootPath)
+                {
+                    try
+                    {
+                        _ = await ListDirectoryAsync(dir, false, cancellationToken);
+                    }
+                    catch (FtpException ftpException)
+                    {
+                        if (ftpException.InnerException is WebException exception)
+                        {
+                            if (exception.Response is FtpWebResponse ftpResponse
+                                && ftpResponse.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable)
+                            {
+                                return false;
+                            }
+                        }
+
+                        throw;
+                    }
+                }
+                else
                 {
                     listDir = dir.Parent;
                 }
@@ -561,6 +581,12 @@ namespace Milou.Deployer.Core.Deployment
             CancellationToken cancellationToken)
         {
             var deploymentChangeSummary = new FtpSummary();
+
+            if (!await DirectoryExistsAsync(FtpPath.Root, cancellationToken))
+            {
+                await CreateDirectoryAsync(FtpPath.Root);
+            }
+
             var fileSystemItems =
                 await ListDirectoryAsync(FtpPath.Root, cancellationToken: cancellationToken);
 
