@@ -10,21 +10,40 @@ namespace Milou.Deployer.Core.Deployment
 
         public static readonly FtpPath Root = new FtpPath(RootPath, FileSystemType.Directory);
 
+        public static bool TryParse(string value, FileSystemType fileSystemType, out FtpPath ftpPath)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ftpPath = default;
+                return false;
+            }
+
+            if (!value.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+            {
+                ftpPath = default;
+                return false;
+            }
+
+            if (value.IndexOf("\\", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                ftpPath = default;
+                return false;
+            }
+
+            ftpPath = new FtpPath(value, fileSystemType);
+            return true;
+        }
+
         public FtpPath([NotNull] string path, FileSystemType type)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
+                throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(path));
             }
 
-            if (path.Equals(RootPath, StringComparison.OrdinalIgnoreCase))
-            {
-                Path = RootPath;
-            }
-            else
-            {
-                Path = $"/{path.TrimStart('/').Replace("//", "/")}";
-            }
+            Path = path.Equals(RootPath, StringComparison.OrdinalIgnoreCase)
+                ? RootPath
+                : $"/{path.TrimStart('/').Replace("//", "/")}";
 
             Type = type;
         }
@@ -67,10 +86,7 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public override string ToString()
-        {
-            return $"{nameof(Path)}: {Path}, {nameof(Type)}: {Type}";
-        }
+        public override string ToString() => $"{nameof(Path)}: {Path}, {nameof(Type)}: {Type}";
 
         public bool ContainsPath([NotNull] FtpPath excluded)
         {
@@ -78,7 +94,6 @@ namespace Milou.Deployer.Core.Deployment
             {
                 throw new ArgumentNullException(nameof(excluded));
             }
-
 
             string[] otherSegments = excluded.Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             string[] segments = Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
