@@ -351,7 +351,8 @@ namespace Milou.Deployer.Core.Deployment
 
                 foreach (string directoryItem in directoryItems)
                 {
-                    var directorySubItems = await AddDirectorItemsAsync(path, recursive, directoryItem, cancellationToken);
+                    var directorySubItems =
+                        await AddDirectorItemsAsync(path, recursive, directoryItem, cancellationToken);
 
                     paths.AddRange(directorySubItems);
                 }
@@ -423,8 +424,10 @@ namespace Milou.Deployer.Core.Deployment
             return currentLines;
         }
 
-        public static FtpHandler CreateWithPublishSettings([NotNull] string publishSettingsFile,
-            [NotNull] FtpSettings ftpSettings)
+        public static FtpHandler CreateWithPublishSettings(
+            [NotNull] string publishSettingsFile,
+            [NotNull] FtpSettings ftpSettings,
+            ILogger logger = default)
         {
             if (ftpSettings == null)
             {
@@ -449,7 +452,7 @@ namespace Milou.Deployer.Core.Deployment
                 fullUri = builder.Uri;
             }
 
-            return new FtpHandler(fullUri, credentials, ftpSettings);
+            return new FtpHandler(fullUri, credentials, ftpSettings, logger);
         }
 
         public Task<FtpSummary> UploadDirectoryAsync(
