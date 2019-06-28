@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Serilog;
+using Serilog.Core;
 
 namespace Milou.Deployer.Core.Deployment
 {
@@ -15,29 +18,37 @@ namespace Milou.Deployer.Core.Deployment
         private const int DefaultBufferSize = 4096;
 
         private readonly Uri _ftpBaseUri;
+        private readonly FtpSettings _ftpSettings;
+        private readonly ILogger _logger;
 
         private readonly ICredentials _networkCredential;
 
-        public FtpHandler([NotNull] Uri ftpBaseUri, [NotNull] ICredentials networkCredential)
+        [PublicAPI]
+        public FtpHandler([NotNull] Uri ftpBaseUri,
+            [NotNull] ICredentials networkCredential,
+            [NotNull] FtpSettings ftpSettings,
+            ILogger logger = default)
         {
+            _logger = logger ?? Logger.None;
             _ftpBaseUri = ftpBaseUri ??
-                          throw new ArgumentException("Value cannot be null or whitespace.", nameof(ftpBaseUri));
+                          throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(ftpBaseUri));
             _networkCredential = networkCredential ?? throw new ArgumentNullException(nameof(networkCredential));
+            _ftpSettings = ftpSettings ?? throw new ArgumentNullException(nameof(ftpSettings));
         }
 
         private FtpRequest CreateRequest(FtpPath ftpPath, FtpMethod method)
         {
-            var request = (FtpWebRequest) WebRequest.Create(
+            var request = (FtpWebRequest)WebRequest.Create(
                 $"{_ftpBaseUri.AbsoluteUri.TrimEnd('/')}/{ftpPath.Path.TrimStart('/').Replace("//", "/")}");
             request.Credentials = _networkCredential;
-            request.EnableSsl = true;
+            request.EnableSsl = _ftpSettings.IsSecure;
             request.Method = method.Command;
             return new FtpRequest(request, method);
         }
 
         private Task<FtpResponse> CreateFtpResponseAsync(FtpPath filePath, FtpMethod method)
         {
-            FtpRequest request = CreateRequest(filePath, method);
+            var request = CreateRequest(filePath, method);
 
             return GetFtpResponseAsync(request);
         }
@@ -58,18 +69,35 @@ namespace Milou.Deployer.Core.Deployment
             if (metadata.IndexOf(directoryType, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return new FtpPath(
-                    currentLine.Split(new[] { directoryType }, StringSplitOptions.RemoveEmptyEntries).Last().Trim(),
+                    currentLine.Split(new[] {directoryType}, StringSplitOptions.RemoveEmptyEntries).Last().Trim(),
                     FileSystemType.Directory);
             }
 
             return new FtpPath(currentLine.Substring(metadataLength - 1), FileSystemType.File);
         }
 
-        private async Task<bool> DirectoryExistsAsync(FtpPath dir, CancellationToken cancellationToken)
+        public Task<bool> DirectoryExistsAsync([NotNull] FtpPath dir, CancellationToken cancellationToken)
+        {
+            if (dir == null)
+            {
+                throw new ArgumentNullException(nameof(dir));
+            }
+
+            if (dir.Type != FileSystemType.Directory)
+            {
+                throw new ArgumentException(
+                    string.Format(CultureInfo.InvariantCulture, Resources.FtpFtpPathMustBeADirectoryPath, dir.Path),
+                    nameof(dir));
+            }
+
+            return DirectoryExistsInternalAsync(dir, cancellationToken);
+        }
+
+        private async Task<bool> DirectoryExistsInternalAsync(FtpPath dir, CancellationToken cancellationToken)
         {
             try
             {
-                FtpPath listDir = dir;
+                var listDir = dir;
 
                 bool isRootPath = dir.IsRoot;
 
@@ -78,17 +106,19 @@ namespace Milou.Deployer.Core.Deployment
                     listDir = dir.Parent;
                 }
 
-                ImmutableArray<FtpPath> items = await ListDirectoryAsync(listDir, false, cancellationToken);
+                var items = await ListDirectoryAsync(listDir, false, cancellationToken);
 
                 if (isRootPath)
                 {
+                    _logger.Debug("Successfully listed root directory '{Path}'", listDir.Path);
                     return true;
                 }
 
-                FtpPath[] foundPaths = items.Where(item => item.ContainsPath(dir)).ToArray();
+                var foundPaths = items.Where(item => item.ContainsPath(dir)).ToArray();
 
                 if (foundPaths.Length == 0)
                 {
+                    _logger.Debug("Could not find FTP Path {Path}", dir.Path);
                     return false;
                 }
             }
@@ -114,7 +144,7 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public async Task UploadFileAsync(
+        public Task UploadFileAsync(
             [NotNull] FtpPath filePath,
             [NotNull] FileInfo sourceFile,
             CancellationToken cancellationToken = default)
@@ -129,24 +159,38 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(sourceFile));
             }
 
+            if (filePath.Type != FileSystemType.File)
+            {
+                throw new ArgumentException($"The ftp upload path '{filePath.Path}' is not a file");
+            }
+
             if (!sourceFile.Exists)
             {
                 throw new FtpException($"Source file '{sourceFile.FullName}' does not exist");
             }
 
-            FtpRequest request = CreateRequest(filePath, FtpMethod.UploadFile);
+            return UploadFileInternalAsync(filePath, sourceFile, cancellationToken);
+        }
 
+        private async Task UploadFileInternalAsync(
+            [NotNull] FtpPath filePath,
+            [NotNull] FileInfo sourceFile,
+            CancellationToken cancellationToken = default)
+        {
+            var request = CreateRequest(filePath, FtpMethod.UploadFile);
+            _logger.Debug("Settings file content upload length to {Length} bytes for file '{Path}'", sourceFile.Length,
+                filePath.Path);
             request.Request.ContentLength = sourceFile.Length;
 
             try
             {
                 using (var sourceStream = new FileStream(sourceFile.FullName, FileMode.Open))
                 {
-                    using (Stream requestStream = await request.Request.GetRequestStreamAsync())
+                    using (var requestStream = await request.Request.GetRequestStreamAsync())
                     {
                         if (requestStream is null)
                         {
-                            throw new FtpException("FTP request stream is null");
+                            throw new FtpException($"FTP request stream is null for file path '{filePath.Path}'");
                         }
 
                         await sourceStream.CopyToAsync(requestStream, DefaultBufferSize, cancellationToken);
@@ -155,33 +199,45 @@ namespace Milou.Deployer.Core.Deployment
             }
             catch (Exception ex)
             {
-                throw new FtpException($"Could not copy source file {sourceFile.FullName} to path {filePath.Path} stream", ex);
+                throw new FtpException(
+                    $"Could not copy source file '{sourceFile.FullName}' to path '{filePath.Path}' stream", ex);
             }
 
             try
             {
-                using (FtpResponse response = await GetFtpResponseAsync(request))
+                using (var response = await GetFtpResponseAsync(request))
                 {
                     if (response.Response.StatusCode != FtpStatusCode.ClosingData)
                     {
-                        throw new FtpException($"Could not upload file '{filePath}'", response.Response.StatusCode);
+                        throw new FtpException($"Could not upload file '{filePath.Path}'",
+                            response.Response.StatusCode);
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new FtpException("Could not get response for FTP file upload to path " + filePath.Path, ex);
+                throw new FtpException($"Could not get response for FTP file upload to path '{filePath.Path}'", ex);
             }
         }
 
-        public async Task DeleteFileAsync([NotNull] FtpPath filePath)
+        public Task DeleteFileAsync([NotNull] FtpPath filePath)
         {
             if (filePath == null)
             {
                 throw new ArgumentNullException(nameof(filePath));
             }
 
-            using (FtpResponse response = await CreateFtpResponseAsync(filePath, FtpMethod.DeleteFile))
+            if (filePath.Type != FileSystemType.File)
+            {
+                throw new ArgumentException($"The ftp delete path '{filePath.Path}' is not a file");
+            }
+
+            return DeleteFileInternalAsync(filePath);
+        }
+
+        private async Task DeleteFileInternalAsync([NotNull] FtpPath filePath)
+        {
+            using (var response = await CreateFtpResponseAsync(filePath, FtpMethod.DeleteFile))
             {
                 if (response.Response.StatusCode != FtpStatusCode.FileActionOK)
                 {
@@ -190,14 +246,24 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public async Task DeleteDirectoryAsync([NotNull] FtpPath path)
+        public Task DeleteDirectoryAsync([NotNull] FtpPath path)
         {
             if (path == null)
             {
                 throw new ArgumentNullException(nameof(path));
             }
 
-            using (FtpResponse response = await CreateFtpResponseAsync(path, FtpMethod.RemoveDirectory))
+            if (path.Type != FileSystemType.Directory)
+            {
+                throw new ArgumentException($"The ftp delete path {path.Path} is not a directory");
+            }
+
+            return DeleteDirectoryInternalAsync(path);
+        }
+
+        private async Task DeleteDirectoryInternalAsync([NotNull] FtpPath path)
+        {
+            using (var response = await CreateFtpResponseAsync(path, FtpMethod.RemoveDirectory))
             {
                 if (response.Response.StatusCode != FtpStatusCode.FileActionOK)
                 {
@@ -206,14 +272,19 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public async Task FileExistsAsync([NotNull] FtpPath filePath)
+        public Task FileExistsAsync([NotNull] FtpPath filePath)
         {
             if (filePath == null)
             {
                 throw new ArgumentNullException(nameof(filePath));
             }
 
-            using (FtpResponse response = await CreateFtpResponseAsync(filePath, FtpMethod.GetFileSize))
+            return FileExistsInternalAsync(filePath);
+        }
+
+        private async Task FileExistsInternalAsync([NotNull] FtpPath filePath)
+        {
+            using (var response = await CreateFtpResponseAsync(filePath, FtpMethod.GetFileSize))
             {
                 if (response.Response.StatusCode != FtpStatusCode.CommandOK)
                 {
@@ -222,14 +293,24 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public async Task CreateDirectoryAsync([NotNull] FtpPath directoryPath)
+        public Task CreateDirectoryAsync([NotNull] FtpPath directoryPath)
         {
             if (directoryPath == null)
             {
                 throw new ArgumentNullException(nameof(directoryPath));
             }
 
-            using (FtpResponse response = await CreateFtpResponseAsync(directoryPath, FtpMethod.MakeDirectory))
+            if (directoryPath.Type != FileSystemType.Directory)
+            {
+                throw new ArgumentException($"The ftp create path {directoryPath.Path} is not a directory");
+            }
+
+            return CreateDirectoryInternalAsync(directoryPath);
+        }
+
+        private async Task CreateDirectoryInternalAsync([NotNull] FtpPath directoryPath)
+        {
+            using (var response = await CreateFtpResponseAsync(directoryPath, FtpMethod.MakeDirectory))
             {
                 if (response.Response.StatusCode != FtpStatusCode.PathnameCreated)
                 {
@@ -239,7 +320,7 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public async Task<ImmutableArray<FtpPath>> ListDirectoryAsync(
+        public Task<ImmutableArray<FtpPath>> ListDirectoryAsync(
             [NotNull] FtpPath path,
             bool recursive = true,
             CancellationToken cancellationToken = default)
@@ -249,62 +330,33 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(path));
             }
 
+            return ListDirectoryInternalAsync(path, recursive, cancellationToken);
+        }
+
+        private async Task<ImmutableArray<FtpPath>> ListDirectoryInternalAsync(
+            [NotNull] FtpPath path,
+            bool recursive,
+            CancellationToken cancellationToken)
+        {
             try
             {
-                var lines = new List<FtpPath>();
+                var paths = new List<FtpPath>();
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    return lines.ToImmutableArray();
+                    throw new TaskCanceledException(nameof(ListDirectoryAsync));
                 }
 
-                using (FtpResponse response = await CreateFtpResponseAsync(path, FtpMethod.ListDirectoryDetails))
+                var directoryItems = await GetDirectoryItems(path, cancellationToken);
+
+                foreach (string directoryItem in directoryItems)
                 {
-                    var currentLines = new List<string>();
-                    using (var reader = new StreamReader(response.Response.GetResponseStream() ??
-                                                         throw new FtpException("FTP response stream is null")))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null &&
-                               !cancellationToken.IsCancellationRequested)
-                        {
-                            currentLines.Add(line);
-                        }
-                    }
+                    var directorySubItems = await AddDirectorItemsAsync(path, recursive, directoryItem, cancellationToken);
 
-                    foreach (string currentLine in currentLines)
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            throw new TaskCanceledException();
-                        }
-
-                        FtpPath currentFtpPath = ParseLine(currentLine);
-
-                        string currentFullPath = $"{path.Path.TrimEnd('/')}/{currentFtpPath.Path}";
-
-                        if (currentFtpPath.Type == FileSystemType.Directory)
-                        {
-                            lines.Add(new FtpPath(currentFullPath, FileSystemType.Directory));
-
-                            if (recursive)
-                            {
-                                ImmutableArray<FtpPath> immutableArrays = await ListDirectoryAsync(
-                                    new FtpPath(currentFullPath, currentFtpPath.Type),
-                                    true,
-                                    cancellationToken);
-
-                                lines.AddRange(immutableArrays);
-                            }
-                        }
-                        else
-                        {
-                            lines.Add(new FtpPath(currentFullPath, FileSystemType.File));
-                        }
-                    }
+                    paths.AddRange(directorySubItems);
                 }
 
-                return lines.ToImmutableArray();
+                return paths.ToImmutableArray();
             }
             catch (WebException ex)
             {
@@ -312,30 +364,95 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        public static FtpHandler CreateWithPublishSettings([NotNull] string publishSettingsFile, string uriPath = null)
+        private async Task<List<FtpPath>> AddDirectorItemsAsync(FtpPath path,
+            bool recursive,
+            string directoryItem,
+            CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(publishSettingsFile))
+            var paths = new List<FtpPath>();
+
+            if (cancellationToken.IsCancellationRequested)
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(publishSettingsFile));
+                throw new TaskCanceledException(nameof(ListDirectoryAsync));
             }
 
-            FtpPublishSettings ftpPublishSettings = FtpPublishSettings.Load(publishSettingsFile);
+            var currentFtpPath = ParseLine(directoryItem);
+
+            string currentFullPath = $"{path.Path.TrimEnd('/')}/{currentFtpPath.Path}";
+
+            if (currentFtpPath.Type == FileSystemType.Directory)
+            {
+                paths.Add(new FtpPath(currentFullPath, FileSystemType.Directory));
+
+                if (recursive)
+                {
+                    var immutableArrays = await ListDirectoryInternalAsync(
+                        new FtpPath(currentFullPath, currentFtpPath.Type),
+                        true,
+                        cancellationToken);
+
+                    paths.AddRange(immutableArrays);
+                }
+            }
+            else
+            {
+                paths.Add(new FtpPath(currentFullPath, FileSystemType.File));
+            }
+
+            return paths;
+        }
+
+        private async Task<List<string>> GetDirectoryItems(FtpPath path, CancellationToken cancellationToken)
+        {
+            var currentLines = new List<string>();
+            using (var response = await CreateFtpResponseAsync(path, FtpMethod.ListDirectoryDetails))
+            {
+                using (var reader = new StreamReader(response.Response.GetResponseStream() ??
+                                                     throw new FtpException(
+                                                         $"FTP response stream is null for path {path.Path}")))
+                {
+                    string line;
+                    while ((line = await reader.ReadLineAsync()) != null &&
+                           !cancellationToken.IsCancellationRequested)
+                    {
+                        currentLines.Add(line);
+                    }
+                }
+            }
+
+            return currentLines;
+        }
+
+        public static FtpHandler CreateWithPublishSettings([NotNull] string publishSettingsFile,
+            [NotNull] FtpSettings ftpSettings)
+        {
+            if (ftpSettings == null)
+            {
+                throw new ArgumentNullException(nameof(ftpSettings));
+            }
+
+            if (string.IsNullOrWhiteSpace(publishSettingsFile))
+            {
+                throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(publishSettingsFile));
+            }
+
+            var ftpPublishSettings = FtpPublishSettings.Load(publishSettingsFile);
 
             var credentials = new NetworkCredential(ftpPublishSettings.UserName, ftpPublishSettings.Password, "");
 
-            Uri fullUri = ftpPublishSettings.FtpBaseUri;
+            var fullUri = ftpPublishSettings.FtpBaseUri;
 
-            if (!string.IsNullOrWhiteSpace(uriPath))
+            if (ftpSettings.BasePath != null)
             {
-                var builder = new UriBuilder(fullUri) { Path = uriPath };
+                var builder = new UriBuilder(fullUri) {Path = ftpSettings.BasePath.Path};
 
                 fullUri = builder.Uri;
             }
 
-            return new FtpHandler(fullUri, credentials);
+            return new FtpHandler(fullUri, credentials, ftpSettings);
         }
 
-        public async Task<FtpSummary> UploadDirectoryAsync(
+        public Task<FtpSummary> UploadDirectoryAsync(
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
@@ -356,18 +473,57 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(baseDirectory));
             }
 
+            return UploadDirectoryInternalAsync(ruleConfiguration, sourceDirectory, baseDirectory, cancellationToken);
+        }
+
+        private async Task<FtpSummary> UploadDirectoryInternalAsync(
+            [NotNull] RuleConfiguration ruleConfiguration,
+            [NotNull] DirectoryInfo sourceDirectory,
+            [NotNull] DirectoryInfo baseDirectory,
+            CancellationToken cancellationToken)
+        {
             var dir = new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
                 FileSystemType.Directory);
 
             var summary = new FtpSummary();
 
-            if (!await DirectoryExistsAsync(dir, cancellationToken))
+            bool directoryExists = await DirectoryExistsAsync(dir, cancellationToken);
+
+            if (!directoryExists)
             {
                 await CreateDirectoryAsync(dir);
                 summary.CreatedDirectories.Add(dir.Path);
             }
 
-            foreach (FileInfo fileInfo in sourceDirectory.GetFiles())
+            await UploadFilesAsync(sourceDirectory, baseDirectory, summary, cancellationToken);
+
+            await UploadDirectoriesAsync(ruleConfiguration, sourceDirectory, baseDirectory, summary, cancellationToken);
+
+            return summary;
+        }
+
+        private async Task UploadDirectoriesAsync(
+            RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
+            DirectoryInfo baseDirectory,
+            FtpSummary summary,
+            CancellationToken cancellationToken)
+        {
+            foreach (var subDirectory in sourceDirectory.GetDirectories())
+            {
+                var summary1 =
+                    await UploadDirectoryAsync(ruleConfiguration, subDirectory, baseDirectory, cancellationToken);
+                summary.Add(summary1);
+            }
+        }
+
+        private async Task UploadFilesAsync(
+            DirectoryInfo sourceDirectory,
+            DirectoryInfo baseDirectory,
+            FtpSummary summary,
+            CancellationToken cancellationToken)
+        {
+            foreach (var fileInfo in sourceDirectory.GetFiles())
             {
                 var sourceFile =
                     new FtpPath(PathHelper.RelativePath(fileInfo, baseDirectory), FileSystemType.File);
@@ -376,18 +532,9 @@ namespace Milou.Deployer.Core.Deployment
 
                 summary.CreatedFiles.Add(sourceFile.Path);
             }
-
-            foreach (DirectoryInfo subDirectory in sourceDirectory.GetDirectories())
-            {
-                FtpSummary summary1 =
-                    await UploadDirectoryAsync(ruleConfiguration, subDirectory, baseDirectory, cancellationToken);
-                summary.Add(summary1);
-            }
-
-            return summary;
         }
 
-        public async Task<IDeploymentChangeSummary> PublishAsync(
+        public Task<IDeploymentChangeSummary> PublishAsync(
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken)
@@ -402,48 +549,44 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(sourceDirectory));
             }
 
+            return PublishInternalAsync(ruleConfiguration, sourceDirectory, cancellationToken);
+        }
+
+        private async Task<IDeploymentChangeSummary> PublishInternalAsync(
+            [NotNull] RuleConfiguration ruleConfiguration,
+            [NotNull] DirectoryInfo sourceDirectory,
+            CancellationToken cancellationToken)
+        {
             var deploymentChangeSummary = new FtpSummary();
-            ImmutableArray<FtpPath> fileSystemItems =
+            var fileSystemItems =
                 await ListDirectoryAsync(FtpPath.Root, cancellationToken: cancellationToken);
 
-            var excludedSegments = new List<FtpPath>();
+            var excludedFiles =
+                await DeleteFilesAsync(ruleConfiguration, fileSystemItems, deploymentChangeSummary);
 
-            foreach (FtpPath fileSystemItem in fileSystemItems
-                .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.File))
-            {
-                if (ruleConfiguration.AppDataSkipDirectiveEnabled)
-                {
-                    if (fileSystemItem.IsAppDataDirectoryOrFile)
-                    {
-                        excludedSegments.Add(fileSystemItem);
-                        continue;
-                    }
-                }
+            await DeleteDirectoriesAsync(ruleConfiguration, fileSystemItems, deploymentChangeSummary, excludedFiles);
 
-                if (ruleConfiguration.Excludes.Any(value =>
-                    fileSystemItem.Path.StartsWith(value, StringComparison.OrdinalIgnoreCase)))
-                {
-                    excludedSegments.Add(fileSystemItem);
-                    deploymentChangeSummary.IgnoredFiles.Add(fileSystemItem.Path);
-                    continue;
-                }
+            var uploadDirectoryAsync =
+                await UploadDirectoryAsync(ruleConfiguration, sourceDirectory, sourceDirectory, cancellationToken);
 
-                await DeleteFileAsync(fileSystemItem);
+            deploymentChangeSummary.Add(uploadDirectoryAsync);
 
-                deploymentChangeSummary.Deleted.Add(fileSystemItem.Path);
-            }
+            return deploymentChangeSummary;
+        }
 
-            foreach (FtpPath item in fileSystemItems
+        private async Task DeleteDirectoriesAsync(RuleConfiguration ruleConfiguration,
+            ImmutableArray<FtpPath> fileSystemItems,
+            FtpSummary deploymentChangeSummary,
+            List<FtpPath> excludedSegments)
+        {
+            foreach (var item in fileSystemItems
                 .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.Directory)
                 .OrderByDescending(s => s.Path))
             {
-                if (ruleConfiguration.AppDataSkipDirectiveEnabled)
+                if (ruleConfiguration.AppDataSkipDirectiveEnabled && item.IsAppDataDirectoryOrFile)
                 {
-                    if (item.IsAppDataDirectoryOrFile)
-                    {
-                        excludedSegments.Add(item);
-                        continue;
-                    }
+                    excludedSegments.Add(item);
+                    continue;
                 }
 
                 if (ruleConfiguration.Excludes.Any(e => item.Path.StartsWith(e, StringComparison.OrdinalIgnoreCase)))
@@ -460,13 +603,37 @@ namespace Milou.Deployer.Core.Deployment
                     deploymentChangeSummary.DeletedDirectories.Add(item.Path);
                 }
             }
+        }
 
-            FtpSummary uploadDirectoryAsync =
-                await UploadDirectoryAsync(ruleConfiguration, sourceDirectory, sourceDirectory, cancellationToken);
+        private async Task<List<FtpPath>> DeleteFilesAsync(RuleConfiguration ruleConfiguration,
+            ImmutableArray<FtpPath> fileSystemItems,
+            FtpSummary deploymentChangeSummary)
+        {
+            var excludedSegments = new List<FtpPath>();
 
-            deploymentChangeSummary.Add(uploadDirectoryAsync);
+            foreach (var fileSystemItem in fileSystemItems
+                .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.File))
+            {
+                if (ruleConfiguration.AppDataSkipDirectiveEnabled && fileSystemItem.IsAppDataDirectoryOrFile)
+                {
+                    excludedSegments.Add(fileSystemItem);
+                    continue;
+                }
 
-            return deploymentChangeSummary;
+                if (ruleConfiguration.Excludes.Any(value =>
+                    fileSystemItem.Path.StartsWith(value, StringComparison.OrdinalIgnoreCase)))
+                {
+                    excludedSegments.Add(fileSystemItem);
+                    deploymentChangeSummary.IgnoredFiles.Add(fileSystemItem.Path);
+                    continue;
+                }
+
+                await DeleteFileAsync(fileSystemItem);
+
+                deploymentChangeSummary.Deleted.Add(fileSystemItem.Path);
+            }
+
+            return excludedSegments;
         }
     }
 }

@@ -79,7 +79,24 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(excluded));
             }
 
-            return Path.StartsWith(excluded.Path, StringComparison.OrdinalIgnoreCase);
+
+            string[] otherSegments = excluded.Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] segments = Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (otherSegments.Length > segments.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < otherSegments.Length; i++)
+            {
+                if (!otherSegments[i].Equals(segments[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

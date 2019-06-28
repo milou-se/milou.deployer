@@ -11,19 +11,16 @@ namespace Milou.Deployer.Tests.Integration
 {
     public class FtpHandlerTests
     {
-        public FtpHandlerTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public FtpHandlerTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         private readonly ITestOutputHelper _testOutputHelper;
 
         [Fact(Skip = "Depending on publish settings")]
         public async Task PublishFilesShouldSyncFiles()
         {
-            FtpHandler handler =
+            var handler =
                 FtpHandler.CreateWithPublishSettings(@"C:\Temp\deploy-test-target.PublishSettings",
-                    "/site/");
+                    new FtpSettings(new FtpPath("/site/", FileSystemType.Directory)));
             var sourceDirectory = new DirectoryInfo(@"C:\Temp\Ftptest");
             var ruleConfiguration = new RuleConfiguration();
 

@@ -808,11 +808,17 @@ namespace Milou.Deployer.Core.Deployment
                                             : deploymentExecutionDefinition.TargetDirectoryPath
                                     ).ConfigureAwait(false);
                                 }
-                                else if (deploymentExecutionDefinition.PublishType == PublishType.Ftp)
+                                else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType)
                                 {
+                                    var basePath = string.IsNullOrWhiteSpace(deploymentExecutionDefinition.FtpPath) ? null : new FtpPath(deploymentExecutionDefinition.FtpPath, FileSystemType.Directory);
+
+                                    bool isSecure = deploymentExecutionDefinition.PublishType == PublishType.Ftps;
+
+                                    var ftpSettings = new FtpSettings(basePath, isSecure);
+
                                     FtpHandler ftpHandler =
                                         FtpHandler.CreateWithPublishSettings(deploymentExecutionDefinition
-                                            .PublishSettingsFile, deploymentExecutionDefinition.FtpPath);
+                                            .PublishSettingsFile, ftpSettings);
 
                                     summary = await ftpHandler.PublishAsync(ruleConfiguration,
                                         targetTempDirectoryInfo,
