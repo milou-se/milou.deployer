@@ -57,9 +57,10 @@ namespace Milou.Deployer.Core.Deployment
 
             SetPreRelease(isPreRelease);
 
+            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
-            FtpPath = ftpPath;
+            FtpPath = path;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
@@ -108,7 +109,6 @@ namespace Milou.Deployer.Core.Deployment
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
-            FtpPath = ftpPath;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
@@ -124,6 +124,8 @@ namespace Milou.Deployer.Core.Deployment
                          ImmutableDictionary<string, StringValues>.Empty;
 
             _ = PublishType.TryParseOrDefault(publishType, out PublishType publishTypeValue);
+            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            FtpPath = path;
 
             PublishType = publishTypeValue;
 
@@ -178,7 +180,11 @@ namespace Milou.Deployer.Core.Deployment
 
         public string NuGetPackageSource { get; }
 
-        public string FtpPath { get; }
+        [JsonProperty(nameof(FtpPath))]
+        public string FtpPathValue => FtpPath?.Path;
+
+        [JsonIgnore]
+        public FtpPath FtpPath { get; }
 
         private void SetPreRelease(bool isPreRelease)
         {

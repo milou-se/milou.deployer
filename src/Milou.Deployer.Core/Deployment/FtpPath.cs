@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.Deployment
             {
                 if (IsRoot)
                 {
-                    throw new InvalidOperationException("Current path is root");
+                    return default;
                 }
 
                 string[] parts = Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
