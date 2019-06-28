@@ -39,7 +39,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
@@ -57,24 +57,15 @@ namespace Milou.Deployer.Core.Deployment
             return Equals((FtpMethod) obj);
         }
 
-        public override int GetHashCode()
-        {
-            return StringComparer.OrdinalIgnoreCase.GetHashCode(Command);
-        }
+        public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Command);
 
-        public static bool operator ==(FtpMethod left, FtpMethod right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(FtpMethod left, FtpMethod right) => Equals(left, right);
 
-        public static bool operator !=(FtpMethod left, FtpMethod right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(FtpMethod left, FtpMethod right) => !Equals(left, right);
 
         public bool Equals(FtpMethod other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }
@@ -86,5 +77,7 @@ namespace Milou.Deployer.Core.Deployment
 
             return string.Equals(Command, other.Command, StringComparison.OrdinalIgnoreCase);
         }
+
+        public override string ToString() => $"{Name} [{Command}]";
     }
 }

@@ -17,7 +17,7 @@ namespace Milou.Deployer.Core.Deployment
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
+                throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(name));
             }
 
             Name = name;
@@ -44,7 +44,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public bool Equals(PublishType other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }
@@ -57,26 +57,16 @@ namespace Milou.Deployer.Core.Deployment
             return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        public override bool Equals(object obj)
-        {
-            return ReferenceEquals(this, obj) || obj is PublishType other && Equals(other);
-        }
+        public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is PublishType other && Equals(other);
 
-        public override int GetHashCode()
-        {
-            return StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
-        }
+        public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 
-        public static bool operator ==(PublishType left, PublishType right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);
 
-        public static bool operator !=(PublishType left, PublishType right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
 
         public static ImmutableArray<PublishType> All => EnumerateOf<PublishType>.All;
+
+        public override string ToString() => Name;
     }
 }
