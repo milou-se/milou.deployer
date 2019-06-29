@@ -206,14 +206,11 @@ namespace Milou.Deployer.Core.Deployment
             {
                 using (var sourceStream = new FileStream(sourceFile.FullName, FileMode.Open))
                 {
-                    using (var requestStream = await request.Request.GetRequestStreamAsync())
+                    using (var requestStream = request.Request.GetRequestStream())
                     {
-                        if (requestStream is null)
-                        {
-                            throw new FtpException($"FTP request stream is null for file path '{filePath.Path}'");
-                        }
-
                         await sourceStream.CopyToAsync(requestStream, DefaultBufferSize, cancellationToken);
+
+                        await requestStream.FlushAsync(cancellationToken);
                     }
                 }
             }
