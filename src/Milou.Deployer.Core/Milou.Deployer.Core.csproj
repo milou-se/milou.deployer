@@ -9,6 +9,7 @@
     <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="0.18.0" />
     <PackageReference Include="Arbor.Processing" Version="0.2.0" />
     <PackageReference Include="Arbor.Xdt" Version="0.2.4" />
+    <PackageReference Include="fluentftp" Version="25.0.4" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.3">
       <PrivateAssets>all</PrivateAssets>

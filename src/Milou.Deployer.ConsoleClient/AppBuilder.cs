@@ -225,7 +225,9 @@ namespace Milou.Deployer.ConsoleClient
                 return null;
             }
 
-            if (currentDirectory.Exists)
+            currentDirectory.Refresh();
+
+            if (!currentDirectory.Exists)
             {
                 return null;
             }

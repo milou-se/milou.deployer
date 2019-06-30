@@ -1,29 +1,44 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment
 {
     public class FtpSummary : IDeploymentChangeSummary
     {
+        public TimeSpan TotalTime { get; set; }
+
         public List<string> Deleted { get; } = new List<string>();
 
         public List<string> DeletedDirectories { get; } = new List<string>();
 
         public List<string> CreatedDirectories { get; } = new List<string>();
 
-        public List<string> CreatedFiles { get; } = new List<string>();
+        public List<string> CreatedFiles { get; private set; } = new List<string>();
 
         public List<string> IgnoredFiles { get; } = new List<string>();
 
         public List<string> IgnoredDirectories { get; } = new List<string>();
 
-        public void Add(FtpSummary other)
+        public List<string> UpdatedFiles { get; } = new List<string>();
+
+        public void Add([NotNull] FtpSummary other)
         {
+            if (other == null)
+            {
+                throw new ArgumentNullException(nameof(other));
+            }
+
             Deleted.AddRange(other.Deleted);
             DeletedDirectories.AddRange(other.DeletedDirectories);
             CreatedDirectories.AddRange(other.CreatedDirectories);
+            UpdatedFiles.AddRange(other.UpdatedFiles);
             CreatedFiles.AddRange(other.CreatedFiles);
+            CreatedFiles = CreatedFiles.Except(UpdatedFiles).ToList();
             IgnoredFiles.AddRange(other.IgnoredFiles);
             IgnoredDirectories.AddRange(other.IgnoredDirectories);
         }
@@ -32,48 +47,48 @@ namespace Milou.Deployer.Core.Deployment
         {
             var builder = new StringBuilder();
 
-            string[] updatedFiles = CreatedFiles.Intersect(Deleted).ToArray();
+
             string[] updatedDirectories = CreatedDirectories.Intersect(DeletedDirectories).ToArray();
 
-            string[] createdFiles = CreatedFiles.Except(updatedFiles).ToArray();
-            string[] deletedFiles = Deleted.Except(updatedFiles).ToArray();
 
-            builder.AppendLine("Ignored files: " + IgnoredFiles.Count);
-            builder.AppendLine("Created files: " + createdFiles.Length);
-            builder.AppendLine("Updated files: " + updatedFiles.Length);
-            builder.AppendLine("Deleted files: " + deletedFiles.Length);
+            //builder.AppendLine("Ignored directories: " + IgnoredDirectories.Count);
+            //builder.AppendLine("Created directories: " + CreatedDirectories.Except(updatedDirectories).Count());
+            //builder.AppendLine("Updated directories: " + updatedDirectories.Length);
+            //builder.AppendLine("Deleted directories: " + DeletedDirectories.Except(updatedDirectories).Count());
 
-            builder.AppendLine("Ignored directories: " + IgnoredDirectories.Count);
-            builder.AppendLine("Created directories: " + CreatedDirectories.Except(updatedDirectories).Count());
-            builder.AppendLine("Updated directories: " + updatedDirectories.Length);
-            builder.AppendLine("Deleted directories: " + DeletedDirectories.Except(updatedDirectories).Count());
-
-            if (createdFiles.Length > 0)
+            if (CreatedFiles.Count > 0)
             {
                 builder.AppendLine("Created files:");
-                foreach (string createdFile in createdFiles)
+                foreach (string createdFile in CreatedFiles)
                 {
                     builder.AppendLine("* " + createdFile);
                 }
             }
 
-            if (updatedFiles.Length > 0)
+            if (UpdatedFiles.Count > 0)
             {
                 builder.AppendLine("Updated files:");
-                foreach (string updatedFile in updatedFiles)
+                foreach (string updatedFile in UpdatedFiles)
                 {
                     builder.AppendLine("* " + updatedFile);
                 }
             }
 
-            if (deletedFiles.Length > 0)
+            if (Deleted.Count > 0)
             {
                 builder.AppendLine("Deleted files:");
-                foreach (string deletedFile in deletedFiles)
+                foreach (string deletedFile in Deleted)
                 {
                     builder.AppendLine("* " + deletedFile);
                 }
             }
+
+            builder.AppendLine("Ignored files: " + IgnoredFiles.Count);
+            builder.AppendLine("Created files: " + CreatedFiles.Count);
+            builder.AppendLine("Updated files: " + UpdatedFiles.Count);
+            builder.AppendLine("Deleted files: " + Deleted.Count);
+
+            builder.AppendLine($"Total time: {TotalTime.TotalSeconds.ToString("F1", CultureInfo.InvariantCulture)} seconds");
 
             return builder.ToString();
         }

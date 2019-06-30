@@ -750,21 +750,24 @@ namespace Milou.Deployer.Core.Deployment
                         _logger.Debug("The deployment definition has no publish setting file");
                     }
 
-                    _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
+                    if (deploymentExecutionDefinition.PublishType == PublishType.WebDeploy)
                     {
-                        if (string.IsNullOrWhiteSpace(args.Message))
+                        _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
                         {
-                            return;
-                        }
+                            if (string.IsNullOrWhiteSpace(args.Message))
+                            {
+                                return;
+                            }
 
-                        if (args.EventLevel == TraceLevel.Verbose)
-                        {
-                            _logger.Verbose("{Message}", args.Message);
-                            return;
-                        }
+                            if (args.EventLevel == TraceLevel.Verbose)
+                            {
+                                _logger.Verbose("{Message}", args.Message);
+                                return;
+                            }
 
-                        _logger.Information("{Message}", args.Message);
-                    };
+                            _logger.Information("{Message}", args.Message);
+                        };
+                    }
 
                     bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
                     IDeploymentChangeSummary summary;
@@ -816,13 +819,14 @@ namespace Milou.Deployer.Core.Deployment
 
                                     var ftpSettings = new FtpSettings(basePath, isSecure);
 
-                                    FtpHandler ftpHandler =
-                                        FtpHandler.CreateWithPublishSettings(deploymentExecutionDefinition
-                                            .PublishSettingsFile, ftpSettings);
-
-                                    summary = await ftpHandler.PublishAsync(ruleConfiguration,
-                                        targetTempDirectoryInfo,
-                                        cancellationToken);
+                                    using (FtpHandler ftpHandler = await FtpHandler.CreateWithPublishSettings(deploymentExecutionDefinition.PublishSettingsFile,
+                                        ftpSettings,
+                                        _logger))
+                                    {
+                                        summary = await ftpHandler.PublishAsync(ruleConfiguration,
+                                            targetTempDirectoryInfo,
+                                            cancellationToken);
+                                    }
                                 }
                                 else
                                 {

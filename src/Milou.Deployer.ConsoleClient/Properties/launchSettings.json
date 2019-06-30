@@ -2,7 +2,7 @@
   "profiles": {
     "Milou.Deployer.ConsoleClient": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Work\\DeployAppOffline\\manifest.json",
+      "commandLineArgs": "C:\\Work\\DeployFtp\\manifest.json",
       "environmentVariables": {
         "MilouDeployer_AllowPreRelease_Enabled": "true"
       }

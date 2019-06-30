@@ -4,8 +4,37 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public class FtpPath
+    public sealed class FtpPath : IEquatable<FtpPath>
     {
+        public bool Equals(FtpPath other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
+        }
+
+        public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is FtpPath other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (StringComparer.OrdinalIgnoreCase.GetHashCode(Path) * 397) ^ (int) Type;
+            }
+        }
+
+        public static bool operator ==(FtpPath left, FtpPath right) => Equals(left, right);
+
+        public static bool operator !=(FtpPath left, FtpPath right) => !Equals(left, right);
+
         public const string RootPath = "/";
 
         public static readonly FtpPath Root = new FtpPath(RootPath, FileSystemType.Directory);
