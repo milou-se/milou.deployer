@@ -143,7 +143,7 @@ namespace Milou.Deployer.Core.Deployment
             try
             {
                 var ftpListItems =
-                    await _ftpClient.GetListingAsync(path.Path, FtpListOption.AllFiles|FtpListOption.Recursive, cancellationToken);
+                    await _ftpClient.GetListingAsync(path.Path, FtpListOption.AllFiles | FtpListOption.Recursive, cancellationToken);
 
                 return ftpListItems.Select(s => new FtpPath(s.FullName,
                         s.Type == FtpFileSystemObjectType.File ? FileSystemType.File : FileSystemType.Directory))
@@ -156,7 +156,6 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         private async Task<FtpSummary> UploadDirectoryInternalAsync(
-            [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
             CancellationToken cancellationToken)
@@ -407,6 +406,11 @@ namespace Milou.Deployer.Core.Deployment
 
         private void FtpClientOnLogEvent(FtpTraceLevel level, string message)
         {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
             const string messageTemplate = "{FtpMessage}";
 
             switch (level)
@@ -415,10 +419,10 @@ namespace Milou.Deployer.Core.Deployment
                     _logger?.Debug(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Error:
-                    _logger?.Error(messageTemplate, message);
+                    _logger?.Warning(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Verbose:
-                    _logger?.Verbose(messageTemplate, message);
+                    _logger?.Debug(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Warn:
                     _logger?.Warning(messageTemplate, message);
@@ -566,21 +570,21 @@ namespace Milou.Deployer.Core.Deployment
                 fullUri = builder.Uri;
             }
 
-            var ftpClient = new FtpClient(fullUri.Host, credentials);
-            ftpClient.SocketPollInterval = 1000;
-            ftpClient.ConnectTimeout = 2000;
-            ftpClient.ReadTimeout = 2000;
-            ftpClient.DataConnectionConnectTimeout = 2000;
-            ftpClient.DataConnectionReadTimeout = 2000;
-            ftpClient.DataConnectionType = FtpDataConnectionType.PASV;
+            var ftpClient = new FtpClient(fullUri.Host, credentials)
+            {
+                SocketPollInterval = 1000,
+                ConnectTimeout = 2000,
+                ReadTimeout = 2000,
+                DataConnectionConnectTimeout = 2000,
+                DataConnectionReadTimeout = 2000,
+                DataConnectionType = FtpDataConnectionType.PASV
+            };
 
             if (ftpSettings.IsSecure)
             {
                 ftpClient.EncryptionMode = FtpEncryptionMode.Explicit;
                 ftpClient.SslProtocols = SslProtocols.Tls12;
             }
-
-            //ftpClient.SocketPollInterval = 1000;
 
             try
             {
@@ -615,7 +619,7 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(baseDirectory));
             }
 
-            return UploadDirectoryInternalAsync(ruleConfiguration, sourceDirectory, baseDirectory, cancellationToken);
+            return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, cancellationToken);
         }
 
         public Task<IDeploymentChangeSummary> PublishAsync(
