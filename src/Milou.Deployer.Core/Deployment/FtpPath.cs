@@ -142,5 +142,15 @@ namespace Milou.Deployer.Core.Deployment
 
             return true;
         }
+
+        public FtpPath Append([NotNull] FtpPath path)
+        {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            return new FtpPath(Path.TrimEnd('/') + path.Path, path.Type);
+        }
     }
 }

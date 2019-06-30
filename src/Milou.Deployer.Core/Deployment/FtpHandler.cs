@@ -158,10 +158,11 @@ namespace Milou.Deployer.Core.Deployment
         private async Task<FtpSummary> UploadDirectoryInternalAsync(
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
+            FtpPath basePath,
             CancellationToken cancellationToken)
         {
-            var dir = new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
-                FileSystemType.Directory);
+            var dir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
+                FileSystemType.Directory));
 
             var summary = new FtpSummary();
 
@@ -173,7 +174,7 @@ namespace Milou.Deployer.Core.Deployment
                 summary.CreatedDirectories.Add(dir.Path);
             }
 
-            var uploadSummary = await UploadFilesAsync(sourceDirectory, baseDirectory, cancellationToken);
+            var uploadSummary = await UploadFilesAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
 
             summary.Add(uploadSummary);
 
@@ -183,9 +184,10 @@ namespace Milou.Deployer.Core.Deployment
         private async Task<FtpSummary> UploadFilesAsync(
             DirectoryInfo sourceDirectory,
             DirectoryInfo baseDirectory,
+            FtpPath basePath,
             CancellationToken cancellationToken)
         {
-            string relativeDir = PathHelper.RelativePath(sourceDirectory, baseDirectory);
+            var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory), FileSystemType.Directory));
 
             var localPaths = sourceDirectory
                 .GetFiles()
@@ -213,7 +215,7 @@ namespace Milou.Deployer.Core.Deployment
                     try
                     {
                         int uploadedFiles = await _ftpClient.UploadFilesAsync(files,
-                            relativeDir,
+                            relativeDir.Path,
                             FtpExists.Overwrite,
                             true,
                             FtpVerify.Delete | FtpVerify.Retry,
@@ -256,7 +258,7 @@ namespace Milou.Deployer.Core.Deployment
 
             foreach (DirectoryInfo directoryInfo in sourceDirectory.GetDirectories())
             {
-                var subSummary = await UploadFilesAsync(directoryInfo, baseDirectory, cancellationToken);
+                var subSummary = await UploadFilesAsync(directoryInfo, baseDirectory, basePath, cancellationToken);
 
                 summary.Add(subSummary);
             }
@@ -273,17 +275,19 @@ namespace Milou.Deployer.Core.Deployment
 
             var stopwatch = Stopwatch.StartNew();
 
-            if (!await DirectoryExistsAsync(FtpPath.Root, cancellationToken))
+            var basePath = _ftpSettings.BasePath ?? FtpPath.Root;
+
+            if (!await DirectoryExistsAsync(basePath, cancellationToken))
             {
-                await CreateDirectoryAsync(FtpPath.Root, cancellationToken);
+                await CreateDirectoryAsync(basePath, cancellationToken);
             }
 
             var fileSystemItems =
-                await ListDirectoryAsync(FtpPath.Root, cancellationToken);
+                await ListDirectoryAsync(basePath, cancellationToken);
 
             var sourceFiles = sourceDirectory
                 .GetFiles("*", SearchOption.AllDirectories)
-                .Select(s => new FtpPath(PathHelper.RelativePath(s, sourceDirectory), FileSystemType.File))
+                .Select(s => basePath.Append(new FtpPath(PathHelper.RelativePath(s, sourceDirectory), FileSystemType.File)))
                 .ToArray();
 
             var filesToKeep = fileSystemItems
@@ -315,7 +319,7 @@ namespace Milou.Deployer.Core.Deployment
             }
 
             var uploadDirectoryAsync =
-                await UploadDirectoryAsync(ruleConfiguration, sourceDirectory, sourceDirectory, cancellationToken);
+                await UploadDirectoryAsync(ruleConfiguration, sourceDirectory, sourceDirectory, basePath, cancellationToken);
 
             deploymentChangeSummary.Add(uploadDirectoryAsync);
 
@@ -577,7 +581,7 @@ namespace Milou.Deployer.Core.Deployment
                 ReadTimeout = 2000,
                 DataConnectionConnectTimeout = 2000,
                 DataConnectionReadTimeout = 2000,
-                DataConnectionType = FtpDataConnectionType.PASV
+                DataConnectionType = FtpDataConnectionType.PASV,
             };
 
             if (ftpSettings.IsSecure)
@@ -602,6 +606,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
+            FtpPath basePath,
             CancellationToken cancellationToken)
         {
             if (ruleConfiguration == null)
@@ -619,7 +624,7 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(baseDirectory));
             }
 
-            return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, cancellationToken);
+            return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
         }
 
         public Task<IDeploymentChangeSummary> PublishAsync(

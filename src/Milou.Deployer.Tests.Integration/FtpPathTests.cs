@@ -84,5 +84,13 @@ namespace Milou.Deployer.Tests.Integration
 
             Assert.True(fileSystemItem.ContainsPath(new FtpPath("/a/b/c/", FileSystemType.Directory)));
         }
+
+        [Fact]
+        public void AppendFileToFolderShouldHaveFullPath()
+        {
+            var fileSystemItem = new FtpPath("/a", FileSystemType.Directory).Append(new FtpPath("/b/c.txt", FileSystemType.File));
+
+            Assert.Equal("/a/b/c.txt", fileSystemItem.Path);
+        }
     }
 }

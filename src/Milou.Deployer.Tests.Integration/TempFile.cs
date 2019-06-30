@@ -6,32 +6,34 @@ namespace Milou.Deployer.Tests.Integration
 {
     internal sealed class TempFile : IDisposable
     {
-        private TempFile(FileInfo file)
-        {
-            File = file ?? throw new ArgumentNullException(nameof(file));
-        }
+        private TempFile(FileInfo file) => File = file ?? throw new ArgumentNullException(nameof(file));
 
         public FileInfo File { get; private set; }
 
         public static TempFile CreateTempFile(string name = null, string extension = null)
         {
-            return new TempFile(new FileInfo(Path.Combine(Path.GetTempPath(),
-                $"{name.WithDefault("MD-tmp")}-{DateTime.UtcNow.Ticks}.{extension.WithDefault(".tmp")}")));
+            string fileName = $"{name.WithDefault("MD-tmp")}-{DateTime.UtcNow.Ticks}.{extension.WithDefault(".tmp")}";
+
+            string fileFullPath = Path.Combine(Path.GetTempPath(), fileName);
+
+            return new TempFile(new FileInfo(fileFullPath));
         }
 
         public void Dispose()
         {
-            if (File != null)
+            if (File == null)
             {
-                File.Refresh();
-
-                if (File.Exists)
-                {
-                    File.Delete();
-                }
-
-                File = null;
+                return;
             }
+
+            File.Refresh();
+
+            if (File.Exists)
+            {
+                File.Delete();
+            }
+
+            File = null;
         }
     }
 }
