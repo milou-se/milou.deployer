@@ -140,8 +140,8 @@ namespace Milou.Deployer.Bootstrapper.Common
             ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(deployerToolFile.FullName,
                 appArgs,
                 standardOutLog: (message, category) =>
-                    _logger.Information("[{Category}] {Message}", category, message),
-                standardErrorAction: (message, category) => _logger.Error("[{Category}] {Message}", category, message),
+                    _logger.Information("{Category} {Message}", category, message),
+                standardErrorAction: (message, category) => _logger.Error("{Category} {Message}", category, message),
                 cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (!exitCode.IsSuccess)

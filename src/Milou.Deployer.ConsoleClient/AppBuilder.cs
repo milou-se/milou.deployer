@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Core.Extensions.CommandLine;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
 using Arbor.Tooler;
@@ -80,6 +81,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
                     .Add(new EnvironmentVariableKeyValueConfigurationSource())
+                    .AddCommandLineArgsSettings(args)
                     .Add(new UserJsonConfiguration())
                     .Build();
 
