@@ -19,7 +19,7 @@ namespace Milou.Deployer.Tests.Integration
         public async Task PublishFilesShouldSyncFiles()
         {
             var handler =
-                FtpHandler.CreateWithPublishSettings(@"C:\Temp\deploy-test-target.PublishSettings",
+                await FtpHandler.CreateWithPublishSettings(@"C:\Temp\deploy-test-target.PublishSettings",
                     new FtpSettings(new FtpPath("/site/", FileSystemType.Directory)));
             var sourceDirectory = new DirectoryInfo(@"C:\Temp\Ftptest");
             var ruleConfiguration = new RuleConfiguration();
