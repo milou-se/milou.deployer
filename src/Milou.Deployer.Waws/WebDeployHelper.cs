@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.Deployment;
@@ -16,16 +14,14 @@ namespace Milou.Deployer.Waws
     {
         private readonly ILogger _logger;
 
-        public WebDeployHelper(ILogger logger)
-        {
-            _logger = logger;
-        }
+        public WebDeployHelper(ILogger logger) => _logger = logger;
 
         /// <summary>
         ///     Deploys the content to one site.
         /// </summary>
         /// <param name="sourcePath">The content path.</param>
         /// <param name="publishSettingsFile">The publish settings file.</param>
+        /// <param name="appOfflineDelay">Delay for app offline</param>
         /// <param name="password">The password.</param>
         /// <param name="allowUntrusted">Deploy even if destination certificate is untrusted</param>
         /// <param name="doNotDelete">todo: describe doNotDelete parameter on DeployContentToOneSite</param>
@@ -34,9 +30,10 @@ namespace Milou.Deployer.Waws
         /// <param name="targetPath">todo: describe targetPath parameter on DeployContentToOneSite</param>
         /// <param name="useChecksum">todo: describe useChecksum parameter on DeployContentToOneSite</param>
         /// <param name="appOfflineEnabled">todo: describe appOfflineEnabled parameter on DeployContentToOneSite</param>
+        /// <param name="applicationInsightsProfiler2SkipDirectiveEnabled"></param>
         /// <param name="logAction">todo: describe logAction parameter on DeployContentToOneSite</param>
         /// <param name="appDataSkipDirectiveEnabled">
-        ///     todo: describe appDataSkipDirectiveEnabled parameter on
+        ///     AppData Skip Directive Enabled
         ///     DeployContentToOneSite
         /// </param>
         /// <returns>DeploymentChangeSummary.</returns>
@@ -278,30 +275,21 @@ namespace Milou.Deployer.Waws
 
             if (publishSettings?.SiteName is object)
             {
-                DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(
-                    DeploymentWellKnownProvider.ContentPath,
+                DeploymentChangeSummary results;
+                using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(DeploymentWellKnownProvider.ContentPath,
                     siteName + "/App_Offline.htm",
-                    destBaseOptions);
+                    destBaseOptions))
+                {
+                    destDeleteBaseOptions.TraceLevel = traceLevel;
+                    destDeleteBaseOptions.Trace += DestBaseOptions_Trace;
 
-                destDeleteBaseOptions.TraceLevel = traceLevel;
-                destDeleteBaseOptions.Trace += DestBaseOptions_Trace;
-
-                DeploymentChangeSummary results =
-                    deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
+                    results = deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
+                }
 
                 _logger.Debug("AppOffline result: {AppOffline}", results.ToDisplayValue());
             }
 
             return deployContentToOneSite;
-        }
-
-        private static bool AllowCertificateCallback(
-            object sender,
-            X509Certificate cert,
-            X509Chain chain,
-            SslPolicyErrors errors)
-        {
-            return true;
         }
 
         private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
@@ -334,7 +322,10 @@ namespace Milou.Deployer.Waws
 
                 if (allowUntrusted || publishSettings.AllowUntrusted)
                 {
-                    ServicePointManager.ServerCertificateValidationCallback = AllowCertificateCallback;
+                    ServicePointManager.ServerCertificateValidationCallback = delegate
+                    {
+                        return true;
+                    };
                 }
 
                 return publishSettings.SiteName;
@@ -345,10 +336,7 @@ namespace Milou.Deployer.Waws
             return string.Empty;
         }
 
-        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e)
-        {
-            DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
-        }
+        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e) => DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
 
         public async Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
             string sourcePath,

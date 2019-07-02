@@ -23,12 +23,12 @@ namespace Milou.Deployer.Tests.Integration
         {
             var parameters = new Dictionary<string, string[]>
             {
-                [ConfigurationKeys.WebDeploy.Rules.AppDataSkipDirectiveEnabled] = new[] { "false" },
-                [ConfigurationKeys.WebDeploy.Rules.AppOfflineEnabled] = new[] { "true" },
-                [ConfigurationKeys.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled] = new[] { "true" },
-                [ConfigurationKeys.WebDeploy.Rules.DoNotDeleteEnabled] = new[] { "false" },
-                [ConfigurationKeys.WebDeploy.Rules.UseChecksumEnabled] = new[] { "true" },
-                [ConfigurationKeys.WebDeploy.Rules.WhatIfEnabled] = new[] { "false" }
+                [WebDeployRules.AppDataSkipDirectiveEnabled] = new[] { "false" },
+                [WebDeployRules.AppOfflineEnabled] = new[] { "true" },
+                [WebDeployRules.ApplicationInsightsProfiler2SkipDirectiveEnabled] = new[] { "true" },
+                [WebDeployRules.DoNotDeleteEnabled] = new[] { "false" },
+                [WebDeployRules.UseChecksumEnabled] = new[] { "true" },
+                [WebDeployRules.WhatIfEnabled] = new[] { "false" }
             };
 
             DeploymentExecutionDefinition[] deploymentExecutionDefinitions =

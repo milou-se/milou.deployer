@@ -22,7 +22,7 @@ namespace Milou.Deployer.Core {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Core {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Milou.Deployer.Core.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace Milou.Deployer.Core {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,16 +63,25 @@ namespace Milou.Deployer.Core {
         /// <summary>
         ///   Looks up a localized string similar to The ftp path {0} must be a directory path.
         /// </summary>
-        internal static string FtpFtpPathMustBeADirectoryPath {
+        public static string FtpFtpPathMustBeADirectoryPath {
             get {
                 return ResourceManager.GetString("FtpFtpPathMustBeADirectoryPath", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to NuGet exe is not specified and nuget.exe could not be downloaded.
+        /// </summary>
+        public static string NuGetExeCouldNotBeDownloaded {
+            get {
+                return ResourceManager.GetString("NuGetExeCouldNotBeDownloaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value cannot be null or whitespace..
         /// </summary>
-        internal static string ValueCannotBeNullOrWhitespace {
+        public static string ValueCannotBeNullOrWhitespace {
             get {
                 return ResourceManager.GetString("ValueCannotBeNullOrWhitespace", resourceCulture);
             }

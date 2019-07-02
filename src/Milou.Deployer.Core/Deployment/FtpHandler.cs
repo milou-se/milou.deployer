@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
@@ -189,7 +188,7 @@ namespace Milou.Deployer.Core.Deployment
         {
             var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory), FileSystemType.Directory));
 
-            var localPaths = sourceDirectory
+            string[] localPaths = sourceDirectory
                 .GetFiles()
                 .Select(f => f.FullName)
                 .ToArray();
@@ -323,44 +322,19 @@ namespace Milou.Deployer.Core.Deployment
 
             deploymentChangeSummary.Add(uploadDirectoryAsync);
 
+            var appOfflineFiles = sourceFiles.Where(file => file.Path != null &&
+                                                            Path.GetFileName(file.Path)
+                                                                .Equals(DeploymentConstants.AppOfflineHtm,
+                                                                    StringComparison.OrdinalIgnoreCase))
+                .ToImmutableArray();
+
+            await DeleteFilesAsync(ruleConfiguration, appOfflineFiles, cancellationToken);
+
             stopwatch.Stop();
 
             deploymentChangeSummary.TotalTime = stopwatch.Elapsed;
 
             return deploymentChangeSummary;
-        }
-
-        private async Task DeleteDirectoriesAsync(
-            RuleConfiguration ruleConfiguration,
-            ImmutableArray<FtpPath> fileSystemItems,
-            FtpSummary deploymentChangeSummary,
-            List<FtpPath> excludedSegments,
-            CancellationToken cancellationToken)
-        {
-            foreach (var item in fileSystemItems
-                .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.Directory)
-                .OrderByDescending(s => s.Path))
-            {
-                if (ruleConfiguration.AppDataSkipDirectiveEnabled && item.IsAppDataDirectoryOrFile)
-                {
-                    excludedSegments.Add(item);
-                    continue;
-                }
-
-                if (ruleConfiguration.Excludes.Any(e => item.Path.StartsWith(e, StringComparison.OrdinalIgnoreCase)))
-                {
-                    excludedSegments.Add(item);
-                    deploymentChangeSummary.IgnoredDirectories.Add(item.Path);
-                    continue;
-                }
-
-                if (!excludedSegments.Any(excluded => excluded.ContainsPath(item)))
-                {
-                    await DeleteDirectoryAsync(item, cancellationToken);
-
-                    deploymentChangeSummary.DeletedDirectories.Add(item.Path);
-                }
-            }
         }
 
         private async Task<FtpSummary> DeleteFilesAsync(
@@ -606,7 +580,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
-            FtpPath basePath,
+            [NotNull] FtpPath basePath,
             CancellationToken cancellationToken)
         {
             if (ruleConfiguration == null)
@@ -622,6 +596,11 @@ namespace Milou.Deployer.Core.Deployment
             if (baseDirectory == null)
             {
                 throw new ArgumentNullException(nameof(baseDirectory));
+            }
+
+            if (basePath == null)
+            {
+                throw new ArgumentNullException(nameof(basePath));
             }
 
             return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);

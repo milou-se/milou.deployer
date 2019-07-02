@@ -39,9 +39,11 @@ namespace Milou.Deployer.ConsoleClient
             var levelSwitch = new LoggingLevelSwitch();
 
             logger = logger ?? new LoggerConfiguration()
-                         .WriteTo.Console(outputTemplate: outputTemplate)
+                         .WriteTo.Console(outputTemplate: outputTemplate, standardErrorFromLevel: LogEventLevel.Error)
                          .MinimumLevel.ControlledBy(levelSwitch)
                          .CreateLogger();
+
+            logger.Verbose("Using output template {Template}", outputTemplate);
 
             try
             {
@@ -56,7 +58,7 @@ namespace Milou.Deployer.ConsoleClient
                         .Add(new ReflectionKeyValueConfiguration(typeof(AppBuilder).Assembly))
                         .Add(new ReflectionKeyValueConfiguration(typeof(ConfigurationKeys).Assembly));
                 }
-                catch (Exception ex) when(!ex.IsFatal())
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     logger.Error(ex, "Could note create settings");
                     throw;
@@ -85,7 +87,7 @@ namespace Milou.Deployer.ConsoleClient
                     .Add(new UserJsonConfiguration())
                     .Build();
 
-                logger.Information("Using configuration: {Configuration}", configuration.SourceChain);
+                logger.Debug("Using configuration: {Configuration}", configuration.SourceChain);
 
                 string logPath = configuration[ConsoleConfigurationKeys.LoggingFilePath];
 
@@ -133,7 +135,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 bool allowPreReleaseEnabled =
                     configuration[ConfigurationKeys.AllowPreReleaseEnvironmentVariable]
-                        .ParseAsBooleanOrDefault(false)
+                        .ParseAsBooleanOrDefault()
                     || (Debugger.IsAttached
                         && configuration[ConfigurationKeys.ForceAllowPreRelease]
                             .ParseAsBooleanOrDefault());
@@ -142,7 +144,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 if (string.IsNullOrWhiteSpace(nuGetExePath))
                 {
-                    logger.Debug("nuget.exe is not specified, downloading");
+                    logger.Debug("nuget.exe is not specified, downloading with {Tool}", nameof(NuGetDownloadClient));
 
                     using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                     {
@@ -159,7 +161,7 @@ namespace Milou.Deployer.ConsoleClient
                         if (!nuGetDownloadResult.Succeeded)
                         {
                             throw new InvalidOperationException(
-                                "NuGet exe is not specified and nuget.exe could not be downloaded");
+                                Resources.NuGetExeCouldNotBeDownloaded);
                         }
 
                         nuGetExePath = nuGetDownloadResult.NuGetExePath;
@@ -199,8 +201,8 @@ namespace Milou.Deployer.ConsoleClient
                     }
                 }
 
-                CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                return new DeployerApp(logger, deploymentService, fileReader, configuration, cancellationTokenSource);
+                var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                return new DeployerApp(logger, deploymentService, fileReader, configuration, levelSwitch, cancellationTokenSource);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
@@ -250,7 +252,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 return file.FullName;
             }
-            catch (Exception ex) when(!ex.IsFatal())
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 // ignore
                 return null;

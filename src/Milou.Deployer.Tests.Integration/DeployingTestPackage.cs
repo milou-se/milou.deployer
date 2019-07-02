@@ -8,7 +8,6 @@ using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core.Deployment;
 using Newtonsoft.Json;
 using Serilog;
-using Serilog.Core;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,10 +15,7 @@ namespace Milou.Deployer.Tests.Integration
 {
     public class DeployingTestPackage
     {
-        public DeployingTestPackage(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        public DeployingTestPackage(ITestOutputHelper output) => _output = output;
 
         public const string PackageId = "MilouDeployerWebTest";
 
@@ -27,7 +23,7 @@ namespace Milou.Deployer.Tests.Integration
 
         private TempFile CreateTestManifestFile(DirectoryInfo testTargetDirectory)
         {
-            TempFile tempFile = TempFile.CreateTempFile(extension: "manifest");
+            var tempFile = TempFile.CreateTempFile(extension: "manifest");
 
             string json = $@"{{
   ""definitions"": [
@@ -62,7 +58,7 @@ namespace Milou.Deployer.Tests.Integration
         {
             string oldTemp = Path.GetTempPath();
 
-            using (TempDirectory tempDir = TempDirectory.CreateTempDirectory())
+            using (var tempDir = TempDirectory.CreateTempDirectory())
             {
                 try
                 {
@@ -74,9 +70,9 @@ namespace Milou.Deployer.Tests.Integration
                         int exitCode;
                         using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                         {
-                            using (TempDirectory testTargetDirectory = TempDirectory.CreateTempDirectory())
+                            using (var testTargetDirectory = TempDirectory.CreateTempDirectory())
                             {
-                                using (TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
+                                using (var tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
                                 {
                                     string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
 
@@ -92,14 +88,14 @@ namespace Milou.Deployer.Tests.Integration
 
                                     string[] args = { tempFile.File.FullName };
 
-                                    Logger logger = new LoggerConfiguration()
+                                    var logger = new LoggerConfiguration()
                                         .WriteTo.TestSink(_output)
                                         .MinimumLevel.Verbose()
                                         .CreateLogger();
 
                                     using (logger)
                                     {
-                                        using (DeployerApp deployerApp = await
+                                        using (var deployerApp = await
                                             AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                         {
                                             exitCode = await deployerApp.ExecuteAsync(args,
@@ -110,7 +106,7 @@ namespace Milou.Deployer.Tests.Integration
                                     }
                                 }
 
-                                FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
+                                var indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
 
                                 Assert.NotNull(indexHtml);
                             }
@@ -133,15 +129,15 @@ namespace Milou.Deployer.Tests.Integration
                     tempDir.Directory.Refresh();
                     if (tempDir.Directory.Exists)
                     {
-                        FileInfo[] files = tempDir.Directory.GetFiles();
-                        DirectoryInfo[] directories = tempDir.Directory.GetDirectories();
+                        var files = tempDir.Directory.GetFiles();
+                        var directories = tempDir.Directory.GetDirectories();
 
-                        foreach (DirectoryInfo dir in directories)
+                        foreach (var dir in directories)
                         {
                             dir.Delete(true);
                         }
 
-                        foreach (FileInfo file in files)
+                        foreach (var file in files)
                         {
                             file.Delete();
                         }

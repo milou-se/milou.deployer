@@ -104,4 +104,7 @@
   <data name="FtpFtpPathMustBeADirectoryPath" xml:space="preserve">
     <value>The ftp path {0} must be a directory path</value>
   </data>
+  <data name="NuGetExeCouldNotBeDownloaded" xml:space="preserve">
+    <value>NuGet exe is not specified and nuget.exe could not be downloaded</value>
+  </data>
 </root>
