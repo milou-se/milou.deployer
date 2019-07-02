@@ -265,10 +265,10 @@ namespace Milou.Deployer.Core.Deployment
 
             string expectedMatch = $"{expectedPackageId} {expectedVersion.ToNormalizedString()}";
 
-            List<string> matchingFoundEnvironmentPackage =
-                allFoundEnvironmentPackages.Where(
-                    packageFullName =>
-                        packageFullName.Equals(expectedMatch, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            var matchingFoundEnvironmentPackage = allFoundEnvironmentPackages
+                .Where(packageFullName =>
+                    packageFullName.Equals(expectedMatch, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
 
             if (matchingFoundEnvironmentPackage.Count > 1)
             {
