@@ -1,18 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment
 {
     public class FtpPublishSettings
     {
-        private FtpPublishSettings(string userName, string password, Uri ftpBaseUri)
+        private const string UsernameAttribute = "userName";
+        private const string UserPasswordAttribute = "userPWD";
+        private const string PublishUrlAttribute = "publishUrl";
+        private const string PublishMethodAttribute = "publishMethod";
+
+        private FtpPublishSettings(string userName, string password, [NotNull] Uri ftpBaseUri)
         {
             UserName = userName;
             Password = password;
-            FtpBaseUri = ftpBaseUri;
+            FtpBaseUri = ftpBaseUri ?? throw new ArgumentNullException(nameof(ftpBaseUri));
         }
 
         public string UserName { get; }
@@ -25,15 +30,16 @@ namespace Milou.Deployer.Core.Deployment
         {
             using (var fileStream = new FileStream(publishSettingsFile, FileMode.Open))
             {
-                XDocument document = XDocument.Load(fileStream);
+                var document = XDocument.Load(fileStream);
 
-                IEnumerable<XElement> descendantNodes =
-                    document.Element("publishData")?.Descendants("publishProfile") ??
+                var descendantNodes =
+                    document.Element("publishData")?
+                        .Descendants("publishProfile") ??
                     throw new InvalidOperationException("Missing publishData and publishProfiles");
 
-                XElement ftpElement = descendantNodes.SingleOrDefault(element =>
+                var ftpElement = descendantNodes.SingleOrDefault(element =>
                 {
-                    string ftpAttribute = element.Attribute("publishMethod")?.Value;
+                    string ftpAttribute = element.Attribute(PublishMethodAttribute)?.Value;
 
                     if (ftpAttribute is null)
                     {
@@ -53,26 +59,26 @@ namespace Milou.Deployer.Core.Deployment
                     throw new InvalidOperationException("Could not find element with publishMethod FTP");
                 }
 
-                string userName = ftpElement.Attribute("userName")?.Value;
-                string password = ftpElement.Attribute("userPWD")?.Value;
-                string ftpBaseUri = ftpElement.Attribute("publishUrl")?.Value;
+                string userName = ftpElement.Attribute(UsernameAttribute)?.Value;
+                string password = ftpElement.Attribute(UserPasswordAttribute)?.Value;
+                string ftpBaseUri = ftpElement.Attribute(PublishUrlAttribute)?.Value;
 
                 if (string.IsNullOrWhiteSpace(userName))
                 {
-                    throw new InvalidOperationException("Missing userName in publish settings");
+                    throw new InvalidOperationException($"Missing {UsernameAttribute} in publish settings");
                 }
 
                 if (string.IsNullOrWhiteSpace(password))
                 {
-                    throw new InvalidOperationException("Missing userPWD in publish settings");
+                    throw new InvalidOperationException($"Missing {UserPasswordAttribute} in publish settings");
                 }
 
                 if (string.IsNullOrWhiteSpace(ftpBaseUri))
                 {
-                    throw new InvalidOperationException("Missing publishUrl in publish settings");
+                    throw new InvalidOperationException($"Missing {PublishUrlAttribute} in publish settings");
                 }
 
-                if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out Uri uri))
+                if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out var uri))
                 {
                     throw new InvalidOperationException($"The ftp uri '{ftpBaseUri}' is not valid");
                 }

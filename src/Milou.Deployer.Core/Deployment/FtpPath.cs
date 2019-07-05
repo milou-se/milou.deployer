@@ -27,7 +27,7 @@ namespace Milou.Deployer.Core.Deployment
         {
             unchecked
             {
-                return (StringComparer.OrdinalIgnoreCase.GetHashCode(Path) * 397) ^ (int) Type;
+                return (StringComparer.OrdinalIgnoreCase.GetHashCode(Path) * 397) ^ (int)Type;
             }
         }
 

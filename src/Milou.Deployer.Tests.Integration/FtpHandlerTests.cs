@@ -26,7 +26,7 @@ namespace Milou.Deployer.Tests.Integration
                 ftpSettings);
 
             var sourceDirectory = new DirectoryInfo(@"C:\Temp\Ftptest");
-            var ruleConfiguration = new RuleConfiguration()
+            var ruleConfiguration = new RuleConfiguration
             {
                 AppOfflineEnabled = true
             };
