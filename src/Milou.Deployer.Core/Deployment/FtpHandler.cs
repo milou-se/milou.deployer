@@ -41,7 +41,7 @@ namespace Milou.Deployer.Core.Deployment
             }
             catch (Exception ex)
             {
-                throw new FtpException($"Could not determine if directory '{dir.Path}'", ex);
+                throw new FtpException($"Could not determine if directory '{dir.Path}' exists", ex);
             }
         }
 
@@ -142,7 +142,9 @@ namespace Milou.Deployer.Core.Deployment
             try
             {
                 var ftpListItems =
-                    await _ftpClient.GetListingAsync(path.Path, FtpListOption.AllFiles | FtpListOption.Recursive, cancellationToken);
+                    await _ftpClient.GetListingAsync(path.Path,
+                        FtpListOption.AllFiles | FtpListOption.Recursive,
+                        cancellationToken);
 
                 return ftpListItems.Select(s => new FtpPath(s.FullName,
                         s.Type == FtpFileSystemObjectType.File ? FileSystemType.File : FileSystemType.Directory))
@@ -187,9 +189,10 @@ namespace Milou.Deployer.Core.Deployment
             CancellationToken cancellationToken)
         {
             var summary = new FtpSummary();
-            var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory), FileSystemType.Directory));
+            var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
+                FileSystemType.Directory));
 
-            string[] localPaths = sourceDirectory
+            var localPaths = sourceDirectory
                 .GetFiles()
                 .Select(f => f.FullName)
                 .ToArray();
@@ -205,7 +208,7 @@ namespace Milou.Deployer.Core.Deployment
                 return summary;
             }
 
-            Stopwatch totalTime = Stopwatch.StartNew();
+            var totalTime = Stopwatch.StartNew();
 
             try
             {
@@ -219,9 +222,9 @@ namespace Milou.Deployer.Core.Deployment
 
                     int batchNumber = i + 1;
 
-                    string[] files = localPaths.Skip(i * batchSize).Take(batchSize).ToArray();
+                    var files = localPaths.Skip(i * batchSize).Take(batchSize).ToArray();
 
-                    Stopwatch stopwatch = new Stopwatch();
+                    var stopwatch = new Stopwatch();
 
                     for (int j = 0; j < _ftpSettings.MaxAttempts; j++)
                     {
@@ -267,7 +270,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     string percentage = $"{100 * uploaded / (double)totalCount:F1}";
 
-                    var paddedPercentage = new string(' ', 5 - percentage.Length) + percentage;
+                    string paddedPercentage = new string(' ', 5 - percentage.Length) + percentage;
 
                     double averageTime = totalTime.Elapsed.TotalSeconds / uploaded;
 
@@ -275,10 +278,10 @@ namespace Milou.Deployer.Core.Deployment
 
                     string timeLeft = $"{(totalCount - uploaded) * averageTime:F2}s";
 
-                    var paddedBatch =
+                    string paddedBatch =
                         $"{new string(' ', batches.ToString(CultureInfo.InvariantCulture).Length - batchNumber.ToString(CultureInfo.InvariantCulture).Length)}{batchNumber}";
 
-                    var paddedUploaded =
+                    string paddedUploaded =
                         $"{new string(' ', totalCount.ToString(CultureInfo.InvariantCulture).Length - uploaded.ToString(CultureInfo.InvariantCulture).Length)}{uploaded}";
 
                     _logger.Information(
@@ -305,7 +308,7 @@ namespace Milou.Deployer.Core.Deployment
                 summary.CreatedFiles.Add(PathHelper.RelativePath(new FileInfo(path), baseDirectory));
             }
 
-            foreach (DirectoryInfo directoryInfo in sourceDirectory.GetDirectories())
+            foreach (var directoryInfo in sourceDirectory.GetDirectories())
             {
                 var subSummary = await UploadFilesAsync(directoryInfo, baseDirectory, basePath, cancellationToken);
 
@@ -324,63 +327,107 @@ namespace Milou.Deployer.Core.Deployment
 
             var stopwatch = Stopwatch.StartNew();
 
-            var basePath = _ftpSettings.BasePath ?? FtpPath.Root;
-
-            if (!await DirectoryExistsAsync(basePath, cancellationToken))
+            try
             {
-                await CreateDirectoryAsync(basePath, cancellationToken);
+                var basePath = _ftpSettings.BasePath ?? FtpPath.Root;
+
+                if (!await DirectoryExistsAsync(basePath, cancellationToken))
+                {
+                    await CreateDirectoryAsync(basePath, cancellationToken);
+                }
+
+                _logger.Debug("Listing files in remote path '{Path}'", basePath.Path);
+
+                var fileSystemItems =
+                    await ListDirectoryAsync(basePath, cancellationToken);
+
+                var sourceFiles = sourceDirectory
+                    .GetFiles("*", SearchOption.AllDirectories)
+                    .Select(s =>
+                        basePath.Append(new FtpPath(PathHelper.RelativePath(s, sourceDirectory), FileSystemType.File)))
+                    .ToArray();
+
+                var filesToKeep = fileSystemItems
+                    .Where(s => KeepFile(s, ruleConfiguration))
+                    .Where(s => s.Type == FileSystemType.File)
+                    .ToArray();
+
+                var filesToRemove = fileSystemItems
+                    .Except(sourceFiles)
+                    .Except(filesToKeep)
+                    .Where(s => s.Type == FileSystemType.File)
+                    .ToImmutableArray();
+
+                var updated = fileSystemItems.Except(filesToRemove)
+                    .Where(s => s.Type == FileSystemType.File);
+
+                if (ruleConfiguration.AppOfflineEnabled)
+                {
+                    using (var tempFile = TempFile.CreateTempFile("App_Offline", ".htm"))
+                    {
+                        var appOfflinePath = new FtpPath($"/{tempFile.File.Name}", FileSystemType.File);
+                        var appOfflineFullPath =
+                            (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(
+                                appOfflinePath);
+
+                        await UploadFileAsync(appOfflineFullPath, tempFile.File, cancellationToken);
+
+                        _logger.Debug("Uploaded file '{App_Offline}'", appOfflineFullPath.Path);
+                    }
+                }
+
+                var deleteFiles = await DeleteFilesAsync(ruleConfiguration, filesToRemove, cancellationToken);
+
+                deploymentChangeSummary.Add(deleteFiles);
+
+                foreach (var ftpPath in filesToRemove)
+                {
+                    deploymentChangeSummary.Deleted.Add(ftpPath.Path);
+                }
+
+                foreach (var ftpPath in updated)
+                {
+                    deploymentChangeSummary.UpdatedFiles.Add(ftpPath.Path);
+                }
+
+                var uploadDirectoryAsync =
+                    await UploadDirectoryAsync(ruleConfiguration,
+                        sourceDirectory,
+                        sourceDirectory,
+                        basePath,
+                        cancellationToken);
+
+                deploymentChangeSummary.Add(uploadDirectoryAsync);
+
+                if (ruleConfiguration.AppOfflineEnabled)
+                {
+                    var appOfflineFiles = sourceFiles.Intersect(fileSystemItems)
+                        .Where(file => file.Path != null &&
+                                       Path.GetFileName(file.Path)
+                                           .Equals(DeploymentConstants.AppOfflineHtm,
+                                               StringComparison.OrdinalIgnoreCase))
+                        .Select(file => file.Path)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Select(file => new FtpPath(file, FileSystemType.File))
+                        .ToArray();
+
+                    foreach (var appOfflineFile in appOfflineFiles)
+                    {
+                        bool fileExists = await FileExistsAsync(appOfflineFile, cancellationToken);
+
+                        if (fileExists)
+                        {
+                            await DeleteFileAsync(appOfflineFile, cancellationToken);
+
+                            _logger.Debug("Deleted {App_Offline}", appOfflineFile.Path);
+                        }
+                    }
+                }
             }
-
-            var fileSystemItems =
-                await ListDirectoryAsync(basePath, cancellationToken);
-
-            var sourceFiles = sourceDirectory
-                .GetFiles("*", SearchOption.AllDirectories)
-                .Select(s => basePath.Append(new FtpPath(PathHelper.RelativePath(s, sourceDirectory), FileSystemType.File)))
-                .ToArray();
-
-            var filesToKeep = fileSystemItems
-                .Where(s => KeepFile(s, ruleConfiguration))
-                .Where(s => s.Type == FileSystemType.File)
-                .ToArray();
-
-            var filesToRemove = fileSystemItems
-                .Except(sourceFiles)
-                .Except(filesToKeep)
-                .Where(s => s.Type == FileSystemType.File)
-                .ToImmutableArray();
-
-            var updated = fileSystemItems.Except(filesToRemove)
-                .Where(s => s.Type == FileSystemType.File);
-
-            var deleteFiles = await DeleteFilesAsync(ruleConfiguration, filesToRemove, cancellationToken);
-
-            deploymentChangeSummary.Add(deleteFiles);
-
-            foreach (var ftpPath in filesToRemove)
+            finally
             {
-                deploymentChangeSummary.Deleted.Add(ftpPath.Path);
+                stopwatch.Stop();
             }
-
-            foreach (var ftpPath in updated)
-            {
-                deploymentChangeSummary.UpdatedFiles.Add(ftpPath.Path);
-            }
-
-            var uploadDirectoryAsync =
-                await UploadDirectoryAsync(ruleConfiguration, sourceDirectory, sourceDirectory, basePath, cancellationToken);
-
-            deploymentChangeSummary.Add(uploadDirectoryAsync);
-
-            var appOfflineFiles = sourceFiles.Where(file => file.Path != null &&
-                                                            Path.GetFileName(file.Path)
-                                                                .Equals(DeploymentConstants.AppOfflineHtm,
-                                                                    StringComparison.OrdinalIgnoreCase))
-                .ToImmutableArray();
-
-            await DeleteFilesAsync(ruleConfiguration, appOfflineFiles, cancellationToken);
-
-            stopwatch.Stop();
 
             deploymentChangeSummary.TotalTime = stopwatch.Elapsed;
 
@@ -612,7 +659,7 @@ namespace Milou.Deployer.Core.Deployment
                 ReadTimeout = 2000,
                 DataConnectionConnectTimeout = 2000,
                 DataConnectionReadTimeout = 2000,
-                DataConnectionType = FtpDataConnectionType.PASV,
+                DataConnectionType = FtpDataConnectionType.PASV
             };
 
             if (ftpSettings.IsSecure)

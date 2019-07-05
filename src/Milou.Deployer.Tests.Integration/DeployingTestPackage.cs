@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.ConsoleClient;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
 using Newtonsoft.Json;
 using Serilog;
