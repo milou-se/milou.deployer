@@ -15,7 +15,8 @@ namespace Milou.Deployer.Tests.Integration
 
         private readonly ITestOutputHelper _testOutputHelper;
 
-        [Fact(Skip = "Depending on publish settings")]
+        //[Fact(Skip = "Depending on publish settings")]
+        [Fact]
         public async Task PublishFilesShouldSyncFiles()
         {
             var handler =

@@ -216,7 +216,14 @@ namespace Milou.Deployer.ConsoleClient
             if (args.Any(arg =>
                 arg.Equals(LoggingConstants.PlainOutputFormatEnabled, StringComparison.OrdinalIgnoreCase)))
             {
-                return LoggingConstants.PlainFormat;
+                string prefix = "";
+                if (args.Any(arg =>
+                    arg.Equals(LoggingConstants.LoggingCategoryFormatEnabled, StringComparison.OrdinalIgnoreCase)))
+                {
+                    prefix = "[{Level}] ";
+                }
+
+                return $"{prefix}{LoggingConstants.PlainFormat}";
             }
 
             return LoggingConstants.DefaultFormat;

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Processing;
 using Arbor.Tooler;
+using Milou.Deployer.Core.Logging;
 using Serilog;
 
 namespace Milou.Deployer.Bootstrapper.Common
@@ -118,10 +119,12 @@ namespace Milou.Deployer.Bootstrapper.Common
                 return nuGetPackageInstallResult;
             }
 
-            var deployerToolFile = new FileInfo(Path.Combine(nuGetPackageInstallResult.PackageDirectory.FullName,
+            string deployerToolFilePath = Path.Combine(nuGetPackageInstallResult.PackageDirectory.FullName,
                 "tools",
                 "net472",
-                "Milou.Deployer.ConsoleClient.exe"));
+                "Milou.Deployer.ConsoleClient.exe");
+
+            var deployerToolFile = new FileInfo(deployerToolFilePath);
 
             if (!deployerToolFile.Exists)
             {
@@ -138,8 +141,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(deployerToolFile.FullName,
                     appArgs,
-                    standardOutLog: (message, category) =>
-                        _logger.Information("{Category} {Message}", category, message),
+                    standardOutLog: (message, category) => _logger.ParseAndLog(message, category),
                     standardErrorAction: (message, category) =>
                         _logger.Error("{Category} {Message}", category, message),
                     cancellationToken: cancellationToken)

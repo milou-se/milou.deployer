@@ -186,6 +186,7 @@ namespace Milou.Deployer.Core.Deployment
             FtpPath basePath,
             CancellationToken cancellationToken)
         {
+            var summary = new FtpSummary();
             var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory), FileSystemType.Directory));
 
             string[] localPaths = sourceDirectory
@@ -199,57 +200,106 @@ namespace Milou.Deployer.Core.Deployment
 
             int totalCount = localPaths.Length;
 
-            int batches = (int)Math.Ceiling(totalCount / (double)batchSize);
-
-            for (int i = 0; i < batches; i++)
+            if (totalCount == 0)
             {
-                bool batchSuccessful = false;
-
-                int batchNumber = i + 1;
-
-                string[] files = localPaths.Skip(i * batchSize).Take(batchSize).ToArray();
-
-                for (int j = 0; j < _ftpSettings.MaxAttempts; j++)
-                {
-                    try
-                    {
-                        int uploadedFiles = await _ftpClient.UploadFilesAsync(files,
-                            relativeDir.Path,
-                            FtpExists.Overwrite,
-                            true,
-                            FtpVerify.Delete | FtpVerify.Retry,
-                            token: cancellationToken);
-
-                        if (uploadedFiles == files.Length)
-                        {
-                            batchSuccessful = true;
-                            break;
-                        }
-
-                        _logger.Error(
-                            "The expected number of uploaded files was {Expected} but result was {Actual}, retrying batch {Batch}",
-                            files.Length,
-                            uploadedFiles,
-                            batchNumber);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex, "FTP ERROR in batch {Batch}", batchNumber);
-                    }
-                }
-
-                if (!batchSuccessful)
-                {
-                    throw new InvalidOperationException($"The batch {batchNumber} failed");
-                }
-
-                _logger.Information("Uploaded batch {BatchNumber} of {BatchCount} using batch size {Size}",
-                    batchNumber,
-                    batches,
-                    batchSize);
+                return summary;
             }
 
-            var summary = new FtpSummary();
+            Stopwatch totalTime = Stopwatch.StartNew();
+
+            try
+            {
+                int batches = (int)Math.Ceiling(totalCount / (double)batchSize);
+
+                int uploaded = 0;
+
+                for (int i = 0; i < batches; i++)
+                {
+                    bool batchSuccessful = false;
+
+                    int batchNumber = i + 1;
+
+                    string[] files = localPaths.Skip(i * batchSize).Take(batchSize).ToArray();
+
+                    Stopwatch stopwatch = new Stopwatch();
+
+                    for (int j = 0; j < _ftpSettings.MaxAttempts; j++)
+                    {
+                        try
+                        {
+                            stopwatch.Restart();
+                            int uploadedFiles = await _ftpClient.UploadFilesAsync(files,
+                                relativeDir.Path,
+                                FtpExists.Overwrite,
+                                true,
+                                FtpVerify.Delete | FtpVerify.Retry,
+                                token: cancellationToken);
+
+                            if (uploadedFiles == files.Length)
+                            {
+                                batchSuccessful = true;
+                                break;
+                            }
+
+                            _logger.Warning(
+                                "The expected number of uploaded files was {Expected} but result was {Actual}, retrying batch {Batch}",
+                                files.Length,
+                                uploadedFiles,
+                                batchNumber);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Warning(ex, "FTP ERROR in batch {Batch}", batchNumber);
+                        }
+                        finally
+                        {
+                            stopwatch.Stop();
+                        }
+                    }
+
+                    if (!batchSuccessful)
+                    {
+                        throw new InvalidOperationException($"The batch {batchNumber} failed");
+                    }
+
+                    uploaded += files.Length;
+                    string elapsed = $"{stopwatch.Elapsed.TotalSeconds:F2}";
+
+                    string percentage = $"{100 * uploaded / (double)totalCount:F1}";
+
+                    var paddedPercentage = new string(' ', 5 - percentage.Length) + percentage;
+
+                    double averageTime = totalTime.Elapsed.TotalSeconds / uploaded;
+
+                    string average = averageTime.ToString("F2", CultureInfo.InvariantCulture);
+
+                    string timeLeft = $"{(totalCount - uploaded) * averageTime:F2}s";
+
+                    var paddedBatch =
+                        $"{new string(' ', batches.ToString(CultureInfo.InvariantCulture).Length - batchNumber.ToString(CultureInfo.InvariantCulture).Length)}{batchNumber}";
+
+                    var paddedUploaded =
+                        $"{new string(' ', totalCount.ToString(CultureInfo.InvariantCulture).Length - uploaded.ToString(CultureInfo.InvariantCulture).Length)}{uploaded}";
+
+                    _logger.Information(
+                        "Uploaded batch {BatchNumber} of {BatchCount} using batch size {Size}, {Uploaded}/{Total} {Percentage}%, average {Average}s per file, time left: ~{TimeLeft}, took {ElapsedTime}s, total time {TotalTime}s",
+                        paddedBatch,
+                        batches,
+                        batchSize,
+                        paddedUploaded,
+                        totalCount,
+                        paddedPercentage,
+                        average,
+                        timeLeft,
+                        elapsed,
+                        totalTime.Elapsed.TotalSeconds.ToString("F2", CultureInfo.InvariantCulture));
+                }
+            }
+            finally
+            {
+                totalTime.Stop();
+            }
+
             foreach (string path in localPaths)
             {
                 summary.CreatedFiles.Add(PathHelper.RelativePath(new FileInfo(path), baseDirectory));
@@ -387,6 +437,13 @@ namespace Milou.Deployer.Core.Deployment
             if (string.IsNullOrWhiteSpace(message))
             {
                 return;
+            }
+
+            int indexOf = message.IndexOf("at System.Net.Sockets.Socket", StringComparison.Ordinal);
+
+            if (indexOf >= 0)
+            {
+                message = message.Substring(0, indexOf).Trim();
             }
 
             const string messageTemplate = "{FtpMessage}";
