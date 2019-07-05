@@ -189,17 +189,11 @@ namespace Milou.Deployer.Core.Deployment
             CancellationToken cancellationToken)
         {
             var summary = new FtpSummary();
-            var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
-                FileSystemType.Directory));
 
             var localPaths = sourceDirectory
                 .GetFiles()
                 .Select(f => f.FullName)
                 .ToArray();
-
-            _logger.Verbose("Uploading {Files} files", localPaths.Length);
-
-            int batchSize = _ftpSettings.BatchSize;
 
             int totalCount = localPaths.Length;
 
@@ -207,6 +201,13 @@ namespace Milou.Deployer.Core.Deployment
             {
                 return summary;
             }
+
+            var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
+                FileSystemType.Directory));
+
+            _logger.Verbose("Uploading {Files} files", localPaths.Length);
+
+            int batchSize = _ftpSettings.BatchSize;
 
             var totalTime = Stopwatch.StartNew();
 
