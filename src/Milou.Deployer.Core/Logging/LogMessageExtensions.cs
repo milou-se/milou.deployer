@@ -90,7 +90,7 @@ namespace Milou.Deployer.Core.Logging
                 return (message.Substring(Debug.Length + 1).Trim(), LogEventLevel.Debug);
             }
 
-            if (Verbose.StartsWith(Verbose, StringComparison.OrdinalIgnoreCase))
+            if (message.StartsWith(Verbose, StringComparison.OrdinalIgnoreCase))
             {
                 return (message.Substring(Verbose.Length + 1).Trim(), LogEventLevel.Verbose);
             }
