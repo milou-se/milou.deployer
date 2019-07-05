@@ -197,7 +197,7 @@ namespace Milou.Deployer.Core.Deployment
                 .Select(f => f.FullName)
                 .ToArray();
 
-            _logger.Information("Uploading {Files} files", localPaths.Length);
+            _logger.Verbose("Uploading {Files} files", localPaths.Length);
 
             int batchSize = _ftpSettings.BatchSize;
 
@@ -262,7 +262,11 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!batchSuccessful)
                     {
-                        throw new InvalidOperationException($"The batch {batchNumber} failed");
+                        string message = batches > 1
+                            ? $"The batch {batchNumber} failed"
+                            : $"Failed to upload files {files}";
+
+                        throw new InvalidOperationException(message);
                     }
 
                     uploaded += files.Length;
@@ -284,18 +288,27 @@ namespace Milou.Deployer.Core.Deployment
                     string paddedUploaded =
                         $"{new string(' ', totalCount.ToString(CultureInfo.InvariantCulture).Length - uploaded.ToString(CultureInfo.InvariantCulture).Length)}{uploaded}";
 
-                    _logger.Information(
-                        "Uploaded batch {BatchNumber} of {BatchCount} using batch size {Size}, {Uploaded}/{Total} {Percentage}%, average {Average}s per file, time left: ~{TimeLeft}, took {ElapsedTime}s, total time {TotalTime}s",
-                        paddedBatch,
-                        batches,
-                        batchSize,
-                        paddedUploaded,
-                        totalCount,
-                        paddedPercentage,
-                        average,
-                        timeLeft,
-                        elapsed,
-                        totalTime.Elapsed.TotalSeconds.ToString("F2", CultureInfo.InvariantCulture));
+                    string totalElapsed = totalTime.Elapsed.TotalSeconds.ToString("F2", CultureInfo.InvariantCulture);
+
+                    if (batches > 1)
+                    {
+                        _logger.Information(
+                            "Uploaded batch {BatchNumber} of {BatchCount} using batch size {Size}, {Uploaded}/{Total} {Percentage}%, average {Average}s per file, time left: ~{TimeLeft}, took {ElapsedTime}s, total time {TotalTime}s",
+                            paddedBatch,
+                            batches,
+                            batchSize,
+                            paddedUploaded,
+                            totalCount,
+                            paddedPercentage,
+                            average,
+                            timeLeft,
+                            elapsed,
+                            totalElapsed);
+                    }
+                    else
+                    {
+                        _logger.Information("Uploaded files {Files}, took {TotalElapsed}s", files, totalElapsed);
+                    }
                 }
             }
             finally
