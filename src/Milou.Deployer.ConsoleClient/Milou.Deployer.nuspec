@@ -18,8 +18,8 @@
 		<projectUrl>https://github.com/milou-se/milou.deployer</projectUrl>
 		<iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<licenseUrl>https://github.com/milou-se/milou.deployer/blob/master/LICENSE.txt</licenseUrl>
-		<copyright>Copyright Milou Communication AB 2015-2018</copyright>
+		<license type="expression">MIT</license>
+		<copyright>Copyright Milou Communication AB 2015-2019</copyright>
 		<dependencies>
 
 		</dependencies>
