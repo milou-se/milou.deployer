@@ -15,7 +15,7 @@
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.19.2" />
     <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.19.2" />
     <PackageReference Include="Arbor.Processing" Version="0.3.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.5.1" />
+    <PackageReference Include="Arbor.Tooler" Version="0.5.2" />
     <PackageReference Include="NuGet.Versioning" Version="5.3.0" />
     <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
