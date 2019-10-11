@@ -2,7 +2,7 @@
   "profiles": {
     "Milou.Deployer.Bootstrapper": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Work\\DeployFtp\\manifest.json --logging-category-format-enabled --plain-console"
+      "commandLineArgs": "C:\\Work\\DeployFtp\\manifest.json --logging-category-format-enabled --plain-console -nuget-source=nuget.org"
     }
   }
 }

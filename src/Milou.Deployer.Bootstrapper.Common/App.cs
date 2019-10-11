@@ -39,11 +39,17 @@ namespace Milou.Deployer.Bootstrapper.Common
                 throw new ArgumentNullException(nameof(args));
             }
 
-            logger = logger ?? new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            var appArgs = args.ToImmutableArray();
 
-            httpClient = httpClient ?? new HttpClient();
+            logger ??= new LoggerConfiguration().WriteTo.Console().CreateLogger();
+
+            string nugetSource = GetNuGetSource(appArgs);
+            string nugetConfig = GetNuGetConfig(appArgs);
+            string nugetExePath = GetNuGetExePath(appArgs);
+
+            httpClient ??= new HttpClient();
             var nuGetDownloadClient = new NuGetDownloadClient();
-            var nuGetCliSettings = new NuGetCliSettings();
+            var nuGetCliSettings = new NuGetCliSettings(nugetSource, nugetConfig, nugetExePath);
             var nuGetDownloadSettings = new NuGetDownloadSettings();
             var nuGetPackageInstaller = new NuGetPackageInstaller(
                 nuGetDownloadClient,
@@ -85,6 +91,9 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
+            string nugetSource = GetNuGetSource(appArgs);
+            string nugetConfig = GetNuGetConfig(appArgs);
+
             try
             {
                 bool allowPreRelease = appArgs.Any(arg =>
@@ -99,7 +108,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                 nuGetPackageInstallResult =
                     await _packageInstaller.InstallPackageAsync(
                         nuGetPackage,
-                        new NugetPackageSettings(allowPreRelease),
+                        new NugetPackageSettings(allowPreRelease, nugetSource, nugetConfig),
                         cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (!ex.IsFatal())
@@ -158,6 +167,36 @@ namespace Milou.Deployer.Bootstrapper.Common
             }
 
             return nuGetPackageInstallResult;
+        }
+
+        private static string GetNuGetSource(ImmutableArray<string> appArgs)
+        {
+            var nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
+            return nugetSource;
+        }
+
+        private static string GetNuGetExePath(ImmutableArray<string> appArgs)
+        {
+            var exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
+
+            if (!string.IsNullOrWhiteSpace(exePath) && !File.Exists(exePath))
+            {
+                exePath = null;
+            }
+
+            return exePath;
+        }
+
+        private static string GetNuGetConfig(ImmutableArray<string> appArgs)
+        {
+            var nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
+
+            if (!string.IsNullOrWhiteSpace(nugetConfig) && !File.Exists(nugetConfig))
+            {
+                nugetConfig = null;
+            }
+
+            return nugetConfig;
         }
     }
 }

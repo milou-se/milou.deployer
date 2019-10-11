@@ -587,6 +587,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.EnvironmentConfig))
                     {
+                        _logger.Information("Fetching environment packages for package {Package} and environment {Environment}", deploymentExecutionDefinition.PackageId, deploymentExecutionDefinition.EnvironmentConfig);
                         environmentPackageResult = await AddEnvironmentPackageAsync(deploymentExecutionDefinition,
                             packageInstallTempDirectory,
                             possibleXmlTransformations,

@@ -74,6 +74,8 @@ namespace Milou.Deployer.ConsoleClient
                 cancellationToken = _cancellationTokenSource.Token;
             }
 
+            args ??= Array.Empty<string>();
+
             PrintVersion();
 
             PrintCommandLineArguments(args);
@@ -86,7 +88,7 @@ namespace Milou.Deployer.ConsoleClient
                 args.Where(arg => arg.IndexOf("=", StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
 
             string[] nonFlagArgs =
-                args.Where(arg => !arg.StartsWith("--", StringComparison.OrdinalIgnoreCase))
+                args.Where(arg => !arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))
                     .Except(parameterArgs)
                     .ToArray();
 
@@ -169,7 +171,7 @@ namespace Milou.Deployer.ConsoleClient
 
             Type type = typeof(Program);
 
-            Logger.Debug("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
+            Logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
                 type.Namespace,
                 assemblyVersion,
                 fileVersion,
