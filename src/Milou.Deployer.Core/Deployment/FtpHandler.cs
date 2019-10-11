@@ -10,6 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP;
 using JetBrains.Annotations;
+
+using Milou.Deployer.Core.Extensions;
+
 using Serilog;
 using Serilog.Core;
 
@@ -37,7 +40,11 @@ namespace Milou.Deployer.Core.Deployment
         {
             try
             {
-                return await _ftpClient.DirectoryExistsAsync(dir.Path, cancellationToken);
+                bool directoryExists = await _ftpClient.DirectoryExistsAsync(dir.Path, cancellationToken);
+
+                _logger.Verbose("Directory {Directory} exists: {Exists}", dir, directoryExists);
+
+                return directoryExists;
             }
             catch (Exception ex)
             {
@@ -65,6 +72,8 @@ namespace Milou.Deployer.Core.Deployment
                     FtpVerify.Delete | FtpVerify.Retry,
                     progress,
                     cancellationToken);
+
+                _logger.Verbose("Uploaded {SourceFile} to {TargetFile}", sourceFile.FullName, filePath.Path);
             }
             catch (Exception ex)
             {
@@ -83,13 +92,35 @@ namespace Milou.Deployer.Core.Deployment
 
         private async Task DeleteFileInternalAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken)
         {
-            try
+            int attempt = 1;
+            const int MaxAttempts = 5;
+            while (true)
             {
-                await _ftpClient.DeleteFileAsync(filePath.Path, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                throw new FtpException($"Could not delete file '{filePath.Path}'", ex);
+                try
+                {
+                    await _ftpClient.DeleteFileAsync(filePath.Path, cancellationToken);
+
+                    _logger.Verbose("Delete file {FilePath}", filePath.Path);
+
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    if (attempt > MaxAttempts)
+                    {
+                        throw new FtpException($"Could not delete file '{filePath.Path}'", ex);
+                    }
+
+                    if (!await _ftpClient.FileExistsAsync(filePath.Path, cancellationToken))
+                    {
+                        _logger.Verbose(ex, "Could not delete file because it does not exists");
+                        return;
+                    }
+
+                    attempt++;
+                    _logger.Verbose(ex, "FPT Error, retrying");
+                    await Task.Delay(TimeSpan.FromMilliseconds(attempt * 50), cancellationToken);
+                }
             }
         }
 
@@ -98,6 +129,8 @@ namespace Milou.Deployer.Core.Deployment
             try
             {
                 await _ftpClient.DeleteDirectoryAsync(path.Path, FtpListOption.Recursive, cancellationToken);
+
+                _logger.Verbose("Deleted directory {Path}", path.Path);
             }
             catch (Exception ex)
             {
@@ -113,9 +146,11 @@ namespace Milou.Deployer.Core.Deployment
             {
                 bool exists = await _ftpClient.FileExistsAsync(filePath.Path, cancellationToken);
 
+                _logger.Verbose("File {File} exists: {Exists}", filePath.Path, exists);
+
                 return exists;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 throw new FtpException($"Could not determine if file '{filePath.Path}' exists", ex);
             }
@@ -129,7 +164,7 @@ namespace Milou.Deployer.Core.Deployment
             {
                 await _ftpClient.CreateDirectoryAsync(directoryPath.Path, cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 throw new FtpException($"Could not created directory {directoryPath}", ex);
             }
@@ -150,7 +185,7 @@ namespace Milou.Deployer.Core.Deployment
                         s.Type == FtpFileSystemObjectType.File ? FileSystemType.File : FileSystemType.Directory))
                     .ToImmutableArray();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 throw new FtpException($"Could not list files for directory '{path}'", ex);
             }
@@ -648,6 +683,8 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(ftpSettings));
             }
 
+            logger ??= Logger.None;
+
             if (string.IsNullOrWhiteSpace(publishSettingsFile))
             {
                 throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(publishSettingsFile));
@@ -678,15 +715,18 @@ namespace Milou.Deployer.Core.Deployment
 
             if (ftpSettings.IsSecure)
             {
+                logger.Debug("Using secure FTP connection");
                 ftpClient.EncryptionMode = FtpEncryptionMode.Explicit;
                 ftpClient.SslProtocols = SslProtocols.Tls12;
             }
 
             try
             {
+                logger.Debug("Connecting to FTP");
                 await ftpClient.ConnectAsync();
+                logger.Debug("Connected to FTP");
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 throw new FtpException($"Could not connect to FTP {fullUri.Host}", ex);
             }
