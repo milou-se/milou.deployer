@@ -307,7 +307,8 @@ namespace Milou.Deployer.Core.Deployment
                         _packageInstaller.InstallPackageAsync(
                             deploymentDefinition,
                             tempOutputDirectory,
-                            false).ConfigureAwait(false);
+                            false,
+                            cancellationToken).ConfigureAwait(false);
 
                 if (!installedEnvironmentPackage.HasValue)
                 {
@@ -520,9 +521,11 @@ namespace Milou.Deployer.Core.Deployment
                     tempDirectoriesToClean.Add(packageInstallTempDirectory);
 
                     MayBe<InstalledPackage> installedMainPackage =
-                        await _packageInstaller.InstallPackageAsync(deploymentExecutionDefinition,
+                        await _packageInstaller.InstallPackageAsync(
+                            deploymentExecutionDefinition,
                             packageInstallTempDirectory,
-                            false).ConfigureAwait(false);
+                            false,
+                            cancellationToken).ConfigureAwait(false);
 
                     if (!installedMainPackage.HasValue)
                     {
@@ -631,7 +634,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (replaceFiles.Any())
                     {
-                        _logger.Debug("Possible replacing files {V}",
+                        _logger.Debug("Possible replacing files {Files}",
                             string.Join(", ",
                                 replaceFiles.Select(fileMatch =>
                                     $"'{fileMatch.TargetName}' replaced by --> '{fileMatch.ActionFile.FullName}'")));
@@ -708,15 +711,13 @@ namespace Milou.Deployer.Core.Deployment
                         {
                             if (!targetAppOffline.Exists)
                             {
-                                using (File.Create(targetAppOffline.FullName))
-                                {
-                                }
+                                using var _ = File.Create(targetAppOffline.FullName);
 
                                 _logger.Debug("Created offline file '{File}'", targetAppOffline.FullName);
 
                                 if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
                                 {
-                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline)
+                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline, cancellationToken)
                                         .ConfigureAwait(false);
                                 }
 
@@ -743,7 +744,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (hasPublishSettingsFile)
                     {
-                        _logger.Debug("The publish settings file '{PublishSettingsFile}' exist",
+                        _logger.Debug("The publish settings file '{PublishSettingsFile}' exists",
                             deploymentExecutionDefinition.PublishSettingsFile);
                     }
                     else
@@ -775,74 +776,81 @@ namespace Milou.Deployer.Core.Deployment
 
                     try
                     {
-                        using (IIISManager manager = _iisManager(deploymentExecutionDefinition))
+                        using IIISManager manager = _iisManager(deploymentExecutionDefinition);
+
+                        if (hasIisSiteName)
                         {
-                            if (hasIisSiteName)
+                            bool stopped = manager.StopSiteIfApplicable();
+
+                            if (!stopped)
                             {
-                                bool stopped = manager.StopSiteIfApplicable();
-
-                                if (!stopped)
-                                {
-                                    _logger.Error(
-                                        "Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}",
-                                        deploymentExecutionDefinition);
-                                    return ExitCode.Failure;
-                                }
-                            }
-
-                            try
-                            {
-                                if (deploymentExecutionDefinition.PublishType == PublishType.WebDeploy)
-                                {
-                                    summary = await _webDeployHelper.DeployContentToOneSiteAsync(
-                                        targetTempDirectoryInfo.FullName,
-                                        deploymentExecutionDefinition.PublishSettingsFile,
-                                        DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                                        doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
-                                        appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
-                                        useChecksum: ruleConfiguration.UseChecksumEnabled,
-                                        whatIf: ruleConfiguration.WhatIfEnabled,
-                                        traceLevel: TraceLevel.Verbose,
-                                        appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
-                                        applicationInsightsProfiler2SkipDirectiveEnabled:
-                                        ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
-                                        logAction: message => _logger.Debug("{Message}", message),
-                                        targetPath: hasPublishSettingsFile
-                                            ? string.Empty
-                                            : deploymentExecutionDefinition.TargetDirectoryPath
-                                    ).ConfigureAwait(false);
-                                }
-                                else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType)
-                                {
-                                    var basePath = deploymentExecutionDefinition.FtpPath;
-
-                                    bool isSecure = deploymentExecutionDefinition.PublishType == PublishType.Ftps;
-
-                                    var ftpSettings = new FtpSettings(basePath, isSecure);
-
-                                    using (FtpHandler ftpHandler = await FtpHandler.CreateWithPublishSettings(deploymentExecutionDefinition.PublishSettingsFile,
-                                        ftpSettings,
-                                        _logger))
-                                    {
-                                        summary = await ftpHandler.PublishAsync(ruleConfiguration,
-                                            targetTempDirectoryInfo,
-                                            cancellationToken);
-                                    }
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException(
-                                        $"Publish type {deploymentExecutionDefinition.PublishType} is not supported");
-                                }
-                            }
-                            catch (Exception ex) when (!ex.IsFatal())
-                            {
-                                _logger.Error(ex,
-                                    "Could not deploy site {DeploymentExecutionDefinition}",
+                                _logger.Error(
+                                    "Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}",
                                     deploymentExecutionDefinition);
-
                                 return ExitCode.Failure;
                             }
+                        }
+
+                        try
+                        {
+                            if (deploymentExecutionDefinition.PublishType == PublishType.WebDeploy)
+                            {
+                                _logger.Information("Deploying {Target} with WebDeploy", deploymentExecutionDefinition.TargetDirectoryPath);
+                                summary = await _webDeployHelper.DeployContentToOneSiteAsync(
+                                              targetTempDirectoryInfo.FullName,
+                                              deploymentExecutionDefinition.PublishSettingsFile,
+                                              DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                                              doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
+                                              appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
+                                              useChecksum: ruleConfiguration.UseChecksumEnabled,
+                                              whatIf: ruleConfiguration.WhatIfEnabled,
+                                              traceLevel: TraceLevel.Verbose,
+                                              appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
+                                              applicationInsightsProfiler2SkipDirectiveEnabled:
+                                              ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
+                                              logAction: message => _logger.Debug("{Message}", message),
+                                              targetPath: hasPublishSettingsFile
+                                                              ? string.Empty
+                                                              : deploymentExecutionDefinition.TargetDirectoryPath
+                                          ).ConfigureAwait(false);
+                            }
+                            else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType)
+                            {
+                                var basePath = deploymentExecutionDefinition.FtpPath;
+
+                                bool isSecure = deploymentExecutionDefinition.PublishType == PublishType.Ftps;
+
+                                var ftpSettings = new FtpSettings(basePath, isSecure);
+
+                                _logger.Information("Deploying {Target} with {PublishType}", deploymentExecutionDefinition.FtpPath?.Path, deploymentExecutionDefinition.PublishType);
+                                string publishSettingsFile = deploymentExecutionDefinition
+                                    .PublishSettingsFile;
+
+                                using FtpHandler ftpHandler = await FtpHandler.CreateWithPublishSettings(
+                                                                  publishSettingsFile,
+                                                                  ftpSettings,
+                                                                  _logger);
+
+                                _logger.Verbose("Created FTP handler, starting publish");
+
+                                summary = await ftpHandler.PublishAsync(
+                                              ruleConfiguration,
+                                              targetTempDirectoryInfo,
+                                              cancellationToken);
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException(
+                                    $"Publish type {deploymentExecutionDefinition.PublishType} is not supported");
+                            }
+                        }
+                        catch (Exception ex) when (!ex.IsFatal())
+                        {
+                            _logger.Error(ex,
+                                "Could not deploy site {DeploymentExecutionDefinition}",
+                                deploymentExecutionDefinition);
+
+                            return ExitCode.Failure;
                         }
                     }
                     catch (Exception ex) when (!ex.IsFatal())

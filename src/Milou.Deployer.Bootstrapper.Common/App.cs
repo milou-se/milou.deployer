@@ -7,7 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Processing;
 using Arbor.Tooler;
+
+using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Logging;
+
+using NuGet.Versioning;
+
 using Serilog;
 
 namespace Milou.Deployer.Bootstrapper.Common
@@ -77,6 +82,97 @@ namespace Milou.Deployer.Bootstrapper.Common
             }
         }
 
+        private async Task<(NuGetPackageInstallResult,FileInfo)> GetDeployerExePathAsync(ImmutableArray<string> appArgs, NuGetPackageId nuGetPackageId, CancellationToken cancellationToken)
+        {
+            NuGetPackageInstallResult nuGetPackageInstallResult;
+
+            FileInfo deployerToolFile = GetDeployerExeFromArgs(appArgs);
+
+            if (deployerToolFile is { })
+            {
+                nuGetPackageInstallResult = new NuGetPackageInstallResult(
+                    nuGetPackageId,
+                    new SemanticVersion(1, 0, 0),
+                    deployerToolFile.Directory);
+            }
+            else
+            {
+                string nugetSource = GetNuGetSource(appArgs);
+                string nugetConfig = GetNuGetConfig(appArgs);
+
+                try
+                {
+                    bool allowPreRelease = appArgs.Any(
+                        arg => arg.Equals(Constants.AllowPreRelease, StringComparison.OrdinalIgnoreCase));
+
+                    _logger.Debug("Pre-release flag set to {Flag}", allowPreRelease);
+
+                    var nuGetPackage = new NuGetPackage(nuGetPackageId, NuGetPackageVersion.LatestAvailable);
+
+                    _logger.Debug("Downloading package {Package}", nuGetPackage);
+
+                    nuGetPackageInstallResult = await _packageInstaller.InstallPackageAsync(
+                                                    nuGetPackage,
+                                                    new NugetPackageSettings(allowPreRelease, nugetSource, nugetConfig),
+                                                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    _logger.Error(ex, "Could not download NuGet packages");
+                    throw new InvalidOperationException(NuGetPackageInstallResult.Failed(nuGetPackageId).ToString());
+                }
+
+                if (nuGetPackageInstallResult.PackageDirectory is null
+                    || nuGetPackageInstallResult.SemanticVersion is null)
+                {
+                    _logger.Error("Could not download NuGet package {PackageId}", nuGetPackageId);
+                    return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo)null);
+                }
+
+                if (IsDownloadOnly(appArgs))
+                {
+                    return (nuGetPackageInstallResult, (FileInfo)null);
+                }
+
+                string deployerToolFilePath = Path.Combine(
+                    nuGetPackageInstallResult.PackageDirectory.FullName,
+                    "tools",
+                    "net472",
+                    "Milou.Deployer.ConsoleClient.exe");
+
+                deployerToolFile = new FileInfo(deployerToolFilePath);
+            }
+
+            if (!deployerToolFile.Exists)
+            {
+                string[] existingFiles =
+                    nuGetPackageInstallResult.PackageDirectory.GetFiles("", SearchOption.AllDirectories)
+                        .Select(file => file.FullName).ToArray();
+
+                _logger.Error("The extracted file '{File}' does not exist, existing files {ExistingFiles}",
+                    deployerToolFile,
+                    existingFiles);
+
+                return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo)null);
+            }
+
+            return (nuGetPackageInstallResult, deployerToolFile);
+        }
+
+        private FileInfo GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
+        {
+            var exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
+
+            if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
+            {
+                exePath = null;
+            }
+
+            return new FileInfo(exePath);
+        }
+
+        private static bool IsDownloadOnly(ImmutableArray<string> appArgs) => appArgs.Any(arg => arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase));
+
         public async Task<NuGetPackageInstallResult> ExecuteAsync(
             ImmutableArray<string> appArgs,
             CancellationToken cancellationToken = default,
@@ -87,68 +183,23 @@ namespace Milou.Deployer.Bootstrapper.Common
                 throw new ArgumentException("Arguments cannot be default", nameof(appArgs));
             }
 
-            NuGetPackageInstallResult nuGetPackageInstallResult;
-
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
-            string nugetSource = GetNuGetSource(appArgs);
-            string nugetConfig = GetNuGetConfig(appArgs);
+            var (nugetInstallResult, deployerExeFileInfo) = await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
 
-            try
+            if (IsDownloadOnly(appArgs))
             {
-                bool allowPreRelease = appArgs.Any(arg =>
-                    arg.Equals(Constants.AllowPreRelease, StringComparison.OrdinalIgnoreCase));
-
-                _logger.Debug("Pre-release flag set to {Flag}", allowPreRelease);
-
-                var nuGetPackage = new NuGetPackage(nuGetPackageId, NuGetPackageVersion.LatestAvailable);
-
-                _logger.Debug("Downloading package {Package}", nuGetPackage);
-
-                nuGetPackageInstallResult =
-                    await _packageInstaller.InstallPackageAsync(
-                        nuGetPackage,
-                        new NugetPackageSettings(allowPreRelease, nugetSource, nugetConfig),
-                        cancellationToken: cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Could not download NuGet packages");
-                return NuGetPackageInstallResult.Failed(nuGetPackageId);
+                return nugetInstallResult;
             }
 
-            if (nuGetPackageInstallResult.PackageDirectory is null || nuGetPackageInstallResult.SemanticVersion is null)
+            if (deployerExeFileInfo is null)
             {
-                _logger.Error("Could not download NuGet package {PackageId}", nuGetPackageId);
-                return NuGetPackageInstallResult.Failed(nuGetPackageId);
+                return nugetInstallResult;
             }
 
-            if (appArgs.Any(arg => arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase)))
-            {
-                return nuGetPackageInstallResult;
-            }
+            string deployerExePath = deployerExeFileInfo.FullName;
 
-            string deployerToolFilePath = Path.Combine(nuGetPackageInstallResult.PackageDirectory.FullName,
-                "tools",
-                "net472",
-                "Milou.Deployer.ConsoleClient.exe");
-
-            var deployerToolFile = new FileInfo(deployerToolFilePath);
-
-            if (!deployerToolFile.Exists)
-            {
-                string[] existingFiles =
-                    nuGetPackageInstallResult.PackageDirectory.GetFiles("", SearchOption.AllDirectories)
-                        .Select(file => file.FullName).ToArray();
-
-                _logger.Error("The extracted file '{File}' does not exist, existing files {ExistingFiles}",
-                    deployerToolFile.FullName,
-                    existingFiles);
-
-                return NuGetPackageInstallResult.Failed(nuGetPackageId);
-            }
-
-            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(deployerToolFile.FullName,
+            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(deployerExePath,
                     appArgs,
                     standardOutLog: (message, category) => _logger.ParseAndLog(message, category),
                     standardErrorAction: (message, category) =>
@@ -159,14 +210,14 @@ namespace Milou.Deployer.Bootstrapper.Common
             if (!exitCode.IsSuccess)
             {
                 _logger.Error("The process {Process} {Arguments} failed with exit code {ExitCode}",
-                    deployerToolFile,
+                    deployerExePath,
                     appArgs,
                     exitCode);
 
                 return NuGetPackageInstallResult.Failed(nuGetPackageId);
             }
 
-            return nuGetPackageInstallResult;
+            return nugetInstallResult;
         }
 
         private static string GetNuGetSource(ImmutableArray<string> appArgs)
@@ -179,7 +230,7 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             var exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
 
-            if (!string.IsNullOrWhiteSpace(exePath) && !File.Exists(exePath))
+            if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
                 exePath = null;
             }
@@ -191,7 +242,7 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             var nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
 
-            if (!string.IsNullOrWhiteSpace(nugetConfig) && !File.Exists(nugetConfig))
+            if (string.IsNullOrWhiteSpace(nugetConfig) || !File.Exists(nugetConfig))
             {
                 nugetConfig = null;
             }

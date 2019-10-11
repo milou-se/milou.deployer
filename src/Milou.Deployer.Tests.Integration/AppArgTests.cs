@@ -59,7 +59,7 @@ namespace Milou.Deployer.Tests.Integration
             try
             {
                 oldTemp = Path.GetTempPath();
-                string[] args = { $"{TempKey}=C:\\temp\\" };
+                string[] args = { $"-{TempKey}=C:\\temp\\" };
 
                 CancellationToken cancellationToken = default;
 

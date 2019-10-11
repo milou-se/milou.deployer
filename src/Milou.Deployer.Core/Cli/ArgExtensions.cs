@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Milou.Deployer.Bootstrapper.Common
+namespace Milou.Deployer.Core.Cli
 {
     public static class ArgExtensions
     {

@@ -15,7 +15,7 @@ namespace Milou.Deployer.Bootstrapper
             {
                 NuGetPackageInstallResult nuGetPackageInstallResult = await app.ExecuteAsync(args.ToImmutableArray()).ConfigureAwait(false);
 
-                exitCode = nuGetPackageInstallResult.SemanticVersion != null && nuGetPackageInstallResult.PackageDirectory != null ? 0 : 1;
+                exitCode = nuGetPackageInstallResult.SemanticVersion is {} && nuGetPackageInstallResult.PackageDirectory is {} ? 0 : 1;
             }
 
             return exitCode;

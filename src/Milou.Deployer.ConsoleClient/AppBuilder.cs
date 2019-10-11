@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,17 +21,20 @@ using Milou.Deployer.Waws;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Milou.Deployer.Core.Cli;
 
 namespace Milou.Deployer.ConsoleClient
 {
     public static class AppBuilder
     {
-        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] args, ILogger logger = null, CancellationToken cancellationToken = default)
+        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] inputArgs, ILogger logger = null, CancellationToken cancellationToken = default)
         {
-            if (args == null)
+            if (inputArgs == null)
             {
-                throw new ArgumentNullException(nameof(args));
+                throw new ArgumentNullException(nameof(inputArgs));
             }
+
+            var args = inputArgs.ToImmutableArray();
 
             bool hasDefinedLogger = logger != null;
 
@@ -81,9 +85,14 @@ namespace Milou.Deployer.ConsoleClient
                         appSettingsBuilder.Add(new JsonKeyValueConfiguration(configurationFile, false));
                 }
 
+                var argsAsParameters = args
+                    .Where(arg => arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))
+                    .Select(arg => arg.TrimStart('-'))
+                    .ToImmutableArray();
+
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
                     .Add(new EnvironmentVariableKeyValueConfigurationSource())
-                    .AddCommandLineArgsSettings(args)
+                    .AddCommandLineArgsSettings(argsAsParameters)
                     .Add(new UserJsonConfiguration())
                     .Build();
 
@@ -125,6 +134,9 @@ namespace Milou.Deployer.ConsoleClient
                 {
                     logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
                 }
+
+                var nugetSource = args.GetArgumentValueOrDefault("nuget-source");
+                var nugetConfig = args.GetArgumentValueOrDefault("nuget-config");
 
                 var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(
                     true,
@@ -173,7 +185,8 @@ namespace Milou.Deployer.ConsoleClient
                 var deployerConfiguration = new DeployerConfiguration(webDeployConfig)
                 {
                     NuGetExePath = nuGetExePath,
-                    NuGetConfig = configuration[ConfigurationKeys.NuGetConfig],
+                    NuGetConfig = nugetConfig.WithDefault(configuration[ConfigurationKeys.NuGetConfig]),
+                    NuGetSource = nugetSource.WithDefault(configuration[ConfigurationKeys.NuGetSource]),
                     AllowPreReleaseEnabled = allowPreReleaseEnabled,
                     StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled]
                         .ParseAsBooleanOrDefault(true)
@@ -211,7 +224,7 @@ namespace Milou.Deployer.ConsoleClient
             }
         }
 
-        private static string GetOutputTemplate(string[] args)
+        private static string GetOutputTemplate(ImmutableArray<string> args)
         {
             if (args.Any(arg =>
                 arg.Equals(LoggingConstants.PlainOutputFormatEnabled, StringComparison.OrdinalIgnoreCase)))
