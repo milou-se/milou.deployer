@@ -165,7 +165,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
-                exePath = null;
+                return null;
             }
 
             return new FileInfo(exePath);
