@@ -823,8 +823,13 @@ namespace Milou.Deployer.Core.Deployment
                                 var ftpSettings = new FtpSettings(basePath, isSecure);
 
                                 _logger.Information("Deploying {Target} with {PublishType}", deploymentExecutionDefinition.FtpPath?.Path, deploymentExecutionDefinition.PublishType);
-                                string publishSettingsFile = deploymentExecutionDefinition
-                                    .PublishSettingsFile;
+                                string publishSettingsFile = deploymentExecutionDefinition.PublishSettingsFile;
+
+                                if (string.IsNullOrWhiteSpace(publishSettingsFile))
+                                {
+                                    _logger.Error("Deployment target type is set to {Type} but no publish file is set", deploymentExecutionDefinition.PublishTypeValue);
+                                    return ExitCode.Failure;
+                                }
 
                                 using FtpHandler ftpHandler = await FtpHandler.CreateWithPublishSettings(
                                                                   publishSettingsFile,
