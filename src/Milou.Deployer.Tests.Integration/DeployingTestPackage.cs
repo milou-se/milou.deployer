@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Arbor.Aesculus.Core;
+
 using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
@@ -18,7 +21,7 @@ namespace Milou.Deployer.Tests.Integration
     {
         public DeployingTestPackage(ITestOutputHelper output) => _output = output;
 
-        public const string PackageId = "MilouDeployerWebTest";
+        public const string PackageId = "MyPackage";
 
         private readonly ITestOutputHelper _output;
 
@@ -37,7 +40,7 @@ namespace Milou.Deployer.Tests.Integration
       ""Parameters"": {{}},
       ""TargetDirectoryPath"": ""{testTargetDirectory.FullName.Replace("\\", "\\\\")}"",
       ""IsPreRelease"": false,
-      ""Version"": ""1.2.0"",
+      ""SemanticVersion"": ""1.0.0"",
       ""RequireEnvironmentConfig"": false,
       ""IisSitename"": null,
       ""NuGetConfigFile"": null,
@@ -87,7 +90,14 @@ namespace Milou.Deployer.Tests.Integration
 
                                     Assert.Single(deploymentExecutionDefinition.definitions);
 
-                                    string[] args = { tempFile.File.FullName };
+                                    string nugetConfig = Path.Combine(
+                                        VcsTestPathHelper.FindVcsRootPath(),
+                                        "src",
+                                        "Milou.Deployer.Tests.Integration",
+                                        "Config",
+                                        "NuGet.Config");
+
+                                    string[] args = { tempFile.File.FullName, "-nuget-config=" + nugetConfig };
 
                                     var logger = new LoggerConfiguration()
                                         .WriteTo.TestSink(_output)
@@ -96,6 +106,7 @@ namespace Milou.Deployer.Tests.Integration
 
                                     using (logger)
                                     {
+
                                         using (var deployerApp = await
                                             AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                         {

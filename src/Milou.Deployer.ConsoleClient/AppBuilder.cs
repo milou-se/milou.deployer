@@ -135,8 +135,8 @@ namespace Milou.Deployer.ConsoleClient
                     logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
                 }
 
-                var nugetSource = args.GetArgumentValueOrDefault("nuget-source");
-                var nugetConfig = args.GetArgumentValueOrDefault("nuget-config");
+                string nugetSource = args.GetArgumentValueOrDefault("nuget-source");
+                string nugetConfig = args.GetArgumentValueOrDefault("nuget-config");
 
                 var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(
                     true,

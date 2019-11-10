@@ -56,6 +56,9 @@ namespace Milou.Deployer.Tests.Integration
         {
             string tempPath;
             string oldTemp = default;
+
+            Directory.CreateDirectory(@"C:\temp");
+
             try
             {
                 oldTemp = Path.GetTempPath();
