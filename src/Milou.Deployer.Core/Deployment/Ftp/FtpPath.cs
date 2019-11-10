@@ -3,7 +3,7 @@ using System.Linq;
 
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public sealed class FtpPath : IEquatable<FtpPath>
     {

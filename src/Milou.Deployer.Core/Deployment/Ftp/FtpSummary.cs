@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public class FtpSummary : IDeploymentChangeSummary
     {

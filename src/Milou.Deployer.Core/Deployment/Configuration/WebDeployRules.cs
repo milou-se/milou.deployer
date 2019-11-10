@@ -1,6 +1,6 @@
 ﻿using Arbor.KVConfiguration.Core.Metadata;
 
-namespace Milou.Deployer.Core.Configuration
+namespace Milou.Deployer.Core.Deployment.Configuration
 {
     public static class WebDeployRules
     {

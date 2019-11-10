@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Core.Deployment
+﻿namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public enum FileSystemType
     {

@@ -10,6 +10,8 @@ using Arbor.Aesculus.Core;
 using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.IO;
+
 using Newtonsoft.Json;
 using Serilog;
 using Xunit;

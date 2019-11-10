@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public sealed class FtpResponse : IDisposable
     {

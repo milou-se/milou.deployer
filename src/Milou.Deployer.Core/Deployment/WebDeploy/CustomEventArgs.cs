@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Deployment.WebDeploy
 {
     public class CustomEventArgs : EventArgs
     {

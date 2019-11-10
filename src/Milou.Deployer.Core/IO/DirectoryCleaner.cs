@@ -14,10 +14,7 @@ namespace Milou.Deployer.Core.IO
     {
         private readonly ILogger _logger;
 
-        public DirectoryCleaner([NotNull] ILogger logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        public DirectoryCleaner([NotNull] ILogger logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public async Task CleanFilesAsync([NotNull] IList<string> files, int attempt = 0)
         {
@@ -47,14 +44,10 @@ namespace Milou.Deployer.Core.IO
                         _logger.Verbose("Deleting clean file '{CleanFile}'", file);
 
                         File.Delete(file);
-
-                        files.Remove(file);
                         _logger.Verbose("Deleted clean file '{CleanFile}'", file);
                     }
-                    else
-                    {
-                        files.Remove(file);
-                    }
+
+                    files.Remove(file);
                 }
                 catch (Exception ex) when(!ex.IsFatal())
                 {
@@ -105,13 +98,15 @@ namespace Milou.Deployer.Core.IO
                         message.AppendLine(innerException.ToString());
                     }
 
-                    _logger.Warning("Could not delete directory or any of it's sub paths '{FullName}', {Message}",
+                    _logger.Warning(
+                        "Could not delete directory or any of it's sub paths '{FullName}', {Message}",
                         tempDirectory.FullName,
                         message);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Warning(ex,
+                    _logger.Warning(
+                        ex,
                         "Could not delete directory or any of it's sub paths '{FullName}'",
                         tempDirectory.FullName);
                 }

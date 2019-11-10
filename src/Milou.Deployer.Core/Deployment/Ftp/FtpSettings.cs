@@ -1,6 +1,6 @@
 ﻿using Serilog.Events;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public class FtpSettings
     {

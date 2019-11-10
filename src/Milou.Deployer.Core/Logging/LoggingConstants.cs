@@ -1,6 +1,6 @@
 ﻿using Arbor.KVConfiguration.Core.Metadata;
 
-namespace Milou.Deployer.Core
+namespace Milou.Deployer.Core.Logging
 {
     public static class LoggingConstants
     {

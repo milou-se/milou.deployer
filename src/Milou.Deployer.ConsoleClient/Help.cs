@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Milou.Deployer.Core;
+using Milou.Deployer.Core.Logging;
 
 namespace Milou.Deployer.ConsoleClient
 {

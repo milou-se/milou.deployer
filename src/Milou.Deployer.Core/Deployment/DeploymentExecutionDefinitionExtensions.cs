@@ -2,6 +2,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.Core.Deployment.Configuration;
 
 namespace Milou.Deployer.Core.Deployment
 {

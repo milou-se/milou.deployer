@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Extensions
 {
     internal static class EnumerateOf<T> where T : class
     {

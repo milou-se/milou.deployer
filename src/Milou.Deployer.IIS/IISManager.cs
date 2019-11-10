@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.Web.Administration;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Extensions;
 using Serilog;
 using Serilog.Events;

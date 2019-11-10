@@ -8,6 +8,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Extensions;
 using NuGet.Packaging;
 using NuGet.Versioning;

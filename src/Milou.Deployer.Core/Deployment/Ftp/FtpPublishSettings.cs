@@ -2,9 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public class FtpPublishSettings
     {

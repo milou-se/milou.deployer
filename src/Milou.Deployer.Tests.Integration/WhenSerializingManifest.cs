@@ -2,6 +2,8 @@
 using System.Collections.Immutable;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Configuration;
+
 using Newtonsoft.Json;
 using NuGet.Versioning;
 using Xunit;

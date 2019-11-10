@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Ftp;
+
 using Xunit;
 using Xunit.Abstractions;
 

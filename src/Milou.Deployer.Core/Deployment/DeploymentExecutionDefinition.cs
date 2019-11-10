@@ -4,6 +4,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
+
+using Milou.Deployer.Core.Deployment.Ftp;
+
 using Newtonsoft.Json;
 using NuGet.Versioning;
 

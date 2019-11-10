@@ -8,15 +8,18 @@ using System.Net;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
+
 using FluentFTP;
+
 using JetBrains.Annotations;
 
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Core.IO;
 
 using Serilog;
 using Serilog.Core;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public sealed class FtpHandler : IDisposable
     {

@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Core.XmlTransformation;
+
 using Serilog;
 
 namespace Milou.Deployer.Core.IO

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
+
 using Milou.Deployer.Core.Extensions;
 
-namespace Milou.Deployer.Core
+namespace Milou.Deployer.Core.IO
 {
     internal sealed class TempFile : IDisposable
     {

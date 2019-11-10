@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.Core.Deployment.Configuration;
+
 using Serilog;
 
 namespace Milou.Deployer.Core.Deployment

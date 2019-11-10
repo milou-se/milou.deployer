@@ -6,6 +6,8 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.WebDeploy;
+
 using Serilog;
 
 namespace Milou.Deployer.Waws

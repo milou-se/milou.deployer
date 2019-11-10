@@ -3,6 +3,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 
+using Milou.Deployer.Core.Extensions;
+
 namespace Milou.Deployer.Core.Deployment
 {
     public sealed class PublishType : IEquatable<PublishType>
