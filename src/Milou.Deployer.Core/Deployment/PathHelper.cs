@@ -6,20 +6,6 @@ namespace Milou.Deployer.Core.Deployment
 {
     public static class PathHelper
     {
-        private static string GetRelative(string fullName, string baseFullName)
-        {
-            if (!fullName.StartsWith(baseFullName, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException($"The file path '{fullName}' does not start with '{baseFullName}'");
-            }
-
-            string substring = fullName.Substring(baseFullName.Length);
-
-            string relative = $"/{substring.Replace("\\", "/").TrimStart('/')}";
-
-            return relative;
-        }
-
         public static string RelativePath([NotNull] FileInfo fileInfo, [NotNull] DirectoryInfo baseDirectory)
         {
             if (fileInfo == null)
@@ -57,6 +43,20 @@ namespace Milou.Deployer.Core.Deployment
 
 
             return GetRelative(fullName, baseFullName);
+        }
+
+        private static string GetRelative(string fullName, string baseFullName)
+        {
+            if (!fullName.StartsWith(baseFullName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException($"The file path '{fullName}' does not start with '{baseFullName}'");
+            }
+
+            string substring = fullName.Substring(baseFullName.Length);
+
+            string relative = $"/{substring.Replace("\\", "/").TrimStart('/')}";
+
+            return relative;
         }
     }
 }

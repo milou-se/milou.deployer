@@ -30,45 +30,51 @@ namespace Milou.Deployer.Core.Deployment
 
         public static RuleConfiguration Get(
             DeploymentExecutionDefinition deploymentExecutionDefinition,
-            DeployerConfiguration DeployerConfiguration,
-            ILogger _logger)
+            DeployerConfiguration deployerConfiguration,
+            ILogger logger)
         {
-            bool doNotDeleteEnabled = deploymentExecutionDefinition.DoNotDeleteEnabled(DeployerConfiguration
+            bool doNotDeleteEnabled = deploymentExecutionDefinition.DoNotDeleteEnabled(deployerConfiguration
                 .WebDeploy.Rules.DoNotDeleteRuleEnabled);
 
-            bool useChecksumEnabled = deploymentExecutionDefinition.UseChecksumEnabled(DeployerConfiguration
+            bool useChecksumEnabled = deploymentExecutionDefinition.UseChecksumEnabled(deployerConfiguration
                 .WebDeploy.Rules.UseChecksumRuleEnabled);
 
             bool appDataSkipDirectiveEnabled = deploymentExecutionDefinition.AppDataSkipDirectiveEnabled(
-                DeployerConfiguration
+                deployerConfiguration
                     .WebDeploy.Rules.AppDataSkipDirectiveEnabled);
 
             bool applicationInsightsProfiler2SkipDirectiveEnabled =
                 deploymentExecutionDefinition.ApplicationInsightsProfiler2SkipDirectiveEnabled(
-                    DeployerConfiguration
+                    deployerConfiguration
                         .WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
 
-            bool appOfflineEnabled = deploymentExecutionDefinition.AppOfflineEnabled(DeployerConfiguration
+            bool appOfflineEnabled = deploymentExecutionDefinition.AppOfflineEnabled(deployerConfiguration
                 .WebDeploy.Rules.AppOfflineRuleEnabled);
 
             bool whatIfEnabled = deploymentExecutionDefinition.WhatIfEnabled();
 
-            _logger.Debug("{RuleName}: {DoNotDeleteEnabled}",
-                nameof(DeployerConfiguration.WebDeploy.Rules.DoNotDeleteRuleEnabled),
+            logger.Debug(
+                "{RuleName}: {DoNotDeleteEnabled}",
+                nameof(deployerConfiguration.WebDeploy.Rules.DoNotDeleteRuleEnabled),
                 doNotDeleteEnabled);
-            _logger.Debug("{RuleName}: {AppOfflineEnabled}",
-                nameof(DeployerConfiguration.WebDeploy.Rules.AppOfflineRuleEnabled),
+            logger.Debug(
+                "{RuleName}: {AppOfflineEnabled}",
+                nameof(deployerConfiguration.WebDeploy.Rules.AppOfflineRuleEnabled),
                 appOfflineEnabled);
-            _logger.Debug("{RuleName}: {UseChecksumEnabled}",
-                nameof(DeployerConfiguration.WebDeploy.Rules.UseChecksumRuleEnabled),
+            logger.Debug(
+                "{RuleName}: {UseChecksumEnabled}",
+                nameof(deployerConfiguration.WebDeploy.Rules.UseChecksumRuleEnabled),
                 useChecksumEnabled);
-            _logger.Debug("{RuleName}: {AppDataSkipDirectiveEnabled}",
-                nameof(DeployerConfiguration.WebDeploy.Rules.AppDataSkipDirectiveEnabled),
+            logger.Debug(
+                "{RuleName}: {AppDataSkipDirectiveEnabled}",
+                nameof(deployerConfiguration.WebDeploy.Rules.AppDataSkipDirectiveEnabled),
                 appDataSkipDirectiveEnabled);
-            _logger.Debug("{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
-                nameof(DeployerConfiguration.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled),
+            logger.Debug(
+                "{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
+                nameof(deployerConfiguration.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled),
                 applicationInsightsProfiler2SkipDirectiveEnabled);
-            _logger.Debug("{RuleName}: {WhatIfEnabled}",
+            logger.Debug(
+                "{RuleName}: {WhatIfEnabled}",
                 nameof(DeploymentExecutionDefinitionExtensions.WhatIfEnabled),
                 whatIfEnabled);
 

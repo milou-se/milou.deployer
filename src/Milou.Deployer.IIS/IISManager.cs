@@ -115,7 +115,8 @@ namespace Milou.Deployer.IIS
 
                 if (!_configuration.StopStartIisWebSiteEnabled)
                 {
-                    _logger.Warning("The deployer configuration has {Property} set to false",
+                    _logger.Warning(
+                        "The deployer configuration has {Property} set to false",
                         nameof(_configuration.StopStartIisWebSiteEnabled));
                     return false;
                 }

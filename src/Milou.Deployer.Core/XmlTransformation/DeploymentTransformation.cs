@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
-using Arbor.Xdt;
 using JetBrains.Annotations;
+
+using Microsoft.Web.XmlTransform;
+
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
 using Serilog;
@@ -51,7 +53,7 @@ namespace Milou.Deployer.Core.XmlTransformation
                             x.PreserveWhitespace = true;
                             x.Load(webConfig.FullName);
 
-                            using (var transform = new Arbor.Xdt.XmlTransformation(transformFile.FullName))
+                            using (var transform = new Microsoft.Web.XmlTransform.XmlTransformation(transformFile.FullName))
                             {
                                 bool succeed = transform.Apply(x);
 

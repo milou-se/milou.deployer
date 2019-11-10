@@ -82,8 +82,6 @@ namespace Milou.Deployer.ConsoleClient
 
             PrintEnvironmentVariables(args);
 
-            PrintAvailableArguments();
-
             string[] parameterArgs =
                 args.Where(arg => arg.IndexOf("=", StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
 
@@ -144,15 +142,6 @@ namespace Milou.Deployer.ConsoleClient
             }
 
             return _appExit.Exit(exitCode);
-        }
-
-        private void PrintAvailableArguments()
-        {
-            if (_appSettings is MultiSourceKeyValueConfiguration
-                    multiSourceKeyValueConfiguration && Logger.IsEnabled(LogEventLevel.Verbose))
-            {
-                Logger.Verbose("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
-            }
         }
 
         private void PrintVersion()

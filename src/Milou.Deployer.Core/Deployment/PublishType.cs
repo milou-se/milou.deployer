@@ -11,8 +11,6 @@ namespace Milou.Deployer.Core.Deployment
         public static readonly PublishType Ftps = new PublishType(nameof(Ftps));
         public static readonly PublishType WebDeploy = new PublishType(nameof(WebDeploy));
 
-        public bool IsAnyFtpType => Equals(Ftp) || Equals(Ftps);
-
         private PublishType([NotNull] string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -23,9 +21,13 @@ namespace Milou.Deployer.Core.Deployment
             Name = name;
         }
 
-        public string Name { get; }
-
         public static PublishType Default => WebDeploy;
+
+        public static ImmutableArray<PublishType> All => EnumerateOf<PublishType>.All;
+
+        public bool IsAnyFtpType => Equals(Ftp) || Equals(Ftps);
+
+        public string Name { get; }
 
         public static bool TryParseOrDefault(string value, out PublishType publishType)
         {
@@ -42,6 +44,10 @@ namespace Milou.Deployer.Core.Deployment
             return found != null;
         }
 
+        public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);
+
+        public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
+
         public bool Equals(PublishType other)
         {
             if (other is null)
@@ -57,15 +63,9 @@ namespace Milou.Deployer.Core.Deployment
             return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is PublishType other && Equals(other);
+        public override bool Equals(object obj) => ReferenceEquals(this, obj) || (obj is PublishType other && Equals(other));
 
         public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
-
-        public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);
-
-        public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
-
-        public static ImmutableArray<PublishType> All => EnumerateOf<PublishType>.All;
 
         public override string ToString() => Name;
     }
