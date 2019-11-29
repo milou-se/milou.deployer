@@ -14,6 +14,9 @@ using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
+
+using NuGet.Versioning;
+
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -123,14 +126,24 @@ namespace Milou.Deployer.ConsoleClient
 
                     string version = args.GetArgumentValueOrDefault("version");
 
-                    if (!hasArgs)
-                    {
-                        Logger.Verbose(
-                            "No arguments were supplied, falling back trying to find a manifest based on current path, looking for '{FallbackManifestPath}'",
-                            fallbackManifestPath);
-                    }
+                    SemanticVersion semanticVersion = default;
 
-                    exitCode = await ExecuteAsync(manifestFile, version, cancellationToken).ConfigureAwait(false);
+                    if (!string.IsNullOrWhiteSpace(version) && !SemanticVersion.TryParse(version, out semanticVersion))
+                    {
+                        Logger.Error("Argument version '{Version}' is not a valid semantic version", version);
+                        exitCode = ExitCode.Failure;
+                    }
+                    else
+                    {
+                        if (!hasArgs)
+                        {
+                            Logger.Verbose(
+                                "No arguments were supplied, falling back trying to find a manifest based on current path, looking for '{FallbackManifestPath}'",
+                                fallbackManifestPath);
+                        }
+
+                        exitCode = await ExecuteAsync(manifestFile, semanticVersion, cancellationToken).ConfigureAwait(false);
+                    }
                 }
                 else
                 {
@@ -171,7 +184,7 @@ namespace Milou.Deployer.ConsoleClient
                 executingAssembly.Location);
         }
 
-        private async Task<ExitCode> ExecuteAsync(string file, string version, CancellationToken cancellationToken = default)
+        private async Task<ExitCode> ExecuteAsync(string file, SemanticVersion version, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -207,7 +220,7 @@ namespace Milou.Deployer.ConsoleClient
             Logger.Verbose("{Definitions}",
                 string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
 
-            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, cancellationToken).ConfigureAwait(false);
+            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, version, cancellationToken).ConfigureAwait(false);
 
             if (exitCode.IsSuccess)
             {

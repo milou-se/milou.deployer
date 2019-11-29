@@ -37,7 +37,7 @@ namespace Milou.Deployer.Core.NuGet
             DeploymentExecutionDefinition deploymentExecutionDefinition,
             DirectoryInfo tempDirectory,
             bool includeVersion = true,
-            string explicitVersion = null,
+            SemanticVersion explicitVersion = null,
             CancellationToken cancellationToken = default)
         {
             if (deploymentExecutionDefinition == null)
@@ -70,9 +70,9 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add(value);
             }
 
-            if (!string.IsNullOrWhiteSpace(explicitVersion))
+            if (explicitVersion != null)
             {
-                AddVersion(explicitVersion);
+                AddVersion(explicitVersion.ToNormalizedString());
             }
             else if (deploymentExecutionDefinition.SemanticVersion.HasValue)
             {

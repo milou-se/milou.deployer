@@ -311,6 +311,7 @@ namespace Milou.Deployer.Core.Deployment
                             deploymentDefinition,
                             tempOutputDirectory,
                             false,
+                            null,
                             cancellationToken).ConfigureAwait(false);
 
                 if (!installedEnvironmentPackage.HasValue)
@@ -475,7 +476,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public async Task<ExitCode> DeployAsync(
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
-            string explicitVersion,
+            SemanticVersion explicitVersion,
             CancellationToken cancellationToken = default)
         {
             if (!deploymentExecutionDefinitions.Any())
@@ -556,9 +557,10 @@ namespace Milou.Deployer.Core.Deployment
                         packagesDirectory.Single(directory =>
                             directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
 
-                    SemanticVersion version = GetSemanticVersionFromDefinition(deploymentExecutionDefinition,
-                        packageDirectory,
-                        installedPackage.Version);
+                    SemanticVersion version = explicitVersion ?? GetSemanticVersionFromDefinition(
+                                                  deploymentExecutionDefinition,
+                                                  packageDirectory,
+                                                  installedPackage.Version);
 
                     _logger.Verbose("Package version is {Version}", version.ToNormalizedString());
 
