@@ -475,6 +475,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public async Task<ExitCode> DeployAsync(
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
+            string explicitVersion,
             CancellationToken cancellationToken = default)
         {
             if (!deploymentExecutionDefinitions.Any())
@@ -528,6 +529,7 @@ namespace Milou.Deployer.Core.Deployment
                             deploymentExecutionDefinition,
                             packageInstallTempDirectory,
                             false,
+                            explicitVersion,
                             cancellationToken).ConfigureAwait(false);
 
                     if (!installedMainPackage.HasValue)

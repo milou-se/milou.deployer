@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using JetBrains.Annotations;
+
+using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
@@ -119,6 +121,8 @@ namespace Milou.Deployer.ConsoleClient
                         ? fallbackManifestPath
                         : nonFlagArgs[0];
 
+                    string version = args.GetArgumentValueOrDefault("version");
+
                     if (!hasArgs)
                     {
                         Logger.Verbose(
@@ -126,7 +130,7 @@ namespace Milou.Deployer.ConsoleClient
                             fallbackManifestPath);
                     }
 
-                    exitCode = await ExecuteAsync(manifestFile, cancellationToken).ConfigureAwait(false);
+                    exitCode = await ExecuteAsync(manifestFile, version, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -167,7 +171,7 @@ namespace Milou.Deployer.ConsoleClient
                 executingAssembly.Location);
         }
 
-        private async Task<ExitCode> ExecuteAsync(string file, CancellationToken cancellationToken = default)
+        private async Task<ExitCode> ExecuteAsync(string file, string version, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(file))
             {
