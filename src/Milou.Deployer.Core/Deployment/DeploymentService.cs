@@ -686,12 +686,16 @@ namespace Milou.Deployer.Core.Deployment
                     DirectoryInfo applicationMetadataTargetDirectory =
                         wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
 
-                    ApplicationMetadataCreator.SetVersionFile(installedMainPackage.Value,
+                    string versionFile = ApplicationMetadataCreator.SetVersionFile(
+                        installedMainPackage.Value,
                         applicationMetadataTargetDirectory,
                         deploymentExecutionDefinition,
                         xmlTransformedFiles,
                         replacedFiles,
-                        environmentPackageResult);
+                        environmentPackageResult,
+                        _logger);
+
+                    _logger.Information("Successfully wrote metadata file {Path}", versionFile);
 
                     _logger.Verbose("Copying content files to '{FullName}'", targetTempDirectoryInfo.FullName);
 
