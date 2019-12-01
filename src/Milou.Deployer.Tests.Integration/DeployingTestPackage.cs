@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -108,7 +109,6 @@ namespace Milou.Deployer.Tests.Integration
 
                                     using (logger)
                                     {
-
                                         using (var deployerApp = await
                                             AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                         {
@@ -121,8 +121,21 @@ namespace Milou.Deployer.Tests.Integration
                                 }
 
                                 var indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
-
                                 Assert.NotNull(indexHtml);
+
+                                var wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
+
+                                Assert.NotNull(wwwrootDirectory);
+                                var applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
+                                Assert.NotNull(applicationmetadata);
+
+                                string text = File.ReadAllText(applicationmetadata.FullName);
+
+                                var metadata = JsonConvert.DeserializeAnonymousType(
+                                    text,
+                                    new { keys = new List<KeyValuePair<string, string>>() });
+
+                                Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)));
                             }
                         }
 

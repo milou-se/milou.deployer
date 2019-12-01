@@ -9,14 +9,15 @@
   <ItemGroup>
     <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="0.19.2" />
     <PackageReference Include="Arbor.Processing" Version="0.3.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.6.5" />
     <PackageReference Include="Microsoft.Web.Xdt" Version="3.0.0" />
-    <PackageReference Include="fluentftp" Version="28.0.1" />
+    <PackageReference Include="fluentftp" Version="28.0.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.1" />
     <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

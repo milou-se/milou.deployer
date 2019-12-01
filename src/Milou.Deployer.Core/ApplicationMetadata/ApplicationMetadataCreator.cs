@@ -12,17 +12,20 @@ using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
 
+using Serilog;
+
 namespace Milou.Deployer.Core.ApplicationMetadata
 {
     public static class ApplicationMetadataCreator
     {
-        public static void SetVersionFile(
+        public static string SetVersionFile(
             [NotNull] InstalledPackage installedPackage,
             [NotNull] DirectoryInfo targetDirectoryInfo,
             [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
             [NotNull] IEnumerable<string> xmlTransformedFiles,
             [NotNull] IEnumerable<string> replacedFiles,
-            [NotNull] EnvironmentPackageResult environmentPackageResult)
+            [NotNull] EnvironmentPackageResult environmentPackageResult,
+            ILogger logger)
         {
             if (installedPackage == null)
             {
@@ -61,6 +64,8 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
             if (File.Exists(applicationMetadataJsonFilePath))
             {
+                logger.Debug("Appending existing metadata file {Path}", applicationMetadataJsonFilePath);
+
                 string json = File.ReadAllText(applicationMetadataJsonFilePath, Encoding.UTF8);
 
                 ConfigurationItems configurationItems = JsonConfigurationSerializer.Deserialize(json);
@@ -113,7 +118,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 packageId
             }.ToImmutableArray();
 
-            if (!string.IsNullOrWhiteSpace(environmentPackageResult.Package))
+            if (environmentPackageResult.Version != null)
             {
                 keys.Add(environmentConfiguration);
             }
@@ -121,6 +126,10 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             string serialized = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
 
             File.WriteAllText(applicationMetadataJsonFilePath, serialized, Encoding.UTF8);
+
+            logger.Debug("Metadata file update {Path}", applicationMetadataJsonFilePath);
+
+            return applicationMetadataJsonFilePath;
         }
 
         private static string GetAssemblyFileVersion()
