@@ -118,7 +118,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 packageId
             }.ToImmutableArray();
 
-            if (!string.IsNullOrWhiteSpace(environmentPackageResult.Package))
+            if (environmentPackageResult.Version != null)
             {
                 keys.Add(environmentConfiguration);
             }

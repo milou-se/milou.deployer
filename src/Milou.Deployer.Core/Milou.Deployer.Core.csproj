@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="0.19.2" />
     <PackageReference Include="Arbor.Processing" Version="0.3.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.6.5" />
     <PackageReference Include="Microsoft.Web.Xdt" Version="3.0.0" />
     <PackageReference Include="fluentftp" Version="28.0.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />

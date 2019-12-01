@@ -11,6 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
+using Arbor.Tooler;
+
 using JetBrains.Annotations;
 using Milou.Deployer.Core.ApplicationMetadata;
 using Milou.Deployer.Core.Configuration;
@@ -207,77 +209,26 @@ namespace Milou.Deployer.Core.Deployment
             _logger.Debug("Fetching environment configuration {EnvironmentConfig}",
                 deploymentExecutionDefinition.EnvironmentConfig);
 
-            string usedEnvironmentPackage = "";
-
             SemanticVersion expectedVersion = version;
             string expectedPackageId =
                 $"{deploymentExecutionDefinition.PackageId}.{DeploymentConstants.EnvironmentLiteral}.{deploymentExecutionDefinition.EnvironmentConfig}";
 
-            var listCommands = new List<string>
-            {
-                "list",
-                expectedPackageId,
-                "-AllVersions"
-            };
 
-            if (!string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetConfig)
-                && File.Exists(DeployerConfiguration.NuGetConfig))
-            {
-                listCommands.Add("-ConfigFile");
-                listCommands.Add(DeployerConfiguration.NuGetConfig);
-            }
+            ImmutableArray<SemanticVersion> allVersions = await new NuGetPackageInstaller().GetAllVersionsAsync(
+                                       new NuGetPackageId(expectedPackageId),
+                                       allowPreRelease: expectedVersion.IsPrerelease,
+                                       nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
+                                       nugetConfig: deploymentExecutionDefinition.NuGetConfigFile);
 
-            if (deploymentExecutionDefinition.IsPreRelease)
-            {
-                if (!DeployerConfiguration.AllowPreReleaseEnabled && !deploymentExecutionDefinition.Force)
-                {
-                    throw new InvalidOperationException(
-                        $"The deployer configuration is set to not allow pre-releases, environment variable '{ConfigurationKeys.AllowPreReleaseEnvironmentVariable}'");
-                }
-
-                listCommands.Add("-PreRelease");
-            }
-
-            var allFoundEnvironmentPackages = new List<string>();
-
-            ExitCode nugetListPackagesExitCode = await
-                ProcessRunner.ExecuteProcessAsync(
-                    DeployerConfiguration.NuGetExePath,
-                    listCommands,
-                    (message, category) =>
-                    {
-                        _logger.Verbose("{Category} Found package '{Message}'", category, message);
-                        allFoundEnvironmentPackages.Add(message);
-                    },
-                    toolAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
-                    debugAction: (category, message) => _logger.Debug("{Category} {Message}", category, message),
-                    verboseAction: (category, message) => _logger.Verbose("{Category} {Message}", category, message),
-                    standardErrorAction: (category, message) =>
-                        _logger.Error("{Category} {Message}", category, message),
-                    cancellationToken: cancellationToken).ConfigureAwait(false);
-
-
-            if (!nugetListPackagesExitCode.IsSuccess)
-            {
-                _logger.Error(
-                    "No main NuGet package was installed for deployment definition {DeploymentExecutionDefinition}",
-                    deploymentExecutionDefinition);
-
-                return new EnvironmentPackageResult(false);
-            }
-
-            string expectedMatch = $"{expectedPackageId} {expectedVersion.ToNormalizedString()}";
-
-            var matchingFoundEnvironmentPackage = allFoundEnvironmentPackages
-                .Where(packageFullName =>
-                    packageFullName.Equals(expectedMatch, StringComparison.InvariantCultureIgnoreCase))
+            var matchingFoundEnvironmentPackage = allVersions
+                .Where(currentVersion => currentVersion == expectedVersion)
                 .ToList();
 
             if (matchingFoundEnvironmentPackage.Count > 1)
             {
-                _logger.Error("Found multiple environment packages matching '{ExpectedMatch}', {V}",
-                    expectedMatch,
-                    string.Join(", ", matchingFoundEnvironmentPackage.Select(package => $"'{package}'")));
+                _logger.Error("Found multiple environment packages matching '{ExpectedMatch}', {Found}",
+                    expectedVersion.ToNormalizedString(),
+                    string.Join(", ", matchingFoundEnvironmentPackage.Select(currentVersion => $"'{currentVersion.ToNormalizedString()}'")));
                 return new EnvironmentPackageResult(false);
             }
 
@@ -322,8 +273,6 @@ namespace Milou.Deployer.Core.Deployment
 
                     return new EnvironmentPackageResult(false);
                 }
-
-                usedEnvironmentPackage = matchingFoundEnvironmentPackage.Single();
 
                 var configContentDirectory =
                     new DirectoryInfo(
@@ -382,7 +331,7 @@ namespace Milou.Deployer.Core.Deployment
                     expectedVersion.ToNormalizedString());
             }
 
-            return new EnvironmentPackageResult(true, usedEnvironmentPackage);
+            return new EnvironmentPackageResult(true, matchingFoundEnvironmentPackage.Single());
         }
 
         private ReplaceResult ReplaceFileIfMatchingFiles(FileMatch replacement, DirectoryInfo contentDirectory)
