@@ -26,17 +26,14 @@ namespace Milou.Deployer.Core.Deployment
         {
         }
 
+        public static InstalledPackage None => new InstalledPackage();
+
         public string NugetPackageFullPath { get; }
 
         public string PackageId { get; }
 
         public SemanticVersion Version { get; }
 
-        public static InstalledPackage None => new InstalledPackage();
-
-        public static InstalledPackage Create(string packageId, SemanticVersion version, string nugetPackageFullPath)
-        {
-            return new InstalledPackage(packageId, version, nugetPackageFullPath);
-        }
+        public static InstalledPackage Create(string packageId, SemanticVersion version, string nugetPackageFullPath) => new InstalledPackage(packageId, version, nugetPackageFullPath);
     }
 }

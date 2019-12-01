@@ -15,19 +15,28 @@ namespace Milou.Deployer.Tests.Integration
 
         public static TempDirectory CreateTempDirectory(string name = null)
         {
-            return new TempDirectory(new DirectoryInfo(Path.Combine(Path.GetTempPath(),
-                $"{name.WithDefault("MD-tmp")}-{DateTime.UtcNow.Ticks}")).EnsureExists());
+            var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(),
+                $"{name.WithDefault("MD-tmp")}-{DateTime.UtcNow.Ticks}"));
+
+            return new TempDirectory(directory.EnsureExists());
         }
 
         public void Dispose()
         {
-            if (Directory != null)
+            if (Directory is { })
             {
-                Directory.Refresh();
+                Directory?.Refresh();
 
-                if (Directory.Exists)
+                if (Directory?.Exists == true)
                 {
-                    Directory.Delete(true);
+                    try
+                    {
+                        Directory?.Delete(true);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // ignore
+                    }
                 }
 
                 Directory = null;

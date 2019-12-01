@@ -2,6 +2,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.Core.Deployment.Configuration;
 
 namespace Milou.Deployer.Core.Deployment
 {
@@ -18,7 +19,7 @@ namespace Milou.Deployer.Core.Deployment
 
             return GetBoolValue(deploymentExecutionDefinition,
                 defaultValue,
-                ConfigurationKeys.WebDeploy.Rules.WhatIfEnabled);
+                WebDeployRules.WhatIfEnabled);
         }
 
         public static bool DoNotDeleteEnabled(
@@ -32,7 +33,7 @@ namespace Milou.Deployer.Core.Deployment
 
             return GetBoolValue(deploymentExecutionDefinition,
                 defaultValue,
-                ConfigurationKeys.WebDeploy.Rules.DoNotDeleteEnabled);
+                WebDeployRules.DoNotDeleteEnabled);
         }
 
         public static bool AppOfflineEnabled(
@@ -46,7 +47,7 @@ namespace Milou.Deployer.Core.Deployment
 
             return GetBoolValue(deploymentExecutionDefinition,
                 defaultValue,
-                ConfigurationKeys.WebDeploy.Rules.AppOfflineEnabled);
+                WebDeployRules.AppOfflineEnabled);
         }
 
         public static bool UseChecksumEnabled(
@@ -60,7 +61,7 @@ namespace Milou.Deployer.Core.Deployment
 
             return GetBoolValue(deploymentExecutionDefinition,
                 defaultValue,
-                ConfigurationKeys.WebDeploy.Rules.UseChecksumEnabled);
+                WebDeployRules.UseChecksumEnabled);
         }
 
         public static bool AppDataSkipDirectiveEnabled(
@@ -74,7 +75,7 @@ namespace Milou.Deployer.Core.Deployment
 
             return GetBoolValue(deploymentExecutionDefinition,
                 defaultValue,
-                ConfigurationKeys.WebDeploy.Rules.AppDataSkipDirectiveEnabled);
+                WebDeployRules.AppDataSkipDirectiveEnabled);
         }
 
         public static bool ApplicationInsightsProfiler2SkipDirectiveEnabled(
@@ -88,7 +89,7 @@ namespace Milou.Deployer.Core.Deployment
 
             return GetBoolValue(deploymentExecutionDefinition,
                 defaultValue,
-                ConfigurationKeys.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
+                WebDeployRules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
         }
 
         private static bool GetBoolValue(

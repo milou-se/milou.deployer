@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Core.Configuration
+﻿namespace Milou.Deployer.Core.Deployment.Configuration
 {
     public class WebDeployRulesConfig
     {

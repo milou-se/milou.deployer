@@ -1,4 +1,5 @@
 ﻿using Microsoft.Web.Deployment;
+
 using Milou.Deployer.Core.Deployment;
 
 namespace Milou.Deployer.Waws
@@ -7,14 +8,9 @@ namespace Milou.Deployer.Waws
     {
         private readonly DeploymentChangeSummary _deploymentChangeSummary;
 
-        public ResultAdapter(DeploymentChangeSummary deploymentChangeSummary)
-        {
+        public ResultAdapter(DeploymentChangeSummary deploymentChangeSummary) =>
             _deploymentChangeSummary = deploymentChangeSummary;
-        }
 
-        public string ToDisplayValue()
-        {
-            return _deploymentChangeSummary.ToDisplayValue();
-        }
+        public string ToDisplayValue() => _deploymentChangeSummary.ToDisplayValue();
     }
 }

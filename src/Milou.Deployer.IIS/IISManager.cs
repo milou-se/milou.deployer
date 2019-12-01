@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.Web.Administration;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Extensions;
 using Serilog;
 using Serilog.Events;
@@ -115,7 +116,8 @@ namespace Milou.Deployer.IIS
 
                 if (!_configuration.StopStartIisWebSiteEnabled)
                 {
-                    _logger.Warning("The deployer configuration has {Property} set to false",
+                    _logger.Warning(
+                        "The deployer configuration has {Property} set to false",
                         nameof(_configuration.StopStartIisWebSiteEnabled));
                     return false;
                 }

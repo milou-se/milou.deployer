@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.Processing;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Extensions;
-using Milou.Deployer.Core.Processes;
 using NuGet.Packaging;
 using NuGet.Versioning;
 using Serilog;
@@ -34,7 +36,9 @@ namespace Milou.Deployer.Core.NuGet
         public async Task<MayBe<InstalledPackage>> InstallPackageAsync(
             DeploymentExecutionDefinition deploymentExecutionDefinition,
             DirectoryInfo tempDirectory,
-            bool includeVersion = true)
+            bool includeVersion = true,
+            SemanticVersion explicitVersion = null,
+            CancellationToken cancellationToken = default)
         {
             if (deploymentExecutionDefinition == null)
             {
@@ -60,10 +64,19 @@ namespace Milou.Deployer.Core.NuGet
 
             var arguments = new List<string> { "install", deploymentExecutionDefinition.PackageId };
 
-            if (deploymentExecutionDefinition.SemanticVersion.HasValue)
+            void AddVersion(string value)
             {
                 arguments.Add("-Version");
-                arguments.Add(deploymentExecutionDefinition.SemanticVersion.Value.ToNormalizedString());
+                arguments.Add(value);
+            }
+
+            if (explicitVersion != null)
+            {
+                AddVersion(explicitVersion.ToNormalizedString());
+            }
+            else if (deploymentExecutionDefinition.SemanticVersion.HasValue)
+            {
+                AddVersion(deploymentExecutionDefinition.SemanticVersion.Value.ToNormalizedString());
             }
 
             if (deploymentExecutionDefinition.IsPreRelease)
@@ -131,7 +144,7 @@ namespace Milou.Deployer.Core.NuGet
             }
 
             const string sourceKey = ConfigurationKeys.NuGetSource;
-            string nugetSourceInConfiguration = _keyValueConfiguration[sourceKey];
+            string nugetSourceInConfiguration = _deployerConfiguration.NuGetSource;
             string nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
 
             if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
@@ -161,18 +174,31 @@ namespace Milou.Deployer.Core.NuGet
                     "A specific NuGet source is not defined in settings or in deployment execution definition");
             }
 
-            ExitCode exitCode = await
-                ProcessRunner.ExecuteProcessAsync(
-                        executePath,
-                        arguments,
-                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                        (message, category) => _logger.Error("{Category} {Message}", category, message),
-                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                        (message, category) => _logger.Verbose("{Category} {Message}", category, message),
-                        debugAction: (message, category) => _logger.Debug("{Category} {Message}", category, message))
-                    .ConfigureAwait(false);
+            ExitCode? exitCode = default;
+            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                try
+                {
+                    exitCode = await ProcessRunner.ExecuteProcessAsync(
+                                   executePath,
+                                   arguments,
+                                   (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                                   (message, category) => _logger.Error("{Category} {Message}", category, message),
+                                   (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                                   (message, category) => _logger.Verbose("{Category} {Message}", category, message),
+                                   debugAction: (message, category) => _logger.Debug(
+                                       "{Category} {Message}",
+                                       category,
+                                       message),
+                                   cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
+                }
+                catch (TaskCanceledException ex)
+                {
+                    _logger.Error(ex, "NuGet package install timed out");
+                }
+            }
 
-            if (!exitCode.IsSuccess)
+            if (exitCode?.IsSuccess != true)
             {
                 _logger.Error("The package installer process '{Process}' {Arguments} failed with exit code {ExitCode}",
                     executePath,

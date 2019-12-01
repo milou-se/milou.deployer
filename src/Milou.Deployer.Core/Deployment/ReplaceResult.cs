@@ -7,8 +7,7 @@ namespace Milou.Deployer.Core.Deployment
     public class ReplaceResult
     {
         public ReplaceResult(bool isSuccess)
-            : this(isSuccess,
-                Array.Empty<string>())
+            : this(isSuccess, Array.Empty<string>())
         {
         }
 

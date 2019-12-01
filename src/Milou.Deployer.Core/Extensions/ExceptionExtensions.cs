@@ -13,15 +13,14 @@ namespace Milou.Deployer.Core.Extensions
                 return false;
             }
 
-            return
-                ex is OutOfMemoryException ||
-#if !DOTNET5_4
-                ex is AccessViolationException
-                || ex is AppDomainUnloadedException
-                || ex is StackOverflowException
-                || ex is ThreadAbortException ||
-#endif
-                ex is SEHException;
+            bool isFatal = ex is OutOfMemoryException ||
+                           ex is AccessViolationException
+                           || ex is AppDomainUnloadedException
+                           || ex is StackOverflowException
+                           || ex is ThreadAbortException ||
+                           ex is SEHException;
+
+            return isFatal;
         }
     }
 }

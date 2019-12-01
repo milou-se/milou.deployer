@@ -2,6 +2,8 @@
 using System.Collections.Immutable;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Configuration;
+
 using Newtonsoft.Json;
 using NuGet.Versioning;
 using Xunit;
@@ -9,9 +11,9 @@ using Xunit.Abstractions;
 
 namespace Milou.Deployer.Tests.Integration
 {
-    public class SerializingManifest
+    public class WhenSerializingManifest
     {
-        public SerializingManifest(ITestOutputHelper output)
+        public WhenSerializingManifest(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -19,16 +21,16 @@ namespace Milou.Deployer.Tests.Integration
         private readonly ITestOutputHelper _output;
 
         [Fact]
-        public void Do()
+        public void ItShouldFind1DeploymentExecutionDefinition()
         {
             var parameters = new Dictionary<string, string[]>
             {
-                [ConfigurationKeys.WebDeploy.Rules.AppDataSkipDirectiveEnabled] = new[] { "false" },
-                [ConfigurationKeys.WebDeploy.Rules.AppOfflineEnabled] = new[] { "true" },
-                [ConfigurationKeys.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled] = new[] { "true" },
-                [ConfigurationKeys.WebDeploy.Rules.DoNotDeleteEnabled] = new[] { "false" },
-                [ConfigurationKeys.WebDeploy.Rules.UseChecksumEnabled] = new[] { "true" },
-                [ConfigurationKeys.WebDeploy.Rules.WhatIfEnabled] = new[] { "false" }
+                [WebDeployRules.AppDataSkipDirectiveEnabled] = new[] { "false" },
+                [WebDeployRules.AppOfflineEnabled] = new[] { "true" },
+                [WebDeployRules.ApplicationInsightsProfiler2SkipDirectiveEnabled] = new[] { "true" },
+                [WebDeployRules.DoNotDeleteEnabled] = new[] { "false" },
+                [WebDeployRules.UseChecksumEnabled] = new[] { "true" },
+                [WebDeployRules.WhatIfEnabled] = new[] { "false" }
             };
 
             DeploymentExecutionDefinition[] deploymentExecutionDefinitions =
@@ -40,7 +42,8 @@ namespace Milou.Deployer.Tests.Integration
                     parameters: parameters)
             };
 
-            string serialized = JsonConvert.SerializeObject(new { definitions = deploymentExecutionDefinitions },
+            string serialized = JsonConvert.SerializeObject(
+                new { definitions = deploymentExecutionDefinitions },
                 Formatting.Indented);
 
             _output.WriteLine(serialized);

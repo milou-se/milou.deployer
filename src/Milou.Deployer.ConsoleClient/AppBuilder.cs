@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Core.Extensions.CommandLine;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
 using Arbor.Tooler;
@@ -19,28 +21,35 @@ using Milou.Deployer.Waws;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Milou.Deployer.Core.Cli;
+using Milou.Deployer.Core.Deployment.Configuration;
+using Milou.Deployer.Core.Logging;
 
 namespace Milou.Deployer.ConsoleClient
 {
     public static class AppBuilder
     {
-        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] args, ILogger logger = null, CancellationToken cancellationToken = default)
+        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] inputArgs, ILogger logger = null, CancellationToken cancellationToken = default)
         {
-            if (args == null)
+            if (inputArgs == null)
             {
-                throw new ArgumentNullException(nameof(args));
+                throw new ArgumentNullException(nameof(inputArgs));
             }
+
+            var args = inputArgs.ToImmutableArray();
 
             bool hasDefinedLogger = logger != null;
 
             string outputTemplate = GetOutputTemplate(args);
 
-            var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
+            var levelSwitch = new LoggingLevelSwitch();
 
             logger = logger ?? new LoggerConfiguration()
-                .WriteTo.Console(outputTemplate: outputTemplate)
-                .MinimumLevel.ControlledBy(levelSwitch)
-                .CreateLogger();
+                         .WriteTo.Console(outputTemplate: outputTemplate, standardErrorFromLevel: LogEventLevel.Error)
+                         .MinimumLevel.ControlledBy(levelSwitch)
+                         .CreateLogger();
+
+            logger.Verbose("Using output template {Template}", outputTemplate);
 
             try
             {
@@ -55,7 +64,7 @@ namespace Milou.Deployer.ConsoleClient
                         .Add(new ReflectionKeyValueConfiguration(typeof(AppBuilder).Assembly))
                         .Add(new ReflectionKeyValueConfiguration(typeof(ConfigurationKeys).Assembly));
                 }
-                catch (Exception ex) when(!ex.IsFatal())
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     logger.Error(ex, "Could note create settings");
                     throw;
@@ -78,12 +87,18 @@ namespace Milou.Deployer.ConsoleClient
                         appSettingsBuilder.Add(new JsonKeyValueConfiguration(configurationFile, false));
                 }
 
+                var argsAsParameters = args
+                    .Where(arg => arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))
+                    .Select(arg => arg.TrimStart('-'))
+                    .ToImmutableArray();
+
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
                     .Add(new EnvironmentVariableKeyValueConfigurationSource())
-                    .Add(new UserConfiguration())
+                    .AddCommandLineArgsSettings(argsAsParameters)
+                    .Add(new UserJsonConfiguration())
                     .Build();
 
-                logger.Information("Using configuration: {Configuration}", configuration.SourceChain);
+                logger.Debug("Using configuration: {Configuration}", configuration.SourceChain);
 
                 string logPath = configuration[ConsoleConfigurationKeys.LoggingFilePath];
 
@@ -122,6 +137,9 @@ namespace Milou.Deployer.ConsoleClient
                     logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
                 }
 
+                string nugetSource = args.GetArgumentValueOrDefault("nuget-source");
+                string nugetConfig = args.GetArgumentValueOrDefault("nuget-config");
+
                 var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(
                     true,
                     true,
@@ -131,7 +149,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 bool allowPreReleaseEnabled =
                     configuration[ConfigurationKeys.AllowPreReleaseEnvironmentVariable]
-                        .ParseAsBooleanOrDefault(false)
+                        .ParseAsBooleanOrDefault()
                     || (Debugger.IsAttached
                         && configuration[ConfigurationKeys.ForceAllowPreRelease]
                             .ParseAsBooleanOrDefault());
@@ -140,7 +158,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 if (string.IsNullOrWhiteSpace(nuGetExePath))
                 {
-                    logger.Debug("nuget.exe is not specified, downloading");
+                    logger.Debug("nuget.exe is not specified, downloading with {Tool}", nameof(NuGetDownloadClient));
 
                     using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                     {
@@ -157,7 +175,7 @@ namespace Milou.Deployer.ConsoleClient
                         if (!nuGetDownloadResult.Succeeded)
                         {
                             throw new InvalidOperationException(
-                                "NuGet exe is not specified and nuget.exe could not be downloaded");
+                                Resources.NuGetExeCouldNotBeDownloaded);
                         }
 
                         nuGetExePath = nuGetDownloadResult.NuGetExePath;
@@ -169,7 +187,8 @@ namespace Milou.Deployer.ConsoleClient
                 var deployerConfiguration = new DeployerConfiguration(webDeployConfig)
                 {
                     NuGetExePath = nuGetExePath,
-                    NuGetConfig = configuration[ConfigurationKeys.NuGetConfig],
+                    NuGetConfig = nugetConfig.WithDefault(configuration[ConfigurationKeys.NuGetConfig]),
+                    NuGetSource = nugetSource.WithDefault(configuration[ConfigurationKeys.NuGetSource]),
                     AllowPreReleaseEnabled = allowPreReleaseEnabled,
                     StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled]
                         .ParseAsBooleanOrDefault(true)
@@ -179,7 +198,7 @@ namespace Milou.Deployer.ConsoleClient
                     deployerConfiguration,
                     logger,
                     configuration,
-                    new WebDeployHelper(),
+                    new WebDeployHelper(logger),
                     deploymentExecutionDefinition => IISManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition));
 
                 var fileReader = new DeploymentExecutionDefinitionFileReader();
@@ -197,8 +216,8 @@ namespace Milou.Deployer.ConsoleClient
                     }
                 }
 
-                CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                return new DeployerApp(logger, deploymentService, fileReader, configuration, cancellationTokenSource);
+                var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                return new DeployerApp(logger, deploymentService, fileReader, configuration, levelSwitch, cancellationTokenSource);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
@@ -207,12 +226,19 @@ namespace Milou.Deployer.ConsoleClient
             }
         }
 
-        private static string GetOutputTemplate(string[] args)
+        private static string GetOutputTemplate(ImmutableArray<string> args)
         {
             if (args.Any(arg =>
                 arg.Equals(LoggingConstants.PlainOutputFormatEnabled, StringComparison.OrdinalIgnoreCase)))
             {
-                return LoggingConstants.PlainFormat;
+                string prefix = "";
+                if (args.Any(arg =>
+                    arg.Equals(LoggingConstants.LoggingCategoryFormatEnabled, StringComparison.OrdinalIgnoreCase)))
+                {
+                    prefix = "[{Level}] ";
+                }
+
+                return $"{prefix}{LoggingConstants.PlainFormat}";
             }
 
             return LoggingConstants.DefaultFormat;
@@ -225,7 +251,9 @@ namespace Milou.Deployer.ConsoleClient
                 return null;
             }
 
-            if (currentDirectory.Exists)
+            currentDirectory.Refresh();
+
+            if (!currentDirectory.Exists)
             {
                 return null;
             }
@@ -246,7 +274,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 return file.FullName;
             }
-            catch (Exception ex) when(!ex.IsFatal())
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 // ignore
                 return null;

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Milou.Deployer.Core.Deployment
+namespace Milou.Deployer.Core.XmlTransformation
 {
     public class FileMatch
     {

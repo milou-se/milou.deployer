@@ -7,49 +7,59 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.Processing;
 using JetBrains.Annotations;
+
+using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
-using Milou.Deployer.Core.Processes;
+
+using NuGet.Versioning;
+
 using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
 namespace Milou.Deployer.ConsoleClient
 {
     public sealed class DeployerApp : IDisposable
     {
+        public LoggingLevelSwitch LevelSwitch { get; }
         private readonly AppExit _appExit;
         private readonly DeploymentService _deploymentService;
         private readonly DeploymentExecutionDefinitionFileReader _fileReader;
         private IKeyValueConfiguration _appSettings;
         private CancellationTokenSource _cancellationTokenSource;
 
-        private ILogger _logger;
+        public ILogger Logger { get; private set; }
 
         public DeployerApp(
             [NotNull] ILogger logger,
             [NotNull] DeploymentService deploymentService,
             [NotNull] DeploymentExecutionDefinitionFileReader fileReader,
             [NotNull] IKeyValueConfiguration appSettings,
+            [NotNull] LoggingLevelSwitch levelSwitch,
             [NotNull] CancellationTokenSource cancellationTokenSource)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            LevelSwitch = levelSwitch ?? throw new ArgumentNullException(nameof(levelSwitch));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
             _cancellationTokenSource = cancellationTokenSource ??
                                        throw new ArgumentNullException(nameof(cancellationTokenSource));
-            _appExit = new AppExit(_logger);
+            _appExit = new AppExit(Logger);
         }
 
         public void Dispose()
         {
-            _logger?.Verbose("Disposing app");
+            Logger?.Verbose("Disposing deployer app");
 
-            if (_logger is IDisposable disposableLogger)
+            if (Logger is IDisposable disposableLogger)
             {
                 disposableLogger.Dispose();
-                _logger = null;
+                Logger = null;
             }
 
             if (_appSettings is IDisposable disposableSettings)
@@ -69,16 +79,21 @@ namespace Milou.Deployer.ConsoleClient
                 cancellationToken = _cancellationTokenSource.Token;
             }
 
+            args ??= Array.Empty<string>();
+
             PrintVersion();
 
             PrintCommandLineArguments(args);
 
             PrintEnvironmentVariables(args);
 
-            PrintAvailableArguments(args);
+            string[] parameterArgs =
+                args.Where(arg => arg.IndexOf("=", StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
 
             string[] nonFlagArgs =
-                args.Where(arg => !arg.StartsWith("--", StringComparison.OrdinalIgnoreCase)).ToArray();
+                args.Where(arg => !arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))
+                    .Except(parameterArgs)
+                    .ToArray();
 
             if (Debugger.IsAttached && nonFlagArgs.Length > 0
                                     && nonFlagArgs[0].Equals("fail", StringComparison.OrdinalIgnoreCase))
@@ -89,7 +104,7 @@ namespace Milou.Deployer.ConsoleClient
             if (!string.IsNullOrWhiteSpace(args.SingleOrDefault(arg =>
                 arg.Equals(ConsoleConfigurationKeys.HelpArgument, StringComparison.OrdinalIgnoreCase))))
             {
-                _logger.Information("{Help}", Help.ShowHelp());
+                Logger.Information("{Help}", Help.ShowHelp());
 
                 return _appExit.ExitSuccess();
             }
@@ -109,37 +124,41 @@ namespace Milou.Deployer.ConsoleClient
                         ? fallbackManifestPath
                         : nonFlagArgs[0];
 
-                    if (!hasArgs)
-                    {
-                        _logger.Verbose(
-                            "No arguments were supplied, falling back trying to find a manifest based on current path, looking for '{FallbackManifestPath}'",
-                            fallbackManifestPath);
-                    }
+                    string version = args.GetArgumentValueOrDefault("version");
 
-                    exitCode = await ExecuteAsync(manifestFile, cancellationToken).ConfigureAwait(false);
+                    SemanticVersion semanticVersion = default;
+
+                    if (!string.IsNullOrWhiteSpace(version) && !SemanticVersion.TryParse(version, out semanticVersion))
+                    {
+                        Logger.Error("Argument version '{Version}' is not a valid semantic version", version);
+                        exitCode = ExitCode.Failure;
+                    }
+                    else
+                    {
+                        if (!hasArgs)
+                        {
+                            Logger.Verbose(
+                                "No arguments were supplied, falling back trying to find a manifest based on current path, looking for '{FallbackManifestPath}'",
+                                fallbackManifestPath);
+                        }
+
+                        exitCode = await ExecuteAsync(manifestFile, semanticVersion, cancellationToken).ConfigureAwait(false);
+                    }
                 }
                 else
                 {
-                    _logger.Error("Invalid argument count");
+                    string actualArgs = string.Join(" ", args);
+                    Logger.Error("Invalid argument count, got arguments {Args}", actualArgs);
                     return _appExit.ExitFailure();
                 }
             }
-            catch (Exception ex) when(!ex.IsFatal())
+            catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error(ex, "Unhandled application error");
+                Logger.Error(ex, "Unhandled application error");
                 exitCode = _appExit.ExitFailure();
             }
 
             return _appExit.Exit(exitCode);
-        }
-
-        private void PrintAvailableArguments(string[] args)
-        {
-            if (_appSettings is MultiSourceKeyValueConfiguration
-                multiSourceKeyValueConfiguration)
-            {
-                _logger.Information("Available parameters {Parameters}", multiSourceKeyValueConfiguration.AllKeys);
-            }
         }
 
         private void PrintVersion()
@@ -152,20 +171,20 @@ namespace Milou.Deployer.ConsoleClient
 
             string location = executingAssembly.Location.ThrowIfNullOrEmpty();
 
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(location);
+            var fvi = FileVersionInfo.GetVersionInfo(location);
 
             string fileVersion = fvi.FileVersion;
 
             Type type = typeof(Program);
 
-            _logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
+            Logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
                 type.Namespace,
                 assemblyVersion,
                 fileVersion,
                 executingAssembly.Location);
         }
 
-        private async Task<ExitCode> ExecuteAsync(string file, CancellationToken cancellationToken = default)
+        private async Task<ExitCode> ExecuteAsync(string file, SemanticVersion version, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -174,7 +193,7 @@ namespace Milou.Deployer.ConsoleClient
 
             if (!File.Exists(file))
             {
-                _logger.Error("The deployment manifest file '{File}' does not exist", file);
+                Logger.Error("The deployment manifest file '{File}' does not exist", file);
                 return ExitCode.Failure;
             }
 
@@ -185,33 +204,33 @@ namespace Milou.Deployer.ConsoleClient
 
             if (deploymentExecutionDefinitions.Length == 0)
             {
-                _logger.Error("Could not find any deployment definitions in file '{File}'", file);
+                Logger.Error("Could not find any deployment definitions in file '{File}'", file);
                 return ExitCode.Failure;
             }
 
             if (deploymentExecutionDefinitions.Length == 1)
             {
-                _logger.Information("Found 1 deployment definition");
+                Logger.Information("Found 1 deployment definition");
             }
             else
             {
-                _logger.Information("Found {Length} deployment definitions", deploymentExecutionDefinitions.Length);
+                Logger.Information("Found {Length} deployment definitions", deploymentExecutionDefinitions.Length);
             }
 
-            _logger.Verbose("{Definitions}",
+            Logger.Verbose("{Definitions}",
                 string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
 
-            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, cancellationToken).ConfigureAwait(false);
+            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, version, cancellationToken).ConfigureAwait(false);
 
             if (exitCode.IsSuccess)
             {
-                _logger.Information(
+                Logger.Information(
                     "Successfully deployed deployment execution definition {DeploymentExecutionDefinition}",
                     deploymentExecutionDefinitions);
             }
             else
             {
-                _logger.Error("Failed to deploy definition {DeploymentExecutionDefinition}",
+                Logger.Error("Failed to deploy definition {DeploymentExecutionDefinition}",
                     deploymentExecutionDefinitions);
             }
 
@@ -222,12 +241,12 @@ namespace Milou.Deployer.ConsoleClient
         {
             if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument, StringComparison.OrdinalIgnoreCase)))
             {
-                _logger.Debug("Used variables:");
+                Logger.Debug("Used variables:");
 
                 foreach (StringPair variable in _appSettings.AllValues
                     .OrderBy(entry => entry.Key))
                 {
-                    _logger.Debug("ENV '{Key}': '{Value}'", variable.Key, variable.Value);
+                    Logger.Debug("ENV '{Key}': '{Value}'", variable.Key, variable.Value);
                 }
             }
         }
@@ -236,11 +255,11 @@ namespace Milou.Deployer.ConsoleClient
         {
             if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.DebugArgument, StringComparison.OrdinalIgnoreCase)))
             {
-                _logger.Debug("Command line arguments:");
+                Logger.Debug("Command line arguments:");
 
                 foreach (string arg in args)
                 {
-                    _logger.Debug("ARG '{Arg}'", arg);
+                    Logger.Debug("ARG '{Arg}'", arg);
                 }
             }
         }

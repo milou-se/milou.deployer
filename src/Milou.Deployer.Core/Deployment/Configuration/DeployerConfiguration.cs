@@ -1,7 +1,8 @@
 ﻿using System;
+
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Core.Configuration
+namespace Milou.Deployer.Core.Deployment.Configuration
 {
     public class DeployerConfiguration
     {
@@ -15,6 +16,8 @@ namespace Milou.Deployer.Core.Configuration
         public string NuGetExePath { get; set; }
 
         public string NuGetConfig { get; set; }
+
+        public string NuGetSource { get; set; }
 
         public bool AllowPreReleaseEnabled { get; set; }
 

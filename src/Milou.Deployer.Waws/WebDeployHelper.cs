@@ -3,23 +3,27 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.WebDeploy;
+
+using Serilog;
 
 namespace Milou.Deployer.Waws
 {
     public class WebDeployHelper : IWebDeployHelper
     {
-        private const string AppOfflineHtm = "App_Offline.htm";
+        private readonly ILogger _logger;
+
+        public WebDeployHelper(ILogger logger) => _logger = logger;
 
         /// <summary>
-        /// Deploys the content to one site.
+        ///     Deploys the content to one site.
         /// </summary>
         /// <param name="sourcePath">The content path.</param>
         /// <param name="publishSettingsFile">The publish settings file.</param>
+        /// <param name="appOfflineDelay">Delay for app offline</param>
         /// <param name="password">The password.</param>
         /// <param name="allowUntrusted">Deploy even if destination certificate is untrusted</param>
         /// <param name="doNotDelete">todo: describe doNotDelete parameter on DeployContentToOneSite</param>
@@ -28,8 +32,12 @@ namespace Milou.Deployer.Waws
         /// <param name="targetPath">todo: describe targetPath parameter on DeployContentToOneSite</param>
         /// <param name="useChecksum">todo: describe useChecksum parameter on DeployContentToOneSite</param>
         /// <param name="appOfflineEnabled">todo: describe appOfflineEnabled parameter on DeployContentToOneSite</param>
+        /// <param name="applicationInsightsProfiler2SkipDirectiveEnabled"></param>
         /// <param name="logAction">todo: describe logAction parameter on DeployContentToOneSite</param>
-        /// <param name="appDataSkipDirectiveEnabled">todo: describe appDataSkipDirectiveEnabled parameter on DeployContentToOneSite</param>
+        /// <param name="appDataSkipDirectiveEnabled">
+        ///     AppData Skip Directive Enabled
+        ///     DeployContentToOneSite
+        /// </param>
         /// <returns>DeploymentChangeSummary.</returns>
         private async Task<DeploymentChangeSummary> DeployContentToOneSiteAsync2(
             string sourcePath,
@@ -51,7 +59,14 @@ namespace Milou.Deployer.Waws
 
             var sourceBaseOptions = new DeploymentBaseOptions();
 
-            string destinationPath = SetBaseOptions(publishSettingsFile,
+            PublishSettings publishSettings = default;
+
+            if (File.Exists(publishSettingsFile))
+            {
+                publishSettings = new PublishSettings(publishSettingsFile);
+            }
+
+            string destinationPath = SetBaseOptions(publishSettings,
                 out DeploymentBaseOptions destBaseOptions,
                 allowUntrusted);
 
@@ -201,32 +216,33 @@ namespace Milou.Deployer.Waws
                 }
             }
 
+            DeploymentChangeSummary deployContentToOneSite;
+
             using (DeploymentObject deploymentObject =
                 DeploymentManager.CreateObject(sourceProvider, sourcePath, sourceBaseOptions))
             {
-                DeploymentChangeSummary deployContentToOneSite;
-
                 FileInfo appOfflineFile = null;
 
                 if (targetProvider == DeploymentWellKnownProvider.DirPath
                     && Directory.Exists(destinationPath)
                     && string.IsNullOrWhiteSpace(publishSettingsFile))
                 {
-                    string appOfflineFilePath = Path.Combine(destinationPath, AppOfflineHtm);
+                    string appOfflineFilePath = Path.Combine(destinationPath, DeploymentConstants.AppOfflineHtm);
 
                     appOfflineFile = new FileInfo(appOfflineFilePath);
                 }
 
-                if (appOfflineFile != null)
+                if (appOfflineFile != null && appOfflineDelay.TotalMilliseconds >= 1)
                 {
                     await Task.Delay(appOfflineDelay).ConfigureAwait(false);
                 }
 
                 try
                 {
-                    if (appOfflineFile != null && !appOfflineFile.Exists)
+                    appOfflineFile?.Refresh();
+                    if (appOfflineFile?.Exists == false)
                     {
-                        using (FileStream fileStream = File.Create(appOfflineFile.FullName))
+                        using (File.Create(appOfflineFile.FullName))
                         {
                         }
                     }
@@ -242,24 +258,40 @@ namespace Milou.Deployer.Waws
 
                         if (appOfflineFile.Exists)
                         {
-                            logAction($"Deleting {AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction($"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                             appOfflineFile.Delete();
-                            logAction($"Deleted {AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction($"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                         }
                     }
                 }
-
-                return deployContentToOneSite;
             }
-        }
 
-        private static bool AllowCertificateCallback(
-            object sender,
-            X509Certificate cert,
-            X509Chain chain,
-            SslPolicyErrors errors)
-        {
-            return true;
+            string siteName = SetBaseOptions(publishSettings,
+                out DeploymentBaseOptions destDeleteBaseOptions,
+                allowUntrusted);
+
+            var syncDeleteOptions = new DeploymentSyncOptions
+            {
+                DeleteDestination = true
+            };
+
+            if (publishSettings?.SiteName is object)
+            {
+                DeploymentChangeSummary results;
+                using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(DeploymentWellKnownProvider.ContentPath,
+                    siteName + "/App_Offline.htm",
+                    destBaseOptions))
+                {
+                    destDeleteBaseOptions.TraceLevel = traceLevel;
+                    destDeleteBaseOptions.Trace += DestBaseOptions_Trace;
+
+                    results = deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
+                }
+
+                _logger.Debug("AppOffline result: {AppOffline}", results.ToDisplayValue());
+            }
+
+            return deployContentToOneSite;
         }
 
         private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
@@ -276,14 +308,12 @@ namespace Milou.Deployer.Waws
         }
 
         private static string SetBaseOptions(
-            string publishSettingsPath,
+            PublishSettings publishSettings,
             out DeploymentBaseOptions deploymentBaseOptions,
             bool allowUntrusted)
         {
-            if (File.Exists(publishSettingsPath))
+            if (publishSettings is object)
             {
-                var publishSettings = new PublishSettings(publishSettingsPath);
-
                 deploymentBaseOptions = new DeploymentBaseOptions
                 {
                     ComputerName = publishSettings.ComputerName,
@@ -294,7 +324,10 @@ namespace Milou.Deployer.Waws
 
                 if (allowUntrusted || publishSettings.AllowUntrusted)
                 {
-                    ServicePointManager.ServerCertificateValidationCallback = AllowCertificateCallback;
+                    ServicePointManager.ServerCertificateValidationCallback = delegate
+                    {
+                        return true;
+                    };
                 }
 
                 return publishSettings.SiteName;
@@ -305,10 +338,7 @@ namespace Milou.Deployer.Waws
             return string.Empty;
         }
 
-        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e)
-        {
-            DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
-        }
+        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e) => DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
 
         public async Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
             string sourcePath,

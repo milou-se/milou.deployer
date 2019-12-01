@@ -2,10 +2,9 @@
   "profiles": {
     "Milou.Deployer.ConsoleClient": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Sites\\DeployTest\\testdeploy.manifest --plain-console",
+      "commandLineArgs": "C:\\Work\\DeployFtp\\manifest.json --logging-category-format-enabled --plain-console",
       "environmentVariables": {
-        "MilouDeployer_AllowPreRelease_Enabled": "true",
-        "urn:milou-deployer:tools:nuget:exe-path": "C:\\Tools\\NuGet\\NuGet.exe"
+        "MilouDeployer_AllowPreRelease_Enabled": "true"
       }
     }
   }

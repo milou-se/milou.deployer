@@ -11,7 +11,7 @@ namespace Milou.Deployer.Bootstrapper.Tests.Integration
 {
     public class WhenDownloadingMilouDeployer
     {
-        [Fact]
+        [Fact(Skip = "Issue with all packages list by NuGet")]
         public async Task DownloadAsync()
         {
             string[] args = { Constants.AllowPreRelease, Constants.DownloadOnly };
