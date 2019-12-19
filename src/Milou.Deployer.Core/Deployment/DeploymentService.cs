@@ -34,7 +34,7 @@ namespace Milou.Deployer.Core.Deployment
         private readonly DirectoryCleaner _directoryCleaner;
 
         private readonly FileMatcher _fileMatcher;
-        private readonly Func<DeploymentExecutionDefinition, IIISManager> _iisManager;
+        private readonly Func<DeploymentExecutionDefinition, IIisManager> _iisManager;
 
         private readonly ILogger _logger;
 
@@ -48,7 +48,7 @@ namespace Milou.Deployer.Core.Deployment
             ILogger logger,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
-            Func<DeploymentExecutionDefinition, IIISManager> iisManager)
+            Func<DeploymentExecutionDefinition, IIisManager> iisManager)
         {
             if (logger == null)
             {
@@ -128,11 +128,11 @@ namespace Milou.Deployer.Core.Deployment
                 return ExitCode.Failure;
             }
 
-            Dictionary<string, string> dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'),
+            var dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'),
                 s => s.sha512Base64Encoded,
                 StringComparer.OrdinalIgnoreCase);
 
-            using (SHA512 hashAlgorithm = SHA512.Create())
+            using (var hashAlgorithm = SHA512.Create())
             {
                 foreach (var item in existingFiles)
                 {
@@ -736,7 +736,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     try
                     {
-                        using IIISManager manager = _iisManager(deploymentExecutionDefinition);
+                        using IIisManager manager = _iisManager(deploymentExecutionDefinition);
 
                         if (hasIisSiteName)
                         {

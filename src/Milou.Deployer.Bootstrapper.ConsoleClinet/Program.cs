@@ -19,7 +19,7 @@ namespace Milou.Deployer.Bootstrapper.ConsoleClient
                 using (var cts = new CancellationTokenSource(GetTimeout(args)))
                 {
                     NuGetPackageInstallResult nuGetPackageInstallResult =
-                        await app.ExecuteAsync(args.ToImmutableArray(), cts.Token).ConfigureAwait(false);
+                        await app.ExecuteAsync(args.ToImmutableArray(), cancellationToken: cts.Token).ConfigureAwait(false);
 
                     exitCode = nuGetPackageInstallResult.SemanticVersion != null &&
                                nuGetPackageInstallResult.PackageDirectory != null

@@ -6,10 +6,7 @@ namespace Milou.Deployer.Tests.Integration
 {
     internal sealed class TempDirectory : IDisposable
     {
-        private TempDirectory(DirectoryInfo directory)
-        {
-            Directory = directory ?? throw new ArgumentNullException(nameof(directory));
-        }
+        private TempDirectory(DirectoryInfo directory) => Directory = directory ?? throw new ArgumentNullException(nameof(directory));
 
         public DirectoryInfo Directory { get; private set; }
 

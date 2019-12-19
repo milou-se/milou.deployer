@@ -19,7 +19,6 @@ using NuGet.Versioning;
 
 using Serilog;
 using Serilog.Core;
-using Serilog.Events;
 
 namespace Milou.Deployer.ConsoleClient
 {
@@ -28,7 +27,6 @@ namespace Milou.Deployer.ConsoleClient
         public LoggingLevelSwitch LevelSwitch { get; }
         private readonly AppExit _appExit;
         private readonly DeploymentService _deploymentService;
-        private readonly DeploymentExecutionDefinitionFileReader _fileReader;
         private IKeyValueConfiguration _appSettings;
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -37,7 +35,6 @@ namespace Milou.Deployer.ConsoleClient
         public DeployerApp(
             [NotNull] ILogger logger,
             [NotNull] DeploymentService deploymentService,
-            [NotNull] DeploymentExecutionDefinitionFileReader fileReader,
             [NotNull] IKeyValueConfiguration appSettings,
             [NotNull] LoggingLevelSwitch levelSwitch,
             [NotNull] CancellationTokenSource cancellationTokenSource)
@@ -45,7 +42,6 @@ namespace Milou.Deployer.ConsoleClient
             LevelSwitch = levelSwitch ?? throw new ArgumentNullException(nameof(levelSwitch));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
-            _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
             _cancellationTokenSource = cancellationTokenSource ??
                                        throw new ArgumentNullException(nameof(cancellationTokenSource));
@@ -197,10 +193,10 @@ namespace Milou.Deployer.ConsoleClient
                 return ExitCode.Failure;
             }
 
-            string data = _fileReader.ReadAllData(file);
+            string data = DeploymentExecutionDefinitionFileReader.ReadAllData(file);
 
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions =
-                new DeploymentExecutionDefinitionParser().Deserialize(data);
+                DeploymentExecutionDefinitionParser.Deserialize(data);
 
             if (deploymentExecutionDefinitions.Length == 0)
             {

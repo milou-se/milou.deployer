@@ -199,25 +199,20 @@ namespace Milou.Deployer.ConsoleClient
                     logger,
                     configuration,
                     new WebDeployHelper(logger),
-                    deploymentExecutionDefinition => IISManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition));
-
-                var fileReader = new DeploymentExecutionDefinitionFileReader();
+                    deploymentExecutionDefinition => IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition));
 
                 string temp = configuration[ConfigurationKeys.TempDirectory];
 
                 const string tempEnvironmentVariableName = "temp";
 
-                if (!string.IsNullOrWhiteSpace(temp))
+                if (!string.IsNullOrWhiteSpace(temp) && Directory.Exists(temp))
                 {
-                    if (Directory.Exists(temp))
-                    {
-                        Environment.SetEnvironmentVariable(tempEnvironmentVariableName, temp);
-                        Environment.SetEnvironmentVariable("tmp", temp);
-                    }
+                    Environment.SetEnvironmentVariable(tempEnvironmentVariableName, temp);
+                    Environment.SetEnvironmentVariable("tmp", temp);
                 }
 
                 var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                return new DeployerApp(logger, deploymentService, fileReader, configuration, levelSwitch, cancellationTokenSource);
+                return new DeployerApp(logger, deploymentService, configuration, levelSwitch, cancellationTokenSource);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {

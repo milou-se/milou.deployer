@@ -159,9 +159,9 @@ namespace Milou.Deployer.Bootstrapper.Common
             return (nuGetPackageInstallResult, deployerToolFile);
         }
 
-        private FileInfo GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
+        private static FileInfo GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
         {
-            var exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
+            string exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
 
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
@@ -175,8 +175,8 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         public async Task<NuGetPackageInstallResult> ExecuteAsync(
             ImmutableArray<string> appArgs,
-            CancellationToken cancellationToken = default,
-            TimeSpan? processTimeout = default)
+            TimeSpan? processTimeout = default,
+            CancellationToken cancellationToken = default)
         {
             if (appArgs.IsDefault)
             {
@@ -222,7 +222,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static string GetNuGetSource(ImmutableArray<string> appArgs)
         {
-            var nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
+            string nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
             return nugetSource;
         }
 

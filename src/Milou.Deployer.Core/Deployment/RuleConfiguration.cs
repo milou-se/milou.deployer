@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using Milou.Deployer.Core.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Deployment.Configuration;
 
 using Serilog;
@@ -31,10 +32,20 @@ namespace Milou.Deployer.Core.Deployment
         public bool UseChecksumEnabled { get; set; }
 
         public static RuleConfiguration Get(
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
-            DeployerConfiguration deployerConfiguration,
+            [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] DeployerConfiguration deployerConfiguration,
             ILogger logger)
         {
+            if (deploymentExecutionDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            if (deployerConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(deployerConfiguration));
+            }
+
             bool doNotDeleteEnabled = deploymentExecutionDefinition.DoNotDeleteEnabled(deployerConfiguration
                 .WebDeploy.Rules.DoNotDeleteRuleEnabled);
 
@@ -55,27 +66,27 @@ namespace Milou.Deployer.Core.Deployment
 
             bool whatIfEnabled = deploymentExecutionDefinition.WhatIfEnabled();
 
-            logger.Debug(
+            logger?.Debug(
                 "{RuleName}: {DoNotDeleteEnabled}",
                 nameof(deployerConfiguration.WebDeploy.Rules.DoNotDeleteRuleEnabled),
                 doNotDeleteEnabled);
-            logger.Debug(
+            logger?.Debug(
                 "{RuleName}: {AppOfflineEnabled}",
                 nameof(deployerConfiguration.WebDeploy.Rules.AppOfflineRuleEnabled),
                 appOfflineEnabled);
-            logger.Debug(
+            logger?.Debug(
                 "{RuleName}: {UseChecksumEnabled}",
                 nameof(deployerConfiguration.WebDeploy.Rules.UseChecksumRuleEnabled),
                 useChecksumEnabled);
-            logger.Debug(
+            logger?.Debug(
                 "{RuleName}: {AppDataSkipDirectiveEnabled}",
                 nameof(deployerConfiguration.WebDeploy.Rules.AppDataSkipDirectiveEnabled),
                 appDataSkipDirectiveEnabled);
-            logger.Debug(
+            logger?.Debug(
                 "{RuleName}: {ApplicationInsightsProfiler2SkipDirectiveEnabled}",
                 nameof(deployerConfiguration.WebDeploy.Rules.ApplicationInsightsProfiler2SkipDirectiveEnabled),
                 applicationInsightsProfiler2SkipDirectiveEnabled);
-            logger.Debug(
+            logger?.Debug(
                 "{RuleName}: {WhatIfEnabled}",
                 nameof(DeploymentExecutionDefinitionExtensions.WhatIfEnabled),
                 whatIfEnabled);

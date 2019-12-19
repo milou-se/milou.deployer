@@ -228,7 +228,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
         {
             var summary = new FtpSummary();
 
-            var localPaths = sourceDirectory
+            string[] localPaths = sourceDirectory
                 .GetFiles()
                 .Select(f => f.FullName)
                 .ToArray();
@@ -261,7 +261,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
                     int batchNumber = i + 1;
 
-                    var files = localPaths.Skip(i * batchSize).Take(batchSize).ToArray();
+                    string[] files = localPaths.Skip(i * batchSize).Take(batchSize).ToArray();
 
                     var stopwatch = new Stopwatch();
 
@@ -289,7 +289,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                                 uploadedFiles,
                                 batchNumber);
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) when (!ex.IsFatal())
                         {
                             _logger.Warning(ex, "FTP ERROR in batch {Batch}", batchNumber);
                         }
@@ -515,7 +515,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return deploymentChangeSummary;
         }
 
-        private bool KeepFile(FtpPath fileSystemItem, RuleConfiguration ruleConfiguration)
+        private static bool KeepFile(FtpPath fileSystemItem, RuleConfiguration ruleConfiguration)
         {
             if (ruleConfiguration.AppDataSkipDirectiveEnabled && fileSystemItem.IsAppDataDirectoryOrFile)
             {

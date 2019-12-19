@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Milou.Deployer.Core.Deployment;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Core.XmlTransformation;
 
@@ -15,13 +15,20 @@ namespace Milou.Deployer.Core.IO
     {
         private readonly ILogger _logger;
 
-        public FileMatcher(ILogger logger)
-        {
-            _logger = logger;
-        }
+        public FileMatcher(ILogger logger) => _logger = logger;
 
-        public ImmutableArray<FileInfo> Matches(FileMatch fileMatch, DirectoryInfo rootDirectory)
+        public ImmutableArray<FileInfo> Matches([NotNull] FileMatch fileMatch, [NotNull] DirectoryInfo rootDirectory)
         {
+            if (fileMatch == null)
+            {
+                throw new ArgumentNullException(nameof(fileMatch));
+            }
+
+            if (rootDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(rootDirectory));
+            }
+
             string filePattern = $"*{Path.GetExtension(fileMatch.TargetName)}";
 
             _logger.Debug(
@@ -30,7 +37,7 @@ namespace Milou.Deployer.Core.IO
                 rootDirectory.FullName,
                 filePattern);
 
-            List<FileInfo> matchingFiles =
+            var matchingFiles =
                 rootDirectory.GetFiles(filePattern, SearchOption.AllDirectories)
                     .Tap(
                         file =>

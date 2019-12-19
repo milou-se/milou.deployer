@@ -8,12 +8,10 @@ namespace Milou.Deployer.ConsoleClient
 {
     internal sealed class AppExit
     {
+        private const string ExitMessage = "Press ENTER to continue";
         private readonly ILogger _logger;
 
-        public AppExit([NotNull] ILogger logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        public AppExit([NotNull] ILogger logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public ExitCode ExitSuccess()
         {
@@ -49,7 +47,7 @@ namespace Milou.Deployer.ConsoleClient
             {
                 if (Environment.UserInteractive)
                 {
-                    Console.WriteLine("Press ENTER to continue");
+                    Console.WriteLine(ExitMessage);
                     Console.ReadLine();
                 }
                 else

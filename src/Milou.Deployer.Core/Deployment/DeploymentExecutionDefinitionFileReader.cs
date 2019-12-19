@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public class DeploymentExecutionDefinitionFileReader
+    public static class DeploymentExecutionDefinitionFileReader
     {
-        public string ReadAllData(string manifestFilePath)
+        public static string ReadAllData(string manifestFilePath)
         {
             if (string.IsNullOrWhiteSpace(manifestFilePath))
             {

@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public class DeploymentExecutionDefinitionParser
+    public static class DeploymentExecutionDefinitionParser
     {
-        public ImmutableArray<DeploymentExecutionDefinition> Deserialize(string data)
+        public static ImmutableArray<DeploymentExecutionDefinition> Deserialize(string data)
         {
             return JsonConvert.DeserializeAnonymousType(
                 data,

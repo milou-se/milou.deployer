@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Arbor.Processing;
-
+using JetBrains.Annotations;
 using Microsoft.Web.XmlTransform;
-
-using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.IO;
 using Serilog;
 
@@ -24,12 +23,30 @@ namespace Milou.Deployer.Core.XmlTransformation
         }
 
         public ExitCode TransformFile(
-            FileInfo originalFile,
-            FileInfo transformationFile,
-            DirectoryInfo originalFileRootDirectory,
-            DirectoryInfo transformationFileRootDirectory)
+            [NotNull] FileInfo originalFile,
+            [NotNull] FileInfo transformationFile,
+            [NotNull] DirectoryInfo originalFileRootDirectory,
+            [NotNull] DirectoryInfo transformationFileRootDirectory)
         {
-#if !DOTNET5_4
+            if (originalFile == null)
+            {
+                throw new ArgumentNullException(nameof(originalFile));
+            }
+
+            if (transformationFile == null)
+            {
+                throw new ArgumentNullException(nameof(transformationFile));
+            }
+
+            if (originalFileRootDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(originalFileRootDirectory));
+            }
+
+            if (transformationFileRootDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(transformationFileRootDirectory));
+            }
 
             if (!originalFile.Exists)
             {
@@ -54,37 +71,38 @@ namespace Milou.Deployer.Core.XmlTransformation
                 transformationFile.FullName,
                 destFilePath);
 
-            var xmlTransformableDocument =
-                new XmlTransformableDocument { PreserveWhitespace = true };
-            xmlTransformableDocument.Load(originalFile.FullName);
-
-            bool succeed;
-            using (
-                var transform =
-                    new Microsoft.Web.XmlTransform.XmlTransformation(transformationFile.FullName))
+            using (var xmlTransformableDocument = new XmlTransformableDocument {PreserveWhitespace = true})
             {
-                succeed = transform.Apply(xmlTransformableDocument);
-            }
+                xmlTransformableDocument.Load(originalFile.FullName);
 
-            if (!succeed)
-            {
-                _logger.Error(
-                    "Transforming failed, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
+                bool succeed;
+                using (
+                    var transform =
+                        new Microsoft.Web.XmlTransform.XmlTransformation(transformationFile.FullName))
+                {
+                    succeed = transform.Apply(xmlTransformableDocument);
+                }
+
+                if (!succeed)
+                {
+                    _logger.Error(
+                        "Transforming failed, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
+                        originalFile.FullName,
+                        transformationFile.FullName,
+                        destFilePath);
+                    return ExitCode.Failure;
+                }
+
+                _logger.Debug(
+                    "Transforming succeeded, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
                     originalFile.FullName,
                     transformationFile.FullName,
                     destFilePath);
-                return ExitCode.Failure;
-            }
 
-            _logger.Debug(
-                "Transforming succeeded, original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
-                originalFile.FullName,
-                transformationFile.FullName,
-                destFilePath);
-
-            using (var destinationFileStream = new FileStream(destFilePath, FileMode.OpenOrCreate))
-            {
-                xmlTransformableDocument.Save(destinationFileStream);
+                using (var destinationFileStream = new FileStream(destFilePath, FileMode.OpenOrCreate))
+                {
+                    xmlTransformableDocument.Save(destinationFileStream);
+                }
             }
 
             File.Copy(destFilePath, originalFile.FullName, true);
@@ -108,13 +126,6 @@ namespace Milou.Deployer.Core.XmlTransformation
                 File.Delete(destFilePath);
                 _logger.Debug("Deleted temp transformation destination file '{DestFilePath}'", destFilePath);
             }
-#endif
-
-#if DOTNET5_4
-            _logger.Error($"Transforming is not yet supported using DNXCORE");
-
-            return ExitCode.Failure;
-#endif
 
             return ExitCode.Success;
         }

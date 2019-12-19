@@ -5,11 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Arbor.Aesculus.Core;
-
 using Milou.Deployer.ConsoleClient;
-using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.IO;
 
@@ -135,20 +131,17 @@ namespace Milou.Deployer.Tests.Integration
                                     text,
                                     new { keys = new List<KeyValuePair<string, string>>() });
 
-                                Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)));
+                                Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
                             }
-                        }
-
-                        if (exitCode != 0)
-                        {
-                            // break;
                         }
 
                         Assert.Equal(0, exitCode);
 
+#pragma warning disable S1215 // "GC.Collect" should not be called
                         GC.Collect(0, GCCollectionMode.Forced);
                         GC.Collect(1, GCCollectionMode.Forced);
                         GC.Collect(2, GCCollectionMode.Forced);
+#pragma warning restore S1215 // "GC.Collect" should not be called
                     }
                 }
                 finally
