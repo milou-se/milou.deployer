@@ -115,7 +115,7 @@ namespace Milou.Deployer.Waws
             {
                 if (targetProvider == DeploymentWellKnownProvider.DirPath)
                 {
-                    throw new Exception("A source zip file can't be used with a physical target path");
+                    throw new DeploymentException("A source zip file can't be used with a physical target path");
                 }
 
                 sourceProvider = DeploymentWellKnownProvider.Package;
@@ -152,67 +152,65 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            if (!doNotDelete)
+            if (!doNotDelete
+                && targetProvider == DeploymentWellKnownProvider.DirPath
+                && Directory.Exists(destinationPath)
+                && string.IsNullOrWhiteSpace(publishSettingsFile))
             {
-                if (targetProvider == DeploymentWellKnownProvider.DirPath && Directory.Exists(destinationPath)
-                                                                          && string.IsNullOrWhiteSpace(
-                                                                              publishSettingsFile))
+                var sourceDir = new DirectoryInfo(sourcePath);
+
+                if (sourceDir.Exists)
                 {
-                    var sourceDir = new DirectoryInfo(sourcePath);
+                    var targetDir = new DirectoryInfo(destinationPath);
 
-                    if (sourceDir.Exists)
+                    FileInfo[] allTargetFiles = targetDir.GetFiles("*", SearchOption.AllDirectories);
+
+                    FileInfo[] allSourceFiles = sourceDir.GetFiles("*", SearchOption.AllDirectories);
+
+                    bool TargetExistsInSource(FileInfo targetFile)
                     {
-                        var targetDir = new DirectoryInfo(destinationPath);
+                        string expectedSourceName = targetFile.FullName.Replace(targetDir.FullName, "");
 
-                        FileInfo[] allTargetFiles = targetDir.GetFiles("*", SearchOption.AllDirectories);
+                        bool sourceFileExists = allSourceFiles.Any(sourceFile =>
+                            sourceFile.FullName.Replace(sourceDir.FullName, "").Equals(expectedSourceName,
+                                StringComparison.OrdinalIgnoreCase));
 
-                        FileInfo[] allSourceFiles = sourceDir.GetFiles("*", SearchOption.AllDirectories);
-
-                        bool TargetExistsInSource(FileInfo targetFile)
-                        {
-                            string expectedSourceName = targetFile.FullName.Replace(targetDir.FullName, "");
-
-                            bool sourceFileExists = allSourceFiles.Any(sourceFile =>
-                                sourceFile.FullName.Replace(sourceDir.FullName, "").Equals(expectedSourceName,
-                                    StringComparison.OrdinalIgnoreCase));
-
-                            return sourceFileExists;
-                        }
-
-                        void DeleteEmptyDirectory(DirectoryInfo currentDirectory)
-                        {
-                            DirectoryInfo[] subDirectories = currentDirectory.GetDirectories();
-
-                            foreach (DirectoryInfo subDirectory in subDirectories)
-                            {
-                                DeleteEmptyDirectory(subDirectory);
-                            }
-
-                            currentDirectory.Refresh();
-
-                            if (currentDirectory.GetFiles().Length == 0
-                                && currentDirectory.GetDirectories().Length == 0)
-                            {
-                                currentDirectory.Delete();
-                                logAction($"Deleted empty directory '{currentDirectory.FullName}'");
-                            }
-                        }
-
-                        FileInfo[] toDelete = allTargetFiles
-                            .Where(currentFile => !TargetExistsInSource(currentFile))
-                            .Where(currentFile =>
-                                !appDataSkipDirectiveEnabled
-                                || currentFile.FullName.IndexOf("App_Data", StringComparison.OrdinalIgnoreCase) < 0)
-                            .ToArray();
-
-                        foreach (FileInfo fileInfo in toDelete)
-                        {
-                            fileInfo.Delete();
-                            logAction($"Deleted file '{fileInfo.FullName}'");
-                        }
-
-                        DeleteEmptyDirectory(targetDir);
+                        return sourceFileExists;
                     }
+
+                    void DeleteEmptyDirectory(DirectoryInfo currentDirectory)
+                    {
+                        DirectoryInfo[] subDirectories = currentDirectory.GetDirectories();
+
+                        foreach (DirectoryInfo subDirectory in subDirectories)
+                        {
+                            DeleteEmptyDirectory(subDirectory);
+                        }
+
+                        currentDirectory.Refresh();
+
+                        if (currentDirectory.GetFiles().Length == 0
+                            && currentDirectory.GetDirectories().Length == 0)
+                        {
+                            currentDirectory.Delete();
+                            logAction($"Deleted empty directory '{currentDirectory.FullName}'");
+                        }
+                    }
+
+                    FileInfo[] toDelete = allTargetFiles
+                        .Where(currentFile => !TargetExistsInSource(currentFile))
+                        .Where(currentFile =>
+                            !appDataSkipDirectiveEnabled
+                            || currentFile.FullName.IndexOf("App_Data", StringComparison.OrdinalIgnoreCase) < 0)
+                        .ToArray();
+
+                    foreach (FileInfo fileInfo in toDelete)
+                    {
+                        fileInfo.Delete();
+                        logAction($"Deleted file '{fileInfo.FullName}'");
+                    }
+
+                    DeleteEmptyDirectory(targetDir);
                 }
             }
 
@@ -242,9 +240,7 @@ namespace Milou.Deployer.Waws
                     appOfflineFile?.Refresh();
                     if (appOfflineFile?.Exists == false)
                     {
-                        using (File.Create(appOfflineFile.FullName))
-                        {
-                        }
+                        using var _ = File.Create(appOfflineFile.FullName);
                     }
 
                     deployContentToOneSite =

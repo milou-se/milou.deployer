@@ -70,7 +70,7 @@ namespace Milou.Deployer.Core.IO
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex) when(!ex.IsFatal())
             {
                 // ignore
             }
