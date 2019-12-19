@@ -10,7 +10,7 @@ using Serilog;
 
 namespace Milou.Deployer.Core.XmlTransformation
 {
-    public class DeploymentTransformation
+    public static class DeploymentTransformation
     {
         public static void Transform([NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
             [NotNull] DirectoryInfo contentDirectory,
@@ -48,24 +48,20 @@ namespace Milou.Deployer.Core.XmlTransformation
 
                     if (webConfig.Exists)
                     {
-                        using (var x = new XmlTransformableDocument())
+                        using var x = new XmlTransformableDocument {PreserveWhitespace = true};
+
+                        x.Load(webConfig.FullName);
+
+                        using var transform = new Microsoft.Web.XmlTransform.XmlTransformation(transformFile.FullName);
+
+                        bool succeed = transform.Apply(x);
+
+                        if (succeed)
                         {
-                            x.PreserveWhitespace = true;
-                            x.Load(webConfig.FullName);
+                            using var fsDestFileStream =
+                                new FileStream(tempFileName, FileMode.OpenOrCreate);
 
-                            using (var transform = new Microsoft.Web.XmlTransform.XmlTransformation(transformFile.FullName))
-                            {
-                                bool succeed = transform.Apply(x);
-
-                                if (succeed)
-                                {
-                                    using (var fsDestFileStream =
-                                        new FileStream(tempFileName, FileMode.OpenOrCreate))
-                                    {
-                                        x.Save(fsDestFileStream);
-                                    }
-                                }
-                            }
+                            x.Save(fsDestFileStream);
                         }
                     }
 

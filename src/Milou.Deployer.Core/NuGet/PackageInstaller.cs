@@ -74,9 +74,9 @@ namespace Milou.Deployer.Core.NuGet
             {
                 AddVersion(explicitVersion.ToNormalizedString());
             }
-            else if (deploymentExecutionDefinition.SemanticVersion.HasValue)
+            else if (deploymentExecutionDefinition.SemanticVersion is {})
             {
-                AddVersion(deploymentExecutionDefinition.SemanticVersion.Value.ToNormalizedString());
+                AddVersion(deploymentExecutionDefinition.SemanticVersion.ToNormalizedString());
             }
 
             if (deploymentExecutionDefinition.IsPreRelease)
@@ -207,7 +207,7 @@ namespace Milou.Deployer.Core.NuGet
                 return MayBe<InstalledPackage>.Nothing;
             }
 
-            List<FileInfo> packageFiles =
+            var packageFiles =
                 tempDirectory.EnumerateFiles("*.nupkg", SearchOption.AllDirectories)
                     .Where(
                         file =>

@@ -138,16 +138,15 @@ namespace Milou.Deployer.Core.Deployment
                 {
                     string expectedChecksum = dictionary[item.RelativePath];
 
-                    using (var fs = new FileStream(item.File.FullName, FileMode.Open))
+                    using var fs = new FileStream(item.File.FullName, FileMode.Open);
+
+                    byte[] fileHash = hashAlgorithm.ComputeHash(fs);
+
+                    string base64 = Convert.ToBase64String(fileHash);
+
+                    if (!base64.Equals(expectedChecksum, StringComparison.Ordinal))
                     {
-                        byte[] fileHash = hashAlgorithm.ComputeHash(fs);
-
-                        string base64 = Convert.ToBase64String(fileHash);
-
-                        if (!base64.Equals(expectedChecksum, StringComparison.Ordinal))
-                        {
-                            throw new InvalidOperationException($"Checksum differs for file {item}");
-                        }
+                        throw new InvalidOperationException($"Checksum differs for file {item}");
                     }
                 }
             }
@@ -162,15 +161,14 @@ namespace Milou.Deployer.Core.Deployment
             DirectoryInfo packageDirectory,
             SemanticVersion fallback)
         {
-            SemanticVersion version = deploymentExecutionDefinition.SemanticVersion.HasValue
-                ? deploymentExecutionDefinition.SemanticVersion.Value
-                : SemanticVersion.TryParse(
+            SemanticVersion version = deploymentExecutionDefinition.SemanticVersion
+                ?? ( SemanticVersion.TryParse(
                     packageDirectory.Name.Replace(
                         deploymentExecutionDefinition.PackageId,
                         "").TrimStart('.'),
                     out SemanticVersion semanticVersion)
                     ? semanticVersion
-                    : fallback;
+                    : fallback);
 
             return version;
         }
@@ -181,7 +179,7 @@ namespace Milou.Deployer.Core.Deployment
         {
             int patternLength = DeploymentConstants.EnvironmentPackagePattern.Split('.').Length;
 
-            ImmutableArray<EnvironmentFile> files =
+            var files =
                 configContentDirectory.GetFiles("*.*", SearchOption.AllDirectories)
                     .Select(file => new EnvironmentFile(file, file.Name.Split('.')))
                     .Where(file => file.FileNameParts.Length == patternLength
@@ -397,7 +395,7 @@ namespace Milou.Deployer.Core.Deployment
             }
             else
             {
-                _logger.Debug("There was no wellknown action defined for file '{FullName}'", item.File.FullName);
+                _logger.Debug("There was no well-known action defined for file '{FullName}'", item.File.FullName);
             }
         }
 
@@ -423,7 +421,7 @@ namespace Milou.Deployer.Core.Deployment
             return ExitCode.Success;
         }
 
-        public async Task<ExitCode> DeployAsync(
+        public Task<ExitCode> DeployAsync(
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
             SemanticVersion explicitVersion,
             CancellationToken cancellationToken = default)
@@ -446,6 +444,17 @@ namespace Milou.Deployer.Core.Deployment
                     $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
             }
 
+            return InternalDeployAsync(
+                deploymentExecutionDefinitions,
+                explicitVersion,
+                cancellationToken);
+        }
+
+        private async Task<ExitCode> InternalDeployAsync(
+            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
+            SemanticVersion explicitVersion,
+            CancellationToken cancellationToken = default)
+        {
             var tempDirectoriesToClean = new List<DirectoryInfo>();
             var tempFilesToClean = new List<string>();
 
@@ -658,7 +667,7 @@ namespace Milou.Deployer.Core.Deployment
                     var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName,
                         DeploymentConstants.AppOfflineHtm));
 
-                    RuleConfiguration ruleConfiguration = RuleConfiguration.Get(deploymentExecutionDefinition,
+                    var ruleConfiguration = RuleConfiguration.Get(deploymentExecutionDefinition,
                         DeployerConfiguration,
                         _logger);
 
@@ -667,22 +676,19 @@ namespace Milou.Deployer.Core.Deployment
                         string sourceAppOffline =
                             Path.Combine(contentDirectory.FullName, DeploymentConstants.AppOfflineHtm);
 
-                        if (!File.Exists(sourceAppOffline))
+                        if (!File.Exists(sourceAppOffline) && !targetAppOffline.Exists)
                         {
-                            if (!targetAppOffline.Exists)
+                            using var _ = File.Create(targetAppOffline.FullName);
+
+                            _logger.Debug("Created offline file '{File}'", targetAppOffline.FullName);
+
+                            if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
                             {
-                                using var _ = File.Create(targetAppOffline.FullName);
-
-                                _logger.Debug("Created offline file '{File}'", targetAppOffline.FullName);
-
-                                if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
-                                {
-                                    await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline, cancellationToken)
-                                        .ConfigureAwait(false);
-                                }
-
-                                tempFilesToClean.Add(targetAppOffline.FullName);
+                                await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline, cancellationToken)
+                                    .ConfigureAwait(false);
                             }
+
+                            tempFilesToClean.Add(targetAppOffline.FullName);
                         }
                     }
 
@@ -792,9 +798,9 @@ namespace Milou.Deployer.Core.Deployment
                                 }
 
                                 using FtpHandler ftpHandler = await FtpHandler.CreateWithPublishSettings(
-                                                                  publishSettingsFile,
-                                                                  ftpSettings,
-                                                                  _logger);
+                                    publishSettingsFile,
+                                    ftpSettings,
+                                    _logger);
 
                                 _logger.Verbose("Created FTP handler, starting publish");
 

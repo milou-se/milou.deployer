@@ -173,9 +173,8 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static bool IsDownloadOnly(ImmutableArray<string> appArgs) => appArgs.Any(arg => arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase));
 
-        public async Task<NuGetPackageInstallResult> ExecuteAsync(
+        public Task<NuGetPackageInstallResult> ExecuteAsync(
             ImmutableArray<string> appArgs,
-            TimeSpan? processTimeout = default,
             CancellationToken cancellationToken = default)
         {
             if (appArgs.IsDefault)
@@ -183,6 +182,13 @@ namespace Milou.Deployer.Bootstrapper.Common
                 throw new ArgumentException("Arguments cannot be default", nameof(appArgs));
             }
 
+            return InternalExecuteAsync(appArgs, cancellationToken);
+        }
+
+        private async Task<NuGetPackageInstallResult> InternalExecuteAsync(
+            ImmutableArray<string> appArgs,
+            CancellationToken cancellationToken = default)
+        {
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
             var (nugetInstallResult, deployerExeFileInfo) = await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
@@ -228,7 +234,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static string GetNuGetExePath(ImmutableArray<string> appArgs)
         {
-            var exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
+            string exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
 
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
@@ -240,7 +246,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static string GetNuGetConfig(ImmutableArray<string> appArgs)
         {
-            var nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
+            string nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
 
             if (string.IsNullOrWhiteSpace(nugetConfig) || !File.Exists(nugetConfig))
             {

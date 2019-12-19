@@ -67,7 +67,7 @@ namespace Milou.Deployer.Core.Deployment
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
-            IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
+            IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
             PublishSettingsFile = publishSettingsFile;
@@ -115,7 +115,7 @@ namespace Milou.Deployer.Core.Deployment
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
-            IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
+            IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
             PublishSettingsFile = publishSettingsFile;
@@ -157,21 +157,19 @@ namespace Milou.Deployer.Core.Deployment
 
         public ImmutableDictionary<string, StringValues> Parameters { get; }
 
-        [JsonIgnore]
-        public MayBe<SemanticVersion> SemanticVersion { get; }
+        [JsonIgnore] [CanBeNull] public SemanticVersion SemanticVersion { get; }
 
         [JsonProperty(PropertyName = nameof(SemanticVersion))]
+        [CanBeNull]
         public string NormalizedVersion =>
-            SemanticVersion.HasValue ? SemanticVersion.Value.ToNormalizedString() : null;
+            SemanticVersion?.ToNormalizedString();
 
         public string TargetDirectoryPath { get; }
 
         public bool IsPreRelease { get; private set; }
 
         [JsonIgnore]
-        public string Version => SemanticVersion.HasValue
-            ? SemanticVersion.Value.ToNormalizedString()
-            : "{any version}";
+        public string Version => SemanticVersion?.ToNormalizedString() ?? "{any version}";
 
         public bool RequireEnvironmentConfig { get; }
 
@@ -189,14 +187,8 @@ namespace Milou.Deployer.Core.Deployment
         [JsonIgnore]
         public FtpPath FtpPath { get; }
 
-        private void SetPreRelease(bool isPreRelease)
-        {
-            IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
-        }
+        private void SetPreRelease(bool isPreRelease) => IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
 
-        public override string ToString()
-        {
-            return $"{PackageId} {Version} {TargetDirectoryPath} {EnvironmentConfig}";
-        }
+        public override string ToString() => $"{PackageId} {Version} {TargetDirectoryPath} {EnvironmentConfig}";
     }
 }
