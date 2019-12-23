@@ -41,7 +41,7 @@ namespace Milou.Deployer.Core.Configuration
         public const string LogLevelEnvironmentVariable = "loglevel";
 
         [Metadata]
-        public const string LogLevel = "urn:loglevel";
+        public const string LogLevel = "urn:milou:deployer:loglevel";
 
         [Metadata]
         public const string NuGetExePath = "urn:milou:deployer:tools:nuget:exe-path";
