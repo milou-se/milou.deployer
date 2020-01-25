@@ -70,7 +70,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             {
                 await _ftpClient.UploadFileAsync(sourceFile.FullName,
                     filePath.Path,
-                    FtpExists.Overwrite,
+                    FtpRemoteExists.Overwrite,
                     true,
                     FtpVerify.Delete | FtpVerify.Retry,
                     progress,
@@ -272,7 +272,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                             stopwatch.Restart();
                             int uploadedFiles = await _ftpClient.UploadFilesAsync(files,
                                 relativeDir.Path,
-                                FtpExists.Overwrite,
+                                FtpRemoteExists.Overwrite,
                                 true,
                                 FtpVerify.Delete | FtpVerify.Retry,
                                 token: cancellationToken);
@@ -415,17 +415,15 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
                 if (ruleConfiguration.AppOfflineEnabled)
                 {
-                    using (var tempFile = TempFile.CreateTempFile("App_Offline", ".htm"))
-                    {
-                        var appOfflinePath = new FtpPath($"/{tempFile.File.Name}", FileSystemType.File);
-                        var appOfflineFullPath =
-                            (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(
-                                appOfflinePath);
+                    using var tempFile = TempFile.CreateTempFile("App_Offline", ".htm");
+                    var appOfflinePath = new FtpPath($"/{tempFile.File.Name}", FileSystemType.File);
+                    var appOfflineFullPath =
+                        (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(
+                            appOfflinePath);
 
-                        await UploadFileAsync(appOfflineFullPath, tempFile.File, cancellationToken);
+                    await UploadFileAsync(appOfflineFullPath, tempFile.File, cancellationToken);
 
-                        _logger.Debug("Uploaded file '{App_Offline}'", appOfflineFullPath.Path);
-                    }
+                    _logger.Debug("Uploaded file '{App_Offline}'", appOfflineFullPath.Path);
                 }
 
                 var deleteFiles = await DeleteFilesAsync(ruleConfiguration, filesToRemove, cancellationToken);
