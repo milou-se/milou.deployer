@@ -27,6 +27,7 @@ SET Arbor.Build.ShowAvailableVariablesEnabled=false
 SET Arbor.Build.ShowDefinedVariablesEnabled=false
 SET Arbor.Build.Tools.External.MSBuild.Verbosity=minimal
 SET Arbor.Build.NuGet.Package.AllowManifestReWriteEnabled=false
+SET Arbor.Build.NuGet.PackageUpload.Enabled=true
 
 SET Arbor.Build.NuGet.Package.ExcludesCommaSeparated=Arbor.Build.Bootstrapper.nuspec
 
