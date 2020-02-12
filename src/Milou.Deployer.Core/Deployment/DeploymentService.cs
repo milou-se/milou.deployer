@@ -248,7 +248,10 @@ namespace Milou.Deployer.Core.Deployment
                     new DeploymentExecutionDefinition(
                         expectedPackageId,
                         tempInstallDirectory.FullName,
-                        expectedVersion);
+                        expectedVersion,
+                        nugetExePath: deploymentExecutionDefinition.NuGetExePath,
+                        nuGetPackageSource: deploymentExecutionDefinition.NuGetPackageSource,
+                        nuGetConfigFile: deploymentExecutionDefinition.NuGetConfigFile);
 
                 var tempOutputDirectory =
                     new DirectoryInfo(
