@@ -39,24 +39,24 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(packageId));
             }
 
-            SemanticVersion version = null;
-
             if (!string.IsNullOrWhiteSpace(semanticVersion))
             {
                 if (
-                    !global::NuGet.Versioning.SemanticVersion.TryParse(semanticVersion,
+                    !SemanticVersion.TryParse(semanticVersion,
                         out SemanticVersion parsedResultValue))
                 {
                     throw new FormatException(
                         $"Could not parse a valid semantic version from string value '{semanticVersion}'");
                 }
 
-                version = parsedResultValue;
+                SemanticVersion = parsedResultValue;
+            }
+            else
+            {
+                SemanticVersion = null;
             }
 
             ExcludedFilePatterns = excludedFilePatterns?.Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
-
-            SemanticVersion = new MayBe<SemanticVersion>(version);
 
             SetPreRelease(isPreRelease);
 
