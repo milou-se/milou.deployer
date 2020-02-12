@@ -46,7 +46,19 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             var appArgs = args.ToImmutableArray();
 
-            logger ??= new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            if (logger is null)
+            {
+                var loggerConfiguration = new LoggerConfiguration().WriteTo.Console();
+
+                string correlationId = GetCorrelationId(appArgs);
+
+                if (!string.IsNullOrWhiteSpace(correlationId))
+                {
+                    loggerConfiguration.Enrich.WithProperty("CorrelationId", correlationId);
+                }
+
+                logger = loggerConfiguration.CreateLogger();
+            }
 
             string nugetSource = GetNuGetSource(appArgs);
             string nugetConfig = GetNuGetConfig(appArgs);
@@ -230,6 +242,13 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             string nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
             return nugetSource;
+        }
+
+        private static string GetCorrelationId(ImmutableArray<string> appArgs)
+        {
+            string correlationId = appArgs.GetArgumentValueOrDefault("correlation-id");
+
+            return correlationId;
         }
 
         private static string GetNuGetExePath(ImmutableArray<string> appArgs)
