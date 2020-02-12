@@ -42,13 +42,15 @@ namespace Milou.Deployer.Core.Deployment
         private readonly IWebDeployHelper _webDeployHelper;
 
         private readonly XmlTransformer _xmlTransformer;
+        private readonly NuGetPackageInstaller _nugetPackageInstaller;
 
         public DeploymentService(
             DeployerConfiguration deployerConfiguration,
             ILogger logger,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
-            Func<DeploymentExecutionDefinition, IIisManager> iisManager)
+            Func<DeploymentExecutionDefinition, IIisManager> iisManager,
+            NuGetPackageInstaller nugetPackageInstaller)
         {
             if (logger == null)
             {
@@ -74,6 +76,7 @@ namespace Milou.Deployer.Core.Deployment
             _logger = logger;
             _webDeployHelper = webDeployHelper;
             _iisManager = iisManager;
+            _nugetPackageInstaller = nugetPackageInstaller;
         }
 
         public DeployerConfiguration DeployerConfiguration { get; }
@@ -211,12 +214,12 @@ namespace Milou.Deployer.Core.Deployment
             string expectedPackageId =
                 $"{deploymentExecutionDefinition.PackageId}.{DeploymentConstants.EnvironmentLiteral}.{deploymentExecutionDefinition.EnvironmentConfig}";
 
-
-            ImmutableArray<SemanticVersion> allVersions = await new NuGetPackageInstaller().GetAllVersionsAsync(
+            ImmutableArray<SemanticVersion> allVersions = await _nugetPackageInstaller.GetAllVersionsAsync(
                                        new NuGetPackageId(expectedPackageId),
                                        allowPreRelease: expectedVersion.IsPrerelease,
                                        nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
-                                       nugetConfig: deploymentExecutionDefinition.NuGetConfigFile);
+                                       nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
+                                       nugetExePath: deploymentExecutionDefinition.NuGetExePath);
 
             var matchingFoundEnvironmentPackage = allVersions
                 .Where(currentVersion => currentVersion == expectedVersion)

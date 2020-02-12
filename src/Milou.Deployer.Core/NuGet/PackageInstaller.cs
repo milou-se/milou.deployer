@@ -50,9 +50,9 @@ namespace Milou.Deployer.Core.NuGet
                 throw new ArgumentNullException(nameof(tempDirectory));
             }
 
-            string executePath = _deployerConfiguration.NuGetExePath;
+            string executePath = deploymentExecutionDefinition.NuGetExePath.WithDefault(_deployerConfiguration.NuGetExePath);
 
-            if (string.IsNullOrWhiteSpace(_deployerConfiguration.NuGetExePath))
+            if (string.IsNullOrWhiteSpace(executePath))
             {
                 throw new InvalidOperationException("The NuGet executable file path is not defined");
             }

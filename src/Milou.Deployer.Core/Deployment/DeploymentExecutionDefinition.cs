@@ -100,7 +100,8 @@ namespace Milou.Deployer.Core.Deployment
             bool requireEnvironmentConfig = false,
             string webConfigTransformFile = null,
             string publishType = null,
-            string ftpPath = null)
+            string ftpPath = null,
+            string nugetExePath = null)
         {
             SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing;
             if (string.IsNullOrWhiteSpace(packageId))
@@ -133,6 +134,8 @@ namespace Milou.Deployer.Core.Deployment
             PublishType = publishTypeValue;
 
             ExcludedFilePatternsCombined = excludedFilePatterns;
+
+            NuGetExePath = nugetExePath;
         }
 
         [JsonIgnore]
@@ -154,6 +157,8 @@ namespace Milou.Deployer.Core.Deployment
         public bool Force { get; }
 
         public string PackageId { get; }
+
+        public string NuGetExePath { get; }
 
         public ImmutableDictionary<string, StringValues> Parameters { get; }
 

@@ -194,12 +194,20 @@ namespace Milou.Deployer.ConsoleClient
                         .ParseAsBooleanOrDefault(true)
                 };
 
+                var nuGetCliSettings = new NuGetCliSettings(
+                    nugetSourceName: deployerConfiguration.NuGetSource,
+                    nuGetExePath: deployerConfiguration.NuGetExePath,
+                    nugetConfigFile: deployerConfiguration.NuGetConfig);
+
+                var nuGetPackageInstaller = new NuGetPackageInstaller(logger: logger, nugetCliSettings: nuGetCliSettings);
+
                 var deploymentService = new DeploymentService(
                     deployerConfiguration,
                     logger,
                     configuration,
                     new WebDeployHelper(logger),
-                    deploymentExecutionDefinition => IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition));
+                    deploymentExecutionDefinition => IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition),
+                    nuGetPackageInstaller);
 
                 string temp = configuration[ConfigurationKeys.TempDirectory];
 
