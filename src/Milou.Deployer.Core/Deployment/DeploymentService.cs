@@ -319,6 +319,7 @@ namespace Milou.Deployer.Core.Deployment
                         deploymentExecutionDefinition.EnvironmentConfig,
                         expectedPackageId,
                         expectedVersion.ToNormalizedString());
+
                     return new EnvironmentPackageResult(false);
                 }
 
@@ -329,7 +330,9 @@ namespace Milou.Deployer.Core.Deployment
                     expectedVersion.ToNormalizedString());
             }
 
-            return new EnvironmentPackageResult(true, matchingFoundEnvironmentPackage.Single());
+            var foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
+
+            return new EnvironmentPackageResult(true, foundPackage);
         }
 
         private ReplaceResult ReplaceFileIfMatchingFiles(FileMatch replacement, DirectoryInfo contentDirectory)
@@ -556,6 +559,7 @@ namespace Milou.Deployer.Core.Deployment
                     if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.EnvironmentConfig))
                     {
                         _logger.Information("Fetching environment packages for package {Package} and environment {Environment}", deploymentExecutionDefinition.PackageId, deploymentExecutionDefinition.EnvironmentConfig);
+
                         environmentPackageResult = await AddEnvironmentPackageAsync(deploymentExecutionDefinition,
                             packageInstallTempDirectory,
                             possibleXmlTransformations,
@@ -567,6 +571,15 @@ namespace Milou.Deployer.Core.Deployment
                         if (!environmentPackageResult.IsSuccess)
                         {
                             return ExitCode.Failure;
+                        }
+
+                        if (environmentPackageResult.Version != null)
+                        {
+                            _logger.Information("Installed environment package version {Version}",
+                                environmentPackageResult.Version.ToNormalizedString());
+                        }
+                        else {
+                            _logger.Information("No environment package was installed");
                         }
                     }
                     else
