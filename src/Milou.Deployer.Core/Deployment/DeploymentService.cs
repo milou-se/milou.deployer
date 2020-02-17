@@ -220,7 +220,9 @@ namespace Milou.Deployer.Core.Deployment
                                        nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
                                        nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
                                        nugetExePath: deploymentExecutionDefinition.NuGetExePath,
-                                       timeoutInSeconds: 35);
+                                       timeoutInSeconds: 35,
+                                       adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled
+            );
 
             var matchingFoundEnvironmentPackage = allVersions
                 .Where(currentVersion => currentVersion == expectedVersion)
