@@ -221,7 +221,8 @@ namespace Milou.Deployer.Core.Deployment
                                        nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
                                        nugetExePath: deploymentExecutionDefinition.NuGetExePath,
                                        timeoutInSeconds: 35,
-                                       adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled
+                                       adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
+                                       prefix: deploymentExecutionDefinition.PackageListPrefixEnabled.HasValue && deploymentExecutionDefinition.PackageListPrefixEnabled.Value ? deploymentExecutionDefinition.PackageListPrefix : ""
             );
 
             var matchingFoundEnvironmentPackage = allVersions
