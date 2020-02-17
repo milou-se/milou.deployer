@@ -219,7 +219,8 @@ namespace Milou.Deployer.Core.Deployment
                                        allowPreRelease: expectedVersion.IsPrerelease,
                                        nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
                                        nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
-                                       nugetExePath: deploymentExecutionDefinition.NuGetExePath);
+                                       nugetExePath: deploymentExecutionDefinition.NuGetExePath,
+                                       timeoutInSeconds: 35);
 
             var matchingFoundEnvironmentPackage = allVersions
                 .Where(currentVersion => currentVersion == expectedVersion)
