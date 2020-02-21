@@ -479,6 +479,12 @@ namespace Milou.Deployer.Core.Deployment
 
                 foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
                 {
+                    if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.TargetDirectoryPath)
+                        && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
+                    {
+                        throw new InvalidOperationException($"{nameof(deploymentExecutionDefinition.TargetDirectoryPath)} and {nameof(deploymentExecutionDefinition.PublishSettingsFile)} are both not set");
+                    }
+
                     string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
                     _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
                         asJson);
