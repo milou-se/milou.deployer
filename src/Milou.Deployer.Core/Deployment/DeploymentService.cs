@@ -43,6 +43,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private readonly XmlTransformer _xmlTransformer;
         private readonly NuGetPackageInstaller _nugetPackageInstaller;
+        private readonly IFtpHandlerFactory _ftpHandlerFactory;
 
         public DeploymentService(
             DeployerConfiguration deployerConfiguration,
@@ -50,7 +51,8 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
             Func<DeploymentExecutionDefinition, IIisManager> iisManager,
-            NuGetPackageInstaller nugetPackageInstaller)
+            NuGetPackageInstaller nugetPackageInstaller,
+            IFtpHandlerFactory ftpHandlerFactor)
         {
             if (logger == null)
             {
@@ -77,6 +79,7 @@ namespace Milou.Deployer.Core.Deployment
             _webDeployHelper = webDeployHelper;
             _iisManager = iisManager;
             _nugetPackageInstaller = nugetPackageInstaller;
+            _ftpHandlerFactory = ftpHandlerFactor;
         }
 
         public DeployerConfiguration DeployerConfiguration { get; }
@@ -840,10 +843,10 @@ namespace Milou.Deployer.Core.Deployment
                                     return ExitCode.Failure;
                                 }
 
-                                using FtpHandler ftpHandler = await FtpHandler.CreateWithPublishSettings(
+                                using IFtpHandler ftpHandler = await _ftpHandlerFactory.CreateWithPublishSettings(
                                     publishSettingsFile,
                                     ftpSettings,
-                                    _logger);
+                                    _logger, cancellationToken);
 
                                 _logger.Verbose("Created FTP handler, starting publish");
 

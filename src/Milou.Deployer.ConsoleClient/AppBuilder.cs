@@ -208,7 +208,8 @@ namespace Milou.Deployer.ConsoleClient
                     configuration,
                     new WebDeployHelper(logger),
                     deploymentExecutionDefinition => IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition),
-                    nuGetPackageInstaller);
+                    nuGetPackageInstaller,
+                    new FtpHandlerFactory());
 
                 string temp = configuration[ConfigurationKeys.TempDirectory];
 
