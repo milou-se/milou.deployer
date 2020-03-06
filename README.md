@@ -58,3 +58,9 @@ Where manifest.json follows this schema:
         ]
     }
 
+## Optional command line args:
+
+* --help (shows help)
+* --debug (enables debugging)
+* --non-interactive (disables interactive user prompts, default is interactive if the user session is interactive)
+* --plain-console (skips log level and other metadata for standard output)
