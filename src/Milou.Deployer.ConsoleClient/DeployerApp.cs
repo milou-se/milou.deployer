@@ -19,7 +19,6 @@ using NuGet.Versioning;
 
 using Serilog;
 using Serilog.Core;
-using Serilog.Events;
 
 namespace Milou.Deployer.ConsoleClient
 {
@@ -28,16 +27,15 @@ namespace Milou.Deployer.ConsoleClient
         public LoggingLevelSwitch LevelSwitch { get; }
         private readonly AppExit _appExit;
         private readonly DeploymentService _deploymentService;
-        private readonly DeploymentExecutionDefinitionFileReader _fileReader;
         private IKeyValueConfiguration _appSettings;
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _allowInteractive = Environment.UserInteractive;
 
         public ILogger Logger { get; private set; }
 
         public DeployerApp(
             [NotNull] ILogger logger,
             [NotNull] DeploymentService deploymentService,
-            [NotNull] DeploymentExecutionDefinitionFileReader fileReader,
             [NotNull] IKeyValueConfiguration appSettings,
             [NotNull] LoggingLevelSwitch levelSwitch,
             [NotNull] CancellationTokenSource cancellationTokenSource)
@@ -45,7 +43,6 @@ namespace Milou.Deployer.ConsoleClient
             LevelSwitch = levelSwitch ?? throw new ArgumentNullException(nameof(levelSwitch));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
-            _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
             _cancellationTokenSource = cancellationTokenSource ??
                                        throw new ArgumentNullException(nameof(cancellationTokenSource));
@@ -77,6 +74,11 @@ namespace Milou.Deployer.ConsoleClient
             if (cancellationToken == CancellationToken.None)
             {
                 cancellationToken = _cancellationTokenSource.Token;
+            }
+
+            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.NonInteractiveArgument, StringComparison.OrdinalIgnoreCase)))
+            {
+                _allowInteractive = false;
             }
 
             args ??= Array.Empty<string>();
@@ -197,10 +199,10 @@ namespace Milou.Deployer.ConsoleClient
                 return ExitCode.Failure;
             }
 
-            string data = _fileReader.ReadAllData(file);
+            string data = DeploymentExecutionDefinitionFileReader.ReadAllData(file);
 
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions =
-                new DeploymentExecutionDefinitionParser().Deserialize(data);
+                DeploymentExecutionDefinitionParser.Deserialize(data);
 
             if (deploymentExecutionDefinitions.Length == 0)
             {
@@ -219,6 +221,24 @@ namespace Milou.Deployer.ConsoleClient
 
             Logger.Verbose("{Definitions}",
                 string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
+
+            if (deploymentExecutionDefinitions.Length == 1
+                && deploymentExecutionDefinitions[0].SemanticVersion is null
+                && version is null
+                && _allowInteractive)
+            {
+                Logger.Debug("Found one definition without version and no version has been explicitly set");
+                Console.WriteLine("Version is missing in manifest and no version has been set in command line args. Enter a semantic version, eg. 1.2.3");
+
+                string inputVersion = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(inputVersion) &&
+                    SemanticVersion.TryParse(inputVersion, out var semanticInputVersion))
+                {
+                    version = semanticInputVersion;
+                    Logger.Debug("Using interactive version from user: {Version}", semanticInputVersion.ToNormalizedString());
+                }
+            }
 
             ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, version, cancellationToken).ConfigureAwait(false);
 

@@ -1,5 +1,4 @@
-﻿using Milou.Deployer.Core.Deployment;
-using Milou.Deployer.Core.Deployment.Ftp;
+﻿using Milou.Deployer.Core.Deployment.Ftp;
 
 using Xunit;
 

@@ -19,7 +19,7 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <copyright>Copyright Milou Communication AB 2015-2019</copyright>
+    <copyright>Copyright Milou Communication AB 2015-2020</copyright>
     <dependencies>
       <dependency id="Arbor.KVConfiguration.Urns" version="[0.19.1,2.0.0)" />
       <dependency id="Arbor.Tooler" version="[0.5.1,2.0.0)" />

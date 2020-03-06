@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Milou.Deployer.Core;
+using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Logging;
 
 namespace Milou.Deployer.ConsoleClient
@@ -14,6 +14,7 @@ namespace Milou.Deployer.ConsoleClient
             {
                 [ConsoleConfigurationKeys.HelpArgument] = "shows help",
                 [ConsoleConfigurationKeys.DebugArgument] = "enables debugging",
+                [ConsoleConfigurationKeys.NonInteractiveArgument] = "disables interactive user prompts, default is interactive if the user session is interactive",
                 [LoggingConstants.PlainOutputFormatEnabled] =
                     $"uses format '{LoggingConstants.PlainOutputFormatEnabled}' otherwise '{LoggingConstants.DefaultFormat}'"
             };
@@ -41,6 +42,9 @@ namespace Milou.Deployer.ConsoleClient
             var builder = new StringBuilder();
 
             builder.AppendLine("Help");
+
+            builder.AppendLine("Example:");
+            builder.AppendLine(@"Milou.Deployer.ConsoleClient.exe C:\data\manifest.json");
 
             foreach (string line in lines)
             {

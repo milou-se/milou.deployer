@@ -64,7 +64,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
             if (File.Exists(applicationMetadataJsonFilePath))
             {
-                logger.Debug("Appending existing metadata file {Path}", applicationMetadataJsonFilePath);
+                logger?.Debug("Appending existing metadata file {Path}", applicationMetadataJsonFilePath);
 
                 string json = File.ReadAllText(applicationMetadataJsonFilePath, Encoding.UTF8);
 
@@ -109,7 +109,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 deploymentExecutionDefinition.EnvironmentConfig,
                 null);
 
-            ImmutableArray<KeyValue> keys = new List<KeyValue>(existingKeys)
+            var keys = new List<KeyValue>(existingKeys)
             {
                 version,
                 deployStartTimeUtc,
@@ -127,7 +127,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
             File.WriteAllText(applicationMetadataJsonFilePath, serialized, Encoding.UTF8);
 
-            logger.Debug("Metadata file update {Path}", applicationMetadataJsonFilePath);
+            logger?.Debug("Metadata file update {Path}", applicationMetadataJsonFilePath);
 
             return applicationMetadataJsonFilePath;
         }

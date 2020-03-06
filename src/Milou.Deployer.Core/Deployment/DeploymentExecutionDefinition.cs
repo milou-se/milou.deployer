@@ -32,31 +32,34 @@ namespace Milou.Deployer.Core.Deployment
             bool requireEnvironmentConfig = false,
             string publishType = null,
             string webConfigTransformFile = null,
-            string ftpPath = null)
+            string ftpPath = null,
+            string nugetExePath = null,
+            string packageListPrefix = null,
+            bool? packageListPrefixEnabled = null)
         {
             if (string.IsNullOrWhiteSpace(packageId))
             {
                 throw new ArgumentNullException(nameof(packageId));
             }
 
-            SemanticVersion version = null;
-
             if (!string.IsNullOrWhiteSpace(semanticVersion))
             {
                 if (
-                    !global::NuGet.Versioning.SemanticVersion.TryParse(semanticVersion,
+                    !SemanticVersion.TryParse(semanticVersion,
                         out SemanticVersion parsedResultValue))
                 {
                     throw new FormatException(
                         $"Could not parse a valid semantic version from string value '{semanticVersion}'");
                 }
 
-                version = parsedResultValue;
+                SemanticVersion = parsedResultValue;
+            }
+            else
+            {
+                SemanticVersion = null;
             }
 
             ExcludedFilePatterns = excludedFilePatterns?.Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
-
-            SemanticVersion = new MayBe<SemanticVersion>(version);
 
             SetPreRelease(isPreRelease);
 
@@ -67,12 +70,15 @@ namespace Milou.Deployer.Core.Deployment
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
-            IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
+            IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
             PublishSettingsFile = publishSettingsFile;
             RequireEnvironmentConfig = requireEnvironmentConfig;
             WebConfigTransformFile = webConfigTransformFile;
+            PackageListPrefix = packageListPrefix;
+            PackageListPrefixEnabled = packageListPrefixEnabled;
+            NugetExePath = nugetExePath;
             Parameters = parameters?.ToDictionary(pair => pair.Key,
                                  pair => new StringValues(pair.Value ?? Array.Empty<string>()))
                              .ToImmutableDictionary() ??
@@ -100,7 +106,10 @@ namespace Milou.Deployer.Core.Deployment
             bool requireEnvironmentConfig = false,
             string webConfigTransformFile = null,
             string publishType = null,
-            string ftpPath = null)
+            string ftpPath = null,
+            string nugetExePath = null,
+            string packageListPrefix = null,
+            bool? packageListPrefixEnabled = null)
         {
             SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing;
             if (string.IsNullOrWhiteSpace(packageId))
@@ -115,7 +124,7 @@ namespace Milou.Deployer.Core.Deployment
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             IisSiteName = iisSiteName;
-            IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
+            IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
             Force = force;
             EnvironmentConfig = environmentConfig;
             PublishSettingsFile = publishSettingsFile;
@@ -133,6 +142,10 @@ namespace Milou.Deployer.Core.Deployment
             PublishType = publishTypeValue;
 
             ExcludedFilePatternsCombined = excludedFilePatterns;
+
+            NuGetExePath = nugetExePath;
+            PackageListPrefix = packageListPrefix;
+            PackageListPrefixEnabled = packageListPrefixEnabled;
         }
 
         [JsonIgnore]
@@ -155,27 +168,33 @@ namespace Milou.Deployer.Core.Deployment
 
         public string PackageId { get; }
 
+        public string NuGetExePath { get; }
+
         public ImmutableDictionary<string, StringValues> Parameters { get; }
 
-        [JsonIgnore]
-        public MayBe<SemanticVersion> SemanticVersion { get; }
+        [JsonIgnore] [CanBeNull] public SemanticVersion SemanticVersion { get; }
 
         [JsonProperty(PropertyName = nameof(SemanticVersion))]
+        [CanBeNull]
         public string NormalizedVersion =>
-            SemanticVersion.HasValue ? SemanticVersion.Value.ToNormalizedString() : null;
+            SemanticVersion?.ToNormalizedString();
 
         public string TargetDirectoryPath { get; }
 
         public bool IsPreRelease { get; private set; }
 
         [JsonIgnore]
-        public string Version => SemanticVersion.HasValue
-            ? SemanticVersion.Value.ToNormalizedString()
-            : "{any version}";
+        public string Version => SemanticVersion?.ToNormalizedString() ?? "{any version}";
 
         public bool RequireEnvironmentConfig { get; }
 
         public string WebConfigTransformFile { get; }
+
+        public string PackageListPrefix { get; }
+
+        public bool? PackageListPrefixEnabled { get; }
+
+        public string NugetExePath { get; }
 
         public string IisSiteName { get; }
 
@@ -189,14 +208,8 @@ namespace Milou.Deployer.Core.Deployment
         [JsonIgnore]
         public FtpPath FtpPath { get; }
 
-        private void SetPreRelease(bool isPreRelease)
-        {
-            IsPreRelease = SemanticVersion.HasValue ? SemanticVersion.Value.IsPrerelease : isPreRelease;
-        }
+        private void SetPreRelease(bool isPreRelease) => IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
 
-        public override string ToString()
-        {
-            return $"{PackageId} {Version} {TargetDirectoryPath} {EnvironmentConfig}";
-        }
+        public override string ToString() => $"{PackageId} {Version} {TargetDirectoryPath} {EnvironmentConfig}";
     }
 }

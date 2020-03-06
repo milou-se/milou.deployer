@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
 
@@ -13,10 +12,7 @@ namespace Milou.Deployer.Tests.Integration
 {
     public class WhenSerializingManifest
     {
-        public WhenSerializingManifest(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        public WhenSerializingManifest(ITestOutputHelper output) => _output = output;
 
         private readonly ITestOutputHelper _output;
 
@@ -49,7 +45,7 @@ namespace Milou.Deployer.Tests.Integration
             _output.WriteLine(serialized);
 
             ImmutableArray<DeploymentExecutionDefinition> deserializeObject =
-                new DeploymentExecutionDefinitionParser().Deserialize(serialized);
+                DeploymentExecutionDefinitionParser.Deserialize(serialized);
 
             Assert.Single(deserializeObject);
             Assert.Equal(2, deserializeObject[0].ExcludedFilePatterns.Length);

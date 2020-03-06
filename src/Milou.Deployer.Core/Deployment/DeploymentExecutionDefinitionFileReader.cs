@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public class DeploymentExecutionDefinitionFileReader
+    public static class DeploymentExecutionDefinitionFileReader
     {
-        public string ReadAllData(string manifestFilePath)
+        public static string ReadAllData(string manifestFilePath)
         {
             if (string.IsNullOrWhiteSpace(manifestFilePath))
             {
@@ -16,6 +16,13 @@ namespace Milou.Deployer.Core.Deployment
             if (!File.Exists(manifestFilePath))
             {
                 throw new InvalidOperationException($"The manifest file '{manifestFilePath}' does not exist");
+            }
+
+            var fileInfo = new FileInfo(manifestFilePath);
+
+            if (fileInfo.Length == 0)
+            {
+                throw new InvalidOperationException($"The manifest file '{manifestFilePath}' has length 0");
             }
 
             string data = File.ReadAllText(manifestFilePath, Encoding.UTF8);

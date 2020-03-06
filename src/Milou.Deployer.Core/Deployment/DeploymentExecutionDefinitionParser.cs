@@ -1,18 +1,32 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public class DeploymentExecutionDefinitionParser
+    public static class DeploymentExecutionDefinitionParser
     {
-        public ImmutableArray<DeploymentExecutionDefinition> Deserialize(string data)
+        public static ImmutableArray<DeploymentExecutionDefinition> Deserialize([NotNull] string data)
         {
-            return JsonConvert.DeserializeAnonymousType(
-                data,
-                new
-                {
-                    definitions = System.Array.Empty<DeploymentExecutionDefinition>()
-                }).definitions.ToImmutableArray();
+            if (string.IsNullOrWhiteSpace(data))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(data));
+            }
+
+            try
+            {
+                var deploymentExecutionDefinitions = JsonConvert.DeserializeAnonymousType(
+                        data,
+                        new {definitions = Array.Empty<DeploymentExecutionDefinition>()}).definitions
+                    .ToImmutableArray();
+
+                return deploymentExecutionDefinitions;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Could not parse deployment execution definitions from data '{data}'", ex);
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Microsoft.Web.Administration;
-using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Extensions;
@@ -11,7 +10,7 @@ using Serilog.Events;
 namespace Milou.Deployer.IIS
 {
     [UsedImplicitly]
-    public sealed class IISManager : IIISManager
+    public sealed class IisManager : IIisManager
     {
         private readonly DeployerConfiguration _configuration;
         private readonly DeploymentExecutionDefinition _deploymentExecutionDefinition;
@@ -20,7 +19,7 @@ namespace Milou.Deployer.IIS
         private ServerManager _serverManager;
         private Site _site;
 
-        private IISManager(
+        private IisManager(
             ServerManager serverManager,
             DeployerConfiguration configuration,
             ILogger logger,
@@ -32,7 +31,7 @@ namespace Milou.Deployer.IIS
             _deploymentExecutionDefinition = deploymentExecutionDefinition;
         }
 
-        public static IISManager Create(
+        public static IisManager Create(
             [NotNull] DeployerConfiguration configuration,
             [NotNull] ILogger logger,
             [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
@@ -52,7 +51,7 @@ namespace Milou.Deployer.IIS
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            return new IISManager(new ServerManager(), configuration, logger, deploymentExecutionDefinition);
+            return new IisManager(new ServerManager(), configuration, logger, deploymentExecutionDefinition);
         }
 
         public void Dispose()
@@ -144,20 +143,14 @@ namespace Milou.Deployer.IIS
                     }
 
                     ObjectState objectState = _site.Stop();
-                    if (objectState == ObjectState.Stopped)
+                    if (objectState == ObjectState.Stopped && _logger.IsEnabled(LogEventLevel.Debug))
                     {
-                        if (_logger.IsEnabled(LogEventLevel.Debug))
-                        {
-                            _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
-                        }
+                        _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
                     }
 
-                    if (objectState == ObjectState.Stopping)
+                    if (objectState == ObjectState.Stopping && _logger.IsEnabled(LogEventLevel.Debug))
                     {
-                        if (_logger.IsEnabled(LogEventLevel.Debug))
-                        {
-                            _logger.Debug("Stopping IIS site '{IISSiteName}'", _site.Name);
-                        }
+                        _logger.Debug("Stopping IIS site '{IISSiteName}'", _site.Name);
                     }
                 }
             }
@@ -194,20 +187,14 @@ namespace Milou.Deployer.IIS
 
                     ObjectState objectState = _site.Start();
 
-                    if (objectState == ObjectState.Started)
+                    if (objectState == ObjectState.Started && _logger.IsEnabled(LogEventLevel.Debug))
                     {
-                        if (_logger.IsEnabled(LogEventLevel.Debug))
-                        {
-                            _logger.Debug("Started IIS site '{IISSiteName}'", _site.Name);
-                        }
+                        _logger.Debug("Started IIS site '{IISSiteName}'", _site.Name);
                     }
 
-                    if (objectState == ObjectState.Starting)
+                    if (objectState == ObjectState.Starting && _logger.IsEnabled(LogEventLevel.Debug))
                     {
-                        if (_logger.IsEnabled(LogEventLevel.Debug))
-                        {
-                            _logger.Debug("Starting IIS site '{IISSiteName}'", _site.Name);
-                        }
+                        _logger.Debug("Starting IIS site '{IISSiteName}'", _site.Name);
                     }
                 }
             }

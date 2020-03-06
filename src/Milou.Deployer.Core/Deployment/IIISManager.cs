@@ -2,7 +2,7 @@
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public interface IIISManager : IDisposable
+    public interface IIisManager : IDisposable
     {
         bool StopSiteIfApplicable();
     }

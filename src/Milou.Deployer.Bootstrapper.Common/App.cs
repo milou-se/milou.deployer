@@ -46,7 +46,19 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             var appArgs = args.ToImmutableArray();
 
-            logger ??= new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            if (logger is null)
+            {
+                var loggerConfiguration = new LoggerConfiguration().WriteTo.Console();
+
+                string correlationId = GetCorrelationId(appArgs);
+
+                if (!string.IsNullOrWhiteSpace(correlationId))
+                {
+                    loggerConfiguration.Enrich.WithProperty("CorrelationId", correlationId);
+                }
+
+                logger = loggerConfiguration.CreateLogger();
+            }
 
             string nugetSource = GetNuGetSource(appArgs);
             string nugetConfig = GetNuGetConfig(appArgs);
@@ -159,9 +171,9 @@ namespace Milou.Deployer.Bootstrapper.Common
             return (nuGetPackageInstallResult, deployerToolFile);
         }
 
-        private FileInfo GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
+        private static FileInfo GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
         {
-            var exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
+            string exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
 
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
@@ -173,16 +185,22 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static bool IsDownloadOnly(ImmutableArray<string> appArgs) => appArgs.Any(arg => arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase));
 
-        public async Task<NuGetPackageInstallResult> ExecuteAsync(
+        public Task<NuGetPackageInstallResult> ExecuteAsync(
             ImmutableArray<string> appArgs,
-            CancellationToken cancellationToken = default,
-            TimeSpan? processTimeout = default)
+            CancellationToken cancellationToken = default)
         {
             if (appArgs.IsDefault)
             {
                 throw new ArgumentException("Arguments cannot be default", nameof(appArgs));
             }
 
+            return InternalExecuteAsync(appArgs, cancellationToken);
+        }
+
+        private async Task<NuGetPackageInstallResult> InternalExecuteAsync(
+            ImmutableArray<string> appArgs,
+            CancellationToken cancellationToken = default)
+        {
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
             var (nugetInstallResult, deployerExeFileInfo) = await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
@@ -222,13 +240,20 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static string GetNuGetSource(ImmutableArray<string> appArgs)
         {
-            var nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
+            string nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
             return nugetSource;
+        }
+
+        private static string GetCorrelationId(ImmutableArray<string> appArgs)
+        {
+            string correlationId = appArgs.GetArgumentValueOrDefault("correlation-id");
+
+            return correlationId;
         }
 
         private static string GetNuGetExePath(ImmutableArray<string> appArgs)
         {
-            var exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
+            string exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
 
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
@@ -240,7 +265,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static string GetNuGetConfig(ImmutableArray<string> appArgs)
         {
-            var nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
+            string nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
 
             if (string.IsNullOrWhiteSpace(nugetConfig) || !File.Exists(nugetConfig))
             {

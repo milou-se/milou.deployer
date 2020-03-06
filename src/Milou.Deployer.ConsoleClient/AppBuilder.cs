@@ -93,6 +93,7 @@ namespace Milou.Deployer.ConsoleClient
                     .ToImmutableArray();
 
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
+                    .Add(new Arbor.KVConfiguration.SystemConfiguration.AppSettingsKeyValueConfiguration())
                     .Add(new EnvironmentVariableKeyValueConfigurationSource())
                     .AddCommandLineArgsSettings(argsAsParameters)
                     .Add(new UserJsonConfiguration())
@@ -194,30 +195,34 @@ namespace Milou.Deployer.ConsoleClient
                         .ParseAsBooleanOrDefault(true)
                 };
 
+                var nuGetCliSettings = new NuGetCliSettings(
+                    nugetSourceName: deployerConfiguration.NuGetSource,
+                    nuGetExePath: deployerConfiguration.NuGetExePath,
+                    nugetConfigFile: deployerConfiguration.NuGetConfig);
+
+                var nuGetPackageInstaller = new NuGetPackageInstaller(logger: logger, nugetCliSettings: nuGetCliSettings);
+
                 var deploymentService = new DeploymentService(
                     deployerConfiguration,
                     logger,
                     configuration,
                     new WebDeployHelper(logger),
-                    deploymentExecutionDefinition => IISManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition));
-
-                var fileReader = new DeploymentExecutionDefinitionFileReader();
+                    deploymentExecutionDefinition => IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition),
+                    nuGetPackageInstaller,
+                    new FtpHandlerFactory());
 
                 string temp = configuration[ConfigurationKeys.TempDirectory];
 
                 const string tempEnvironmentVariableName = "temp";
 
-                if (!string.IsNullOrWhiteSpace(temp))
+                if (!string.IsNullOrWhiteSpace(temp) && Directory.Exists(temp))
                 {
-                    if (Directory.Exists(temp))
-                    {
-                        Environment.SetEnvironmentVariable(tempEnvironmentVariableName, temp);
-                        Environment.SetEnvironmentVariable("tmp", temp);
-                    }
+                    Environment.SetEnvironmentVariable(tempEnvironmentVariableName, temp);
+                    Environment.SetEnvironmentVariable("tmp", temp);
                 }
 
                 var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                return new DeployerApp(logger, deploymentService, fileReader, configuration, levelSwitch, cancellationTokenSource);
+                return new DeployerApp(logger, deploymentService, configuration, levelSwitch, cancellationTokenSource);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
