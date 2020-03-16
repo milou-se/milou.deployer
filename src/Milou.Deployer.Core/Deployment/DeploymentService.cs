@@ -260,7 +260,7 @@ namespace Milou.Deployer.Core.Deployment
                             $"{environmentConfigPrefix}out",
                             deploymentExecutionDefinition.EnvironmentConfig));
 
-                MayBe<InstalledPackage> installedEnvironmentPackage =
+                InstalledPackage installedEnvironmentPackage =
                     await
                         _packageInstaller.InstallPackageAsync(
                             deploymentDefinition,
@@ -269,7 +269,7 @@ namespace Milou.Deployer.Core.Deployment
                             null,
                             cancellationToken).ConfigureAwait(false);
 
-                if (!installedEnvironmentPackage.HasValue)
+                if (installedEnvironmentPackage is null)
                 {
                     _logger.Error(
                         "No environment NuGet package was installed for deployment definition {DeploymentDefinition}",
@@ -492,7 +492,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     tempDirectoriesToClean.Add(packageInstallTempDirectory);
 
-                    MayBe<InstalledPackage> installedMainPackage =
+                    InstalledPackage installedMainPackage =
                         await _packageInstaller.InstallPackageAsync(
                             deploymentExecutionDefinition,
                             packageInstallTempDirectory,
@@ -500,7 +500,7 @@ namespace Milou.Deployer.Core.Deployment
                             explicitVersion,
                             cancellationToken).ConfigureAwait(false);
 
-                    if (!installedMainPackage.HasValue)
+                    if (installedMainPackage is null)
                     {
                         _logger.Error(
                             "Could not install package defined in deployment execution definition {DeploymentExecutionDefinition}",
@@ -508,7 +508,7 @@ namespace Milou.Deployer.Core.Deployment
                         return ExitCode.Failure;
                     }
 
-                    InstalledPackage installedPackage = installedMainPackage.Value;
+                    InstalledPackage installedPackage = installedMainPackage;
 
                     _logger.Information(
                         "Successfully installed NuGet package '{PackageId}' version '{Version}' to path '{NugetPackageFullPath}'",
@@ -668,7 +668,7 @@ namespace Milou.Deployer.Core.Deployment
                         wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
 
                     string versionFile = ApplicationMetadataCreator.SetVersionFile(
-                        installedMainPackage.Value,
+                        installedMainPackage,
                         applicationMetadataTargetDirectory,
                         deploymentExecutionDefinition,
                         xmlTransformedFiles,

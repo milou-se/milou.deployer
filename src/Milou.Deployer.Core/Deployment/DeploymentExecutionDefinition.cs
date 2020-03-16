@@ -87,7 +87,7 @@ namespace Milou.Deployer.Core.Deployment
         public DeploymentExecutionDefinition(
             string packageId,
             string targetDirectoryPath,
-            MayBe<SemanticVersion> semanticVersion,
+            [CanBeNull] SemanticVersion semanticVersion,
             string nuGetConfigFile = null,
             string nuGetPackageSource = null,
             string iisSiteName = null,
@@ -103,7 +103,7 @@ namespace Milou.Deployer.Core.Deployment
             string ftpPath = null,
             string nugetExePath = null)
         {
-            SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing;
+            SemanticVersion = semanticVersion;
             if (string.IsNullOrWhiteSpace(packageId))
             {
                 throw new ArgumentNullException(nameof(packageId));
