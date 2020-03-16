@@ -271,7 +271,7 @@ namespace Milou.Deployer.Waws
                 DeleteDestination = true
             };
 
-            if (publishSettings?.SiteName is object)
+            if (publishSettings?.SiteName is {})
             {
                 DeploymentChangeSummary results;
                 using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(DeploymentWellKnownProvider.ContentPath,
@@ -308,7 +308,7 @@ namespace Milou.Deployer.Waws
             out DeploymentBaseOptions deploymentBaseOptions,
             bool allowUntrusted)
         {
-            if (publishSettings is object)
+            if (publishSettings is {})
             {
                 deploymentBaseOptions = new DeploymentBaseOptions
                 {
