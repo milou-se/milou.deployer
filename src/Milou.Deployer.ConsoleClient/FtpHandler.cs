@@ -8,20 +8,20 @@ using System.Net;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
-
 using FluentFTP;
-
 using JetBrains.Annotations;
-
+using Milou.Deployer.Core;
+using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Core.IO;
-
 using Serilog;
 using Serilog.Core;
+using FtpException = Milou.Deployer.Core.Deployment.Ftp.FtpException;
 
-namespace Milou.Deployer.Core.Deployment.Ftp
+namespace Milou.Deployer.ConsoleClient
 {
-    public sealed class FtpHandler : IDisposable
+    public sealed class FtpHandler : IFtpHandler
     {
         private readonly FtpClient _ftpClient;
         private readonly FtpSettings _ftpSettings;
@@ -90,6 +90,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
         {
             IProgress<FtpProgress> progress = new Progress<FtpProgress>(p =>
                 _logger.Information("Progress {Percent}", p.Progress.ToString("F0", CultureInfo.InvariantCulture)));
+
             return progress;
         }
 
@@ -97,6 +98,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
         {
             int attempt = 1;
             const int MaxAttempts = 5;
+
             while (true)
             {
                 try
@@ -185,7 +187,9 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                         cancellationToken);
 
                 return ftpListItems.Select(s => new FtpPath(s.FullName,
-                        s.Type == FtpFileSystemObjectType.File ? FileSystemType.File : FileSystemType.Directory))
+                        s.Type == FtpFileSystemObjectType.File
+                            ? FileSystemType.File
+                            : FileSystemType.Directory))
                     .ToImmutableArray();
             }
             catch (Exception ex) when (!ex.IsFatal())
@@ -270,6 +274,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                         try
                         {
                             stopwatch.Restart();
+
                             int uploadedFiles = await _ftpClient.UploadFilesAsync(files,
                                 relativeDir.Path,
                                 FtpRemoteExists.Overwrite,
@@ -417,6 +422,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 {
                     using var tempFile = TempFile.CreateTempFile("App_Offline", ".htm");
                     var appOfflinePath = new FtpPath($"/{tempFile.File.Name}", FileSystemType.File);
+
                     var appOfflineFullPath =
                         (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(
                             appOfflinePath);
@@ -490,6 +496,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             CancellationToken cancellationToken)
         {
             var deploymentChangeSummary = new FtpSummary();
+
             foreach (var fileSystemItem in fileSystemItems
                 .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.File))
             {
@@ -699,7 +706,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
             if (ftpSettings.BasePath != null)
             {
-                var builder = new UriBuilder(fullUri) { Path = ftpSettings.BasePath.Path };
+                var builder = new UriBuilder(fullUri) {Path = ftpSettings.BasePath.Path};
 
                 fullUri = builder.Uri;
             }

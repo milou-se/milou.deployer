@@ -18,6 +18,13 @@ namespace Milou.Deployer.Core.Deployment
                 throw new InvalidOperationException($"The manifest file '{manifestFilePath}' does not exist");
             }
 
+            var fileInfo = new FileInfo(manifestFilePath);
+
+            if (fileInfo.Length == 0)
+            {
+                throw new InvalidOperationException($"The manifest file '{manifestFilePath}' has length 0");
+            }
+
             string data = File.ReadAllText(manifestFilePath, Encoding.UTF8);
 
             return data;

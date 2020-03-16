@@ -43,6 +43,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private readonly XmlTransformer _xmlTransformer;
         private readonly NuGetPackageInstaller _nugetPackageInstaller;
+        private readonly IFtpHandlerFactory _ftpHandlerFactory;
 
         public DeploymentService(
             DeployerConfiguration deployerConfiguration,
@@ -50,7 +51,8 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
             Func<DeploymentExecutionDefinition, IIisManager> iisManager,
-            NuGetPackageInstaller nugetPackageInstaller)
+            NuGetPackageInstaller nugetPackageInstaller,
+            IFtpHandlerFactory ftpHandlerFactor)
         {
             if (logger == null)
             {
@@ -77,6 +79,7 @@ namespace Milou.Deployer.Core.Deployment
             _webDeployHelper = webDeployHelper;
             _iisManager = iisManager;
             _nugetPackageInstaller = nugetPackageInstaller;
+            _ftpHandlerFactory = ftpHandlerFactor;
         }
 
         public DeployerConfiguration DeployerConfiguration { get; }
@@ -219,7 +222,11 @@ namespace Milou.Deployer.Core.Deployment
                                        allowPreRelease: expectedVersion.IsPrerelease,
                                        nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
                                        nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
-                                       nugetExePath: deploymentExecutionDefinition.NuGetExePath);
+                                       nugetExePath: deploymentExecutionDefinition.NuGetExePath,
+                                       timeoutInSeconds: 35,
+                                       adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
+                                       prefix: deploymentExecutionDefinition.PackageListPrefixEnabled.HasValue && deploymentExecutionDefinition.PackageListPrefixEnabled.Value ? deploymentExecutionDefinition.PackageListPrefix : ""
+            );
 
             var matchingFoundEnvironmentPackage = allVersions
                 .Where(currentVersion => currentVersion == expectedVersion)
@@ -475,6 +482,12 @@ namespace Milou.Deployer.Core.Deployment
 
                 foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
                 {
+                    if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.TargetDirectoryPath)
+                        && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
+                    {
+                        throw new InvalidOperationException($"{nameof(deploymentExecutionDefinition.TargetDirectoryPath)} and {nameof(deploymentExecutionDefinition.PublishSettingsFile)} are both not set");
+                    }
+
                     string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
                     _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
                         asJson);
@@ -525,9 +538,9 @@ namespace Milou.Deployer.Core.Deployment
                             directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
 
                     SemanticVersion version = explicitVersion ?? GetSemanticVersionFromDefinition(
-                                                  deploymentExecutionDefinition,
-                                                  packageDirectory,
-                                                  installedPackage.Version);
+                        deploymentExecutionDefinition,
+                        packageDirectory,
+                        installedPackage.Version);
 
                     _logger.Verbose("Package version is {Version}", version.ToNormalizedString());
 
@@ -564,7 +577,9 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.EnvironmentConfig))
                     {
-                        _logger.Information("Fetching environment packages for package {Package} and environment {Environment}", deploymentExecutionDefinition.PackageId, deploymentExecutionDefinition.EnvironmentConfig);
+                        _logger.Information(
+                            "Fetching environment packages for package {Package} and environment {Environment}",
+                            deploymentExecutionDefinition.PackageId, deploymentExecutionDefinition.EnvironmentConfig);
 
                         environmentPackageResult = await AddEnvironmentPackageAsync(deploymentExecutionDefinition,
                             packageInstallTempDirectory,
@@ -584,7 +599,8 @@ namespace Milou.Deployer.Core.Deployment
                             _logger.Information("Installed environment package version {Version}",
                                 environmentPackageResult.Version.ToNormalizedString());
                         }
-                        else {
+                        else
+                        {
                             _logger.Information("No environment package was installed");
                         }
                     }
@@ -703,7 +719,8 @@ namespace Milou.Deployer.Core.Deployment
 
                             if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
                             {
-                                await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline, cancellationToken)
+                                await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                                        cancellationToken)
                                     .ConfigureAwait(false);
                             }
 
@@ -761,9 +778,14 @@ namespace Milou.Deployer.Core.Deployment
 
                     try
                     {
-                        using IIisManager manager = _iisManager(deploymentExecutionDefinition);
+                        IIisManager? manager = default;
 
-                        if (hasIisSiteName)
+                        if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.IisSiteName))
+                        {
+                            manager = _iisManager(deploymentExecutionDefinition);
+                        }
+
+                        if (hasIisSiteName && manager is {})
                         {
                             bool stopped = manager.StopSiteIfApplicable();
 
@@ -780,24 +802,25 @@ namespace Milou.Deployer.Core.Deployment
                         {
                             if (deploymentExecutionDefinition.PublishType == PublishType.WebDeploy)
                             {
-                                _logger.Information("Deploying {Target} with WebDeploy", deploymentExecutionDefinition.TargetDirectoryPath);
+                                _logger.Information("Deploying {Target} with WebDeploy",
+                                    deploymentExecutionDefinition.TargetDirectoryPath);
                                 summary = await _webDeployHelper.DeployContentToOneSiteAsync(
-                                              targetTempDirectoryInfo.FullName,
-                                              deploymentExecutionDefinition.PublishSettingsFile,
-                                              DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                                              doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
-                                              appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
-                                              useChecksum: ruleConfiguration.UseChecksumEnabled,
-                                              whatIf: ruleConfiguration.WhatIfEnabled,
-                                              traceLevel: TraceLevel.Verbose,
-                                              appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
-                                              applicationInsightsProfiler2SkipDirectiveEnabled:
-                                              ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
-                                              logAction: message => _logger.Debug("{Message}", message),
-                                              targetPath: hasPublishSettingsFile
-                                                              ? string.Empty
-                                                              : deploymentExecutionDefinition.TargetDirectoryPath
-                                          ).ConfigureAwait(false);
+                                    targetTempDirectoryInfo.FullName,
+                                    deploymentExecutionDefinition.PublishSettingsFile,
+                                    DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
+                                    doNotDelete: ruleConfiguration.DoNotDeleteEnabled,
+                                    appOfflineEnabled: ruleConfiguration.AppOfflineEnabled,
+                                    useChecksum: ruleConfiguration.UseChecksumEnabled,
+                                    whatIf: ruleConfiguration.WhatIfEnabled,
+                                    traceLevel: TraceLevel.Verbose,
+                                    appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
+                                    applicationInsightsProfiler2SkipDirectiveEnabled:
+                                    ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
+                                    logAction: message => _logger.Debug("{Message}", message),
+                                    targetPath: hasPublishSettingsFile
+                                        ? string.Empty
+                                        : deploymentExecutionDefinition.TargetDirectoryPath
+                                ).ConfigureAwait(false);
                             }
                             else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType)
                             {
@@ -807,26 +830,30 @@ namespace Milou.Deployer.Core.Deployment
 
                                 var ftpSettings = new FtpSettings(basePath, isSecure);
 
-                                _logger.Information("Deploying {Target} with {PublishType}", deploymentExecutionDefinition.FtpPath?.Path, deploymentExecutionDefinition.PublishType);
+                                _logger.Information("Deploying {Target} with {PublishType}",
+                                    deploymentExecutionDefinition.FtpPath?.Path,
+                                    deploymentExecutionDefinition.PublishType);
                                 string publishSettingsFile = deploymentExecutionDefinition.PublishSettingsFile;
 
                                 if (string.IsNullOrWhiteSpace(publishSettingsFile))
                                 {
-                                    _logger.Error("Deployment target type is set to {Type} but no publish file is set", deploymentExecutionDefinition.PublishTypeValue);
+                                    _logger.Error(
+                                        "Deployment target type is set to {Type} but no publish file is set",
+                                        deploymentExecutionDefinition.PublishTypeValue);
                                     return ExitCode.Failure;
                                 }
 
-                                using FtpHandler ftpHandler = await FtpHandler.CreateWithPublishSettings(
+                                using IFtpHandler ftpHandler = await _ftpHandlerFactory.CreateWithPublishSettings(
                                     publishSettingsFile,
                                     ftpSettings,
-                                    _logger);
+                                    _logger, cancellationToken);
 
                                 _logger.Verbose("Created FTP handler, starting publish");
 
                                 summary = await ftpHandler.PublishAsync(
-                                              ruleConfiguration,
-                                              targetTempDirectoryInfo,
-                                              cancellationToken);
+                                    ruleConfiguration,
+                                    targetTempDirectoryInfo,
+                                    cancellationToken);
                             }
                             else
                             {
@@ -841,6 +868,10 @@ namespace Milou.Deployer.Core.Deployment
                                 deploymentExecutionDefinition);
 
                             return ExitCode.Failure;
+                        }
+                        finally
+                        {
+                            manager?.Dispose();
                         }
                     }
                     catch (Exception ex) when (!ex.IsFatal())

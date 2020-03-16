@@ -1,6 +1,6 @@
 ﻿using Arbor.KVConfiguration.Core.Metadata;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.Core.Cli
 {
     public static class ConsoleConfigurationKeys
     {
@@ -10,5 +10,8 @@ namespace Milou.Deployer.ConsoleClient
         public const string HelpArgument = "--help";
 
         public const string DebugArgument = "--debug";
+
+        public const string NonInteractiveArgument = "--non-interactive";
+
     }
 }
