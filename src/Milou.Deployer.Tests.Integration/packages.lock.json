@@ -8,6 +8,16 @@
         "resolved": "3.0.2",
         "contentHash": "YWFdVy4MjN/pmh3FueugcOVhgQY82+hcivmXuWQBxlEPwrZ0E+3KgGsrnq/QjCntDfrSk5XB+Dw+Zlpsv0mQ9A=="
       },
+      "Microsoft.Extensions.Primitives": {
+        "type": "Direct",
+        "requested": "[3.1.2, )",
+        "resolved": "3.1.2",
+        "contentHash": "WGtoFWY9yc9HGMG6ObDNQPz9dBP+xz/GqFe2dKjdE/cSdXFEKxCFTyYCzL/e8kxVkc/Bq9qjOsXRWydvn0g9Uw==",
+        "dependencies": {
+          "System.Memory": "4.5.2",
+          "System.Runtime.CompilerServices.Unsafe": "4.7.0"
+        }
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[16.5.0, )",
@@ -170,8 +180,8 @@
       },
       "Arbor.Tooler": {
         "type": "Transitive",
-        "resolved": "0.7.1",
-        "contentHash": "gugW+/iAljVDkKzg8XdxCTj7MyoI0xCWXvkSSSKBWYhdOJlAiK/Ci3yFCjaLrjXTRyZFLD6w5cbT1NTMSZe/AQ==",
+        "resolved": "0.7.3",
+        "contentHash": "/SZoTK2C8Ny4rMwuMJthdizMazDyBUVA1UL6xVzpt1N0eAVT+V2JP5DDtTjrAmEZzVVzoP8rboSkwTxA615EYg==",
         "dependencies": {
           "Arbor.Processing": "0.4.0",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
@@ -181,8 +191,8 @@
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "30.2.0",
-        "contentHash": "5T/YsXjusmwn1nCfbGXUxwg6F+OilUks9Kedt/69HYhkKXZUocKB8IqYnnYkV3OmyOAHuhsPa9uMtQ9k7yye3Q=="
+        "resolved": "32.2.0",
+        "contentHash": "Fo0BNW+lZkJQAHvpOI/KDuGkWz2idzSxDVT2WqsaaUSWuIAVzfrOtcyJPOp7BHAMbOjYrROdMVbXuqhfmDwkyQ=="
       },
       "JetBrains.Annotations": {
         "type": "Transitive",
@@ -193,15 +203,6 @@
         "type": "Transitive",
         "resolved": "16.5.0",
         "contentHash": "PM5YLtyN45EyUGePJpaNogndlaQPrMgQQXHKMhMESC6KfSVvt+j7+dxBi8NYC6X6dZVysf7ngwhSW3wwvPJRSQ=="
-      },
-      "Microsoft.Extensions.Primitives": {
-        "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "tC5Eo5DbJA+NgiIw26R5c97N02tFvtfqstUxqb/4qXPLXI2IAIWSMUkh/1c9Gw59TT9hNkLwlmLErSPlHgyJVQ==",
-        "dependencies": {
-          "System.Memory": "4.5.2",
-          "System.Runtime.CompilerServices.Unsafe": "4.7.0"
-        }
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
@@ -672,9 +673,10 @@
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "Arbor.KVConfiguration.UserConfiguration": "0.20.0",
           "Arbor.Processing": "0.4.0",
-          "Arbor.Tooler": "0.7.1",
+          "Arbor.Tooler": "0.7.3",
+          "FluentFTP": "32.2.0",
           "JetBrains.Annotations": "2019.1.3",
-          "Microsoft.Extensions.Primitives": "3.1.1",
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Milou.Deployer.Core": "1.0.0",
           "Milou.Deployer.IIS": "1.0.0",
           "Milou.Deployer.Waws": "1.0.0",
@@ -692,21 +694,21 @@
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "0.20.0",
           "Arbor.Processing": "0.4.0",
-          "Arbor.Tooler": "0.7.1",
+          "Arbor.Tooler": "0.7.3",
           "JetBrains.Annotations": "2019.1.3",
-          "Microsoft.Extensions.Primitives": "3.1.1",
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Microsoft.Web.Xdt": "3.0.0",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Packaging": "5.4.0",
           "NuGet.Versioning": "5.4.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.0",
-          "fluentftp": "30.2.0"
+          "System.Collections.Immutable": "1.7.0"
         }
       },
       "milou.deployer.iis": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Microsoft.Web.Administration": "11.1.0",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.9.0",
@@ -717,6 +719,7 @@
         "type": "Project",
         "dependencies": {
           "JetBrains.Annotations": "2019.1.3",
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Microsoft.Web.Deployment": "3.6.0",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.9.0",

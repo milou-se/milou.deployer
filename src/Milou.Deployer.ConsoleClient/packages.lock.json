@@ -83,15 +83,21 @@
       },
       "Arbor.Tooler": {
         "type": "Direct",
-        "requested": "[0.7.1, )",
-        "resolved": "0.7.1",
-        "contentHash": "gugW+/iAljVDkKzg8XdxCTj7MyoI0xCWXvkSSSKBWYhdOJlAiK/Ci3yFCjaLrjXTRyZFLD6w5cbT1NTMSZe/AQ==",
+        "requested": "[0.7.3, )",
+        "resolved": "0.7.3",
+        "contentHash": "/SZoTK2C8Ny4rMwuMJthdizMazDyBUVA1UL6xVzpt1N0eAVT+V2JP5DDtTjrAmEZzVVzoP8rboSkwTxA615EYg==",
         "dependencies": {
           "Arbor.Processing": "0.4.0",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
           "Serilog": "[2.8.0, 3.0.0)",
           "System.Net.Http": "[4.3.4, 5.0.0)"
         }
+      },
+      "FluentFTP": {
+        "type": "Direct",
+        "requested": "[32.2.0, )",
+        "resolved": "32.2.0",
+        "contentHash": "Fo0BNW+lZkJQAHvpOI/KDuGkWz2idzSxDVT2WqsaaUSWuIAVzfrOtcyJPOp7BHAMbOjYrROdMVbXuqhfmDwkyQ=="
       },
       "JetBrains.Annotations": {
         "type": "Direct",
@@ -113,9 +119,9 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Direct",
-        "requested": "[3.1.1, )",
-        "resolved": "3.1.1",
-        "contentHash": "tC5Eo5DbJA+NgiIw26R5c97N02tFvtfqstUxqb/4qXPLXI2IAIWSMUkh/1c9Gw59TT9hNkLwlmLErSPlHgyJVQ==",
+        "requested": "[3.1.2, )",
+        "resolved": "3.1.2",
+        "contentHash": "WGtoFWY9yc9HGMG6ObDNQPz9dBP+xz/GqFe2dKjdE/cSdXFEKxCFTyYCzL/e8kxVkc/Bq9qjOsXRWydvn0g9Uw==",
         "dependencies": {
           "System.Memory": "4.5.2",
           "System.Runtime.CompilerServices.Unsafe": "4.7.0"
@@ -182,11 +188,6 @@
         "dependencies": {
           "System.Memory": "[4.5.2, 5.0.0)"
         }
-      },
-      "FluentFTP": {
-        "type": "Transitive",
-        "resolved": "30.2.0",
-        "contentHash": "5T/YsXjusmwn1nCfbGXUxwg6F+OilUks9Kedt/69HYhkKXZUocKB8IqYnnYkV3OmyOAHuhsPa9uMtQ9k7yye3Q=="
       },
       "Microsoft.CodeAnalysis.VersionCheckAnalyzer": {
         "type": "Transitive",
@@ -607,21 +608,21 @@
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "0.20.0",
           "Arbor.Processing": "0.4.0",
-          "Arbor.Tooler": "0.7.1",
+          "Arbor.Tooler": "0.7.3",
           "JetBrains.Annotations": "2019.1.3",
-          "Microsoft.Extensions.Primitives": "3.1.1",
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Microsoft.Web.Xdt": "3.0.0",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Packaging": "5.4.0",
           "NuGet.Versioning": "5.4.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.0",
-          "fluentftp": "30.2.0"
+          "System.Collections.Immutable": "1.7.0"
         }
       },
       "milou.deployer.iis": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Microsoft.Web.Administration": "11.1.0",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.9.0",
@@ -632,6 +633,7 @@
         "type": "Project",
         "dependencies": {
           "JetBrains.Annotations": "2019.1.3",
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Microsoft.Web.Deployment": "3.6.0",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.9.0",

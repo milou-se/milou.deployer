@@ -14,6 +14,16 @@
           "Microsoft.NetFramework.Analyzers": "[2.9.8]"
         }
       },
+      "Microsoft.Extensions.Primitives": {
+        "type": "Direct",
+        "requested": "[3.1.2, )",
+        "resolved": "3.1.2",
+        "contentHash": "WGtoFWY9yc9HGMG6ObDNQPz9dBP+xz/GqFe2dKjdE/cSdXFEKxCFTyYCzL/e8kxVkc/Bq9qjOsXRWydvn0g9Uw==",
+        "dependencies": {
+          "System.Memory": "4.5.2",
+          "System.Runtime.CompilerServices.Unsafe": "4.7.0"
+        }
+      },
       "Microsoft.Web.Administration": {
         "type": "Direct",
         "requested": "[11.1.0, )",
@@ -68,19 +78,14 @@
       },
       "Arbor.Tooler": {
         "type": "Transitive",
-        "resolved": "0.7.1",
-        "contentHash": "gugW+/iAljVDkKzg8XdxCTj7MyoI0xCWXvkSSSKBWYhdOJlAiK/Ci3yFCjaLrjXTRyZFLD6w5cbT1NTMSZe/AQ==",
+        "resolved": "0.7.3",
+        "contentHash": "/SZoTK2C8Ny4rMwuMJthdizMazDyBUVA1UL6xVzpt1N0eAVT+V2JP5DDtTjrAmEZzVVzoP8rboSkwTxA615EYg==",
         "dependencies": {
           "Arbor.Processing": "0.4.0",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
           "Serilog": "[2.8.0, 3.0.0)",
           "System.Net.Http": "[4.3.4, 5.0.0)"
         }
-      },
-      "FluentFTP": {
-        "type": "Transitive",
-        "resolved": "30.2.0",
-        "contentHash": "5T/YsXjusmwn1nCfbGXUxwg6F+OilUks9Kedt/69HYhkKXZUocKB8IqYnnYkV3OmyOAHuhsPa9uMtQ9k7yye3Q=="
       },
       "JetBrains.Annotations": {
         "type": "Transitive",
@@ -96,15 +101,6 @@
         "type": "Transitive",
         "resolved": "2.9.8",
         "contentHash": "KevAiJKuolGKK84jDHMVGJjBAigH/86xyCVtbOzh5avUYzW7jPErdJW708byKKMiVKTwv027mbKCNnnOgNQHsA=="
-      },
-      "Microsoft.Extensions.Primitives": {
-        "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "tC5Eo5DbJA+NgiIw26R5c97N02tFvtfqstUxqb/4qXPLXI2IAIWSMUkh/1c9Gw59TT9hNkLwlmLErSPlHgyJVQ==",
-        "dependencies": {
-          "System.Memory": "4.5.2",
-          "System.Runtime.CompilerServices.Unsafe": "4.7.0"
-        }
       },
       "Microsoft.NetCore.Analyzers": {
         "type": "Transitive",
@@ -515,16 +511,15 @@
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "0.20.0",
           "Arbor.Processing": "0.4.0",
-          "Arbor.Tooler": "0.7.1",
+          "Arbor.Tooler": "0.7.3",
           "JetBrains.Annotations": "2019.1.3",
-          "Microsoft.Extensions.Primitives": "3.1.1",
+          "Microsoft.Extensions.Primitives": "3.1.2",
           "Microsoft.Web.Xdt": "3.0.0",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Packaging": "5.4.0",
           "NuGet.Versioning": "5.4.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.0",
-          "fluentftp": "30.2.0"
+          "System.Collections.Immutable": "1.7.0"
         }
       }
     }
