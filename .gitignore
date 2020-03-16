@@ -2,7 +2,6 @@ syntax: glob
 
 ### Custom ###
 
-**/*.lock.json
 Artifacts
 .vscode
 .idea
