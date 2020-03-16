@@ -3,7 +3,6 @@
   <PropertyGroup>
     <Deterministic>true</Deterministic>
     <LangVersion>latest</LangVersion>
-    <CodeAnalysisRuleSet>..\Milou.ruleset</CodeAnalysisRuleSet>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Features>IOperation</Features>
     <EmbedAllSources>true</EmbedAllSources>

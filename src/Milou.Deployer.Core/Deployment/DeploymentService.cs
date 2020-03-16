@@ -778,7 +778,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     try
                     {
-                        IIisManager? manager = default;
+                        IIisManager manager = default;
 
                         if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.IisSiteName))
                         {

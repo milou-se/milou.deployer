@@ -95,9 +95,9 @@
       },
       "FluentFTP": {
         "type": "Direct",
-        "requested": "[32.2.0, )",
-        "resolved": "32.2.0",
-        "contentHash": "Fo0BNW+lZkJQAHvpOI/KDuGkWz2idzSxDVT2WqsaaUSWuIAVzfrOtcyJPOp7BHAMbOjYrROdMVbXuqhfmDwkyQ=="
+        "requested": "[32.2.1, )",
+        "resolved": "32.2.1",
+        "contentHash": "mlQrJYB02AUvL1Rqvz60A3vGhp4Sq5HX9u4vcAoggOyBsyymzlROQQ5UTqP8MBqyWLXWHXz4TWGb6p5RMwRMdg=="
       },
       "JetBrains.Annotations": {
         "type": "Direct",
