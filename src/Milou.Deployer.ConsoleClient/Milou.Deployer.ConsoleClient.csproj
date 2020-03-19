@@ -19,7 +19,6 @@
     <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.20.0" />
     <PackageReference Include="Arbor.Processing" Version="0.4.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.7.3" />
-    <PackageReference Include="FluentFTP" Version="32.2.2" />
     <PackageReference Include="NuGet.Versioning" Version="5.5.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
@@ -36,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Milou.Deployer.Core\Milou.Deployer.Core.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Ftp\Milou.Deployer.Ftp.csproj" />
     <ProjectReference Include="..\Milou.Deployer.IIS\Milou.Deployer.IIS.csproj" />
     <ProjectReference Include="..\Milou.Deployer.Waws\Milou.Deployer.Waws.csproj" />
   </ItemGroup>

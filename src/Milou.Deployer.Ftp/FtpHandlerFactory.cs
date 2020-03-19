@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Serilog;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.Ftp
 {
     public class FtpHandlerFactory : IFtpHandlerFactory
     {

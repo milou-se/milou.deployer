@@ -19,7 +19,7 @@ using Serilog;
 using Serilog.Core;
 using FtpException = Milou.Deployer.Core.Deployment.Ftp.FtpException;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.Ftp
 {
     public sealed class FtpHandler : IFtpHandler
     {

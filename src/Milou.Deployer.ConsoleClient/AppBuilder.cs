@@ -24,6 +24,7 @@ using Serilog.Events;
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Logging;
+using Milou.Deployer.Ftp;
 
 namespace Milou.Deployer.ConsoleClient
 {

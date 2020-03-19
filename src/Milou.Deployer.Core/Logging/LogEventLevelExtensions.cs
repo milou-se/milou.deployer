@@ -1,7 +1,7 @@
 ﻿using System;
 using Serilog.Events;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.Core.Logging
 {
     public static class LogEventLevelExtensions
     {
