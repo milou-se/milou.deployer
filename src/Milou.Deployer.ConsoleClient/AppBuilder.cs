@@ -94,7 +94,6 @@ namespace Milou.Deployer.ConsoleClient
                     .ToImmutableArray();
 
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
-                    .Add(new Arbor.KVConfiguration.SystemConfiguration.AppSettingsKeyValueConfiguration())
                     .Add(new EnvironmentVariableKeyValueConfigurationSource())
                     .AddCommandLineArgsSettings(argsAsParameters)
                     .Add(new UserJsonConfiguration())

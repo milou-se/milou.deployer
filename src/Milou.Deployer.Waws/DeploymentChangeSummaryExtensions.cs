@@ -1,13 +1,12 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Microsoft.Web.Deployment;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Waws
 {
     public static class DeploymentChangeSummaryExtensions
     {
-        public static string ToDisplayValue([NotNull] this DeploymentChangeSummary summary)
+        public static string ToDisplayValue([NotNull] this WebDeployChangeSummary summary)
         {
             if (summary == null)
             {

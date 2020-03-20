@@ -61,112 +61,111 @@ namespace Milou.Deployer.Tests.Integration
         {
             string oldTemp = Path.GetTempPath();
 
-            using (var tempDir = TempDirectory.CreateTempDirectory())
+            using var tempDir = TempDirectory.CreateTempDirectory();
+
+            try
             {
-                try
+                Environment.SetEnvironmentVariable("TEMP", tempDir.Directory.FullName);
+
+                for (int i = 1; i <= 3; i++)
                 {
-                    Environment.SetEnvironmentVariable("TEMP", tempDir.Directory.FullName);
-
-                    for (int i = 1; i <= 3; i++)
+                    _output.WriteLine($"RUN {i}");
+                    int exitCode;
+                    using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                     {
-                        _output.WriteLine($"RUN {i}");
-                        int exitCode;
-                        using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                        using (var testTargetDirectory = TempDirectory.CreateTempDirectory())
                         {
-                            using (var testTargetDirectory = TempDirectory.CreateTempDirectory())
+                            using (var tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
                             {
-                                using (var tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
+                                string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
+
+                                _output.WriteLine(json);
+
+                                var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json,
+                                    new { definitions = Array.Empty<DeploymentExecutionDefinition>() });
+
+                                Assert.NotNull(deploymentExecutionDefinition);
+                                Assert.NotNull(deploymentExecutionDefinition.definitions);
+
+                                Assert.Single(deploymentExecutionDefinition.definitions);
+
+                                string nugetConfig = Path.Combine(
+                                    VcsTestPathHelper.FindVcsRootPath(),
+                                    "src",
+                                    "Milou.Deployer.Tests.Integration",
+                                    "Config",
+                                    "NuGet.Config");
+
+                                string[] args = { tempFile.File.FullName, "-nuget-config=" + nugetConfig };
+
+                                var logger = new LoggerConfiguration()
+                                    .WriteTo.TestSink(_output)
+                                    .MinimumLevel.Verbose()
+                                    .CreateLogger();
+
+                                using (logger)
                                 {
-                                    string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
-
-                                    _output.WriteLine(json);
-
-                                    var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json,
-                                        new { definitions = Array.Empty<DeploymentExecutionDefinition>() });
-
-                                    Assert.NotNull(deploymentExecutionDefinition);
-                                    Assert.NotNull(deploymentExecutionDefinition.definitions);
-
-                                    Assert.Single(deploymentExecutionDefinition.definitions);
-
-                                    string nugetConfig = Path.Combine(
-                                        VcsTestPathHelper.FindVcsRootPath(),
-                                        "src",
-                                        "Milou.Deployer.Tests.Integration",
-                                        "Config",
-                                        "NuGet.Config");
-
-                                    string[] args = { tempFile.File.FullName, "-nuget-config=" + nugetConfig };
-
-                                    var logger = new LoggerConfiguration()
-                                        .WriteTo.TestSink(_output)
-                                        .MinimumLevel.Verbose()
-                                        .CreateLogger();
-
-                                    using (logger)
+                                    using (var deployerApp = await
+                                        AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                     {
-                                        using (var deployerApp = await
-                                            AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
-                                        {
-                                            exitCode = await deployerApp.ExecuteAsync(args,
-                                                cancellationTokenSource.Token);
-                                        }
-
-                                        logger?.Dispose();
+                                        exitCode = await deployerApp.ExecuteAsync(args,
+                                            cancellationTokenSource.Token);
                                     }
+
+                                    logger?.Dispose();
                                 }
-
-                                var indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
-                                Assert.NotNull(indexHtml);
-
-                                var wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
-
-                                Assert.NotNull(wwwrootDirectory);
-                                var applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
-                                Assert.NotNull(applicationmetadata);
-
-                                string text = File.ReadAllText(applicationmetadata.FullName);
-
-                                var metadata = JsonConvert.DeserializeAnonymousType(
-                                    text,
-                                    new { keys = new List<KeyValuePair<string, string>>() });
-
-                                Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
                             }
-                        }
 
-                        Assert.Equal(0, exitCode);
+                            var indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
+                            Assert.NotNull(indexHtml);
+
+                            var wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
+
+                            Assert.NotNull(wwwrootDirectory);
+                            var applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
+                            Assert.NotNull(applicationmetadata);
+
+                            string text = File.ReadAllText(applicationmetadata.FullName);
+
+                            var metadata = JsonConvert.DeserializeAnonymousType(
+                                text,
+                                new { keys = new List<KeyValuePair<string, string>>() });
+
+                            Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
+                        }
+                    }
+
+                    Assert.Equal(0, exitCode);
 
 #pragma warning disable S1215 // "GC.Collect" should not be called
-                        GC.Collect(0, GCCollectionMode.Forced);
-                        GC.Collect(1, GCCollectionMode.Forced);
-                        GC.Collect(2, GCCollectionMode.Forced);
+                    GC.Collect(0, GCCollectionMode.Forced);
+                    GC.Collect(1, GCCollectionMode.Forced);
+                    GC.Collect(2, GCCollectionMode.Forced);
 #pragma warning restore S1215 // "GC.Collect" should not be called
-                    }
                 }
-                finally
+            }
+            finally
+            {
+                tempDir.Directory.Refresh();
+                if (tempDir.Directory.Exists)
                 {
-                    tempDir.Directory.Refresh();
-                    if (tempDir.Directory.Exists)
+                    var files = tempDir.Directory.GetFiles();
+                    var directories = tempDir.Directory.GetDirectories();
+
+                    foreach (var dir in directories)
                     {
-                        var files = tempDir.Directory.GetFiles();
-                        var directories = tempDir.Directory.GetDirectories();
-
-                        foreach (var dir in directories)
-                        {
-                            dir.Delete(true);
-                        }
-
-                        foreach (var file in files)
-                        {
-                            file.Delete();
-                        }
-
-                        Environment.SetEnvironmentVariable("TEMP", oldTemp);
-
-                        Assert.Empty(files);
-                        Assert.Empty(directories);
+                        dir.Delete(true);
                     }
+
+                    foreach (var file in files)
+                    {
+                        file.Delete();
+                    }
+
+                    Environment.SetEnvironmentVariable("TEMP", oldTemp);
+
+                    Assert.Empty(files);
+                    Assert.Empty(directories);
                 }
             }
         }

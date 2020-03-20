@@ -59,7 +59,7 @@ namespace Milou.Deployer.Core.Deployment
                 SemanticVersion = null;
             }
 
-            ExcludedFilePatterns = excludedFilePatterns?.Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            ExcludedFilePatterns = excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern)).ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
             SetPreRelease(isPreRelease);
 
@@ -117,7 +117,7 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(packageId));
             }
 
-            ExcludedFilePatterns = excludedFilePatterns?.Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            ExcludedFilePatterns = excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern)).ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;

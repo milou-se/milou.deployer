@@ -23,9 +23,9 @@
       },
       "Arbor.Processing": {
         "type": "Direct",
-        "requested": "[0.4.0, )",
-        "resolved": "0.4.0",
-        "contentHash": "YIT8mzzmVcoosaAlF7BpzfQwbX7GLtgvEygaTcEySf9MrqXasaPTph8c5mTDiS55y30uLZFTDKR+GUawNTXZKQ=="
+        "requested": "[0.5.0-build.0, )",
+        "resolved": "0.5.0-build.0",
+        "contentHash": "BtrP9pCI5YVqrfBRdHVzpH1nGztJQBI3XD2F70gGFOARBgnGXIz/DEbybXbkDx4r2sd2Slxl9ggLPdAh+pscNg=="
       },
       "Arbor.Tooler": {
         "type": "Direct",
