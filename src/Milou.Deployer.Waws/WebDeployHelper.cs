@@ -116,7 +116,7 @@ namespace Milou.Deployer.Waws
             {
                 if (Path.IsPathRooted(targetPath))
                 {
-                    sourceProvider = targetProvider = DeploymentWellKnownProvider.DirPath;
+                    sourceProvider = targetProvider = DeploymentWellKnownProvider.ContentPath;
 
                     destinationPath = targetPath;
                 }
@@ -253,7 +253,7 @@ namespace Milou.Deployer.Waws
                     appOfflineFile?.Refresh();
                     if (appOfflineFile?.Exists == false)
                     {
-                        using var _ = File.Create(appOfflineFile.FullName);
+                        await using var _ = File.Create(appOfflineFile.FullName);
                     }
 
                     deployContentToOneSite = await
@@ -275,11 +275,12 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            var result = await SetBaseOptions(publishSettings,
+            var result = await SetBaseOptions(
+                publishSettings,
                 allowUntrusted);
 
             string siteName = result.Item2;
-            var destDeleteBaseOptions = result.Item1;
+            DeploymentBaseOptions destDeleteBaseOptions = result.Item1;
 
             var syncDeleteOptions = new DeploymentSyncOptions { DeleteDestination = true };
 
@@ -294,7 +295,7 @@ namespace Milou.Deployer.Waws
                     destDeleteBaseOptions.TraceLevel = traceLevel;
                     destDeleteBaseOptions.Trace += DestBaseOptions_Trace;
 
-                    results = deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
+                    results = await deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
                 }
 
                 _logger.Debug("AppOffline result: {AppOffline}", results.ToDisplayValue());

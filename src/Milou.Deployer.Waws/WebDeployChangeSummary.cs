@@ -6,5 +6,6 @@
         public long AddedDirectories { get; set; }
         public long DeletedFiles { get; set; }
         public long DeletedDirectories { get; set; }
+        public int ExitCode { get; set; }
     }
 }

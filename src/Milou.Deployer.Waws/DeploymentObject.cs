@@ -10,14 +10,11 @@ namespace Milou.Deployer.Waws
     internal class DeploymentObject : IDisposable
     {
         private readonly ILogger _logger;
-        public DeploymentWellKnownProvider Provider { get; }
 
-        public string Path { get; }
-
-        public DeploymentBaseOptions DeploymentBaseOptions { get; }
-
-        public DeploymentObject(DeploymentWellKnownProvider provider, string path,
-            DeploymentBaseOptions deploymentBaseOptions, ILogger logger)
+        public DeploymentObject(DeploymentWellKnownProvider provider,
+            string path,
+            DeploymentBaseOptions deploymentBaseOptions,
+            ILogger logger)
         {
             _logger = logger;
             Provider = provider;
@@ -25,34 +22,93 @@ namespace Milou.Deployer.Waws
             DeploymentBaseOptions = deploymentBaseOptions;
         }
 
-        public WebDeployChangeSummary SyncTo(DeploymentBaseOptions baseOptions, DeploymentSyncOptions syncOptions) =>
-            throw new NotImplementedException();
+        public DeploymentWellKnownProvider Provider { get; }
+
+        public string Path { get; }
+
+        public DeploymentBaseOptions DeploymentBaseOptions { get; }
 
         public void Dispose()
         {
         }
 
-        public async Task<WebDeployChangeSummary> SyncTo(DeploymentWellKnownProvider provider, string destinationPath,
-            DeploymentBaseOptions deploymentBaseOptions, DeploymentSyncOptions syncOptions, CancellationToken cancellationToken = default)
+        public async Task<WebDeployChangeSummary> SyncTo(
+            DeploymentWellKnownProvider destinationProvider,
+            string destinationPath,
+            DeploymentBaseOptions deploymentBaseOptions,
+            DeploymentSyncOptions syncOptions,
+            CancellationToken cancellationToken = default)
+        {
+
+            if (Provider == DeploymentWellKnownProvider.ContentPath &&
+                destinationProvider == DeploymentWellKnownProvider.ContentPath)
+            {
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    $"The current provider {Provider.Name} to provider {destinationProvider.Name} is not supported");
+            }
+
+            void Configure(List<string> arguments)
+            {
+                arguments.AddRange(new[]
+                {
+                    "-verb:sync", $"-source:dirPath=\"{Path}\"", $"-dest:dirPath=\"{destinationPath}\"", "-verbose"
+                });
+            }
+
+            return await SyncToInternal(
+                deploymentBaseOptions,
+                syncOptions,
+                Configure,
+                cancellationToken);
+        }
+
+        public async Task<WebDeployChangeSummary> SyncTo(DeploymentBaseOptions baseOptions,
+            DeploymentSyncOptions syncOptions, CancellationToken cancellationToken = default)
+        {
+            void Configure(List<string> arguments)
+            {
+            }
+
+            return await SyncToInternal(baseOptions,
+                syncOptions,
+                Configure,
+                cancellationToken);
+        }
+
+        private async Task<WebDeployChangeSummary> SyncToInternal(
+            DeploymentBaseOptions deploymentBaseOptions,
+            DeploymentSyncOptions syncOptions,
+            Action<List<string>> onConfigureArgs,
+            CancellationToken cancellationToken = default)
         {
             string exePath = @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe";
 
-            var arguments = new List<string>()
-            {
-            };
+            var arguments = new List<string>();
 
             long addedFiles = 0;
             long deletedFiles = 0;
             long addedDirectories = 0;
             long deletedDirectories = 0;
 
-
-            if (Provider == DeploymentWellKnownProvider.DirPath && provider == DeploymentWellKnownProvider.DirPath)
-            {
-                arguments.AddRange(new[]
+                if (syncOptions.WhatIf)
                 {
-                    "-verb:sync", $"-source:dirPath={Path}", $"-dest:dirPath={destinationPath}", "-verbose"
-                });
+                    arguments.Add("-whatif");
+                }
+
+                if (syncOptions.UseChecksum)
+                {
+                    arguments.Add("-useCheckSum");
+                }
+
+                if (DeploymentBaseOptions.AllowUntrusted || deploymentBaseOptions.AllowUntrusted)
+                {
+                    arguments.Add("-allowUntrusted");
+                }
+
+                onConfigureArgs(arguments);
 
                 void Log(string message, string category)
                 {
@@ -72,16 +128,21 @@ namespace Milou.Deployer.Waws
                     if (message.Contains("deleting file", StringComparison.OrdinalIgnoreCase))
                     {
                         deletedFiles++;
-                    } else if (message.Contains("adding file", StringComparison.OrdinalIgnoreCase))
+                    }
+                    else if (message.Contains("adding file", StringComparison.OrdinalIgnoreCase))
                     {
                         addedFiles++;
-                    }else if (message.Contains("adding directory", StringComparison.OrdinalIgnoreCase))
+                    }
+                    else if (message.Contains("adding directory", StringComparison.OrdinalIgnoreCase))
                     {
                         addedDirectories++;
                     }
                 }
 
-            void LogError(string message, string category) => _logger.Error("{Message}", message);
+                void LogError(string message, string category)
+                {
+                    _logger.Error("{Message}", message);
+                }
 
                 var exitCode = await ProcessRunner.ExecuteProcessAsync(
                     exePath,
@@ -93,19 +154,17 @@ namespace Milou.Deployer.Waws
 
                 if (!exitCode.IsSuccess)
                 {
-                    return new WebDeployChangeSummary();
+                    _logger.Error("MSDeploy.exe Failed with exit code {ExitCode}", exitCode.Code);
                 }
 
-                return new WebDeployChangeSummary()
+                return new WebDeployChangeSummary
                 {
                     AddedFiles = addedFiles,
                     AddedDirectories = addedDirectories,
                     DeletedFiles = deletedFiles,
-                    DeletedDirectories = deletedDirectories
+                    DeletedDirectories = deletedDirectories,
+                    ExitCode = exitCode.Code
                 };
-            }
-
-            throw new NotSupportedException();
         }
     }
 }

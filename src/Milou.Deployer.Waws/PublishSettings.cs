@@ -8,6 +8,13 @@ namespace Milou.Deployer.Waws
     {
         public static async  Task<PublishSettings> Load(string publishSettingsFile)
         {
+            /*
+             <publishData>
+    <publishProfile profileName="" publishMethod="MSDeploy" publishUrl="scm.azurewebsites.net:443" msdeploySite="" userName="$" userPWD="" destinationAppUrl="" SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="" webSystem="WebSites">
+        <databases />
+    </publishProfile>
+             */
+
             throw new NotImplementedException();
         }
 
