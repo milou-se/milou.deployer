@@ -268,7 +268,7 @@
       "runtime.native.System.IO.Compression": {
         "type": "Transitive",
         "resolved": "4.1.0",
-        "contentHash": "VIyT0n6pPWy8a8WO5fBgz6objo5PcD3uUVPgrkW5PPd6E6PJPwgMD/oWwMOFGG1dAAbvufnD5spB0XbzbAb2iw==",
+        "contentHash": "Ob7nvnJBox1aaB222zSVZSkf4WrebPG4qFscfK7vmD7P7NxoSxACQLtO7ytWpqXDn2wcd/+45+EAZ7xjaPip8A==",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.0.1",
           "Microsoft.NETCore.Targets": "1.0.1"
@@ -359,7 +359,7 @@
       "System.Buffers": {
         "type": "Transitive",
         "resolved": "4.0.0",
-        "contentHash": "JStU22E5tMQZ0gfep5LvJ90u6YAMDDDkOZJEqEZSyYpZ0x/ABB/b7MOT5ZkuR5qMqBwPRt8POEbY6wq6W1IWXQ==",
+        "contentHash": "msXumHfjjURSkvxUjYuq4N2ghHoRi2VpXcKMA7gK6ujQfU3vGpl+B6ld0ATRg+FZFpRyA6PgEPA+VlIkTeNf2w==",
         "dependencies": {
           "System.Diagnostics.Debug": "4.0.11",
           "System.Diagnostics.Tracing": "4.1.0",
@@ -1048,7 +1048,7 @@
       "System.Security.Principal": {
         "type": "Transitive",
         "resolved": "4.0.1",
-        "contentHash": "RrJTjmvXOsRvG8zGypopFn3C/neOzzxr0TsS0VLthny7Eq5Ffga7fDoUwBEC8FXbRp0vFEEQUERVMnK/JuaMFQ==",
+        "contentHash": "On+SKhXY5rzxh/S8wlH1Rm0ogBlu7zyHNxeNBiXauNrhHRXAe9EuX8Yl5IOzLPGU5Z4kLWHMvORDOCG8iu9hww==",
         "dependencies": {
           "System.Runtime": "4.1.0"
         }
