@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Waws
 {
-    internal class PublishSettings
+    public class PublishSettings
     {
         private const string PublishData = "publishData";
         private const string PublishProfile = "publishProfile";
@@ -72,7 +72,8 @@ namespace Milou.Deployer.Waws
                 ComputerName = profile.Attribute(PublishUrl)?.Value,
                 SiteName = profile.Attribute(MSDeploySite)?.Value,
                 Username = profile.Attribute(UserName)?.Value,
-                Password = profile.Attribute(UserPwd)?.Value
+                Password = profile.Attribute(UserPwd)?.Value,
+                AuthenticationType = AuthenticationType.Basic
             };
         }
     }

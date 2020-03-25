@@ -7,6 +7,11 @@ namespace Milou.Deployer.Waws
 {
     internal class DeploymentBaseOptions
     {
+        public DeploymentBaseOptions()
+        {
+            AuthenticationType = AuthenticationType.Basic;
+        }
+
         public TraceLevel TraceLevel { get; set; }
 
         public SkipDirectiveCollection SkipDirectives { get; } = new SkipDirectiveCollection();
@@ -29,7 +34,7 @@ namespace Milou.Deployer.Waws
         public bool AllowUntrusted { get; set; }
 
         public static async Task<DeploymentBaseOptions> Load(PublishSettings publishSettings) =>
-            new DeploymentBaseOptions()
+            new DeploymentBaseOptions
             {
                 Password = publishSettings.Password,
                 ComputerName = publishSettings.ComputerName,

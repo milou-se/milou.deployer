@@ -52,11 +52,56 @@ namespace Milou.Deployer.Waws
 
             void Configure(List<string> arguments)
             {
+                string dest = "-dest:contentPath";
+
+                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.ComputerName))
+                {
+                    string url;
+
+                    if (!deploymentBaseOptions.ComputerName.StartsWith("https://"))
+                    {
+                        url = $"https://{deploymentBaseOptions.ComputerName}";
+                    }
+                    else
+                    {
+                        url = deploymentBaseOptions.ComputerName;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(destinationPath))
+                    {
+                        url += $"/msdeploy.axd?site={Uri.EscapeDataString(destinationPath)}";
+                    }
+
+                    dest += $",computername=\"{url}\"";
+                }
+
+                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.UserName))
+                {
+                    dest += $",username=\"{deploymentBaseOptions.UserName}\"";
+                }
+
+                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.Password))
+                {
+                    dest += $",password=\"{deploymentBaseOptions.Password}\"";
+                }
+
+                dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
+
                 arguments.AddRange(new[]
                 {
-                    "-verb:sync", $"-source:dirPath=\"{Path}\"", $"-dest:dirPath=\"{destinationPath}\"", "-verbose"
+                    "-verb:sync",
+                    $"-source:contentPath=\"{Path}\"",
+                    dest,
+                    "-verbose"
                 });
+
+                if (!string.IsNullOrWhiteSpace(destinationPath))
+                {
+                    arguments.Add(
+                    $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{destinationPath}\"");
+                }
             }
+
 
             return await SyncToInternal(
                 deploymentBaseOptions,
@@ -85,6 +130,8 @@ namespace Milou.Deployer.Waws
             CancellationToken cancellationToken = default)
         {
             string exePath = @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe";
+
+            //var exePath = @"C:\Tools\Arbor.ProcessDiagnostics\ConsoleApp1.exe";
 
             var arguments = new List<string>();
 

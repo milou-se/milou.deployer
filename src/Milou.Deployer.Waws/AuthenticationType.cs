@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Waws
 {
-    internal sealed class AuthenticationType : IEquatable<AuthenticationType>
+    public sealed class AuthenticationType : IEquatable<AuthenticationType>
     {
         public static readonly AuthenticationType Basic = new AuthenticationType(nameof(Basic));
 

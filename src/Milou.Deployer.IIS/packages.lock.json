@@ -16,9 +16,9 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Direct",
-        "requested": "[3.1.2, )",
-        "resolved": "3.1.2",
-        "contentHash": "WGtoFWY9yc9HGMG6ObDNQPz9dBP+xz/GqFe2dKjdE/cSdXFEKxCFTyYCzL/e8kxVkc/Bq9qjOsXRWydvn0g9Uw=="
+        "requested": "[3.1.3, )",
+        "resolved": "3.1.3",
+        "contentHash": "5gK6qeq9CBCHBfB3Tim3jCJTLafT9FXFBAZZq39rC8adz8mxcjVAuQSw3jGgHqoRk0jwtXKFhXJUVur8vfeuFg=="
       },
       "Microsoft.Web.Administration": {
         "type": "Direct",
@@ -71,8 +71,8 @@
       },
       "Arbor.Tooler": {
         "type": "Transitive",
-        "resolved": "0.7.3",
-        "contentHash": "/SZoTK2C8Ny4rMwuMJthdizMazDyBUVA1UL6xVzpt1N0eAVT+V2JP5DDtTjrAmEZzVVzoP8rboSkwTxA615EYg==",
+        "resolved": "0.8.0-build.0",
+        "contentHash": "H/baHJPdx56vzwSRO8997GYhd5y7VTjW88rt05uIFN8dHeLQRvSPXhG4XPyz70HVZhKu0SFaPnxgmF/1QnLITA==",
         "dependencies": {
           "Arbor.Processing": "0.4.0",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
@@ -1225,9 +1225,9 @@
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "0.20.0",
           "Arbor.Processing": "0.5.0-build.0",
-          "Arbor.Tooler": "0.7.3",
+          "Arbor.Tooler": "0.8.0-build.0",
           "JetBrains.Annotations": "2019.1.3",
-          "Microsoft.Extensions.Primitives": "3.1.2",
+          "Microsoft.Extensions.Primitives": "3.1.3",
           "Microsoft.Web.Xdt": "3.0.0",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Packaging": "5.5.0",
