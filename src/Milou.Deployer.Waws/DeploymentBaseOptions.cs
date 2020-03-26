@@ -33,6 +33,8 @@ namespace Milou.Deployer.Waws
 
         public bool AllowUntrusted { get; set; }
 
+        public string SiteName { get; set; }
+
         public static async Task<DeploymentBaseOptions> Load(PublishSettings publishSettings) =>
             new DeploymentBaseOptions
             {

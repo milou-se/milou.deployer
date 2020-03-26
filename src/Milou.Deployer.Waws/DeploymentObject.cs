@@ -52,40 +52,7 @@ namespace Milou.Deployer.Waws
 
             void Configure(List<string> arguments)
             {
-                string dest = "-dest:contentPath";
-
-                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.ComputerName))
-                {
-                    string url;
-
-                    if (!deploymentBaseOptions.ComputerName.StartsWith("https://"))
-                    {
-                        url = $"https://{deploymentBaseOptions.ComputerName}";
-                    }
-                    else
-                    {
-                        url = deploymentBaseOptions.ComputerName;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(destinationPath))
-                    {
-                        url += $"/msdeploy.axd?site={Uri.EscapeDataString(destinationPath)}";
-                    }
-
-                    dest += $",computername=\"{url}\"";
-                }
-
-                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.UserName))
-                {
-                    dest += $",username=\"{deploymentBaseOptions.UserName}\"";
-                }
-
-                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.Password))
-                {
-                    dest += $",password=\"{deploymentBaseOptions.Password}\"";
-                }
-
-                dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
+                string dest = CreateDestination(deploymentBaseOptions);
 
                 arguments.AddRange(new[]
                 {
@@ -97,11 +64,10 @@ namespace Milou.Deployer.Waws
 
                 if (!string.IsNullOrWhiteSpace(destinationPath))
                 {
-                    arguments.Add(
-                    $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{destinationPath}\"");
+                    string destinationParameter = GetDestinationParameter(deploymentBaseOptions.SiteName, null);
+                    arguments.Add(destinationParameter);
                 }
             }
-
 
             return await SyncToInternal(
                 deploymentBaseOptions,
@@ -110,11 +76,71 @@ namespace Milou.Deployer.Waws
                 cancellationToken);
         }
 
+        private static string GetDestinationParameter(string siteName, string destinationPath)
+        {
+            string path = string.IsNullOrWhiteSpace(destinationPath) ? null : $"/{destinationPath.TrimStart('/')}";
+            string destinationParameter = $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{siteName}{path}\"";
+            return destinationParameter;
+        }
+
+        private static string CreateDestination(DeploymentBaseOptions deploymentBaseOptions)
+        {
+            string dest = "-dest:contentPath";
+
+            if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.ComputerName))
+            {
+                string url;
+
+                if (!deploymentBaseOptions.ComputerName.StartsWith("https://"))
+                {
+                    url = $"https://{deploymentBaseOptions.ComputerName}";
+                }
+                else
+                {
+                    url = deploymentBaseOptions.ComputerName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.SiteName))
+                {
+                    url += $"/msdeploy.axd?site={Uri.EscapeDataString(deploymentBaseOptions.SiteName)}";
+                }
+
+                dest += $",computername=\"{url}\"";
+            }
+
+            if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.UserName))
+            {
+                dest += $",username=\"{deploymentBaseOptions.UserName}\"";
+            }
+
+            if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.Password))
+            {
+                dest += $",password=\"{deploymentBaseOptions.Password}\"";
+            }
+
+            dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
+            return dest;
+        }
+
         public async Task<WebDeployChangeSummary> SyncTo(DeploymentBaseOptions baseOptions,
             DeploymentSyncOptions syncOptions, CancellationToken cancellationToken = default)
         {
             void Configure(List<string> arguments)
             {
+                string dest = CreateDestination(baseOptions);
+
+                arguments.AddRange(new[]
+                {
+                    "-verb:delete",
+                    dest,
+                    "-verbose"
+                });
+
+                if (!string.IsNullOrWhiteSpace(Path))
+                {
+                    string destinationParameter = GetDestinationParameter(DeploymentBaseOptions.SiteName, Path);
+                    arguments.Add(destinationParameter);
+                }
             }
 
             return await SyncToInternal(baseOptions,

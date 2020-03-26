@@ -77,12 +77,11 @@ namespace Milou.Deployer.Waws
                 publishSettings = await PublishSettings.Load(publishSettingsFile);
             }
 
-            var options = await SetBaseOptions(
+            var destBaseOptions = await SetBaseOptions(
                 publishSettings,
                 allowUntrusted);
 
-            var destBaseOptions = options.Item1;
-            string destinationPath = options.Item2;
+            string destinationPath = destBaseOptions.SiteName;
 
             destBaseOptions.TraceLevel = traceLevel;
             destBaseOptions.Trace += DestBaseOptions_Trace;
@@ -275,12 +274,9 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            var result = await SetBaseOptions(
+            var destDeleteBaseOptions = await SetBaseOptions(
                 publishSettings,
                 allowUntrusted);
-
-            string siteName = result.Item2;
-            DeploymentBaseOptions destDeleteBaseOptions = result.Item1;
 
             var syncDeleteOptions = new DeploymentSyncOptions { DeleteDestination = true };
 
@@ -289,7 +285,7 @@ namespace Milou.Deployer.Waws
                 WebDeployChangeSummary results;
                 using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(
                     DeploymentWellKnownProvider.ContentPath,
-                    siteName + "/App_Offline.htm",
+                    "/App_Offline.htm",
                     destBaseOptions, _logger))
                 {
                     destDeleteBaseOptions.TraceLevel = traceLevel;
@@ -317,7 +313,7 @@ namespace Milou.Deployer.Waws
             return added;
         }
 
-        private static async Task<(DeploymentBaseOptions, string)> SetBaseOptions(
+        private static async Task<DeploymentBaseOptions> SetBaseOptions(
             PublishSettings publishSettings,
             bool allowUntrusted)
         {
@@ -329,16 +325,15 @@ namespace Milou.Deployer.Waws
                 deploymentBaseOptions.UserName = publishSettings.Username;
                 deploymentBaseOptions.Password = publishSettings.Password;
                 deploymentBaseOptions.AuthenticationType = publishSettings.AuthenticationType;
-
-
                 deploymentBaseOptions.AllowUntrusted = allowUntrusted || publishSettings.AllowUntrusted;
+                deploymentBaseOptions.SiteName = publishSettings.SiteName;
 
-                return (deploymentBaseOptions, publishSettings.SiteName);
+                return deploymentBaseOptions;
             }
 
             var deploymentBaseOptions2 = new DeploymentBaseOptions();
 
-            return (deploymentBaseOptions2, string.Empty);
+            return deploymentBaseOptions2;
         }
 
         private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e) =>
