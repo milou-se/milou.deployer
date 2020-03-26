@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
@@ -33,7 +34,8 @@ namespace Milou.Deployer.Core.NuGet
             _keyValueConfiguration = keyValueConfiguration;
         }
 
-        public async Task<MayBe<InstalledPackage>> InstallPackageAsync(
+        [ItemCanBeNull]
+        public async Task<InstalledPackage> InstallPackageAsync(
             DeploymentExecutionDefinition deploymentExecutionDefinition,
             DirectoryInfo tempDirectory,
             bool includeVersion = true,
@@ -204,7 +206,7 @@ namespace Milou.Deployer.Core.NuGet
                     executePath,
                     string.Join(" ", arguments.Select(arg => $"\"{arg}\"")),
                     exitCode);
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
             var packageFiles =
@@ -223,7 +225,7 @@ namespace Milou.Deployer.Core.NuGet
                     deploymentExecutionDefinition.PackageId,
                     tempDirectory.FullName);
 
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
             if (packageFiles.Count > 1)
@@ -235,7 +237,7 @@ namespace Milou.Deployer.Core.NuGet
                     packageFiles.Count,
                     string.Join(",", packageFiles.Select(file => $"'{file.FullName}'")));
 
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
             FileInfo foundPackageFile = packageFiles.Single();
@@ -256,12 +258,12 @@ namespace Milou.Deployer.Core.NuGet
                     packageId,
                     deploymentExecutionDefinition.PackageId);
 
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
-            var installedPackage = new MayBe<InstalledPackage>(InstalledPackage.Create(packageId,
+            var installedPackage = InstalledPackage.Create(packageId,
                 semanticVersion,
-                foundPackageFile.FullName));
+                foundPackageFile.FullName);
 
             return installedPackage;
         }

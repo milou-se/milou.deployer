@@ -19,7 +19,7 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <copyright>Copyright Milou Communication AB 2015-2019</copyright>
+    <copyright>Copyright Milou Communication AB 2015-2020</copyright>
     <dependencies>
       <dependency id="Arbor.KVConfiguration.Schema.Json" version="[0.19.1,2.0.0)" />
       <dependency id="Arbor.Xdt" version="[0.2.4,2.0.0)" />
@@ -29,7 +29,6 @@
       <dependency id="NuGet.Packaging" version="[5.0.0,6.0.0)" />
       <dependency id="NuGet.Versioning" version="[5.0.0,6.0.0)" />
       <dependency id="System.Collections.Immutable" version="[1.6.0,2.0.0)" />
-      <dependency id="fluentftp" version="[27.1.2,999.0.0)" />
     </dependencies>
     <references></references>
     <tags></tags>

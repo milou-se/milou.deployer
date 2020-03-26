@@ -32,7 +32,10 @@ namespace Milou.Deployer.Core.Deployment
             bool requireEnvironmentConfig = false,
             string publishType = null,
             string webConfigTransformFile = null,
-            string ftpPath = null)
+            string ftpPath = null,
+            string nugetExePath = null,
+            string packageListPrefix = null,
+            bool? packageListPrefixEnabled = null)
         {
             if (string.IsNullOrWhiteSpace(packageId))
             {
@@ -56,7 +59,7 @@ namespace Milou.Deployer.Core.Deployment
                 SemanticVersion = null;
             }
 
-            ExcludedFilePatterns = excludedFilePatterns?.Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            ExcludedFilePatterns = excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern)).ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
             SetPreRelease(isPreRelease);
 
@@ -73,6 +76,9 @@ namespace Milou.Deployer.Core.Deployment
             PublishSettingsFile = publishSettingsFile;
             RequireEnvironmentConfig = requireEnvironmentConfig;
             WebConfigTransformFile = webConfigTransformFile;
+            PackageListPrefix = packageListPrefix;
+            PackageListPrefixEnabled = packageListPrefixEnabled;
+            NugetExePath = nugetExePath;
             Parameters = parameters?.ToDictionary(pair => pair.Key,
                                  pair => new StringValues(pair.Value ?? Array.Empty<string>()))
                              .ToImmutableDictionary() ??
@@ -87,7 +93,7 @@ namespace Milou.Deployer.Core.Deployment
         public DeploymentExecutionDefinition(
             string packageId,
             string targetDirectoryPath,
-            MayBe<SemanticVersion> semanticVersion,
+            [CanBeNull] SemanticVersion semanticVersion,
             string nuGetConfigFile = null,
             string nuGetPackageSource = null,
             string iisSiteName = null,
@@ -101,15 +107,17 @@ namespace Milou.Deployer.Core.Deployment
             string webConfigTransformFile = null,
             string publishType = null,
             string ftpPath = null,
-            string nugetExePath = null)
+            string nugetExePath = null,
+            string packageListPrefix = null,
+            bool? packageListPrefixEnabled = null)
         {
-            SemanticVersion = semanticVersion ?? MayBe<SemanticVersion>.Nothing;
+            SemanticVersion = semanticVersion;
             if (string.IsNullOrWhiteSpace(packageId))
             {
                 throw new ArgumentNullException(nameof(packageId));
             }
 
-            ExcludedFilePatterns = excludedFilePatterns?.Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            ExcludedFilePatterns = excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern)).ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
@@ -136,6 +144,8 @@ namespace Milou.Deployer.Core.Deployment
             ExcludedFilePatternsCombined = excludedFilePatterns;
 
             NuGetExePath = nugetExePath;
+            PackageListPrefix = packageListPrefix;
+            PackageListPrefixEnabled = packageListPrefixEnabled;
         }
 
         [JsonIgnore]
@@ -179,6 +189,12 @@ namespace Milou.Deployer.Core.Deployment
         public bool RequireEnvironmentConfig { get; }
 
         public string WebConfigTransformFile { get; }
+
+        public string PackageListPrefix { get; }
+
+        public bool? PackageListPrefixEnabled { get; }
+
+        public string NugetExePath { get; }
 
         public string IisSiteName { get; }
 

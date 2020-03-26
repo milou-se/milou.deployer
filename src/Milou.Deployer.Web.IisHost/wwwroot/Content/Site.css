@@ -1,0 +1,345 @@
+﻿html {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+    padding-bottom: 20px;
+    margin: 0;
+}
+
+.navbar-fixed-top {
+    margin: 0;
+    width: 100%;
+}
+
+.navbar-header {
+    background-color: black;
+    padding: 5px;
+}
+
+/* Set padding to keep content from hitting the edges */
+
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists
+   will truncate terms that are too long to fit in the left column
+*/
+
+.dl-horizontal dt { white-space: normal; }
+
+/* Set width on the form input elements since they're 100% wide by default */
+
+input[type="text"],
+select,
+textarea { min-width: 200px;  }
+
+textarea {
+    display: inline-block;
+    min-width: 600px;
+    min-height: 150px;
+}
+
+.wawsdeploy { color: blue; }
+
+.miloudeployer { color: green; }
+
+.organization-toggler, .project-toggler { cursor: pointer; }
+
+.after-projects {
+    border-bottom: 3px solid #7d7d7d;
+    margin-bottom: 5px;
+}
+
+.target {
+    border-top: 1px solid #7d7d7d;
+    margin-bottom: 5px;
+}
+
+.ThisWeek {
+    background-color: green;
+    color: white;
+}
+
+.ThisMonth { background-color: #adff2f }
+
+.ThisQuarter { background-color: orange }
+
+.ThisYear {
+    background-color: orangered;
+    color: white;
+}
+
+.MoreThanAYear {
+    background-color: red;
+    color: white;
+}
+
+td, th { padding: 5px; }
+
+.prerelease {
+    color: #7d7d7d;
+    font-style: italic;
+}
+
+.stable { color: green; }
+
+/*@media (min-width: 1600px) {
+    .container { width: 1570px; }
+}*/
+
+.level-Error {
+    color: red;
+    font-weight: bold;
+}
+
+.level-Information {
+    color: green;
+    font-weight: bold;
+}
+
+.level-Warning {
+    color: orange;
+    font-weight: bold;
+}
+
+.level-Debug {
+    color: gray;
+    font-weight: bold;
+}
+
+.level-Verbose {
+    color: lightgray;
+    font-weight: bold;
+}
+
+.input-field { /*border-bottom: 1px solid #7d7d7d;*/ }
+
+.input-field label {
+    padding-bottom: 7px;
+    padding-top: 7px;
+    text-align: left;
+    width: 250px;
+    display: block;
+    white-space: nowrap;
+    opacity: 0.8;
+}
+
+.input-field .input-value {
+    /*min-width: 250px;*/
+    display: inline-block;
+    text-align: left;
+}
+
+.timestamp { color: lightgray; }
+
+.deployment-status {
+    display: inline-block;
+    padding: 5px;
+    text-transform: capitalize;
+}
+
+.failure {
+    background-color: red;
+    color: white;
+}
+
+.success {
+    background-color: green;
+    color: white;
+}
+
+.action-link {
+    background-color: #7d7d7d;
+    color: white;
+    display: inline-block;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.action-link:link,
+.action-link:visited,
+.action-link:hover,
+.action-link:active { color: white; }
+
+.package-select {
+    display: inline-block;
+    max-width: 300px;
+}
+
+.package-select select { width: 300px; }
+
+.deploy-status-latest {
+    background-color: green;
+    color: white;
+    display: inline-block;
+    padding: 5px;
+}
+
+.deploy-status-unavailable {
+    color: #7d7d7d;
+    font-style: italic;
+}
+
+.highlighted { font-weight: bold; }
+
+.versionInfoLine { display: block; }
+
+.deploy-button {
+    display: inline-block;
+}
+
+.modal-button-trigger {
+    display: inline-block;
+    padding: 5px;
+    background-color: #1e90ff;
+    color: white;
+    border-radius: 2px;
+    border: 1px solid black;
+}
+
+.modal-button-trigger:hover {
+    background-color: #00bfff;
+}
+
+/* [Object] Modal
+ * =============================== */
+.modal {
+  opacity: 0;
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  background: rgba(0,0,0, .7);
+  transition: opacity .25s ease;
+}
+
+.modal__bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.modal-state {
+  display: none;
+}
+
+.modal-state:checked + .modal {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-state:checked + .modal .modal__inner {
+  top: 0;
+}
+
+.modal__inner {
+  transition: top .25s ease;
+  position: absolute;
+  top: -20%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  margin: auto;
+  overflow: auto;
+  background: #fff;
+  border-radius: 5px;
+  padding: 1em 2em;
+  height: 50%;
+}
+
+.modal__close {
+  position: absolute;
+  right: 1em;
+  top: 1em;
+  width: 1.1em;
+  height: 1.1em;
+  cursor: pointer;
+}
+
+.modal__close:after,
+.modal__close:before {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 1.5em;
+  background: #ccc;
+  display: block;
+  transform: rotate(45deg);
+  left: 50%;
+  margin: -3px 0 0 -1px;
+  top: 0;
+}
+
+.modal__close:hover:after,
+.modal__close:hover:before {
+  background: #aaa;
+}
+
+.modal__close:before {
+  transform: rotate(-45deg);
+}
+
+@media screen and (max-width: 768px) {
+
+  .modal__inner {
+    width: 90%;
+    height: 90%;
+    box-sizing: border-box;
+  }
+}
+
+div#messages, div#logElements {
+    font-family: "Consolas", "Lucida Console", "Courier";
+}
+
+fieldset {
+    margin-bottom: 10px;
+    width: 600px;
+    border-width: 1px;
+}
+
+.tab {
+    display: inline-block;
+    padding: 5px;
+    margin: 0;
+    background-color: #1e90ff;
+    color: white;
+    border: 1px solid #1e90ff;
+}
+
+.tab a:link, .tab a:visited, .tab a:active, .tab a:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.tab:hover {
+    background-color: white;
+    color: #1e90ff;
+}
+
+.tab:hover a:link, .tab:hover a:visited, .tab:hover a:active, .tab:hover a:hover {
+    color: #1e90ff;
+}
+
+.tab:first-child {
+    margin-left: 0;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-contents .tab-content:first-child {
+    display: block;
+}

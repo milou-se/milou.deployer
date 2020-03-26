@@ -136,7 +136,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public bool Equals(FtpPath other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }

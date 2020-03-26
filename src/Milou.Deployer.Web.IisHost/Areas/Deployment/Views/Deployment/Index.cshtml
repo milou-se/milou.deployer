@@ -1,0 +1,42 @@
+﻿@using Milou.Deployer.Web.Core.Deployment
+@using Milou.Deployer.Web.Core.Deployment.Packages
+@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentViewOutputModel
+
+<p>
+    <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Töm cache</a>
+</p>
+
+<form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
+
+    <div>
+
+        <label for="packageVersion">Package</label>
+
+        <select name="packageVersion" id="packageVersion">
+
+            @foreach (PackageVersion item in Model.PackageVersions)
+            {
+                <option value="@item.PackageId @item.Version.ToNormalizedString()">@item.PackageId @item.Version.ToNormalizedString()</option>
+            }
+        </select>
+
+    </div>
+    <div>
+        <label for="target">Target</label>
+        <select name="targetId" id="target">
+
+            @foreach (DeploymentTarget item in Model.Targets)
+            {
+                <option value="@item.Id">@item.Name</option>
+            }
+        </select>
+
+    </div>
+    <div>
+        <input type="submit" value="Deploy" class="deploy-button"/>
+    </div>
+
+
+</form>

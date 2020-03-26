@@ -29,6 +29,7 @@ namespace Milou.Deployer.ConsoleClient
         private readonly DeploymentService _deploymentService;
         private IKeyValueConfiguration _appSettings;
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _allowInteractive = Environment.UserInteractive;
 
         public ILogger Logger { get; private set; }
 
@@ -73,6 +74,11 @@ namespace Milou.Deployer.ConsoleClient
             if (cancellationToken == CancellationToken.None)
             {
                 cancellationToken = _cancellationTokenSource.Token;
+            }
+
+            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.NonInteractiveArgument, StringComparison.OrdinalIgnoreCase)))
+            {
+                _allowInteractive = false;
             }
 
             args ??= Array.Empty<string>();
@@ -215,6 +221,24 @@ namespace Milou.Deployer.ConsoleClient
 
             Logger.Verbose("{Definitions}",
                 string.Join(", ", deploymentExecutionDefinitions.Select(definition => $"{definition}")));
+
+            if (deploymentExecutionDefinitions.Length == 1
+                && deploymentExecutionDefinitions[0].SemanticVersion is null
+                && version is null
+                && _allowInteractive)
+            {
+                Logger.Debug("Found one definition without version and no version has been explicitly set");
+                Console.WriteLine("Version is missing in manifest and no version has been set in command line args. Enter a semantic version, eg. 1.2.3");
+
+                string inputVersion = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(inputVersion) &&
+                    SemanticVersion.TryParse(inputVersion, out var semanticInputVersion))
+                {
+                    version = semanticInputVersion;
+                    Logger.Debug("Using interactive version from user: {Version}", semanticInputVersion.ToNormalizedString());
+                }
+            }
 
             ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, version, cancellationToken).ConfigureAwait(false);
 

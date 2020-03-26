@@ -24,6 +24,7 @@ using Serilog.Events;
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Logging;
+using Milou.Deployer.Ftp;
 
 namespace Milou.Deployer.ConsoleClient
 {
@@ -93,7 +94,6 @@ namespace Milou.Deployer.ConsoleClient
                     .ToImmutableArray();
 
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
-                    .Add(new Arbor.KVConfiguration.SystemConfiguration.AppSettingsKeyValueConfiguration())
                     .Add(new EnvironmentVariableKeyValueConfigurationSource())
                     .AddCommandLineArgsSettings(argsAsParameters)
                     .Add(new UserJsonConfiguration())
@@ -208,7 +208,8 @@ namespace Milou.Deployer.ConsoleClient
                     configuration,
                     new WebDeployHelper(logger),
                     deploymentExecutionDefinition => IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition),
-                    nuGetPackageInstaller);
+                    nuGetPackageInstaller,
+                    new FtpHandlerFactory());
 
                 string temp = configuration[ConfigurationKeys.TempDirectory];
 
