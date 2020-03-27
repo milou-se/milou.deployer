@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
-using JetBrains.Annotations;
 
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
@@ -177,7 +177,7 @@ namespace Milou.Deployer.ConsoleClient
 
             string fileVersion = fvi.FileVersion;
 
-            Type type = typeof(Program);
+            Type type = typeof(DeployerApp);
 
             Logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
                 type.Namespace,

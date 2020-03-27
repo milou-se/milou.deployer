@@ -52,7 +52,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Un
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.WindowsService", "src\Milou.Deployer.Web.WindowsService\Milou.Deployer.Web.WindowsService.csproj", "{86D027C1-6596-4F00-A332-D91CC29AA5A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Ftp", "src\Milou.Deployer.Ftp\Milou.Deployer.Ftp.csproj", "{7C618A87-DC1F-4531-8963-D1B864EFE11B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Ftp", "src\Milou.Deployer.Ftp\Milou.Deployer.Ftp.csproj", "{7C618A87-DC1F-4531-8963-D1B864EFE11B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.DeployerApp", "src\Milou.Deployer.DeployerApp\Milou.Deployer.DeployerApp.csproj", "{84AF602F-7627-493B-B2D5-33EFF6916D4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -136,6 +138,10 @@ Global
 		{7C618A87-DC1F-4531-8963-D1B864EFE11B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C618A87-DC1F-4531-8963-D1B864EFE11B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C618A87-DC1F-4531-8963-D1B864EFE11B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84AF602F-7627-493B-B2D5-33EFF6916D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84AF602F-7627-493B-B2D5-33EFF6916D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84AF602F-7627-493B-B2D5-33EFF6916D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84AF602F-7627-493B-B2D5-33EFF6916D4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Milou.Deployer.Core\IO\TempFile.cs" Link="TempFile.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0" />
+    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.20.0" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.20.0" />
+    <PackageReference Include="Arbor.Processing" Version="0.5.0-build.0" />
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Milou.Deployer.Core\Milou.Deployer.Core.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Ftp\Milou.Deployer.Ftp.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.IIS\Milou.Deployer.IIS.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Waws\Milou.Deployer.Waws.csproj" />
+  </ItemGroup>
+
+</Project>
