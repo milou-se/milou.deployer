@@ -774,7 +774,7 @@ namespace Milou.Deployer.Core.Deployment
                     }
 
                     bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
-                    IDeploymentChangeSummary summary;
+                    DeploySummary summary;
 
                     try
                     {

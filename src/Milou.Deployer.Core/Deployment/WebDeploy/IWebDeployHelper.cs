@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Milou.Deployer.Core.Deployment.Ftp;
 
 namespace Milou.Deployer.Core.Deployment.WebDeploy
 {
     public interface IWebDeployHelper
     {
-        Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
+        Task<DeploySummary> DeployContentToOneSiteAsync(
             string sourcePath,
             string publishSettingsFile,
             TimeSpan appOfflineDelay,

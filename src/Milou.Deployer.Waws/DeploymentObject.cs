@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Processing;
+using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Ftp;
 using Serilog;
 
 namespace Milou.Deployer.Waws
@@ -32,17 +34,41 @@ namespace Milou.Deployer.Waws
         {
         }
 
-        public async Task<WebDeployChangeSummary> SyncTo(
+        public async Task<DeploySummary> SyncTo(
             DeploymentWellKnownProvider destinationProvider,
             string destinationPath,
             DeploymentBaseOptions deploymentBaseOptions,
             DeploymentSyncOptions syncOptions,
             CancellationToken cancellationToken = default)
         {
+            Action<List<string>> action;
 
             if (Provider == DeploymentWellKnownProvider.ContentPath &&
                 destinationProvider == DeploymentWellKnownProvider.ContentPath)
             {
+                action = arguments =>
+                {
+                    string dest = CreateDestination(deploymentBaseOptions);
+
+                    arguments.AddRange(new[] {"-verb:sync", $"-source:contentPath=\"{Path}\"", dest, "-verbose"});
+
+                    if (!string.IsNullOrWhiteSpace(destinationPath) &&
+                        !string.IsNullOrWhiteSpace(deploymentBaseOptions.SiteName))
+                    {
+                        string destinationParameter = GetDestinationParameter(deploymentBaseOptions.SiteName, null);
+                        arguments.Add(destinationParameter);
+                    }
+                };
+            }
+            else  if (Provider == DeploymentWellKnownProvider.DirPath &&
+                     destinationProvider == DeploymentWellKnownProvider.DirPath)
+            {
+                action = arguments =>
+                {
+                    string dest = CreateDestination(deploymentBaseOptions) + "=" + destinationPath;
+
+                    arguments.AddRange(new[] { "-verb:sync", $"-source:dirPath=\"{Path}\"", dest, "-verbose" });
+                };
             }
             else
             {
@@ -50,29 +76,10 @@ namespace Milou.Deployer.Waws
                     $"The current provider {Provider.Name} to provider {destinationProvider.Name} is not supported");
             }
 
-            void Configure(List<string> arguments)
-            {
-                string dest = CreateDestination(deploymentBaseOptions);
-
-                arguments.AddRange(new[]
-                {
-                    "-verb:sync",
-                    $"-source:contentPath=\"{Path}\"",
-                    dest,
-                    "-verbose"
-                });
-
-                if (!string.IsNullOrWhiteSpace(destinationPath))
-                {
-                    string destinationParameter = GetDestinationParameter(deploymentBaseOptions.SiteName, null);
-                    arguments.Add(destinationParameter);
-                }
-            }
-
             return await SyncToInternal(
                 deploymentBaseOptions,
                 syncOptions,
-                Configure,
+                action,
                 cancellationToken);
         }
 
@@ -85,10 +92,12 @@ namespace Milou.Deployer.Waws
 
         private static string CreateDestination(DeploymentBaseOptions deploymentBaseOptions)
         {
-            string dest = "-dest:contentPath";
+            string dest = "-dest:";
 
             if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.ComputerName))
             {
+                dest += "contentPath";
+
                 string url;
 
                 if (!deploymentBaseOptions.ComputerName.StartsWith("https://"))
@@ -106,23 +115,28 @@ namespace Milou.Deployer.Waws
                 }
 
                 dest += $",computername=\"{url}\"";
-            }
 
-            if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.UserName))
+                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.UserName))
+                {
+                    dest += $",username=\"{deploymentBaseOptions.UserName}\"";
+                }
+
+                if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.Password))
+                {
+                    dest += $",password=\"{deploymentBaseOptions.Password}\"";
+                }
+
+                dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
+            }
+            else
             {
-                dest += $",username=\"{deploymentBaseOptions.UserName}\"";
+                dest += "dirPath";
             }
 
-            if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.Password))
-            {
-                dest += $",password=\"{deploymentBaseOptions.Password}\"";
-            }
-
-            dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
             return dest;
         }
 
-        public async Task<WebDeployChangeSummary> SyncTo(DeploymentBaseOptions baseOptions,
+        public async Task<DeploySummary> SyncTo(DeploymentBaseOptions baseOptions,
             DeploymentSyncOptions syncOptions, CancellationToken cancellationToken = default)
         {
             void Configure(List<string> arguments)
@@ -136,7 +150,7 @@ namespace Milou.Deployer.Waws
                     "-verbose"
                 });
 
-                if (!string.IsNullOrWhiteSpace(Path))
+                if (!string.IsNullOrWhiteSpace(Path) && !string.IsNullOrWhiteSpace(DeploymentBaseOptions.SiteName))
                 {
                     string destinationParameter = GetDestinationParameter(DeploymentBaseOptions.SiteName, Path);
                     arguments.Add(destinationParameter);
@@ -149,7 +163,7 @@ namespace Milou.Deployer.Waws
                 cancellationToken);
         }
 
-        private async Task<WebDeployChangeSummary> SyncToInternal(
+        private async Task<DeploySummary> SyncToInternal(
             DeploymentBaseOptions deploymentBaseOptions,
             DeploymentSyncOptions syncOptions,
             Action<List<string>> onConfigureArgs,
@@ -161,83 +175,92 @@ namespace Milou.Deployer.Waws
 
             var arguments = new List<string>();
 
-            long addedFiles = 0;
-            long deletedFiles = 0;
-            long addedDirectories = 0;
-            long deletedDirectories = 0;
+            if (syncOptions.WhatIf)
+            {
+                arguments.Add("-whatif");
+            }
 
-                if (syncOptions.WhatIf)
+            if (syncOptions.UseChecksum)
+            {
+                arguments.Add("-useCheckSum");
+            }
+
+            if (DeploymentBaseOptions.AllowUntrusted || deploymentBaseOptions.AllowUntrusted)
+            {
+                arguments.Add("-allowUntrusted");
+            }
+
+            var syncToInternal = new DeploySummary();
+            onConfigureArgs(arguments);
+
+            string ParseEntry(string entry)
+            {
+                var asSpan = entry.AsSpan();
+
+                int start = asSpan.IndexOf('(') + 1;
+                int end = asSpan.LastIndexOf(')');
+                int length = end - start;
+
+                if (length <= 0)
                 {
-                    arguments.Add("-whatif");
+
                 }
 
-                if (syncOptions.UseChecksum)
+                return asSpan.Slice(start, length).ToString();
+            }
+
+            void Log(string message, string category)
+            {
+                if (message.StartsWith("Verbose: ", StringComparison.Ordinal))
                 {
-                    arguments.Add("-useCheckSum");
+                    _logger.Verbose("{Message}", message.Substring(9));
+                }
+                else if (message.StartsWith("Debug: ", StringComparison.Ordinal))
+                {
+                    _logger.Debug("{Message}", message.Substring(7));
+                }
+                else
+                {
+                    _logger.Information("{Message}", message.Substring(6));
                 }
 
-                if (DeploymentBaseOptions.AllowUntrusted || deploymentBaseOptions.AllowUntrusted)
+                if (message.Contains("deleting file (", StringComparison.OrdinalIgnoreCase))
                 {
-                    arguments.Add("-allowUntrusted");
+                    syncToInternal.Deleted.Add(ParseEntry(message));
                 }
-
-                onConfigureArgs(arguments);
-
-                void Log(string message, string category)
+                else if (message.Contains("adding file (", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (message.StartsWith("Verbose: ", StringComparison.Ordinal))
-                    {
-                        _logger.Verbose("{Message}", message.Substring(9));
-                    }
-                    else if (message.StartsWith("Debug: ", StringComparison.Ordinal))
-                    {
-                        _logger.Debug("{Message}", message.Substring(7));
-                    }
-                    else
-                    {
-                        _logger.Information("{Message}", message.Substring(6));
-                    }
-
-                    if (message.Contains("deleting file", StringComparison.OrdinalIgnoreCase))
-                    {
-                        deletedFiles++;
-                    }
-                    else if (message.Contains("adding file", StringComparison.OrdinalIgnoreCase))
-                    {
-                        addedFiles++;
-                    }
-                    else if (message.Contains("adding directory", StringComparison.OrdinalIgnoreCase))
-                    {
-                        addedDirectories++;
-                    }
+                    syncToInternal.CreatedFiles.Add(ParseEntry(message));
                 }
-
-                void LogError(string message, string category)
+                else if (message.Contains("adding directory (", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.Error("{Message}", message);
+                    syncToInternal.CreatedDirectories.Add(ParseEntry(message));
                 }
-
-                var exitCode = await ProcessRunner.ExecuteProcessAsync(
-                    exePath,
-                    arguments,
-                    Log,
-                    standardErrorAction: LogError,
-                    formatArgs: false,
-                    cancellationToken: cancellationToken);
-
-                if (!exitCode.IsSuccess)
+                else if (message.Contains("updating file (", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.Error("MSDeploy.exe Failed with exit code {ExitCode}", exitCode.Code);
+                    syncToInternal.UpdatedFiles.Add(ParseEntry(message));
                 }
+            }
 
-                return new WebDeployChangeSummary
-                {
-                    AddedFiles = addedFiles,
-                    AddedDirectories = addedDirectories,
-                    DeletedFiles = deletedFiles,
-                    DeletedDirectories = deletedDirectories,
-                    ExitCode = exitCode.Code
-                };
+            void LogError(string message, string category)
+            {
+                _logger.Error("{Message}", message);
+            }
+
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(
+                exePath,
+                arguments,
+                Log,
+                standardErrorAction: LogError,
+                formatArgs: false,
+                cancellationToken: cancellationToken);
+
+            if (!exitCode.IsSuccess)
+            {
+                _logger.Error("MSDeploy.exe Failed with exit code {ExitCode}", exitCode.Code);
+            }
+
+            return syncToInternal;
         }
     }
 }

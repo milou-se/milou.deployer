@@ -198,7 +198,7 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        private async Task<FtpSummary> UploadDirectoryInternalAsync(
+        private async Task<DeploySummary> UploadDirectoryInternalAsync(
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
             FtpPath basePath,
@@ -207,7 +207,7 @@ namespace Milou.Deployer.Ftp
             var dir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
                 FileSystemType.Directory));
 
-            var summary = new FtpSummary();
+            var summary = new DeploySummary();
 
             bool directoryExists = await DirectoryExistsAsync(dir, cancellationToken);
 
@@ -224,13 +224,13 @@ namespace Milou.Deployer.Ftp
             return summary;
         }
 
-        private async Task<FtpSummary> UploadFilesAsync(
+        private async Task<DeploySummary> UploadFilesAsync(
             DirectoryInfo sourceDirectory,
             DirectoryInfo baseDirectory,
             FtpPath basePath,
             CancellationToken cancellationToken)
         {
-            var summary = new FtpSummary();
+            var summary = new DeploySummary();
 
             string[] localPaths = sourceDirectory
                 .GetFiles()
@@ -375,12 +375,12 @@ namespace Milou.Deployer.Ftp
             return summary;
         }
 
-        private async Task<IDeploymentChangeSummary> PublishInternalAsync(
+        private async Task<DeploySummary> PublishInternalAsync(
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken)
         {
-            var deploymentChangeSummary = new FtpSummary();
+            var deploymentChangeSummary = new DeploySummary();
 
             var stopwatch = Stopwatch.StartNew();
 
@@ -490,12 +490,12 @@ namespace Milou.Deployer.Ftp
             return deploymentChangeSummary;
         }
 
-        private async Task<FtpSummary> DeleteFilesAsync(
+        private async Task<DeploySummary> DeleteFilesAsync(
             RuleConfiguration ruleConfiguration,
             ImmutableArray<FtpPath> fileSystemItems,
             CancellationToken cancellationToken)
         {
-            var deploymentChangeSummary = new FtpSummary();
+            var deploymentChangeSummary = new DeploySummary();
 
             foreach (var fileSystemItem in fileSystemItems
                 .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.File))
@@ -742,7 +742,7 @@ namespace Milou.Deployer.Ftp
             return new FtpHandler(ftpClient, logger, ftpSettings);
         }
 
-        public Task<FtpSummary> UploadDirectoryAsync(
+        public Task<DeploySummary> UploadDirectoryAsync(
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
@@ -772,7 +772,7 @@ namespace Milou.Deployer.Ftp
             return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
         }
 
-        public Task<IDeploymentChangeSummary> PublishAsync(
+        public Task<DeploySummary> PublishAsync(
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken)

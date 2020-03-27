@@ -2,7 +2,7 @@
   "profiles": {
     "Milou.Deployer.ConsoleClient": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\VWork\\TestDeploy\\publishSettings.manifest.json\" --logging-category-format-enabled --plain-console",
+      "commandLineArgs": "\"C:\\VWork\\TestDeploy\\to-local.manifest.json\" --logging-category-format-enabled --plain-console",
       "environmentVariables": {
         "MilouDeployer_AllowPreRelease_Enabled": "true"
       }

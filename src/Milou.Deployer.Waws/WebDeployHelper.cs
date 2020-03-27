@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Core.Deployment.WebDeploy;
 using Serilog;
 
@@ -15,7 +16,7 @@ namespace Milou.Deployer.Waws
 
         public WebDeployHelper(ILogger logger) => _logger = logger;
 
-        public async Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
+        public async Task<DeploySummary> DeployContentToOneSiteAsync(
             string sourcePath,
             string publishSettingsFile,
             TimeSpan appOfflineDelay,
@@ -31,7 +32,7 @@ namespace Milou.Deployer.Waws
             bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
             Action<string> logAction = null)
         {
-            WebDeployChangeSummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
+            DeploySummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
                 publishSettingsFile,
                 appOfflineDelay,
                 password,
@@ -47,12 +48,12 @@ namespace Milou.Deployer.Waws
                 logAction
             ).ConfigureAwait(false);
 
-            return new ResultAdapter(deploymentChangeSummary);
+            return deploymentChangeSummary;
         }
 
         public event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
 
-        private async Task<WebDeployChangeSummary> DeployContentToOneSiteAsync2(
+        private async Task<DeploySummary> DeployContentToOneSiteAsync2(
             string sourcePath,
             string publishSettingsFile,
             TimeSpan appOfflineDelay,
@@ -115,7 +116,8 @@ namespace Milou.Deployer.Waws
             {
                 if (Path.IsPathRooted(targetPath))
                 {
-                    sourceProvider = targetProvider = DeploymentWellKnownProvider.ContentPath;
+                    sourceProvider = DeploymentWellKnownProvider.DirPath;
+                    targetProvider = DeploymentWellKnownProvider.DirPath;
 
                     destinationPath = targetPath;
                 }
@@ -221,7 +223,7 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            WebDeployChangeSummary deployContentToOneSite;
+            DeploySummary deployContentToOneSite;
 
 
             var sourceBaseOptions = publishSettings is {}
@@ -257,6 +259,11 @@ namespace Milou.Deployer.Waws
 
                     deployContentToOneSite = await
                         deploymentObject.SyncTo(targetProvider, destinationPath, destBaseOptions, syncOptions);
+
+                    if (deployContentToOneSite.ExitCode != 0)
+                    {
+                        return deployContentToOneSite;
+                    }
                 }
                 finally
                 {
@@ -282,7 +289,7 @@ namespace Milou.Deployer.Waws
 
             if (publishSettings?.SiteName is {})
             {
-                WebDeployChangeSummary results;
+                DeploySummary results;
                 using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(
                     DeploymentWellKnownProvider.ContentPath,
                     "/App_Offline.htm",
@@ -295,6 +302,12 @@ namespace Milou.Deployer.Waws
                 }
 
                 _logger.Debug("AppOffline result: {AppOffline}", results.ToDisplayValue());
+
+                if (results.ExitCode != 0)
+                {
+                    _logger.Error("Could not delete /App_offline.htm");
+                    deployContentToOneSite.ExitCode = results.ExitCode;
+                }
             }
 
             return deployContentToOneSite;

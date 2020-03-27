@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.IO;
 using Arbor.App.Extensions.Time;
+using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using DotNext.Threading;
 using JetBrains.Annotations;
@@ -39,6 +40,7 @@ namespace Milou.Deployer.Web.Core.Deployment
     public class DeploymentService : IDeploymentService, IDisposable
     {
         private readonly IAgentService _agentService;
+        private readonly IKeyValueConfiguration _configuration;
         private readonly ICredentialReadService _credentialReadService;
 
         private readonly ICustomClock _customClock;
@@ -61,7 +63,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             [NotNull] LoggingLevelSwitch loggingLevelSwitch,
             ICredentialReadService credentialReadService,
             IDeploymentTargetService deploymentTargetService,
-            IAgentService agentService)
+            IAgentService agentService,
+            IKeyValueConfiguration configuration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -72,6 +75,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             _credentialReadService = credentialReadService;
             _deploymentTargetService = deploymentTargetService;
             _agentService = agentService;
+            _configuration = configuration;
         }
 
         private Dictionary<string, List<DirectoryInfo>> TempDirectories { get; } =
@@ -646,6 +650,13 @@ namespace Milou.Deployer.Web.Core.Deployment
             arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
             arguments.Add($"{LoggingConstants.LoggingCategoryFormatEnabled}");
             arguments.Add(Deployer.Core.Cli.ConsoleConfigurationKeys.NonInteractiveArgument);
+
+            string exePath = _configuration["deployer-exe"];
+
+            if (!string.IsNullOrWhiteSpace(exePath))
+            {
+                arguments.Add($"-deployer-exe={exePath}");
+            }
 
             jobLogger.Verbose("Running Milou Deployer bootstrapper");
 

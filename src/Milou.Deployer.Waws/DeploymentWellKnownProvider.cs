@@ -40,5 +40,7 @@ namespace Milou.Deployer.Waws
 
         public static bool operator !=(DeploymentWellKnownProvider left, DeploymentWellKnownProvider right) =>
             !Equals(left, right);
+
+        public override string ToString() => Name;
     }
 }

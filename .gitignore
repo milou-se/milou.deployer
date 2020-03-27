@@ -255,3 +255,5 @@ Session.vim
 **/*nCrunchTemp_*
 *.orig
 Milou.Deployer.v3.ncrunchsolution
+Buffer-*.json
+Buffer.bookmark

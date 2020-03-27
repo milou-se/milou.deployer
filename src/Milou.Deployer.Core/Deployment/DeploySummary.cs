@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Core.Deployment.Ftp
+namespace Milou.Deployer.Core.Deployment
 {
-    public class FtpSummary : IDeploymentChangeSummary
+    public class DeploySummary
     {
         public TimeSpan TotalTime { get; set; }
 
@@ -26,7 +25,9 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public List<string> UpdatedFiles { get; } = new List<string>();
 
-        public void Add([NotNull] FtpSummary other)
+        public int ExitCode { get; set; }
+
+        public void Add([NotNull] DeploySummary other)
         {
             if (other == null)
             {
