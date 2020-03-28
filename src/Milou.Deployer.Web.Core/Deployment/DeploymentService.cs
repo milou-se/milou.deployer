@@ -584,7 +584,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 }
                 else
                 {
-                    this._logger.Warning("Could not get secrets for deployment target id {DeploymentTargetId}", id);
+                    _logger.Warning("Could not get secrets for deployment target id {DeploymentTargetId}", id);
                 }
             }
 
@@ -603,7 +603,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                         isPreRelease = deploymentTask.SemanticVersion.IsPrerelease,
                         environmentConfig = targetEnvironmentConfig,
                         requireEnvironmentConfig = deploymentTarget.RequireEnvironmentConfiguration,
-                        publishSettingsFileName,
+                        publishSettingsFile = publishSettingsFileName,
                         parameters,
                         deploymentTarget.NuGet.NuGetConfigFile,
                         deploymentTarget.NuGet.NuGetPackageSource,
@@ -628,6 +628,12 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 publishSettingsXml = await
                     File.ReadAllTextAsync(publishSettingsFile.FullName, Encoding.UTF8, cancellationToken);
+            }
+
+            if (string.IsNullOrWhiteSpace(targetDirectoryPath) && string.IsNullOrWhiteSpace(publishSettingsXml))
+            {
+                _logger.Error("Both target directory path and publish settings XML are empty");
+                return ExitCode.Failure;
             }
 
             if (!string.IsNullOrWhiteSpace(deploymentTarget.NuGet.NuGetConfigFile) &&

@@ -225,7 +225,6 @@ namespace Milou.Deployer.Waws
 
             DeploySummary deployContentToOneSite;
 
-
             var sourceBaseOptions = publishSettings is {}
                 ? await DeploymentBaseOptions.Load(publishSettings)
                 : new DeploymentBaseOptions();
