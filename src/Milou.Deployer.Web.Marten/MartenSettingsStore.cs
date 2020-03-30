@@ -64,7 +64,8 @@ namespace Milou.Deployer.Web.Marten
                                           AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy),
                                           DefaultMetadataRequestTimeout = applicationSettingsData?.DefaultMetadataTimeout ?? TimeSpan.FromSeconds(30),
                                           ApplicationSettingsCacheTimeout = applicationSettingsData?.ApplicationSettingsCacheTimeout ?? TimeSpan.FromMinutes(10),
-                                          MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? TimeSpan.FromMinutes(5)
+                                          MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? TimeSpan.FromMinutes(5),
+                                          AgentExe = applicationSettingsData?.AgentExe
                                       };
 
             return applicationSettings;
@@ -99,7 +100,8 @@ namespace Milou.Deployer.Web.Marten
                 AutoDeploy = MapToAutoDeployData(applicationSettings.AutoDeploy),
                 ApplicationSettingsCacheTimeout = applicationSettings.ApplicationSettingsCacheTimeout,
                 DefaultMetadataTimeout = applicationSettings.DefaultMetadataRequestTimeout,
-                MetadataCacheTimeout = applicationSettings.MetadataCacheTimeout
+                MetadataCacheTimeout = applicationSettings.MetadataCacheTimeout,
+                AgentExe = applicationSettings.AgentExe
             };
 
         private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>

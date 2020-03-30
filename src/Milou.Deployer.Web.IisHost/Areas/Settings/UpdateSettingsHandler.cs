@@ -54,6 +54,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.MetadataCacheTimeout = request.MetadataCacheTimeout.Value;
             }
 
+            applicationSettings.AgentExe = string.IsNullOrWhiteSpace(request.AgentExe) ? null : request.AgentExe;
+
             await _settingsStore.Save(applicationSettings);
 
             return Unit.Value;

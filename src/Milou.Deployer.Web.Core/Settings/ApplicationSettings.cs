@@ -17,5 +17,7 @@ namespace Milou.Deployer.Web.Core.Settings
         public TimeSpan DefaultMetadataRequestTimeout { get; set; }
 
         public TimeSpan MetadataCacheTimeout { get; set; }
+
+        public string? AgentExe { get; set; }
     }
 }

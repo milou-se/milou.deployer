@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Buffer-*.json" />
+    <None Remove="*.bookmark" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj" />
     <ProjectReference Include="..\Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj" />
   </ItemGroup>

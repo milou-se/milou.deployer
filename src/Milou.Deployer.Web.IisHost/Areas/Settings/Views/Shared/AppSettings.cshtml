@@ -38,6 +38,10 @@ Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
     </div>
 
     <div>
+        Agent exe full path: <input type="text" name="agentExe" value="@Model.ApplicationSettings.AgentExe" />
+    </div>
+
+    <div>
         <label for="autodeploy-enabled">Auto deploy enabled:</label> <input id="autodeploy-enabled" type="checkbox" name="autoDeploy.Enabled" @Model.ApplicationSettings.AutoDeploy.Enabled.Checked() />
         <label for="autodeploy-polling-enabled">Auto deploy polling enabled:</label> <input id="autodeploy-polling-enabled" type="checkbox" name="autoDeploy.PollingEnabled" @Model.ApplicationSettings.AutoDeploy.PollingEnabled.Checked() />
     </div>
