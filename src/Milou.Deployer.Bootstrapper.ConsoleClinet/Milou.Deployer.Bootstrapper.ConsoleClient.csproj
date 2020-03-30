@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.8.0-build.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.8.1-build.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

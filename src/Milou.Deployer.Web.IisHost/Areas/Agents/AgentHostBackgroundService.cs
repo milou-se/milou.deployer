@@ -10,12 +10,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class AgentHostBackgroundService : BackgroundService
     {
-        private readonly ApplicationSettings _applicationSettings;
+        private readonly IApplicationSettingsStore _applicationSettingsStore;
         private ILogger _logger;
 
-        public AgentHostBackgroundService(ApplicationSettings applicationSettings, ILogger logger)
+        public AgentHostBackgroundService(IApplicationSettingsStore applicationSettingsStore, ILogger logger)
         {
-            _applicationSettings = applicationSettings;
+            _applicationSettingsStore = applicationSettingsStore;
             _logger = logger;
         }
 
@@ -23,24 +23,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         {
             await Task.Yield();
 
-            if (string.IsNullOrWhiteSpace(_applicationSettings.AgentExe))
+            var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+
+            if (string.IsNullOrWhiteSpace(applicationSettings.AgentExe))
             {
                 _logger.Debug("No agent exe has been specified");
                 return;
             }
-
-            if (!File.Exists(_applicationSettings.AgentExe))
+            if (!File.Exists(applicationSettings.AgentExe))
             {
-                _logger.Debug("The specified agent exe '{AgentExe}' does not exist", _applicationSettings.AgentExe);
+                _logger.Debug("The specified agent exe '{AgentExe}' does not exist", applicationSettings.AgentExe);
                 return;
             }
 
-            _logger.Information("Starting agent as sub-process {Path}", _applicationSettings.AgentExe);
-            var exitCode = await ProcessRunner.ExecuteProcessAsync(_applicationSettings.AgentExe, cancellationToken: stoppingToken);
+            _logger.Information("Starting agent as sub-process {Path}", applicationSettings.AgentExe);
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(
+                applicationSettings.AgentExe,
+                workingDirectory: new FileInfo(applicationSettings.AgentExe).Directory,
+                cancellationToken: stoppingToken);
 
             if (!stoppingToken.IsCancellationRequested && !exitCode.IsSuccess)
             {
-                _logger.Error("Failed to start agent from process {Process}", _applicationSettings.AgentExe);
+                _logger.Error("Failed to start agent from process {Process}", applicationSettings.AgentExe);
             }
         }
     }

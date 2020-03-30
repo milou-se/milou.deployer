@@ -53,13 +53,13 @@
       },
       "Arbor.Processing": {
         "type": "Transitive",
-        "resolved": "0.5.0-build.0",
-        "contentHash": "BtrP9pCI5YVqrfBRdHVzpH1nGztJQBI3XD2F70gGFOARBgnGXIz/DEbybXbkDx4r2sd2Slxl9ggLPdAh+pscNg=="
+        "resolved": "0.5.1-build.0",
+        "contentHash": "BjQQZjQhYtd6ycavk5G5uivn9CEdJawLU6yoKIpgBYC/8IH5s8648Kp0ztvoznzK4Z5m7N01ttZKabSx+4Ytgg=="
       },
       "Arbor.Tooler": {
         "type": "Transitive",
-        "resolved": "0.8.0-build.0",
-        "contentHash": "H/baHJPdx56vzwSRO8997GYhd5y7VTjW88rt05uIFN8dHeLQRvSPXhG4XPyz70HVZhKu0SFaPnxgmF/1QnLITA==",
+        "resolved": "0.8.1-build.0",
+        "contentHash": "kIESqqbneBe2DuUfX7gqwTZc52S1KF7bsbX/7wNIBfO2uXeGOmURFOuLccOyZ2wmHsK0fVAXo29GotaRM/aJgQ==",
         "dependencies": {
           "Arbor.Processing": "0.4.0",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
@@ -1056,8 +1056,8 @@
         "type": "Project",
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "0.20.0",
-          "Arbor.Processing": "0.5.0-build.0",
-          "Arbor.Tooler": "0.8.0-build.0",
+          "Arbor.Processing": "0.5.1-build.0",
+          "Arbor.Tooler": "0.8.1-build.0",
           "JetBrains.Annotations": "2019.1.3",
           "Microsoft.Extensions.Primitives": "3.1.3",
           "Microsoft.Web.Xdt": "3.0.0",
