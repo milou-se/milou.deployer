@@ -50,5 +50,51 @@ namespace Milou.Deployer.Tests.Integration
             Assert.Single(deserializeObject);
             Assert.Equal(2, deserializeObject[0].ExcludedFilePatterns.Length);
         }
+
+        [Fact]
+        public void DefinitionCreatedWithPublicCtorShouldBeEqualToDeserializedDefinition()
+        {
+           var definition = new DeploymentExecutionDefinition("aPackageId",
+                @"C:\Temp", new SemanticVersion(1, 2, 3),
+                nuGetConfigFile: "@C:\\Nuget.Config", "aNuGetSource",
+                "aSiteName",
+                isPreRelease: true,
+                force: false,
+                environmentConfig: "production",
+                publishSettingsFile: null,
+                parameters: null,
+                excludedFilePatterns: null,
+                requireEnvironmentConfig: false,
+                webConfigTransformFile: "C:\\Xdt.Config",
+                publishType: PublishType.WebDeploy.Name,
+                ftpPath: null,
+                nugetExePath: "C:\\NuGet.exe",
+                packageListPrefix: "packageid:",
+                packageListPrefixEnabled: true);
+
+
+           DeploymentExecutionDefinition[] deploymentExecutionDefinitions = {definition};
+
+            string serialized = JsonConvert.SerializeObject(
+                new { definitions = deploymentExecutionDefinitions },
+                Formatting.Indented);
+
+            _output.WriteLine(serialized);
+
+            ImmutableArray<DeploymentExecutionDefinition> deserializedObject =
+                DeploymentExecutionDefinitionParser.Deserialize(serialized);
+
+            Assert.Single(deserializedObject);
+
+            string serializedDeserialized = JsonConvert.SerializeObject(
+                new { definitions = deploymentExecutionDefinitions },
+                Formatting.Indented);
+
+            var deserializedDefinition = deserializedObject[0];
+
+            Assert.Equal(serialized, serializedDeserialized);
+
+            Assert.Equal(definition.PackageId, deserializedDefinition.PackageId);
+        }
     }
 }
