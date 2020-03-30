@@ -68,7 +68,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             FtpPath = path;
 
             Url = url;
-            EnvironmentConfiguration = environmentConfiguration ?? environmentType?.Name;
+            EnvironmentConfiguration = environmentConfiguration;
             AutoDeployment = autoDeployment;
             AutoDeployEnabled = autoDeployEnabled;
             PublishSettingFile = publishSettingFile;
@@ -101,7 +101,6 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public Uri Url { get; }
 
-        [Obsolete("Use EnvironmentTypeId")]
         public string EnvironmentConfiguration { get; }
 
         public bool AutoDeployment { get; }

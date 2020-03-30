@@ -6,21 +6,7 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         public static string? GetEnvironmentConfiguration(this DeploymentTarget deploymentTarget)
         {
-            string? targetEnvironmentConfigName = !string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentType?.Id)
-                                                  && !string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentType?.Name)
-
-                ? deploymentTarget.EnvironmentType.Name
-                : deploymentTarget.EnvironmentConfiguration;
-
-            if (string.Equals(EnvironmentType.Unknown.Name, deploymentTarget.EnvironmentConfiguration, StringComparison.OrdinalIgnoreCase))
-            {
-                targetEnvironmentConfigName = null;
-            }
-
-            if (string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentConfiguration))
-            {
-                targetEnvironmentConfigName = null;
-            }
+            string? targetEnvironmentConfigName = deploymentTarget.EnvironmentConfiguration;
 
             return targetEnvironmentConfigName;
         }

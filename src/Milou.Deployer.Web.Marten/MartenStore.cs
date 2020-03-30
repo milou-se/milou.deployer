@@ -482,6 +482,7 @@ namespace Milou.Deployer.Web.Marten
                 data.NuGetData.PackageListTimeout = request.PackageListTimeout;
                 data.MetadataTimeout = request.MetadataTimeout;
                 data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
+                data.EnvironmentConfiguration = request.EnvironmentConfiguration;
                 data.PackageListPrefixEnabled = request.PackageListPrefixEnabled;
                 data.PackageListPrefix = request.PackageListPrefix;
                 session.Store(data);

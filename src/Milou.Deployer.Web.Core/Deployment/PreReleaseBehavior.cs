@@ -33,5 +33,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public static PreReleaseBehavior Parse(string? value) =>
             All.SingleOrDefault(
                 behavior => behavior.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase)) ?? Invalid;
+
+        public override string ToString() => $"{nameof(Name)}: {Name}";
     }
 }

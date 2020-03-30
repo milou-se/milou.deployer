@@ -216,7 +216,14 @@ else
             </div>
 
             <div class="input-field">
-                <label for="target-requireEnvironmentConfig">Require environment config</label>
+                <label for="target-environmentConfiguration">Environment configuration name</label>
+                <div class="input-value">
+                    <input id="target-environmentConfiguration" value="@Model.DeploymentTarget.EnvironmentConfiguration" type="text" name="environmentConfiguration" />
+                </div>
+            </div>
+
+            <div class="input-field">
+                <label for="target-requireEnvironmentConfig">Require environment configuration name</label>
                 <div class="input-value">
                     <input id="target-requireEnvironmentConfig" type="checkbox" name="requireEnvironmentConfig" @Model.DeploymentTarget.RequireEnvironmentConfiguration.Checked() />
                 </div>

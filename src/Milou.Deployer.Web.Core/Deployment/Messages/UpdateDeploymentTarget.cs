@@ -109,9 +109,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
                 yield return new ValidationResult("URL must be defined", new []{nameof(Url)});
             }
 
-            if (RequireEnvironmentConfig == true && string.IsNullOrWhiteSpace(EnvironmentTypeId))
+            if (RequireEnvironmentConfig == true && string.IsNullOrWhiteSpace(EnvironmentConfiguration))
             {
-                yield return new ValidationResult($"{nameof(RequireEnvironmentConfig)} can only be true when environment type id is set", new []{nameof(RequireEnvironmentConfig)});
+                yield return new ValidationResult($"{nameof(RequireEnvironmentConfig)} can only be true when environment configuration is set", new []{nameof(RequireEnvironmentConfig)});
             }
         }
 
