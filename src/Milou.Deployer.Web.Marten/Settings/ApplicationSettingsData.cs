@@ -21,5 +21,7 @@ namespace Milou.Deployer.Web.Marten.Settings
         public TimeSpan MetadataCacheTimeout { get; set; }
 
         public string? AgentExe { get; set; }
+
+        public bool HostAgentEnabled { get; set; }
     }
 }

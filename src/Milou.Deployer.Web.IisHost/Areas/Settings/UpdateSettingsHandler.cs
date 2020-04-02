@@ -56,6 +56,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
 
             applicationSettings.AgentExe = string.IsNullOrWhiteSpace(request.AgentExe) ? null : request.AgentExe;
 
+            if (request.HostAgentEnabled.HasValue)
+            {
+                applicationSettings.HostAgentEnabled = request.HostAgentEnabled.Value;
+            }
+
             await _settingsStore.Save(applicationSettings);
 
             return Unit.Value;

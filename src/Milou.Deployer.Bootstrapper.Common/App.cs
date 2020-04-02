@@ -99,7 +99,7 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             NuGetPackageInstallResult nuGetPackageInstallResult;
 
-            FileInfo deployerToolFile = GetDeployerExeFromArgs(appArgs);
+            FileInfo? deployerToolFile = GetDeployerExeFromArgs(appArgs);
 
             if (deployerToolFile is { })
             {
@@ -172,7 +172,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             return (nuGetPackageInstallResult, deployerToolFile);
         }
 
-        private static FileInfo GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
+        private static FileInfo? GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
         {
             string exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
 

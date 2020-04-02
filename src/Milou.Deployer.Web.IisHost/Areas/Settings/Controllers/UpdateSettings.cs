@@ -26,5 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         public TimeSpan? MetadataCacheTimeout { get; set; }
 
         public string? AgentExe { get; set; }
+
+        public bool? HostAgentEnabled { get; set; }
     }
 }

@@ -65,7 +65,8 @@ namespace Milou.Deployer.Web.Marten
                                           DefaultMetadataRequestTimeout = applicationSettingsData?.DefaultMetadataTimeout ?? TimeSpan.FromSeconds(30),
                                           ApplicationSettingsCacheTimeout = applicationSettingsData?.ApplicationSettingsCacheTimeout ?? TimeSpan.FromMinutes(10),
                                           MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? TimeSpan.FromMinutes(5),
-                                          AgentExe = applicationSettingsData?.AgentExe
+                                          AgentExe = applicationSettingsData?.AgentExe,
+                                          HostAgentEnabled = applicationSettingsData?.HostAgentEnabled ?? false
                                       };
 
             return applicationSettings;
@@ -101,7 +102,8 @@ namespace Milou.Deployer.Web.Marten
                 ApplicationSettingsCacheTimeout = applicationSettings.ApplicationSettingsCacheTimeout,
                 DefaultMetadataTimeout = applicationSettings.DefaultMetadataRequestTimeout,
                 MetadataCacheTimeout = applicationSettings.MetadataCacheTimeout,
-                AgentExe = applicationSettings.AgentExe
+                AgentExe = applicationSettings.AgentExe,
+                HostAgentEnabled = applicationSettings.HostAgentEnabled
             };
 
         private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>
