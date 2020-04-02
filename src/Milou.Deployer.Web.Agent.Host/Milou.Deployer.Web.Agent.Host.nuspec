@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <package >
 	<metadata>
-		<id>Milou.Deployer.Bootstrapper</id>
+		<id>Milou.Deployer.Web.Agent.Host</id>
 		<version>0.0.1</version>
-		<title>Milou.Deployer.Bootstrapper</title>
+		<title>Milou.Deployer.Web.Agent.Host</title>
 		<authors>Milou Communication AB</authors>
 		<owners></owners>
 		<description>
-			Milou.Deployer.Bootstrapper
+			Milou.Deployer.Web.Agent.Host
 		</description>
 		<releaseNotes>
 		</releaseNotes>
 		<summary>
-			Milou.Deployer.Bootstrapper
+			Milou.Deployer.Web.Agent.Host
 		</summary>
 		<language>en-US</language>
 		<projectUrl>https://github.com/milou-se/milou.deployer</projectUrl>
