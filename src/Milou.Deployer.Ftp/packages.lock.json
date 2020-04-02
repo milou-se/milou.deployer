@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.0": {
       "FluentFTP": {
         "type": "Direct",
-        "requested": "[32.2.2, )",
-        "resolved": "32.2.2",
-        "contentHash": "Wftce+MlmA5HcLSCPJja1M7aosT+D6R+FAILRJYT03zX2KJUVn9Tuo8GqR9OZoGx6GC7u1Pq20aSIRyd8mQmjg==",
+        "requested": "[32.3.1, )",
+        "resolved": "32.3.1",
+        "contentHash": "Worl3dtG1Kw7gHlNGIUZhJiEPZ5LytLhrMtdyBwlY0foR6/nRJg2dV5ZdFBLw0CNwQ2RxLlcrqnaiFDnG/wr2g==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
