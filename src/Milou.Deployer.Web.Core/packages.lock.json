@@ -112,14 +112,14 @@
       },
       "Marten": {
         "type": "Direct",
-        "requested": "[3.11.0, )",
-        "resolved": "3.11.0",
-        "contentHash": "Ri+1mF3QtAHoriUyxcfObw1M+AH95jQX/RNK+0Gle0i14l+PXE9D513CNjQy+Kivbr3Ze6y/Eyv15cvncQSqMA==",
+        "requested": "[3.9.0, )",
+        "resolved": "3.9.0",
+        "contentHash": "GIshpScZ1Jfh8oeN4jO++dle9LLjzWyHsb/ltrMGb675PS6PzElTvas4lDHVPaSSGe9Ig6eqIScMZ7S4k5cj2A==",
         "dependencies": {
           "Baseline": "1.5.0",
           "Newtonsoft.Json": "11.0.2",
-          "Npgsql": "[4.1.2, 4.2.0)",
-          "Npgsql.Json.NET": "[4.1.2, 4.2.0)",
+          "Npgsql": "[4.1.1, 4.2.0)",
+          "Npgsql.Json.NET": "[4.1.1, 4.2.0)",
           "Remotion.Linq": "2.2.0",
           "System.Memory": "4.5.3",
           "System.Reflection.Emit.Lightweight": "4.6.0",
@@ -788,19 +788,19 @@
       },
       "Npgsql": {
         "type": "Transitive",
-        "resolved": "4.1.2",
-        "contentHash": "41Nht/GnC/cRCA/2T9vq5NAv8m24RDp3paRhJCMc8ipOURH6zDZAQFe8mcLq1hAgMkK1Wy8VoRYL/8Op+L6OCg==",
+        "resolved": "4.1.1",
+        "contentHash": "VvYSduwCVCy1erIntV3jVbBduAL8+hqobg8xf5xPmkqzGJ5j9Wx4y/eXz2+BLmFkozJEjTzxz8/X5cOyJ4P9Ig==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "4.6.0"
         }
       },
       "Npgsql.Json.NET": {
         "type": "Transitive",
-        "resolved": "4.1.2",
-        "contentHash": "hs0fwCKk6dTX2Ey+B0cuQJfWDY0PzbNzM8ktji9aaeA+tyI+xmWdsC8GLSSl59TLlYLNTcEZara4mFFuFMAhOw==",
+        "resolved": "4.1.1",
+        "contentHash": "o1E7bj0TnzpM5hlAEjrNSSEn3X4JQ85/54XgabQ6V6MZ/XjMtt0LTql3HCl86he1ZKaGzRYCyWc5jO8iJYI5zw==",
         "dependencies": {
           "Newtonsoft.Json": "11.0.2",
-          "Npgsql": "4.1.2"
+          "Npgsql": "4.1.1"
         }
       },
       "NuGet.Common": {
