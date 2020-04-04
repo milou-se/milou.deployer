@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.IO;
-
+using Milou.Deployer.DeployerApp;
 using Newtonsoft.Json;
 using Serilog;
 using Xunit;
@@ -105,7 +105,7 @@ namespace Milou.Deployer.Tests.Integration
 
                                 using (logger)
                                 {
-                                    using (DeployerApp deployerApp = await
+                                    using (DeployerApp.DeployerApp deployerApp = await
                                         AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                     {
                                         exitCode = await deployerApp.ExecuteAsync(args,

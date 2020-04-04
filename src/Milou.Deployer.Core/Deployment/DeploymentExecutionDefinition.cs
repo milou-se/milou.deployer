@@ -85,9 +85,8 @@ namespace Milou.Deployer.Core.Deployment
                          ImmutableDictionary<string, StringValues>.Empty;
             ExcludedFilePatternsCombined = excludedFilePatterns;
 
-            _ = PublishType.TryParseOrDefault(publishType, out PublishType? publishTypeValue);
+            PublishType = PublishType.TryParseOrDefault(publishType, out PublishType? publishTypeValue) ? publishTypeValue : PublishType.Default;
 
-            PublishType = publishTypeValue;
         }
 
         public DeploymentExecutionDefinition(

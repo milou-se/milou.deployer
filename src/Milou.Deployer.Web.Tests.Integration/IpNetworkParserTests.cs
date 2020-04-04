@@ -81,11 +81,11 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void SingleIPv4AddressShouldBeParsed()
         {
-            _ = IpNetworkParser.TryParse("127.0.0.1/32", out Microsoft.AspNetCore.HttpOverrides.IPNetwork network);
+            IpNetworkParser.TryParse("127.0.0.1/32", out Microsoft.AspNetCore.HttpOverrides.IPNetwork? network);
 
             Assert.NotNull(network);
-            Assert.Equal(network.Prefix, IPAddress.Loopback);
-            Assert.Equal(32, network.PrefixLength);
+            Assert.Equal(IPAddress.Loopback, network?.Prefix);
+            Assert.Equal(32, network?.PrefixLength);
         }
 
         [Fact]

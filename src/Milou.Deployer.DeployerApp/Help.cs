@@ -4,7 +4,7 @@ using System.Text;
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Logging;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.DeployerApp
 {
     public static class Help
     {

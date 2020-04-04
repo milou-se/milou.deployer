@@ -138,7 +138,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             var stopwatch = Stopwatch.StartNew();
 
             ExitCode result;
-            DeploymentTarget deploymentTarget = null;
+            DeploymentTarget? deploymentTarget = null;
             _current = deploymentTask;
 
             try
@@ -224,7 +224,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public void Dispose()
         {
-            _current = null;
+            _current = null!;
             MessageQueue.Dispose();
             foreach (KeyValuePair<string, List<TempFile>> pair in TempFiles)
             {
@@ -486,17 +486,17 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             string targetDirectoryPath = deploymentTarget.TargetDirectory;
 
-            string targetEnvironmentConfig = deploymentTarget.GetEnvironmentConfiguration()?.Trim();
+            string? targetEnvironmentConfig = deploymentTarget.GetEnvironmentConfiguration()?.Trim();
 
             var arguments = new List<string>();
 
             jobLogger.Information("Using manifest file for job {JobId}", jobId);
 
-            FileInfo publishSettingsFile = !string.IsNullOrWhiteSpace(deploymentTarget.PublishSettingFile)
+            FileInfo? publishSettingsFile = !string.IsNullOrWhiteSpace(deploymentTarget.PublishSettingFile)
                 ? new FileInfo(deploymentTarget.PublishSettingFile)
                 : null;
 
-            string publishSettingsXml = null;
+            string? publishSettingsXml = null;
 
             string deploymentTargetParametersFile = deploymentTarget.ParameterFile;
 
@@ -566,10 +566,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                 const string publishUrlKey = secretKeyPrefix + ":publish-url";
                 const string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
 
-                string username = _credentialReadService.GetSecret(id, usernameKey);
-                string password = _credentialReadService.GetSecret(id, passwordKey);
-                string publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
-                string msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
+                string? username = _credentialReadService.GetSecret(id, usernameKey);
+                string? password = _credentialReadService.GetSecret(id, passwordKey);
+                string? publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
+                string? msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
 
                 if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
                 {
@@ -588,7 +588,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 }
             }
 
-            string publishSettingsFileName = publishSettingsFile is null
+            string? publishSettingsFileName = publishSettingsFile is null
                 ? null
                 : $"{deploymentTask.DeploymentTargetId}.publishSettings";
 

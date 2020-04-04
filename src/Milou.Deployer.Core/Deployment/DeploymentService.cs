@@ -267,7 +267,7 @@ namespace Milou.Deployer.Core.Deployment
                             $"{environmentConfigPrefix}out",
                             deploymentExecutionDefinition.EnvironmentConfig));
 
-                InstalledPackage installedEnvironmentPackage =
+                InstalledPackage? installedEnvironmentPackage =
                     await
                         _packageInstaller.InstallPackageAsync(
                             deploymentDefinition,
@@ -492,13 +492,13 @@ namespace Milou.Deployer.Core.Deployment
                     _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
                         asJson);
 
-                    const string TempPrefix = "MD-";
+                    const string tempPrefix = "MD-";
 
                     string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
 
                     string tempPath = Path.Combine(
                         Path.GetTempPath(),
-                        $"{TempPrefix}{uniqueSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
+                        $"{tempPrefix}{uniqueSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
 
                     var tempWorkingDirectory = new DirectoryInfo(tempPath);
                     DirectoryInfo packageInstallTempDirectory = tempWorkingDirectory;
@@ -664,7 +664,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     string uniqueTargetTempPath = Path.Combine(
                         Path.GetTempPath(),
-                        $"{TempPrefix}t{uniqueTargetTempSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
+                        $"{tempPrefix}t{uniqueTargetTempSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
 
                     var targetTempDirectoryInfo =
                         new DirectoryInfo(uniqueTargetTempPath);
@@ -833,7 +833,7 @@ namespace Milou.Deployer.Core.Deployment
                                 _logger.Information("Deploying {Target} with {PublishType}",
                                     deploymentExecutionDefinition.FtpPath?.Path,
                                     deploymentExecutionDefinition.PublishType);
-                                string publishSettingsFile = deploymentExecutionDefinition.PublishSettingsFile;
+                                string? publishSettingsFile = deploymentExecutionDefinition.PublishSettingsFile;
 
                                 if (string.IsNullOrWhiteSpace(publishSettingsFile))
                                 {

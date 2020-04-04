@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Milou.Deployer.Core.Extensions;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.DeployerApp
 {
     public class AppBootstrapper
     {

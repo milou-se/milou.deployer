@@ -13,20 +13,20 @@ using Arbor.KVConfiguration.UserConfiguration;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Milou.Deployer.Core;
+using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Core.Logging;
+using Milou.Deployer.Ftp;
 using Milou.Deployer.IIS;
 using Milou.Deployer.Waws;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Milou.Deployer.Core.Cli;
-using Milou.Deployer.Core.Deployment.Configuration;
-using Milou.Deployer.Core.Logging;
-using Milou.Deployer.Ftp;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.DeployerApp
 {
     public static class AppBuilder
     {

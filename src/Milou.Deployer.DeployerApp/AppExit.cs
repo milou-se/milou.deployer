@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Arbor.Processing;
 using Serilog;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.DeployerApp
 {
     internal sealed class AppExit
     {

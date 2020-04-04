@@ -201,7 +201,7 @@ namespace Milou.Deployer.Waws
                             && currentDirectory.GetDirectories().Length == 0)
                         {
                             currentDirectory.Delete();
-                            logAction($"Deleted empty directory '{currentDirectory.FullName}'");
+                            logAction?.Invoke($"Deleted empty directory '{currentDirectory.FullName}'");
                         }
                     }
 
@@ -231,7 +231,7 @@ namespace Milou.Deployer.Waws
             using (DeploymentObject deploymentObject =
                 DeploymentManager.CreateObject(sourceProvider, sourcePath, sourceBaseOptions, _logger))
             {
-                FileInfo appOfflineFile = null;
+                FileInfo? appOfflineFile = null;
 
                 if (targetProvider == DeploymentWellKnownProvider.DirPath
                     && Directory.Exists(destinationPath)
@@ -314,11 +314,11 @@ namespace Milou.Deployer.Waws
         private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
         {
             DeploymentRuleCollection rules = DeploymentSyncOptions.GetAvailableRules();
-            bool added = rules.TryGetValue(name, out DeploymentRule newRule);
+            bool added = rules.TryGetValue(name, out DeploymentRule? newRule);
 
             if (added)
             {
-                syncOptions.Rules.Add(newRule);
+                syncOptions.Rules.Add(newRule!);
             }
 
             return added;

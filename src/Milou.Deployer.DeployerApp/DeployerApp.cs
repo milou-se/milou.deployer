@@ -9,18 +9,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
-
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
-
 using NuGet.Versioning;
-
 using Serilog;
 using Serilog.Core;
 
-namespace Milou.Deployer.ConsoleClient
+namespace Milou.Deployer.DeployerApp
 {
     public sealed class DeployerApp : IDisposable
     {
@@ -56,7 +53,7 @@ namespace Milou.Deployer.ConsoleClient
             if (Logger is IDisposable disposableLogger)
             {
                 disposableLogger.Dispose();
-                Logger = null;
+                Logger = null!;
             }
 
             if (_appSettings is IDisposable disposableSettings)
@@ -69,8 +66,10 @@ namespace Milou.Deployer.ConsoleClient
             _cancellationTokenSource = null!;
         }
 
-        public async Task<int> ExecuteAsync(string[] args, CancellationToken cancellationToken = default)
+        public async Task<int> ExecuteAsync(string[]? args, CancellationToken cancellationToken = default)
         {
+            args ??= Array.Empty<string>();
+
             if (cancellationToken == CancellationToken.None)
             {
                 cancellationToken = _cancellationTokenSource.Token;
@@ -80,8 +79,6 @@ namespace Milou.Deployer.ConsoleClient
             {
                 _allowInteractive = false;
             }
-
-            args ??= Array.Empty<string>();
 
             PrintVersion();
 
@@ -128,7 +125,7 @@ namespace Milou.Deployer.ConsoleClient
 
                     string version = args.GetArgumentValueOrDefault("version");
 
-                    SemanticVersion semanticVersion = default;
+                    SemanticVersion? semanticVersion = default;
 
                     if (!string.IsNullOrWhiteSpace(version) && !SemanticVersion.TryParse(version, out semanticVersion))
                     {

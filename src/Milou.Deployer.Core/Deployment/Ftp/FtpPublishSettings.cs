@@ -40,7 +40,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
                 XElement ftpElement = descendantNodes.SingleOrDefault(element =>
                 {
-                    string ftpAttribute = element.Attribute(PublishMethodAttribute)?.Value;
+                    string? ftpAttribute = element.Attribute(PublishMethodAttribute)?.Value;
 
                     if (ftpAttribute is null)
                     {
@@ -60,9 +60,9 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                     throw new InvalidOperationException("Could not find element with publishMethod FTP");
                 }
 
-                string userName = ftpElement.Attribute(UsernameAttribute)?.Value;
-                string password = ftpElement.Attribute(UserPasswordAttribute)?.Value;
-                string ftpBaseUri = ftpElement.Attribute(PublishUrlAttribute)?.Value;
+                string? userName = ftpElement.Attribute(UsernameAttribute)?.Value;
+                string? password = ftpElement.Attribute(UserPasswordAttribute)?.Value;
+                string? ftpBaseUri = ftpElement.Attribute(PublishUrlAttribute)?.Value;
 
                 if (string.IsNullOrWhiteSpace(userName))
                 {
@@ -79,7 +79,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                     throw new InvalidOperationException($"Missing {PublishUrlAttribute} in publish settings");
                 }
 
-                if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out Uri uri))
+                if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out Uri? uri))
                 {
                     throw new InvalidOperationException($"The ftp uri '{ftpBaseUri}' is not valid");
                 }

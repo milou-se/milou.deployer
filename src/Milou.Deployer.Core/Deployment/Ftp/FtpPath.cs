@@ -149,7 +149,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
         }
 
-        public override bool Equals(object obj) => ReferenceEquals(this, obj) || (obj is FtpPath other && Equals(other));
+        public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is FtpPath other && Equals(other));
 
         public override int GetHashCode()
         {

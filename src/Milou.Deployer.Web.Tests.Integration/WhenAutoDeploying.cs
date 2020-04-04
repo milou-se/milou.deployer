@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact(Skip = "Issues with postgresql permissions")]
         public async Task ThenNewVersionShouldBeDeployed()
         {
-            SemanticVersion semanticVersion = null;
+            SemanticVersion? semanticVersion = null;
 
             var expectedVersion = new SemanticVersion(1, 2, 5);
 
@@ -49,74 +49,73 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             using (var httpClient = new HttpClient())
             {
-                using (CancellationTokenSource cancellationTokenSource =
-                    WebFixture.App.Host.Services.GetService<CancellationTokenSource>())
+                using CancellationTokenSource cancellationTokenSource =
+                    WebFixture.App.Host.Services.GetService<CancellationTokenSource>();
+
+                cancellationTokenSource.Token.Register(() =>
                 {
-                    cancellationTokenSource.Token.Register(() =>
+                    Debug.WriteLine("Cancellation for app in test");
+                });
+
+                while (!cancellationTokenSource.Token.IsCancellationRequested
+                       && semanticVersion != expectedVersion)
+                {
+                    // ReSharper disable MethodSupportsCancellation
+                    StartupTaskContext startupTaskContext =
+                        WebFixture.App.Host.Services.GetRequiredService<StartupTaskContext>();
+
+                    while (!startupTaskContext.IsCompleted &&
+                           !cancellationTokenSource.Token.IsCancellationRequested)
                     {
-                        Debug.WriteLine("Cancellation for app in test");
-                    });
-
-                    while (!cancellationTokenSource.Token.IsCancellationRequested
-                           && semanticVersion != expectedVersion)
-                    {
-                        // ReSharper disable MethodSupportsCancellation
-                        StartupTaskContext startupTaskContext =
-                            WebFixture.App.Host.Services.GetRequiredService<StartupTaskContext>();
-
-                        while (!startupTaskContext.IsCompleted &&
-                               !cancellationTokenSource.Token.IsCancellationRequested)
-                        {
-                            await Task.Delay(TimeSpan.FromMilliseconds(50));
-                        }
-
-                        var url = new Uri($"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
-
-                        string contents;
-                        try
-                        {
-                            using (HttpResponseMessage responseMessage = await httpClient.GetAsync(url))
-                            {
-                                contents = await responseMessage.Content.ReadAsStringAsync();
-
-                                Output.WriteLine($"{responseMessage.StatusCode} {contents}");
-
-                                if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable
-                                    || responseMessage.StatusCode == HttpStatusCode.NotFound)
-                                {
-                                    await Task.Delay(TimeSpan.FromMilliseconds(100));
-                                    continue;
-                                }
-
-                                Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
-                            }
-                        }
-                        catch (Exception ex) when (!ex.IsFatal())
-                        {
-                            throw new DeployerAppException($"Could not get a valid response from request to '{url}'",
-                                ex);
-                        }
-
-                        string tempFileName = Path.GetTempFileName();
-                        await File.WriteAllTextAsync(tempFileName,
-                            contents,
-                            Encoding.UTF8,
-                            cancellationTokenSource.Token);
-
-                        var jsonKeyValueConfiguration =
-                            new JsonKeyValueConfiguration(tempFileName);
-
-                        if (File.Exists(tempFileName))
-                        {
-                            File.Delete(tempFileName);
-                        }
-
-                        string actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
-
-                        semanticVersion = SemanticVersion.Parse(actual);
-                        await Task.Delay(TimeSpan.FromSeconds(1));
-                        // ReSharper restore MethodSupportsCancellation
+                        await Task.Delay(TimeSpan.FromMilliseconds(50));
                     }
+
+                    var url = new Uri($"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
+
+                    string contents;
+                    try
+                    {
+                        using (HttpResponseMessage responseMessage = await httpClient.GetAsync(url))
+                        {
+                            contents = await responseMessage.Content.ReadAsStringAsync();
+
+                            Output.WriteLine($"{responseMessage.StatusCode} {contents}");
+
+                            if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable
+                                || responseMessage.StatusCode == HttpStatusCode.NotFound)
+                            {
+                                await Task.Delay(TimeSpan.FromMilliseconds(100));
+                                continue;
+                            }
+
+                            Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+                        }
+                    }
+                    catch (Exception ex) when (!ex.IsFatal())
+                    {
+                        throw new DeployerAppException($"Could not get a valid response from request to '{url}'",
+                            ex);
+                    }
+
+                    string tempFileName = Path.GetTempFileName();
+                    await File.WriteAllTextAsync(tempFileName,
+                        contents,
+                        Encoding.UTF8,
+                        cancellationTokenSource.Token);
+
+                    var jsonKeyValueConfiguration =
+                        new JsonKeyValueConfiguration(tempFileName);
+
+                    if (File.Exists(tempFileName))
+                    {
+                        File.Delete(tempFileName);
+                    }
+
+                    string actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
+
+                    semanticVersion = SemanticVersion.Parse(actual);
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    // ReSharper restore MethodSupportsCancellation
                 }
             }
 

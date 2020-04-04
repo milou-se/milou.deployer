@@ -37,7 +37,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public string Command { get; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null)
             {

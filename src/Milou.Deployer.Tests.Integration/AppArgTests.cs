@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.DeployerApp;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -25,7 +26,7 @@ namespace Milou.Deployer.Tests.Integration
 
             int exitCode;
 
-            using (DeployerApp deployerApp = await
+            using (DeployerApp.DeployerApp deployerApp = await
                 AppBuilder.BuildAppAsync(args, logger, cancellationToken))
             {
                 exitCode = await deployerApp.ExecuteAsync(args, cancellationToken);
@@ -42,7 +43,7 @@ namespace Milou.Deployer.Tests.Integration
             CancellationToken cancellationToken = default;
 
             LoggingLevelSwitch level;
-            using (DeployerApp deployerApp = await
+            using (DeployerApp.DeployerApp deployerApp = await
                 AppBuilder.BuildAppAsync(args, null, cancellationToken))
             {
                 level = deployerApp.LevelSwitch;
@@ -66,7 +67,7 @@ namespace Milou.Deployer.Tests.Integration
 
                 CancellationToken cancellationToken = default;
 
-                using (DeployerApp deployerApp = await
+                using (DeployerApp.DeployerApp deployerApp = await
                     AppBuilder.BuildAppAsync(args, null, cancellationToken))
                 {
                     tempPath = Path.GetTempPath();

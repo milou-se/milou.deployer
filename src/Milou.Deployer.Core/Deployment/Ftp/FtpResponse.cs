@@ -17,6 +17,6 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public FtpWebResponse Response { get; }
 
-        public void Dispose() => Response?.Dispose();
+        public void Dispose() => Response.Dispose();
     }
 }
