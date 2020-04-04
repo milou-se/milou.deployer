@@ -1,4 +1,5 @@
-﻿using Arbor.App.Extensions.Logging;
+﻿using System;
+using Arbor.App.Extensions.Logging;
 using JetBrains.Annotations;
 using Serilog;
 using Serilog.Core;
@@ -10,16 +11,26 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class XunitAppLoggingConfiguration : ILoggerConfigurationHandler
     {
-        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly ITestOutputHelper? _testOutputHelper;
 
-        public XunitAppLoggingConfiguration(LoggingLevelSwitch levelSwitch, ITestOutputHelper testOutputHelper = null)
+        public XunitAppLoggingConfiguration([NotNull] LoggingLevelSwitch levelSwitch, ITestOutputHelper? testOutputHelper = null)
         {
+            if (levelSwitch is null)
+            {
+                throw new ArgumentNullException(nameof(levelSwitch));
+            }
+
             levelSwitch.MinimumLevel = LogEventLevel.Verbose;
             _testOutputHelper = testOutputHelper;
         }
 
-        public LoggerConfiguration Handle(LoggerConfiguration loggerConfiguration)
+        public LoggerConfiguration Handle([NotNull] LoggerConfiguration loggerConfiguration)
         {
+            if (loggerConfiguration is null)
+            {
+                throw new ArgumentNullException(nameof(loggerConfiguration));
+            }
+
             if (_testOutputHelper is null)
             {
                 return loggerConfiguration;

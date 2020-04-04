@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public override async Task DisposeAsync()
         {
-            if (TestConfiguration?.BaseDirectory != null)
+            if (TestConfiguration?.BaseDirectory is {})
             {
                 DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
             }
@@ -34,10 +34,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             await base.DisposeAsync();
         }
 
-        protected override Task RunAsync()
-        {
-            return Task.CompletedTask;
-        }
+        protected override Task RunAsync() => Task.CompletedTask;
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
@@ -49,7 +46,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
             Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port.Port + 1}");
 
-            var deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
+            string deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 
             const string milouDeployerWebTestsIntegration = "Milou.Deployer.Web.Tests.Integration";
 
@@ -63,10 +60,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                 new KeyValue(ConfigurationKeys.LogLevel, "Verbose", null)
             }.ToImmutableArray();
 
-            var serializedConfigurationItems =
+            string serializedConfigurationItems =
                 JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
 
-            var settingsFile = Path.Combine(deployerDir, $"{Environment.MachineName}.settings.json");
+            string settingsFile = Path.Combine(deployerDir, $"{Environment.MachineName}.settings.json");
 
             FilesToClean.Add(new FileInfo(settingsFile));
 
@@ -76,7 +73,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 "src",
                 milouDeployerWebTestsIntegration));
 
-            var nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
+            FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
 
             if (nugetPackages.Length == 0)
             {
@@ -84,7 +81,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     $"Could not find nuget test packages located in {integrationTestProjectDirectory.FullName}");
             }
 
-            foreach (var nugetPackage in nugetPackages)
+            foreach (FileInfo nugetPackage in nugetPackages)
             {
                 nugetPackage.CopyTo(Path.Combine(TestConfiguration.NugetPackageDirectory.FullName, nugetPackage.Name));
             }
@@ -120,9 +117,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        protected override Task BeforeStartAsync(IReadOnlyCollection<string> args)
-        {
-            return Task.CompletedTask;
-        }
+        protected override Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
     }
 }

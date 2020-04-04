@@ -11,10 +11,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
     [UsedImplicitly]
     public class WebHookRegistrations : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder)
-        {
-            return builder.AddSingleton<PackageWebHookHandler>()
+        public IServiceCollection Register(IServiceCollection builder) =>
+            builder.AddSingleton<PackageWebHookHandler>()
                 .RegisterAssemblyTypes<IPackageWebHook>(ApplicationAssemblies.FilteredAssemblies(), ServiceLifetime.Singleton);
-        }
     }
 }

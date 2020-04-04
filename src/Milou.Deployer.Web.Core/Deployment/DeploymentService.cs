@@ -90,7 +90,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public void TaskDone(string deploymentTaskId)
         {
-            if (_current != null)
+            if (_current is {})
             {
                 _current.Status = WorkTaskStatus.Done;
                 _statusChangedEvent.Set(false);
@@ -105,7 +105,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public void TaskFailed(string deploymentTaskId)
         {
-            if (_current != null)
+            if (_current is {})
             {
                 _statusChangedEvent.Set(false);
                 _current.Status = WorkTaskStatus.Failed;
@@ -123,7 +123,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             ILogger logger,
             CancellationToken cancellationToken)
         {
-            if (deploymentTask == null)
+            if (deploymentTask is null)
             {
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
@@ -134,7 +134,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     $"There is already a current deployment task {_current.DeploymentTaskId}");
             }
 
-            var start = _customClock.UtcNow().UtcDateTime;
+            DateTime start = _customClock.UtcNow().UtcDateTime;
             var stopwatch = Stopwatch.StartNew();
 
             ExitCode result;
@@ -162,7 +162,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 _tempData.TempLogger.Debug("Using deployment agent {Agent}", agent.ToString());
 
-                var deployExitCode = await agent.RunAsync(deploymentTask.DeploymentTaskId,
+                ExitCode deployExitCode = await agent.RunAsync(deploymentTask.DeploymentTaskId,
                     deploymentTask.DeploymentTargetId, cancellationToken);
 
                 if (deployExitCode.IsSuccess)
@@ -184,7 +184,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 logger.Error(ex, "Error deploying");
             }
 
-            var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
+            DateTime finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
             await _mediator.Publish(
                 new DeploymentFinishedNotification(deploymentTask,
@@ -226,12 +226,12 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             _current = null;
             MessageQueue.Dispose();
-            foreach (var pair in TempFiles)
+            foreach (KeyValuePair<string, List<TempFile>> pair in TempFiles)
             {
                 ClearTemporaryDirectoriesAndFiles(pair.Value, ImmutableArray<DirectoryInfo>.Empty);
             }
 
-            foreach (var pair in TempDirectories)
+            foreach (KeyValuePair<string, List<DirectoryInfo>> pair in TempDirectories)
             {
                 ClearTemporaryDirectoriesAndFiles(ImmutableArray<TempFile>.Empty, pair.Value);
             }
@@ -405,7 +405,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var logBuilder = new List<LogItem>();
 
-            var loggerConfiguration = new LoggerConfiguration()
+            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
                 .WriteTo.DelegateSink((message, level) => LogToQueue(message), _loggingLevelSwitch.MinimumLevel)
                 .WriteTo.DelegateSink((message, level) =>
                         logBuilder.Add(new LogItem
@@ -422,7 +422,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             loggerConfiguration = loggerConfiguration.MinimumLevel.ControlledBy(_loggingLevelSwitch);
 
-            var log = loggerConfiguration.CreateLogger();
+            Logger log = loggerConfiguration.CreateLogger();
 
             if (logger.IsEnabled(LogEventLevel.Debug))
             {
@@ -545,7 +545,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 string expandedXml = Environment.ExpandEnvironmentVariables(deploymentTarget.PublishSettingsXml);
 
-                await File.WriteAllTextAsync(tempFileName.File.FullName,
+                await File.WriteAllTextAsync(tempFileName.File!.FullName!,
                     expandedXml,
                     Encoding.UTF8,
                     cancellationToken);

@@ -10,14 +10,12 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class TestModule : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder)
-        {
-            return builder
+        public IServiceCollection Register(IServiceCollection builder) =>
+            builder
                 .AddSingleton<IDeploymentTargetReadService>(context =>
                         new InMemoryDeploymentTargetReadService(context.GetService<ILogger>(),
                             TestDataCreator.CreateData),
                     this)
                 .AddSingleton(new TimeoutConfiguration { CancellationEnabled = false });
-        }
     }
 }

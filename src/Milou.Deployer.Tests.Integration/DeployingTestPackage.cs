@@ -75,7 +75,7 @@ namespace Milou.Deployer.Tests.Integration
                     {
                         using (var testTargetDirectory = TempDirectory.CreateTempDirectory())
                         {
-                            using (var tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
+                            using (TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
                             {
                                 string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
 
@@ -98,14 +98,14 @@ namespace Milou.Deployer.Tests.Integration
 
                                 string[] args = { tempFile.File.FullName, "-nuget-config=" + nugetConfig };
 
-                                var logger = new LoggerConfiguration()
+                                Serilog.Core.Logger logger = new LoggerConfiguration()
                                     .WriteTo.TestSink(_output)
                                     .MinimumLevel.Verbose()
                                     .CreateLogger();
 
                                 using (logger)
                                 {
-                                    using (var deployerApp = await
+                                    using (DeployerApp deployerApp = await
                                         AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                     {
                                         exitCode = await deployerApp.ExecuteAsync(args,
@@ -116,13 +116,13 @@ namespace Milou.Deployer.Tests.Integration
                                 }
                             }
 
-                            var indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
+                            FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
                             Assert.NotNull(indexHtml);
 
-                            var wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
+                            DirectoryInfo wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
 
                             Assert.NotNull(wwwrootDirectory);
-                            var applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
+                            FileInfo applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
                             Assert.NotNull(applicationmetadata);
 
                             string text = File.ReadAllText(applicationmetadata.FullName);
@@ -149,15 +149,15 @@ namespace Milou.Deployer.Tests.Integration
                 tempDir.Directory.Refresh();
                 if (tempDir.Directory.Exists)
                 {
-                    var files = tempDir.Directory.GetFiles();
-                    var directories = tempDir.Directory.GetDirectories();
+                    FileInfo[] files = tempDir.Directory.GetFiles();
+                    DirectoryInfo[] directories = tempDir.Directory.GetDirectories();
 
-                    foreach (var dir in directories)
+                    foreach (DirectoryInfo dir in directories)
                     {
                         dir.Delete(true);
                     }
 
-                    foreach (var file in files)
+                    foreach (FileInfo file in files)
                     {
                         file.Delete();
                     }

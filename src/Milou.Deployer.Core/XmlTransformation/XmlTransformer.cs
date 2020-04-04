@@ -28,22 +28,22 @@ namespace Milou.Deployer.Core.XmlTransformation
             [NotNull] DirectoryInfo originalFileRootDirectory,
             [NotNull] DirectoryInfo transformationFileRootDirectory)
         {
-            if (originalFile == null)
+            if (originalFile is null)
             {
                 throw new ArgumentNullException(nameof(originalFile));
             }
 
-            if (transformationFile == null)
+            if (transformationFile is null)
             {
                 throw new ArgumentNullException(nameof(transformationFile));
             }
 
-            if (originalFileRootDirectory == null)
+            if (originalFileRootDirectory is null)
             {
                 throw new ArgumentNullException(nameof(originalFileRootDirectory));
             }
 
-            if (transformationFileRootDirectory == null)
+            if (transformationFileRootDirectory is null)
             {
                 throw new ArgumentNullException(nameof(transformationFileRootDirectory));
             }

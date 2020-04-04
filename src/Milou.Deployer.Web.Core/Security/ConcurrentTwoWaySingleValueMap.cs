@@ -15,12 +15,12 @@ namespace Milou.Deployer.Web.Core.Security
 
         public bool TrySet([NotNull] T1 t1, [NotNull] T2 t2)
         {
-            if (t1 == null)
+            if (t1 is null)
             {
                 throw new ArgumentNullException(nameof(t1));
             }
 
-            if (t2 == null)
+            if (t2 is null)
             {
                 throw new ArgumentNullException(nameof(t2));
             }
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Core.Security
             }
             else
             {
-                if (_forward.TryGetValue(t1, out var ov))
+                if (_forward.TryGetValue(t1, out T2 ov))
                 {
                     oldValue = ov;
                 }
@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.Core.Security
                 forwardSet = true;
             }
 
-            if (oldValue != null && _reverse.ContainsKey(oldValue) && !t2.Equals(oldValue))
+            if (oldValue is {} && _reverse.ContainsKey(oldValue) && !t2.Equals(oldValue))
             {
                 _reverse.TryRemove(oldValue, out _);
             }

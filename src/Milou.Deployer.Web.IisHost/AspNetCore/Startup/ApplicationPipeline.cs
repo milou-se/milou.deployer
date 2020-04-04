@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     {
         public void Configure(IApplicationBuilder app)
         {
-            var environmentConfiguration = app!.ApplicationServices.GetRequiredService<EnvironmentConfiguration>();
+            EnvironmentConfiguration environmentConfiguration = app!.ApplicationServices.GetRequiredService<EnvironmentConfiguration>();
 
             app.AddForwardHeaders(environmentConfiguration);
 

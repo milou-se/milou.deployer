@@ -63,7 +63,7 @@ namespace Milou.Deployer.Web.Marten
                 return new CreateProjectResult(new ValidationError("Id or organization id is invalid"));
             }
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
                 var data = new ProjectData
                 {
@@ -88,7 +88,7 @@ namespace Milou.Deployer.Web.Marten
                 return null;
             }
 
-            var environmentType =
+            EnvironmentType environmentType =
                 environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTargetData.EnvironmentTypeId)) ??
                 EnvironmentType.Unknown;
 
@@ -151,7 +151,7 @@ namespace Milou.Deployer.Web.Marten
                 return new CreateOrganizationResult(new ValidationError("Missing ID"));
             }
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
                 var data = new OrganizationData
                 {
@@ -172,16 +172,15 @@ namespace Milou.Deployer.Web.Marten
             IReadOnlyList<OrganizationData> organizations,
             IReadOnlyList<ProjectData> projects,
             IReadOnlyList<DeploymentTargetData> targets,
-            ImmutableArray<EnvironmentType> environmentTypes)
-        {
-            return organizations.Select(org => new OrganizationInfo(org.Id,
+            ImmutableArray<EnvironmentType> environmentTypes) =>
+            organizations.Select(org => new OrganizationInfo(org.Id,
                     projects
                         .Where(project => project.OrganizationId.Equals(org.Id, StringComparison.OrdinalIgnoreCase))
                         .Select(project =>
                         {
-                            var deploymentTargetDatas = targets
+                            IEnumerable<DeploymentTargetData> deploymentTargetDatas = targets
                                 .Where(target =>
-                                    target.ProjectId != null
+                                    target.ProjectId is {}
                                     && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase));
                             return new ProjectInfo(org.Id,
                                 project.Id,
@@ -200,11 +199,10 @@ namespace Milou.Deployer.Web.Marten
                                 targets
                                     .Where(target => target.ProjectId is null)
                                     .Select(s => MapDataToTarget(s, environmentTypes))
-                                    .Where(t => t != null))
+                                    .Where(t => t is {}))
                         })
                 })
                 .ToImmutableArray();
-        }
 
         public Task<DeploymentTarget> GetDeploymentTargetAsync(
             [NotNull] string deploymentTargetId,
@@ -220,17 +218,17 @@ namespace Milou.Deployer.Web.Marten
 
         private async Task<DeploymentTarget> FindDeploymentTargetAsync(string deploymentTargetId, CancellationToken cancellationToken)
         {
-            using (var session = _documentStore.QuerySession())
+            using (IQuerySession session = _documentStore.QuerySession())
             {
                 try
                 {
-                    var deploymentTargetData = await session.Query<DeploymentTargetData>()
+                    DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
                         .SingleOrDefaultAsync(target =>
                                 target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
                             cancellationToken);
 
                     ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
-                    var deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
+                    DeploymentTarget? deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
 
                     return deploymentTarget ?? DeploymentTarget.None;
                 }
@@ -245,27 +243,27 @@ namespace Milou.Deployer.Web.Marten
         public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
             CancellationToken cancellationToken = default)
         {
-            using (var session = _documentStore.QuerySession())
+            using (IQuerySession session = _documentStore.QuerySession())
             {
                 try
                 {
-                    var targets =
+                    IReadOnlyList<DeploymentTargetData> targets =
                         await session.Query<DeploymentTargetData>()
                             .Where(target => target.Enabled)
                             .ToListAsync(cancellationToken);
 
-                    var projects =
+                    IReadOnlyList<ProjectData> projects =
                         await session.Query<ProjectData>()
                             .ToListAsync<ProjectData>(cancellationToken);
 
-                    var organizations =
+                    IReadOnlyList<OrganizationData> organizations =
                         await session.Query<OrganizationData>()
                             .ToListAsync<OrganizationData>(
                                 cancellationToken);
 
                     ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
 
-                    var organizationsInfo =
+                    ImmutableArray<OrganizationInfo> organizationsInfo =
                         MapDataToOrganizations(organizations, projects, targets, environmentTypes);
 
                     return organizationsInfo;
@@ -280,7 +278,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default, CancellationToken stoppingToken = default)
         {
-            using (var session = _documentStore.QuerySession())
+            using (IQuerySession session = _documentStore.QuerySession())
             {
                 bool Filter(DeploymentTarget target)
                 {
@@ -296,7 +294,7 @@ namespace Milou.Deployer.Web.Marten
                 {
                     ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: stoppingToken);
 
-                    var targets = await session.Query<DeploymentTargetData>()
+                    IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
                         .ToListAsync<DeploymentTargetData>(stoppingToken);
 
                     var deploymentTargets = targets
@@ -319,9 +317,9 @@ namespace Milou.Deployer.Web.Marten
             string organizationId,
             CancellationToken cancellationToken = default)
         {
-            using (var session = _documentStore.QuerySession())
+            using (IQuerySession session = _documentStore.QuerySession())
             {
-                var projects =
+                IReadOnlyList<ProjectData> projects =
                     await session.Query<ProjectData>().Where(project =>
                             project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase))
                         .ToListAsync(cancellationToken);
@@ -336,19 +334,19 @@ namespace Milou.Deployer.Web.Marten
             [NotNull] CreateOrganization request,
             CancellationToken cancellationToken)
         {
-            if (request == null)
+            if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var result = await CreateOrganizationAsync(request, cancellationToken);
+            CreateOrganizationResult result = await CreateOrganizationAsync(request, cancellationToken);
 
             return result;
         }
 
         public Task<CreateProjectResult> Handle([NotNull] CreateProject request, CancellationToken cancellationToken)
         {
-            if (request == null)
+            if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
@@ -358,7 +356,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<CreateTargetResult> Handle([NotNull] CreateTarget createTarget, CancellationToken cancellationToken)
         {
-            if (createTarget == null)
+            if (createTarget is null)
             {
                 throw new ArgumentNullException(nameof(createTarget));
             }
@@ -368,7 +366,7 @@ namespace Milou.Deployer.Web.Marten
                 return new CreateTargetResult(new ValidationError("Invalid"));
             }
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
                 var data = new DeploymentTargetData
                 {
@@ -391,7 +389,7 @@ namespace Milou.Deployer.Web.Marten
             CancellationToken cancellationToken)
         {
             IReadOnlyList<TaskMetadata> taskMetadata;
-            using (var session = _documentStore.LightweightSession())
+            using (IDocumentSession session = _documentStore.LightweightSession())
             {
                 taskMetadata = await session.Query<TaskMetadata>()
                     .Where(item =>
@@ -423,7 +421,7 @@ namespace Milou.Deployer.Web.Marten
 
             int level = (int)request.Level;
 
-            using (var session = _documentStore.LightweightSession())
+            using (IDocumentSession session = _documentStore.LightweightSession())
             {
                 taskLog = await session.Query<LogItem>()
                     .Where(log => log.TaskLogId == id && log.Level >= level)
@@ -442,7 +440,7 @@ namespace Milou.Deployer.Web.Marten
             [NotNull] UpdateDeploymentTarget request,
             CancellationToken cancellationToken)
         {
-            if (request == null)
+            if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
@@ -451,9 +449,9 @@ namespace Milou.Deployer.Web.Marten
 
             string id;
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var data =
+                DeploymentTargetData data =
                     await session.LoadAsync<DeploymentTargetData>(request.Id, cancellationToken);
 
                 if (data is null)
@@ -501,19 +499,19 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)
         {
-            if (request == null)
+            if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
-            if (request.DeploymentTargetId == null)
+            if (request.DeploymentTargetId is null)
             {
                 throw new ArgumentNullException(nameof(request.DeploymentTargetId));
             }
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var deploymentTargetData = await session.Query<DeploymentTargetData>().Where(target => target.Id == request.DeploymentTargetId).ToListAsync();
+                IReadOnlyList<DeploymentTargetData> deploymentTargetData = await session.Query<DeploymentTargetData>().Where(target => target.Id == request.DeploymentTargetId).ToListAsync();
 
                 if (deploymentTargetData.Count == 0)
                 {
@@ -535,9 +533,9 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<Unit> Handle(EnableTarget request, CancellationToken cancellationToken)
         {
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+                DeploymentTargetData deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
 
                 if (deploymentTargetData is null)
                 {
@@ -556,14 +554,14 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<Unit> Handle([NotNull] DisableTarget request, CancellationToken cancellationToken)
         {
-            if (request == null)
+            if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+                DeploymentTargetData deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
 
                 if (deploymentTargetData is null)
                 {
@@ -582,12 +580,12 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<CreateEnvironmentResult> Handle([NotNull] CreateEnvironment request, CancellationToken cancellationToken)
         {
-            if (request == null)
+            if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
                 EnvironmentTypeData environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId.Trim(), cancellationToken);
 
@@ -596,7 +594,7 @@ namespace Milou.Deployer.Web.Marten
                     return new CreateEnvironmentResult(environmentTypeData.Id, Result.AlreadyExists);
                 }
 
-                var data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
+                EnvironmentTypeData data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
 
                 if (data.Id.IsNullOrWhiteSpace())
                 {
@@ -609,7 +607,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task Handle(DeploymentTaskCreatedNotification notification, CancellationToken cancellationToken)
         {
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
                 session.Store(new DeploymentTaskData
                 {
@@ -626,7 +624,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<Unit> Handle(CreateDeploymentTaskPackage request, CancellationToken cancellationToken)
         {
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
                 var deploymentTaskPackageData = new DeploymentTaskPackageData()
                 {

@@ -13,11 +13,12 @@ namespace Milou.Deployer.Core.Extensions
         private static ImmutableArray<T> GetAll()
         {
             Type type = typeof(T);
+
             return type
                 .GetFields()
                 .Where(field =>
                     field.FieldType == type && field.IsInitOnly && field.IsStatic && field.IsPublic)
-                .Select(t => (T) t.GetValue(null))
+                .Select(field => (T) field.GetValue(null))
                 .ToImmutableArray();
         }
     }

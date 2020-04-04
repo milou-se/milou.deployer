@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void VersionInfoShouldNotBeNull()
         {
-            var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
+            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
             _output.WriteLine(applicationVersionInfo.AssemblyVersion);
             _output.WriteLine(applicationVersionInfo.FileVersion);

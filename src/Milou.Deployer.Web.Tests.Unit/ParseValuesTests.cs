@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         public void MakeAnonymousValues()
         {
             const string connectionString = "Server=localhost;password=p@ssword;user=root;";
-            var anonymous = connectionString.MakeKeyValuePairAnonymous("user", "password");
+            string anonymous = connectionString.MakeKeyValuePairAnonymous("user", "password");
 
             Assert.Equal("Server=localhost; password=*****; user=*****", anonymous);
         }
@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         public void ShouldParseValues()
         {
             const string connectionString = "a=123;b=234;c=345;";
-            var keyValuePairs = connectionString.ParseValues(';', '=');
+            System.Collections.Immutable.ImmutableArray<System.Collections.Generic.KeyValuePair<string, string>> keyValuePairs = connectionString.ParseValues(';', '=');
 
             Assert.Equal(3, keyValuePairs.Length);
             Assert.Equal("123", keyValuePairs[0].Value);

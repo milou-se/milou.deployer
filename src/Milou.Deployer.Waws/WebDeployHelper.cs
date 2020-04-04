@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Milou.Deployer.Core.Deployment;
-using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Core.Deployment.WebDeploy;
 using Serilog;
 
@@ -20,17 +19,17 @@ namespace Milou.Deployer.Waws
             string sourcePath,
             string publishSettingsFile,
             TimeSpan appOfflineDelay,
-            string password = null,
+            string? password = null,
             bool allowUntrusted = false,
             bool doNotDelete = true,
             TraceLevel traceLevel = TraceLevel.Off,
             bool whatIf = false,
-            string targetPath = null,
+            string? targetPath = null,
             bool useChecksum = false,
             bool appOfflineEnabled = false,
             bool appDataSkipDirectiveEnabled = false,
             bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
-            Action<string> logAction = null)
+            Action<string>? logAction = null)
         {
             DeploySummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
                 publishSettingsFile,
@@ -57,28 +56,28 @@ namespace Milou.Deployer.Waws
             string sourcePath,
             string publishSettingsFile,
             TimeSpan appOfflineDelay,
-            string password = null,
+            string? password = null,
             bool allowUntrusted = false,
             bool doNotDelete = true,
             TraceLevel traceLevel = TraceLevel.Off,
             bool whatIf = false,
-            string targetPath = null,
+            string? targetPath = null,
             bool useChecksum = false,
             bool appOfflineEnabled = false,
             bool appDataSkipDirectiveEnabled = false,
             bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
-            Action<string> logAction = null)
+            Action<string>? logAction = null)
         {
             sourcePath = Path.GetFullPath(sourcePath);
 
-            PublishSettings publishSettings = default;
+            PublishSettings? publishSettings = default;
 
             if (File.Exists(publishSettingsFile))
             {
                 publishSettings = await PublishSettings.Load(publishSettingsFile);
             }
 
-            var destBaseOptions = await SetBaseOptions(
+            DeploymentBaseOptions destBaseOptions = await SetBaseOptions(
                 publishSettings,
                 allowUntrusted);
 
@@ -109,8 +108,8 @@ namespace Milou.Deployer.Waws
                 destBaseOptions.Password = password;
             }
 
-            var sourceProvider = DeploymentWellKnownProvider.ContentPath;
-            var targetProvider = DeploymentWellKnownProvider.ContentPath;
+            DeploymentWellKnownProvider sourceProvider = DeploymentWellKnownProvider.ContentPath;
+            DeploymentWellKnownProvider targetProvider = DeploymentWellKnownProvider.ContentPath;
 
             if (!string.IsNullOrEmpty(targetPath))
             {
@@ -225,7 +224,7 @@ namespace Milou.Deployer.Waws
 
             DeploySummary deployContentToOneSite;
 
-            var sourceBaseOptions = publishSettings is {}
+            DeploymentBaseOptions sourceBaseOptions = publishSettings is {}
                 ? await DeploymentBaseOptions.Load(publishSettings)
                 : new DeploymentBaseOptions();
 
@@ -243,7 +242,7 @@ namespace Milou.Deployer.Waws
                     appOfflineFile = new FileInfo(appOfflineFilePath);
                 }
 
-                if (appOfflineFile != null && appOfflineDelay.TotalMilliseconds >= 1)
+                if (appOfflineFile is {} && appOfflineDelay.TotalMilliseconds >= 1)
                 {
                     await Task.Delay(appOfflineDelay).ConfigureAwait(false);
                 }
@@ -253,7 +252,7 @@ namespace Milou.Deployer.Waws
                     appOfflineFile?.Refresh();
                     if (appOfflineFile?.Exists == false)
                     {
-                        await using var _ = File.Create(appOfflineFile.FullName);
+                        await using FileStream _ = File.Create(appOfflineFile.FullName);
                     }
 
                     deployContentToOneSite = await
@@ -266,7 +265,7 @@ namespace Milou.Deployer.Waws
                 }
                 finally
                 {
-                    if (appOfflineFile != null)
+                    if (appOfflineFile is {})
                     {
                         appOfflineFile.Refresh();
 
@@ -280,7 +279,7 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            var destDeleteBaseOptions = await SetBaseOptions(
+            DeploymentBaseOptions destDeleteBaseOptions = await SetBaseOptions(
                 publishSettings,
                 allowUntrusted);
 
@@ -331,7 +330,7 @@ namespace Milou.Deployer.Waws
         {
             if (publishSettings is {})
             {
-                var deploymentBaseOptions = await DeploymentBaseOptions.Load(publishSettings);
+                DeploymentBaseOptions deploymentBaseOptions = await DeploymentBaseOptions.Load(publishSettings);
 
                 deploymentBaseOptions.ComputerName = publishSettings.ComputerName;
                 deploymentBaseOptions.UserName = publishSettings.Username;

@@ -15,13 +15,13 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void CanReadAndWriteHex()
         {
-            var bytes = Encoding.UTF8.GetBytes("Abc");
+            byte[] bytes = Encoding.UTF8.GetBytes("Abc");
 
             string hexString = bytes.FromByteArrayToHexString();
 
             _testOutputHelper.WriteLine(hexString);
 
-            var convertedBytes = hexString.FromHexToByteArray();
+            byte[] convertedBytes = hexString.FromHexToByteArray();
 
             Assert.True(convertedBytes.SequenceEqual(bytes));
         }

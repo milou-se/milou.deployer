@@ -4,7 +4,7 @@ namespace Milou.Deployer.Waws
 {
     internal class SkipDirective
     {
-        public SkipDirective(string name, string path, [CanBeNull] string description = null)
+        public SkipDirective(string name, string path, string? description = null)
         {
             Name = name;
             Path = path;

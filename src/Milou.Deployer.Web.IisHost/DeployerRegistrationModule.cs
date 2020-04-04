@@ -14,17 +14,17 @@ namespace Milou.Deployer.Web.IisHost
     {
         public void Register(ServiceProviderHolder serviceProviderHolder)
         {
-            var services = serviceProviderHolder.ServiceCollection;
+            IServiceCollection services = serviceProviderHolder.ServiceCollection;
 
-            var openIdConnectConfiguration = serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
+            CustomOpenIdConnectConfiguration openIdConnectConfiguration = serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
 
-            var httpLoggingConfiguration = serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
+            HttpLoggingConfiguration httpLoggingConfiguration = serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
 
-            var milouAuthenticationConfiguration = serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
+            MilouAuthenticationConfiguration milouAuthenticationConfiguration = serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
 
-            var logger = serviceProviderHolder.ServiceProvider.GetRequiredService<ILogger>();
-            var environmentConfiguration = serviceProviderHolder.ServiceProvider.GetRequiredService<EnvironmentConfiguration>();
-            var configuration = serviceProviderHolder.ServiceProvider.GetRequiredService<IKeyValueConfiguration>();
+            ILogger logger = serviceProviderHolder.ServiceProvider.GetRequiredService<ILogger>();
+            EnvironmentConfiguration environmentConfiguration = serviceProviderHolder.ServiceProvider.GetRequiredService<EnvironmentConfiguration>();
+            IKeyValueConfiguration configuration = serviceProviderHolder.ServiceProvider.GetRequiredService<IKeyValueConfiguration>();
 
             services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger, environmentConfiguration)
                 .AddDeploymentAuthorization(environmentConfiguration)

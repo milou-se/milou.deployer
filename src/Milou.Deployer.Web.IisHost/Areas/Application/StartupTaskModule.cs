@@ -13,11 +13,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            var startupTaskTypes = ApplicationAssemblies.FilteredAssemblies()
+            System.Collections.Generic.IEnumerable<System.Type> startupTaskTypes = ApplicationAssemblies.FilteredAssemblies()
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(t => t.IsPublicConcreteTypeImplementing<IStartupTask>());
 
-            foreach (var startupTask in startupTaskTypes)
+            foreach (System.Type startupTask in startupTaskTypes)
             {
                 builder.AddSingleton<IStartupTask>(context => context.GetService(startupTask), this);
 

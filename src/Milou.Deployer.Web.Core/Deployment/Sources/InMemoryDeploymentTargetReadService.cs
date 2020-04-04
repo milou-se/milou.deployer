@@ -29,7 +29,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
         [PublicAPI]
         public Task<IReadOnlyCollection<OrganizationInfo>> GetTargetsAsync()
         {
-            if (_dataCreator != null)
+            if (_dataCreator is {})
             {
                 return _dataCreator.Invoke();
             }
@@ -67,9 +67,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
             string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
-            var organizations = await GetOrganizationsAsync(cancellationToken);
+            ImmutableArray<OrganizationInfo> organizations = await GetOrganizationsAsync(cancellationToken);
 
-            var foundDeploymentTarget = organizations
+            DeploymentTarget foundDeploymentTarget = organizations
                 .SelectMany(organizationInfo => organizationInfo.Projects)
                 .SelectMany(projectInfo => projectInfo.DeploymentTargets)
                 .SingleOrDefault(deploymentTarget => deploymentTarget.Id == deploymentTargetId);
@@ -80,14 +80,14 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
         public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
             CancellationToken cancellationToken = default)
         {
-            var organizations = await GetTargetsAsync();
+            IReadOnlyCollection<OrganizationInfo> organizations = await GetTargetsAsync();
 
             return organizations.ToImmutableArray();
         }
 
         public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions options = default, CancellationToken stoppingToken = default)
         {
-            var organizations = await GetOrganizationsAsync(stoppingToken);
+            ImmutableArray<OrganizationInfo> organizations = await GetOrganizationsAsync(stoppingToken);
 
             bool Filter(DeploymentTarget target)
             {

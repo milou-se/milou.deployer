@@ -17,7 +17,6 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Configuration;
-using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -73,7 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
         {
-            var applicationMetadataJsonFilePath = Path.Combine(_environmentConfiguration.ContentBasePath,
+            string applicationMetadataJsonFilePath = Path.Combine(_environmentConfiguration.ContentBasePath,
                 "wwwroot",
                 "applicationmetadata.json");
 
@@ -82,14 +81,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 return NoConfiguration.Empty;
             }
 
-            var json = await File.ReadAllTextAsync(applicationMetadataJsonFilePath, Encoding.UTF8, cancellationToken);
+            string json = await File.ReadAllTextAsync(applicationMetadataJsonFilePath, Encoding.UTF8, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(json))
             {
                 return NoConfiguration.Empty;
             }
 
-            var configurationItems = JsonConfigurationSerializer.Deserialize(json);
+            ConfigurationItems configurationItems = JsonConfigurationSerializer.Deserialize(json);
 
             if (configurationItems is null)
             {
@@ -103,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
             var values = new NameValueCollection();
 
-            foreach (var configurationItem in configurationItems.Keys)
+            foreach (KeyValue configurationItem in configurationItems.Keys)
             {
                 values.Add(configurationItem.Key, configurationItem.Value);
             }
@@ -113,7 +112,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
         {
-            var routesWithController =
+            ImmutableArray<ControllerRouteInfo> routesWithController =
                 RouteList.GetRoutesWithController(ApplicationAssemblies.FilteredAssemblies());
 
             var configurationValues = new ConfigurationInfo(_configuration.SourceChain,
@@ -126,31 +125,31 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     .ToImmutableArray());
 
 
-            var aspNetConfigurationValues = _aspNetConfiguration
+            IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues = _aspNetConfiguration
                 .AsEnumerable()
                 .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
                 .Select(pair =>
                     new KeyValuePair<string, string>(pair.Key,
                         pair.Value.MakeAnonymous(pair.Key, ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())));
 
-            var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
+            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
-            var serviceDiagnosticsRegistrations = _serviceDiagnostics.Registrations;
+            ImmutableArray<ServiceRegistrationInfo> serviceDiagnosticsRegistrations = _serviceDiagnostics.Registrations;
 
-            var applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
+            IKeyValueConfiguration applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
 
             ServiceInstance GetInstance(ServiceRegistrationInfo serviceRegistrationInfo)
             {
-                var registrationType = serviceRegistrationInfo.ServiceDescriptorServiceType;
+                Type registrationType = serviceRegistrationInfo.ServiceDescriptorServiceType;
 
-                if (serviceRegistrationInfo.ServiceDescriptorImplementationInstance != null)
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationInstance is {})
                 {
                     return new ServiceInstance(registrationType,
                         serviceRegistrationInfo.ServiceDescriptorImplementationInstance,
                         serviceRegistrationInfo.Module);
                 }
 
-                if (serviceRegistrationInfo.Factory != null)
+                if (serviceRegistrationInfo.Factory is {})
                 {
                     try
                     {
@@ -178,7 +177,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
                 try
                 {
-                    var instance =
+                    object instance =
                         _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
 
                     return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
@@ -192,10 +191,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 }
             }
 
-            var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
+            ImmutableArray<DeploymentTargetWorker?> deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
                 .SafeToImmutableArray();
 
-            var applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
 
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,

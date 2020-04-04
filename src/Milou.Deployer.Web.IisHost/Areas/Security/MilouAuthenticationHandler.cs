@@ -24,16 +24,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,
             ISystemClock clock)
-            : base(options, loggerFactory, encoder, clock)
-        {
+            : base(options, loggerFactory, encoder, clock) =>
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
 
         protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
         {
             if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                var address = Context.Connection.RemoteIpAddress?.ToString();
+                string? address = Context.Connection.RemoteIpAddress?.ToString();
                 _logger.Verbose(
                     "User ip from address {Address} is forbidden, challenge not supported",
                     address);
@@ -46,7 +44,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         {
             if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                var address = Context.Connection.RemoteIpAddress?.ToString();
+                string? address = Context.Connection.RemoteIpAddress?.ToString();
                 _logger.Verbose(
                     "Could not authenticate current user ip from address {Address}, challenge not supported",
                     address);
@@ -57,7 +55,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            var address = Context.Connection.RemoteIpAddress?.ToString();
+            string? address = Context.Connection.RemoteIpAddress?.ToString();
 
             var claims = new List<Claim>();
             AuthenticateResult authenticateResult;

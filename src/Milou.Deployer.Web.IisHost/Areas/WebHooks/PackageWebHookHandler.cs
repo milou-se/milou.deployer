@@ -41,7 +41,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             bool handled = false;
 
-            foreach (var packageWebHook in _packageWebHooks)
+            foreach (IPackageWebHook packageWebHook in _packageWebHooks)
             {
                 CancellationTokenSource? cancellationTokenSource = default;
 
@@ -53,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                 try
                 {
-                    var webHookNotification =
+                    Core.NuGet.PackageEventNotification webHookNotification =
                         await packageWebHook.TryGetWebHookNotification(request, content, cancellationToken);
 
                     if (webHookNotification is null)

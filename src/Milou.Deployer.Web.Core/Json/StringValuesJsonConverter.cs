@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Core.Json
             {
                 var array = JArray.Load(reader);
 
-                var values = array.ToObject<string[]>();
+                string[]? values = array.ToObject<string[]>();
 
                 return new StringValues(values);
             }

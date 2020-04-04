@@ -36,9 +36,9 @@ namespace Milou.Deployer.Web.Core.Health
         {
             var nugetFeeds = new ConcurrentDictionary<Uri, bool?>();
 
-            for (var i = 0; i < lines.Count; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
-                var line = lines[i].AsSpan();
+                ReadOnlySpan<char> line = lines[i].AsSpan();
 
                 if (line.IsEmpty)
                 {
@@ -50,21 +50,21 @@ namespace Milou.Deployer.Web.Core.Health
                     continue;
                 }
 
-                var firstSpace = line.IndexOf(' ');
+                int firstSpace = line.IndexOf(' ');
 
                 if (firstSpace < 0)
                 {
                     continue;
                 }
 
-                var url = line.Slice(firstSpace + 1).ToString();
+                string url = line.Slice(firstSpace + 1).ToString();
 
                 if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
                 {
                     continue;
                 }
@@ -84,7 +84,7 @@ namespace Milou.Deployer.Web.Core.Health
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Get, nugetFeed))
                 {
-                    using (var httpResponseMessage = await _httpClient.CreateClient(nugetFeed.Host)
+                    using (HttpResponseMessage httpResponseMessage = await _httpClient.CreateClient(nugetFeed.Host)
                         .SendAsync(request, cancellationToken))
                     {
                         if (httpResponseMessage.StatusCode == HttpStatusCode.OK ||
@@ -131,7 +131,7 @@ namespace Milou.Deployer.Web.Core.Health
 
             var lines = new List<string>();
 
-            var exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
+            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
                 args,
                 (message, _) =>
                 {
@@ -148,7 +148,7 @@ namespace Milou.Deployer.Web.Core.Health
                 return new HealthCheckResult(false);
             }
 
-            var nugetFeeds = GetFeedUrls(lines);
+            ConcurrentDictionary<Uri, bool?> nugetFeeds = GetFeedUrls(lines);
 
             var tasks = nugetFeeds.Keys
                 .Select(nugetFeed => CheckFeedAsync(nugetFeed, nugetFeeds, cancellationToken))
@@ -156,7 +156,7 @@ namespace Milou.Deployer.Web.Core.Health
 
             await Task.WhenAll(tasks);
 
-            var allSucceeded = nugetFeeds.All(pair => pair.Value == true);
+            bool allSucceeded = nugetFeeds.All(pair => pair.Value == true);
 
             return new HealthCheckResult(allSucceeded);
         }

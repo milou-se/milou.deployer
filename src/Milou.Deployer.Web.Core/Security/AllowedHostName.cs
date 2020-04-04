@@ -12,16 +12,10 @@ namespace Milou.Deployer.Web.Core.Security
         [PublicAPI]
         public const string HostNameUrn = "urn:milou:deployer:web:allowed-host";
 
-        public AllowedHostName(string hostName)
-        {
-            HostName = hostName;
-        }
+        public AllowedHostName(string hostName) => HostName = hostName;
 
         public string HostName { get; }
 
-        public override string ToString()
-        {
-            return $"{nameof(HostName)}: {HostName}";
-        }
+        public override string ToString() => $"{nameof(HostName)}: {HostName}";
     }
 }

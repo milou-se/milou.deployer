@@ -2,10 +2,7 @@
 {
     internal class DeploymentRule
     {
-        public DeploymentRule(string name)
-        {
-            Name = name;
-        }
+        public DeploymentRule(string name) => Name = name;
 
         public string Name { get;  }
     }

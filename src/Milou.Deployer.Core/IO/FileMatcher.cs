@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -19,12 +18,12 @@ namespace Milou.Deployer.Core.IO
 
         public ImmutableArray<FileInfo> Matches([NotNull] FileMatch fileMatch, [NotNull] DirectoryInfo rootDirectory)
         {
-            if (fileMatch == null)
+            if (fileMatch is null)
             {
                 throw new ArgumentNullException(nameof(fileMatch));
             }
 
-            if (rootDirectory == null)
+            if (rootDirectory is null)
             {
                 throw new ArgumentNullException(nameof(rootDirectory));
             }

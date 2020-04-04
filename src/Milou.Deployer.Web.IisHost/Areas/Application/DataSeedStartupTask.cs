@@ -66,11 +66,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             _logger.Debug("Found {SeederCount} data seeders", _dataSeeders.Length);
 
-            foreach (var dataSeeder in _dataSeeders.OrderBy(seeder => seeder.Order))
+            foreach (IDataSeeder dataSeeder in _dataSeeders.OrderBy(seeder => seeder.Order))
             {
                 try
                 {
-                    using (var startupToken =
+                    using (CancellationTokenSource startupToken =
                         _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds)))
                     {
                         using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(

@@ -158,7 +158,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string FtpPathValue => FtpPath?.Path;
 
         [JsonIgnore]
-        public FtpPath FtpPath { get; }
+        public FtpPath? FtpPath { get; }
 
         public TargetNuGetSettings NuGet { get; }
 

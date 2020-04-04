@@ -15,7 +15,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private static void Return([NotNull] PortPoolRental rental)
         {
-            if (rental == null)
+            if (rental is null)
             {
                 throw new ArgumentNullException(nameof(rental));
             }
@@ -23,19 +23,19 @@ namespace Milou.Deployer.Web.Tests.Integration
             Rentals.TryRemove(rental.Port, out _);
         }
 
-        public static PortPoolRental GetAvailablePort(in PortPoolRange range, IEnumerable<int> excludes = null)
+        public static PortPoolRental GetAvailablePort(in PortPoolRange range, IEnumerable<int>? excludes = null)
         {
             var excluded = (excludes ?? new List<int>()).ToList();
 
             var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-            var activeTcpConnections = ipGlobalProperties.GetActiveTcpConnections();
+            TcpConnectionInformation[] activeTcpConnections = ipGlobalProperties.GetActiveTcpConnections();
 
             var random = new Random();
-            for (var attempt = 0; attempt < 50; attempt++)
+            for (int attempt = 0; attempt < 50; attempt++)
             {
-                var port = random.Next(range.StartPort, range.EndPort);
+                int port = random.Next(range.StartPort, range.EndPort);
 
-                var portIsInUse = activeTcpConnections.Any(tcpPort => tcpPort.LocalEndPoint.Port == port);
+                bool portIsInUse = activeTcpConnections.Any(tcpPort => tcpPort.LocalEndPoint.Port == port);
 
                 if (!Rentals.ContainsKey(port) && !portIsInUse && !excluded.Any(excludedPort => excludedPort == port))
                 {

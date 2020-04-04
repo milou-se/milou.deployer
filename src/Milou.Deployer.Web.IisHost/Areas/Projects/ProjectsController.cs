@@ -18,10 +18,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
     {
         private readonly IMediator _mediator;
 
-        public ProjectsController([NotNull] IMediator mediator)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        }
+        public ProjectsController([NotNull] IMediator mediator) => _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [Route(ProjectConstants.ProjectsBaseRoute, Name = ProjectConstants.ProjectsBaseRouteName)]
         [HttpGet]
@@ -29,9 +26,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromRoute] string organizationId)
         {
-            var projects = await deploymentTargetReadService.GetProjectsAsync(organizationId);
+            System.Collections.Immutable.ImmutableArray<Core.Deployment.Targets.ProjectInfo> projects = await deploymentTargetReadService.GetProjectsAsync(organizationId);
 
-            var createProjectResult = TempData.Get<CreateProjectResult>();
+            CreateProjectResult createProjectResult = TempData.Get<CreateProjectResult>();
 
             return View(new ProjectsViewOutputModel(projects, createProjectResult, organizationId));
         }
@@ -43,7 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
             [FromBody] CreateProject createProject,
             [FromQuery] bool redirect = true)
         {
-            var createProjectResult = await _mediator.Send(createProject);
+            CreateProjectResult createProjectResult = await _mediator.Send(createProject);
 
             if (redirect)
             {

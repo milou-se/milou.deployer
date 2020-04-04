@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Milou.Deployer.Web.Core.Deployment
+﻿namespace Milou.Deployer.Web.Core.Deployment
 {
     public static class DeploymentTargetExtensions
     {

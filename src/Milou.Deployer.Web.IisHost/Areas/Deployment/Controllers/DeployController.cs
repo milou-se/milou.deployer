@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [HttpPost]
         public IActionResult Index(DeploymentTaskInput deploymentTaskInput)
         {
-            if (deploymentTaskInput == null)
+            if (deploymentTaskInput is null)
             {
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
@@ -82,9 +82,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route(DeploymentConstants.DeploymentStatusRoute, Name = DeploymentConstants.DeploymentStatusRouteName)]
-        public IActionResult Status(string deploymentTargetId)
-        {
-            return View(new StatusViewOutputModel(deploymentTargetId));
-        }
+        public IActionResult Status(string deploymentTargetId) => View(new StatusViewOutputModel(deploymentTargetId));
     }
 }

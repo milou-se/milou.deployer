@@ -9,7 +9,7 @@ namespace Milou.Deployer.Core.Deployment
         {
         }
 
-        public EnvironmentPackageResult(bool isSuccess, SemanticVersion version)
+        public EnvironmentPackageResult(bool isSuccess, SemanticVersion? version)
         {
             IsSuccess = isSuccess;
             Version = version;
@@ -17,6 +17,6 @@ namespace Milou.Deployer.Core.Deployment
 
         public bool IsSuccess { get; }
 
-        public SemanticVersion Version { get; }
+        public SemanticVersion? Version { get; }
     }
 }

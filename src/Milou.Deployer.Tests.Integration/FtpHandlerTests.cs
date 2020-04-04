@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Ftp;
@@ -24,7 +23,7 @@ namespace Milou.Deployer.Tests.Integration
                 new FtpPath("/site/", FileSystemType.Directory),
                 publicRootPath: new FtpPath("/site/wwwroot", FileSystemType.Directory));
 
-            var handler = await FtpHandler.CreateWithPublishSettings(
+            FtpHandler handler = await FtpHandler.CreateWithPublishSettings(
                 @"C:\Temp\deploy-test-target.PublishSettings",
                 ftpSettings);
 
@@ -38,15 +37,15 @@ namespace Milou.Deployer.Tests.Integration
                 new CancellationTokenSource(TimeSpan.FromSeconds(50)))
 
             {
-                var summary = await handler.PublishAsync(ruleConfiguration,
+                DeploySummary summary = await handler.PublishAsync(ruleConfiguration,
                     sourceDirectory,
                     cancellationTokenSource.Token);
 
                 _testOutputHelper.WriteLine(summary.ToDisplayValue());
 
-                var fileSystemItems = await handler.ListDirectoryAsync(FtpPath.Root, cancellationTokenSource.Token);
+                System.Collections.Immutable.ImmutableArray<FtpPath> fileSystemItems = await handler.ListDirectoryAsync(FtpPath.Root, cancellationTokenSource.Token);
 
-                foreach (var fileSystemItem in fileSystemItems)
+                foreach (FtpPath fileSystemItem in fileSystemItems)
                 {
                     _testOutputHelper.WriteLine(fileSystemItem.Path);
                 }

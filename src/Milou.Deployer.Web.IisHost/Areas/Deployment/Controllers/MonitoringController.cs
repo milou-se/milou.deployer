@@ -37,12 +37,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [Route("~/status")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
+            System.Collections.Generic.IReadOnlyCollection<DeploymentTarget> targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
                 .SelectMany(
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
                 .SafeToReadOnlyCollection();
 
-            var appVersions =
+            System.Collections.Generic.IReadOnlyCollection<Core.Application.Metadata.AppVersion> appVersions =
                 await _monitoringService.GetAppMetadataAsync(targets, cancellationToken);
 
             return View(new MonitoringViewOutputModel(appVersions));
@@ -51,31 +51,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [HttpGet]
         [Route(MonitorConstants.MonitorRoute, Name = MonitorConstants.MonitorRouteName)]
         [Route("")]
-        public IActionResult Status()
-        {
-            return View();
-        }
+        public IActionResult Status() => View();
 
         [HttpGet]
         [Route("~/api/targets")]
         public async Task<IActionResult> Targets(CancellationToken cancellationToken,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            var environmentTypes = await environmentTypeService.GetEnvironmentTypes(cancellationToken);
+            System.Collections.Immutable.ImmutableArray<EnvironmentType> environmentTypes = await environmentTypeService.GetEnvironmentTypes(cancellationToken);
 
             var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
                 .SelectMany(
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
                 .Select(deploymentTarget =>
                 {
-                    var editUrl = Url.RouteUrl(TargetConstants.EditTargetRouteName,
+                    string editUrl = Url.RouteUrl(TargetConstants.EditTargetRouteName,
                         new { deploymentTargetId = deploymentTarget.Id });
-                    var historyUrl = Url.RouteUrl(DeploymentConstants.HistoryRouteName,
+                    string historyUrl = Url.RouteUrl(DeploymentConstants.HistoryRouteName,
                         new { deploymentTargetId = deploymentTarget.Id });
-                    var statusUrl = Url.RouteUrl(TargetConstants.TargetStatusApiRouteName,
+                    string statusUrl = Url.RouteUrl(TargetConstants.TargetStatusApiRouteName,
                         new { deploymentTargetId = deploymentTarget.Id });
 
-                    var environmentType =
+                    EnvironmentType environmentType =
                         environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTarget.EnvironmentTypeId)) ?? EnvironmentType.Unknown;
 
                     return new
@@ -116,7 +113,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [FromServices] MonitoringService monitoringService,
             [FromServices] ICustomClock clock)
         {
-            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            DeploymentTarget deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -133,11 +130,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return Json(DeployStatus.Unavailable);
             }
 
-            var appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+            Core.Application.Metadata.AppVersion appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
 
-            var deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
+            DeploymentInterval deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
 
-            var selectedPackageIndex = appVersion.AvailablePackageVersions
+            int selectedPackageIndex = appVersion.AvailablePackageVersions
                         .Select((item, index) => new
                         {
                             Selected = item.PackageId == deploymentTarget.PackageId &&

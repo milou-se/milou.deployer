@@ -12,7 +12,7 @@ namespace Milou.Deployer.Tests.Integration
         {
             if (NCrunchEnvironment.NCrunchIsResident())
             {
-                var directory = new FileInfo(NCrunchEnvironment.GetOriginalSolutionPath()).Directory;
+                DirectoryInfo directory = new FileInfo(NCrunchEnvironment.GetOriginalSolutionPath()).Directory;
 
                 return VcsPathHelper.FindVcsRootPath(directory?.FullName);
             }

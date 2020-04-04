@@ -26,10 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
     {
         private readonly IDeploymentTargetReadService _targetSource;
 
-        public TargetsController([NotNull] IDeploymentTargetReadService targetSource)
-        {
-            _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
-        }
+        public TargetsController([NotNull] IDeploymentTargetReadService targetSource) => _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
 
         [HttpGet]
         [Route(TargetConstants.TargetsRoute, Name = TargetConstants.TargetsRouteName)]
@@ -93,10 +90,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 
         [Route(TargetConstants.CreateTargetGetRoute, Name = TargetConstants.CreateTargetGetRouteName)]
         [HttpGet]
-        public IActionResult Create()
-        {
-            return View(new CreateTargetViewOutputModel());
-        }
+        public IActionResult Create() => View(new CreateTargetViewOutputModel());
 
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
         [HttpGet]
@@ -105,14 +99,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            DeploymentTarget deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var environmentTypes = await environmentTypeService.GetEnvironmentTypes();
+            ImmutableArray<EnvironmentType> environmentTypes = await environmentTypeService.GetEnvironmentTypes();
 
             return View(new EditTargetViewOutputModel(deploymentTarget, environmentTypes));
         }
@@ -125,7 +119,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            DeploymentTarget deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -196,7 +190,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         public async Task<IActionResult> Disabled(
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
         {
-            var targets =
+            ImmutableArray<DeploymentTarget> targets =
                 await deploymentTargetReadService.GetDeploymentTargetsAsync(new TargetOptions { OnlyEnabled = false });
 
             return View(new TargetListViewModel(targets.OrderBy(target => target.Enabled).ToImmutableArray()));

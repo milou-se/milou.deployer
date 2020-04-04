@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Core.Health
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            foreach (var type in ApplicationAssemblies.FilteredAssemblies()
+            foreach (System.Type type in ApplicationAssemblies.FilteredAssemblies()
                 .GetLoadablePublicConcreteTypesImplementing<IHealthCheck>())
             {
                 builder.AddSingleton(type, this);

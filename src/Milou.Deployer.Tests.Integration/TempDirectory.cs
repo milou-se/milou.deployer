@@ -10,7 +10,7 @@ namespace Milou.Deployer.Tests.Integration
 
         public DirectoryInfo Directory { get; private set; }
 
-        public static TempDirectory CreateTempDirectory(string name = null)
+        public static TempDirectory CreateTempDirectory(string? name = null)
         {
             var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(),
                 $"{name.WithDefault("MD-tmp")}-{DateTime.UtcNow.Ticks}"));

@@ -26,14 +26,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {
-            var types = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
+            System.Collections.Immutable.ImmutableArray<EnvironmentType> types = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
 
             if (!types.IsDefaultOrEmpty)
             {
                 return;
             }
 
-            var commands = new[]
+            CreateEnvironment[] commands = new[]
             {
                 new CreateEnvironment
                 {
@@ -61,9 +61,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                 }
             };
 
-            foreach (var createEnvironment in commands)
+            foreach (CreateEnvironment createEnvironment in commands)
             {
-                var result = await _mediator.Send(createEnvironment, cancellationToken);
+                CreateEnvironmentResult result = await _mediator.Send(createEnvironment, cancellationToken);
 
                 _logger.Debug("CreateEnvironment result for Id {Id}: {Status}", result.Id, result.Status);
             }

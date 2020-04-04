@@ -59,7 +59,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         {
             await Task.Yield();
 
-            var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
 
             if (!applicationSettings.AutoDeploy.Enabled)
             {
@@ -77,7 +77,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var deploymentTargets = await GetDeploymentTargetsWithAutoDeployEnabled(stoppingToken);
+                ImmutableArray<DeploymentTarget> deploymentTargets = await GetDeploymentTargetsWithAutoDeployEnabled(stoppingToken);
 
                 if (deploymentTargets.IsDefaultOrEmpty)
                 {
@@ -107,11 +107,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     continue;
                 }
 
-                var appVersions = await GetAppVersions(stoppingToken, targetsWithUrl);
+                AppVersion[] appVersions = await GetAppVersions(stoppingToken, targetsWithUrl);
 
-                foreach (var deploymentTarget in targetsWithUrl)
+                foreach (DeploymentTarget deploymentTarget in targetsWithUrl)
                 {
-                    var appVersion = appVersions.SingleOrDefault(version =>
+                    AppVersion appVersion = appVersions.SingleOrDefault(version =>
                         version.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
 
                     if (appVersion?.SemanticVersion is null || appVersion.PackageId.IsNullOrWhiteSpace())
@@ -119,14 +119,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         continue;
                     }
 
-                    var packageVersions = await GetPackageVersions(stoppingToken, deploymentTarget);
+                    ImmutableHashSet<PackageVersion> packageVersions = await GetPackageVersions(stoppingToken, deploymentTarget);
 
                     if (packageVersions.IsEmpty)
                     {
                         continue;
                     }
 
-                    var filteredPackages = !deploymentTarget.AllowPreRelease
+                    ImmutableHashSet<PackageVersion> filteredPackages = !deploymentTarget.AllowPreRelease
                         ? packageVersions.Where(packageVersion => !packageVersion.Version.IsPrerelease).ToImmutableHashSet()
                         : packageVersions;
 
@@ -142,11 +142,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             && package.Version > appVersion.SemanticVersion)
                         .ToImmutableHashSet();
 
-                    var packageToDeploy = newerPackages
+                    PackageVersion packageToDeploy = newerPackages
                         .OrderByDescending(package => package.Version)
                         .FirstOrDefault();
 
-                    if (packageToDeploy != null)
+                    if (packageToDeploy is {})
                     {
                         var task = new DeploymentTask(packageToDeploy, deploymentTarget.Id, Guid.NewGuid(), nameof(AutoDeployBackgroundService));
 
@@ -174,7 +174,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             try
             {
                 ImmutableHashSet<PackageVersion> packageVersions;
-                using (var packageVersionCancellationTokenSource =
+                using (CancellationTokenSource packageVersionCancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
@@ -205,16 +205,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             try
             {
                 AppVersion[] appVersions;
-                using (var cancellationTokenSource =
+                using (CancellationTokenSource cancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
                 {
                     using (var linkedCancellationTokenSource =
                         CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken))
                     {
-                        var cancellationToken = linkedCancellationTokenSource.Token;
+                        CancellationToken cancellationToken = linkedCancellationTokenSource.Token;
 
-                        var tasks = targetsWithUrl.Select(
+                        System.Collections.Generic.IEnumerable<Task<AppVersion>> tasks = targetsWithUrl.Select(
                             target =>
                                 _monitoringService.GetAppMetadataAsync(target, cancellationToken));
 
@@ -237,7 +237,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             try
             {
                 ImmutableArray<DeploymentTarget> deploymentTargets;
-                using (var targetsTokenSource =
+                using (CancellationTokenSource targetsTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {

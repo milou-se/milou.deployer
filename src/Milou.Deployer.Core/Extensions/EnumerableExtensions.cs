@@ -7,12 +7,12 @@ namespace Milou.Deployer.Core.Extensions
     {
         public static IEnumerable<T> Tap<T>(this IEnumerable<T> enumerable, Action<T> action)
         {
-            if (enumerable == null)
+            if (enumerable is null)
             {
                 throw new ArgumentNullException(nameof(enumerable));
             }
 
-            if (action == null)
+            if (action is null)
             {
                 throw new ArgumentNullException(nameof(action));
             }

@@ -48,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _logger.Debug("Ensuring nuget.exe exists");
 
             if (!int.TryParse(_configuration[DeployerAppConstants.NuGetDownloadTimeoutInSeconds],
-                    out var initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
+                    out int initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
             {
                 initialNuGetDownloadTimeoutInSeconds = 100;
             }
@@ -57,15 +57,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             {
                 var fromSeconds = TimeSpan.FromSeconds(initialNuGetDownloadTimeoutInSeconds);
 
-                using (var cts = _timeoutHelper.CreateCancellationTokenSource(fromSeconds))
+                using (CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(fromSeconds))
                 {
-                    var downloadDirectory = _configuration[DeployerAppConstants.NuGetExeDirectory].WithDefault(null);
-                    var exeVersion = _configuration[DeployerAppConstants.NuGetExeVersion].WithDefault(null);
+                    string? downloadDirectory = _configuration[DeployerAppConstants.NuGetExeDirectory].WithDefault(null);
+                    string? exeVersion = _configuration[DeployerAppConstants.NuGetExeVersion].WithDefault(null);
 
-                    var httpClient = _httpClientFactory.CreateClient();
+                    HttpClient httpClient = _httpClientFactory.CreateClient();
 
                     var nuGetDownloadClient = new NuGetDownloadClient();
-                    var nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(
+                    NuGetDownloadResult nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(
                         new NuGetDownloadSettings(downloadDirectory: downloadDirectory, nugetExeVersion: exeVersion),
                         _logger,
                         httpClient,

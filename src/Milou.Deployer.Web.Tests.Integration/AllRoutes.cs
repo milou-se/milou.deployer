@@ -13,10 +13,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public AllRoutes(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public AllRoutes(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         [PublicAPI]
         public static IEnumerable<object[]> Data
@@ -24,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             get
             {
                 string[] assemblyNameStartsWith = { "Milou" };
-                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+                System.Collections.Immutable.ImmutableArray<System.Reflection.Assembly> filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
                 return RouteList.GetConstantRoutes(filteredAssemblies)
                     .Select(item => new object[] {item.Name, item.Value})
                     .ToArray();

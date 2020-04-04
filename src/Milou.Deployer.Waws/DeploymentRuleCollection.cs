@@ -6,9 +6,9 @@ namespace Milou.Deployer.Waws
 {
     internal class DeploymentRuleCollection : List<DeploymentRule>
     {
-        public bool TryGetValue(string name, out DeploymentRule deploymentRule)
+        public bool TryGetValue(string name, out DeploymentRule? deploymentRule)
         {
-            var found = this.SingleOrDefault(rule => rule.Name.Equals(name, StringComparison.Ordinal));
+            DeploymentRule? found = this.SingleOrDefault(rule => rule.Name.Equals(name, StringComparison.Ordinal));
 
             if (found is {})
             {

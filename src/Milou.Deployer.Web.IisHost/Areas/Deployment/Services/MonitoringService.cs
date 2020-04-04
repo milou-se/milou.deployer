@@ -61,7 +61,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] DeploymentTarget target,
             CancellationToken cancellationToken)
         {
-            if (target == null)
+            if (target is null)
             {
                 throw new ArgumentNullException(nameof(target));
             }
@@ -73,11 +73,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return appMetadata;
             }
 
-            var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
 
-            var targetMetadataTimeout = target.MetadataTimeout ?? applicationSettings.ApplicationSettingsCacheTimeout;
+            TimeSpan targetMetadataTimeout = target.MetadataTimeout ?? applicationSettings.ApplicationSettingsCacheTimeout;
 
-            using (var cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(
+            using (CancellationTokenSource cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(
                 targetMetadataTimeout))
             {
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
@@ -95,19 +95,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 using (var linkedTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
-                    var metadataTask = GetApplicationMetadataTask(target, linkedTokenSource.Token);
+                    Task<(HttpResponseMessage, string)> metadataTask = GetApplicationMetadataTask(target, linkedTokenSource.Token);
 
-                    var allowedPackagesTask = GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+                    Task<IReadOnlyCollection<PackageVersion>> allowedPackagesTask = GetAllowedPackagesAsync(target, linkedTokenSource.Token);
 
                     await Task.WhenAll(metadataTask, allowedPackagesTask);
 
                     (HttpResponseMessage response, string message) = await metadataTask;
 
-                    var packages = await allowedPackagesTask;
+                    IReadOnlyCollection<PackageVersion> packages = await allowedPackagesTask;
 
-                    using (var httpResponseMessage = response)
+                    using (HttpResponseMessage httpResponseMessage = response)
                     {
-                        if (httpResponseMessage == null)
+                        if (httpResponseMessage is null)
                         {
                             return new AppVersion(
                                 target,
@@ -129,7 +129,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
             }
 
-            if (appMetadata.SemanticVersion != null)
+            if (appMetadata.SemanticVersion is {})
             {
                 _customMemoryCache.SetValue(cacheKey, appMetadata, applicationSettings.MetadataCacheTimeout);
             }
@@ -145,9 +145,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var appVersions = new List<AppVersion>();
 
-            var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
 
-            using (var cancellationTokenSource =
+            using (CancellationTokenSource cancellationTokenSource =
                 _timeoutHelper.CreateCancellationTokenSource(applicationSettings.DefaultMetadataRequestTimeout))
             {
                 using (var linkedTokenSource =
@@ -155,7 +155,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     var tasks = new Dictionary<string, Task<(HttpResponseMessage, string)>>();
 
-                    foreach (var deploymentTarget in targets)
+                    foreach (DeploymentTarget deploymentTarget in targets)
                     {
                         if (!deploymentTarget.Enabled)
                         {
@@ -164,9 +164,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                 "Disabled",
                                 ImmutableArray<PackageVersion>.Empty));
                         }
-                        else if (deploymentTarget.Url != null)
+                        else if (deploymentTarget.Url is {})
                         {
-                            var getApplicationMetadataTask =
+                            Task<(HttpResponseMessage, string)> getApplicationMetadataTask =
                                 GetApplicationMetadataTask(deploymentTarget, linkedTokenSource.Token);
 
                             tasks.Add(deploymentTarget.Id, getApplicationMetadataTask);
@@ -182,11 +182,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                     await Task.WhenAll(tasks.Values);
 
-                    foreach (var pair in tasks)
+                    foreach (KeyValuePair<string, Task<(HttpResponseMessage, string)>> pair in tasks)
                     {
-                        var target = targets.Single(deploymentTarget => deploymentTarget.Id == pair.Key);
+                        DeploymentTarget target = targets.Single(deploymentTarget => deploymentTarget.Id == pair.Key);
 
-                        var allowedPackages =
+                        IReadOnlyCollection<PackageVersion> allowedPackages =
                             await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
 
                         try
@@ -194,7 +194,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             (HttpResponseMessage Response, string Message) result = await pair.Value;
 
                             AppVersion appVersion;
-                            using (var response = result.Response)
+                            using (HttpResponseMessage response = result.Response)
                             {
                                 string message = result.Message;
 
@@ -210,7 +210,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                 {
                                     if (message.HasValue())
                                     {
-                                        var packages =
+                                        IReadOnlyCollection<PackageVersion> packages =
                                             await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
                                         appVersion = new AppVersion(target, message, packages);
 
@@ -222,7 +222,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                     }
                                     else
                                     {
-                                        var packages =
+                                        IReadOnlyCollection<PackageVersion> packages =
                                             await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
                                         appVersion = new AppVersion(target, "Unknown error", packages);
 
@@ -274,14 +274,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return new AppVersion(target, "Timeout", filtered);
             }
 
-            var configuration =
+            ConfigurationItems configuration =
                 JsonConfigurationSerializer.Deserialize(json);
 
             var nameValueCollection = new NameValueCollection();
 
             if (!configuration.Keys.IsDefaultOrEmpty)
             {
-                foreach (var configurationItem in configuration.Keys)
+                foreach (KeyValue configurationItem in configuration.Keys)
                 {
                     nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
                 }
@@ -301,8 +301,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             try
             {
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                var client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
-                var wrappedResponseAsync = (await client.GetAsync(applicationMetadataUri, cancellationToken), string.Empty);
+                HttpClient client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
+                (HttpResponseMessage, string Empty) wrappedResponseAsync = (await client.GetAsync(applicationMetadataUri, cancellationToken), string.Empty);
                 stopwatch.Stop();
                 _logger.Debug("Metadata call to {Url} took {Elapsed} milliseconds", applicationMetadataUri, stopwatch.ElapsedMilliseconds);
 
@@ -347,7 +347,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                var allPackageVersions =
+                IReadOnlyCollection<PackageVersion> allPackageVersions =
                     await _packageService.GetPackageVersionsAsync(
                         target.PackageId,
                         nugetConfigFile: target.NuGet.NuGetConfigFile,
@@ -356,14 +356,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPreRelease,
                         cancellationToken: cancellationToken);
 
-                var allTargetPackageVersions = allPackageVersions.Where(
+                IReadOnlyCollection<PackageVersion> allTargetPackageVersions = allPackageVersions.Where(
                         packageVersion =>
                             target.PackageId.Equals(
                                 packageVersion.PackageId,
                                 StringComparison.OrdinalIgnoreCase))
                     .SafeToReadOnlyCollection();
 
-                var preReleaseFiltered = allTargetPackageVersions;
+                IReadOnlyCollection<PackageVersion> preReleaseFiltered = allTargetPackageVersions;
 
                 if (!target.AllowPreRelease)
                 {
@@ -372,7 +372,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             .SafeToReadOnlyCollection();
                 }
 
-                var filtered =
+                IReadOnlyCollection<PackageVersion> filtered =
                     preReleaseFiltered.OrderByDescending(packageVersion => packageVersion.Version)
                         .SafeToReadOnlyCollection();
 
@@ -399,9 +399,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 Path = "applicationmetadata.json"
             };
 
-            var applicationMetadataUri = uriBuilder.Uri;
+            Uri applicationMetadataUri = uriBuilder.Uri;
 
-            var getApplicationMetadataTask = GetWrappedResponseAsync(
+            Task<(HttpResponseMessage, string)> getApplicationMetadataTask = GetWrappedResponseAsync(
                 applicationMetadataUri,
                 cancellationToken);
             return getApplicationMetadataTask;

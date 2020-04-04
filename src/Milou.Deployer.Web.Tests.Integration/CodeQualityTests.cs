@@ -24,10 +24,10 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Theory]
         public void ShouldNotContainImplementations(Assembly assembly, Type checkForType)
         {
-            var currentTypes = assembly.GetLoadableTypes();
+            System.Collections.Immutable.ImmutableArray<Type> currentTypes = assembly.GetLoadableTypes();
             var types = currentTypes.ToDictionary(type => type, _ => true);
 
-            foreach (var currentType in currentTypes)
+            foreach (Type currentType in currentTypes)
             {
                 bool currentTypeIsClass = !currentType.IsAbstract && currentType.IsClass &&
                                           checkForType.IsAssignableFrom(currentType);
@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 types[currentType] = currentTypeIsClass;
             }
 
-            var errors = types.Where(pair => pair.Value).Select(pair => pair.Key).SafeToImmutableArray();
+            System.Collections.Immutable.ImmutableArray<Type> errors = types.Where(pair => pair.Value).Select(pair => pair.Key).SafeToImmutableArray();
 
             Assert.Empty(errors);
         }
@@ -49,9 +49,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Theory]
         public void ShouldNotContainMartenData(Assembly assembly, Type checkForType)
         {
-            var types = assembly.GetLoadableTypes();
+            System.Collections.Immutable.ImmutableArray<Type> types = assembly.GetLoadableTypes();
 
-            foreach (var currentType in types)
+            foreach (Type currentType in types)
             {
                 Assert.Null(currentType.GetCustomAttribute(checkForType));
             }
@@ -59,7 +59,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public static IEnumerable<object[]> GetAssemblyTypes()
         {
-            var notificationType = typeof(INotification);
+            Type notificationType = typeof(INotification);
 
             yield return new object[] {typeof(BaseApiController).Assembly, notificationType};
             yield return new object[] {typeof(IDeploymentPackageAgent).Assembly, notificationType};

@@ -26,7 +26,7 @@ namespace Milou.Deployer.Tests.Integration
 
         public static DirectoryInfo EnsureExists(this DirectoryInfo directoryInfo)
         {
-            if (directoryInfo == null)
+            if (directoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(directoryInfo));
             }
@@ -43,7 +43,7 @@ namespace Milou.Deployer.Tests.Integration
 
         public static void CopyRecursiveTo(this DirectoryInfo sourceDirectory, DirectoryInfo targetDirectory)
         {
-            if (targetDirectory == null)
+            if (targetDirectory is null)
             {
                 throw new ArgumentNullException(nameof(targetDirectory));
             }

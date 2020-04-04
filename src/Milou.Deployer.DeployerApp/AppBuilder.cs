@@ -30,25 +30,25 @@ namespace Milou.Deployer.ConsoleClient
 {
     public static class AppBuilder
     {
-        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] inputArgs, ILogger logger = null, CancellationToken cancellationToken = default)
+        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] inputArgs, ILogger? logger = null, CancellationToken cancellationToken = default)
         {
-            if (inputArgs == null)
+            if (inputArgs is null)
             {
                 throw new ArgumentNullException(nameof(inputArgs));
             }
 
             var args = inputArgs.ToImmutableArray();
 
-            bool hasDefinedLogger = logger != null;
+            bool hasDefinedLogger = logger is {};
 
             string outputTemplate = GetOutputTemplate(args);
 
             var levelSwitch = new LoggingLevelSwitch();
 
-            logger = logger ?? new LoggerConfiguration()
-                         .WriteTo.Console(outputTemplate: outputTemplate, standardErrorFromLevel: LogEventLevel.Error)
-                         .MinimumLevel.ControlledBy(levelSwitch)
-                         .CreateLogger();
+            logger ??= new LoggerConfiguration()
+                .WriteTo.Console(outputTemplate: outputTemplate, standardErrorFromLevel: LogEventLevel.Error)
+                .MinimumLevel.ControlledBy(levelSwitch)
+                .CreateLogger();
 
             logger.Verbose("Using output template {Template}", outputTemplate);
 
@@ -78,7 +78,7 @@ namespace Milou.Deployer.ConsoleClient
                         appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSettings, false));
                 }
 
-                string configurationFile =
+                string? configurationFile =
                     Environment.GetEnvironmentVariable(ConfigurationKeys.KeyValueConfigurationFile);
 
                 if (!string.IsNullOrWhiteSpace(configurationFile) && File.Exists(configurationFile))
@@ -269,7 +269,7 @@ namespace Milou.Deployer.ConsoleClient
 
                 if (file is null)
                 {
-                    if (currentDirectory.Parent != null)
+                    if (currentDirectory.Parent is {})
                     {
                         return GetMachineSettingsFile(currentDirectory.Parent);
                     }

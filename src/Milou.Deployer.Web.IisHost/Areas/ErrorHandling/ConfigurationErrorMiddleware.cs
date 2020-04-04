@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
 
                 stringBuilder.AppendLine(message);
 
-                foreach (var configurationError in _configurationErrors)
+                foreach (ConfigurationError configurationError in _configurationErrors)
                 {
                     stringBuilder.AppendLine(configurationError.Error);
                 }

@@ -7,9 +7,6 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         public DeploymentTaskPackage DeploymentTaskPackage { get; }
 
-        public CreateDeploymentTaskPackage(DeploymentTaskPackage deploymentTaskPackage)
-        {
-            DeploymentTaskPackage = deploymentTaskPackage;
-        }
+        public CreateDeploymentTaskPackage(DeploymentTaskPackage deploymentTaskPackage) => DeploymentTaskPackage = deploymentTaskPackage;
     }
 }

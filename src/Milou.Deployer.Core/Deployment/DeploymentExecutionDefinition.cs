@@ -20,21 +20,21 @@ namespace Milou.Deployer.Core.Deployment
             string packageId,
             string semanticVersion,
             string targetDirectoryPath,
-            string nuGetConfigFile = null,
-            string nuGetPackageSource = null,
-            string iisSiteName = null,
+            string? nuGetConfigFile = null,
+            string? nuGetPackageSource = null,
+            string? iisSiteName = null,
             bool isPreRelease = false,
             bool force = false,
-            string environmentConfig = null,
-            string publishSettingsFile = null,
-            Dictionary<string, string[]> parameters = null,
-            string excludedFilePatterns = null,
+            string? environmentConfig = null,
+            string? publishSettingsFile = null,
+            Dictionary<string, string[]>? parameters = null,
+            string? excludedFilePatterns = null,
             bool requireEnvironmentConfig = false,
-            string publishType = null,
-            string webConfigTransformFile = null,
-            string ftpPath = null,
-            string nugetExePath = null,
-            string packageListPrefix = null,
+            string? publishType = null,
+            string? webConfigTransformFile = null,
+            string? ftpPath = null,
+            string? nugetExePath = null,
+            string? packageListPrefix = null,
             bool? packageListPrefixEnabled = null)
         {
             if (string.IsNullOrWhiteSpace(packageId))
@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.Deployment
 
             SetPreRelease(isPreRelease);
 
-            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
             FtpPath = path;
@@ -85,7 +85,7 @@ namespace Milou.Deployer.Core.Deployment
                          ImmutableDictionary<string, StringValues>.Empty;
             ExcludedFilePatternsCombined = excludedFilePatterns;
 
-            _ = PublishType.TryParseOrDefault(publishType, out PublishType publishTypeValue);
+            _ = PublishType.TryParseOrDefault(publishType, out PublishType? publishTypeValue);
 
             PublishType = publishTypeValue;
         }
@@ -94,21 +94,21 @@ namespace Milou.Deployer.Core.Deployment
             string packageId,
             string targetDirectoryPath,
             [CanBeNull] SemanticVersion semanticVersion,
-            string nuGetConfigFile = null,
-            string nuGetPackageSource = null,
-            string iisSiteName = null,
+            string? nuGetConfigFile = null,
+            string? nuGetPackageSource = null,
+            string? iisSiteName = null,
             bool isPreRelease = false,
             bool force = false,
-            string environmentConfig = null,
-            string publishSettingsFile = null,
-            Dictionary<string, string[]> parameters = null,
-            string excludedFilePatterns = null,
+            string? environmentConfig = null,
+            string? publishSettingsFile = null,
+            Dictionary<string, string[]>? parameters = null,
+            string? excludedFilePatterns = null,
             bool requireEnvironmentConfig = false,
-            string webConfigTransformFile = null,
-            string publishType = null,
-            string ftpPath = null,
-            string nugetExePath = null,
-            string packageListPrefix = null,
+            string? webConfigTransformFile = null,
+            string? publishType = null,
+            string? ftpPath = null,
+            string? nugetExePath = null,
+            string? packageListPrefix = null,
             bool? packageListPrefixEnabled = null)
         {
             SemanticVersion = semanticVersion;
@@ -135,16 +135,16 @@ namespace Milou.Deployer.Core.Deployment
                              .ToImmutableDictionary() ??
                          ImmutableDictionary<string, StringValues>.Empty;
 
-            _ = PublishType.TryParseOrDefault(publishType, out PublishType publishTypeValue);
-            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            PublishType.TryParseOrDefault(publishType, out PublishType? publishTypeValue);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
             FtpPath = path;
 
             PublishType = publishTypeValue;
 
-            ExcludedFilePatternsCombined = excludedFilePatterns;
+            ExcludedFilePatternsCombined = excludedFilePatterns ?? "";
 
-            NuGetExePath = nugetExePath;
-            PackageListPrefix = packageListPrefix;
+            NuGetExePath = nugetExePath ?? "";
+            PackageListPrefix = packageListPrefix ?? "";
             PackageListPrefixEnabled = packageListPrefixEnabled;
         }
 
@@ -158,11 +158,11 @@ namespace Milou.Deployer.Core.Deployment
         public string PublishTypeValue => PublishType.Name;
 
         [JsonProperty(PropertyName = nameof(ExcludedFilePatterns))]
-        public string ExcludedFilePatternsCombined { get; }
+        public string? ExcludedFilePatternsCombined { get; }
 
-        public string EnvironmentConfig { get; }
+        public string? EnvironmentConfig { get; }
 
-        public string PublishSettingsFile { get; }
+        public string? PublishSettingsFile { get; }
 
         public bool Force { get; }
 
@@ -172,12 +172,12 @@ namespace Milou.Deployer.Core.Deployment
 
         public ImmutableDictionary<string, StringValues> Parameters { get; }
 
-        [JsonIgnore] [CanBeNull] public SemanticVersion SemanticVersion { get; }
+        [JsonIgnore] public SemanticVersion? SemanticVersion { get; }
 
         [JsonProperty(PropertyName = nameof(SemanticVersion))]
         [CanBeNull]
         public string NormalizedVersion =>
-            SemanticVersion?.ToNormalizedString();
+            SemanticVersion?.ToNormalizedString() ?? "";
 
         public string TargetDirectoryPath { get; }
 
@@ -188,9 +188,9 @@ namespace Milou.Deployer.Core.Deployment
 
         public bool RequireEnvironmentConfig { get; }
 
-        public string WebConfigTransformFile { get; }
+        public string? WebConfigTransformFile { get; }
 
-        public string PackageListPrefix { get; }
+        public string? PackageListPrefix { get; }
 
         public bool? PackageListPrefixEnabled { get; }
 
@@ -203,10 +203,10 @@ namespace Milou.Deployer.Core.Deployment
         public string NuGetPackageSource { get; }
 
         [JsonProperty(nameof(FtpPath))]
-        public string FtpPathValue => FtpPath?.Path;
+        public string? FtpPathValue => FtpPath?.Path;
 
         [JsonIgnore]
-        public FtpPath FtpPath { get; }
+        public FtpPath? FtpPath { get; }
 
         private void SetPreRelease(bool isPreRelease) => IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
 

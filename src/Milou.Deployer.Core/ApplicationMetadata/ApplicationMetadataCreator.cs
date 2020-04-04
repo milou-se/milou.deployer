@@ -27,32 +27,32 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             [NotNull] EnvironmentPackageResult environmentPackageResult,
             ILogger logger)
         {
-            if (installedPackage == null)
+            if (installedPackage is null)
             {
                 throw new ArgumentNullException(nameof(installedPackage));
             }
 
-            if (targetDirectoryInfo == null)
+            if (targetDirectoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(targetDirectoryInfo));
             }
 
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (xmlTransformedFiles == null)
+            if (xmlTransformedFiles is null)
             {
                 throw new ArgumentNullException(nameof(xmlTransformedFiles));
             }
 
-            if (replacedFiles == null)
+            if (replacedFiles is null)
             {
                 throw new ArgumentNullException(nameof(replacedFiles));
             }
 
-            if (environmentPackageResult == null)
+            if (environmentPackageResult is null)
             {
                 throw new ArgumentNullException(nameof(environmentPackageResult));
             }
@@ -118,7 +118,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 packageId
             }.ToImmutableArray();
 
-            if (environmentPackageResult.Version != null)
+            if (environmentPackageResult.Version is {})
             {
                 keys.Add(environmentConfiguration);
             }

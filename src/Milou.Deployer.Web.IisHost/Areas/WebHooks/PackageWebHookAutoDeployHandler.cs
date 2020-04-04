@@ -52,20 +52,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return;
             }
 
-            var packageIdentifier = notification.PackageVersion;
+            Core.Deployment.Packages.PackageVersion packageIdentifier = notification.PackageVersion;
 
-            if (packageIdentifier == null)
+            if (packageIdentifier is null)
             {
                 throw new ArgumentNullException(nameof(packageIdentifier));
             }
 
             _logger.Information("Received hook for package {Package}", packageIdentifier);
 
-            var deploymentTargets =
+            System.Collections.Generic.IReadOnlyCollection<Core.Deployment.DeploymentTarget> deploymentTargets =
                 (await _targetSource.GetDeploymentTargetsAsync(stoppingToken: cancellationToken))
                 .SafeToReadOnlyCollection();
 
-            var withAutoDeploy = deploymentTargets.Where(target => target.AutoDeployEnabled).ToArray();
+            Core.Deployment.DeploymentTarget[] withAutoDeploy = deploymentTargets.Where(target => target.AutoDeployEnabled).ToArray();
 
             if (!withAutoDeploy.Any())
             {
@@ -73,20 +73,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             }
             else
             {
-                foreach (var deploymentTarget in withAutoDeploy)
+                foreach (Core.Deployment.DeploymentTarget deploymentTarget in withAutoDeploy)
                 {
                     if (deploymentTarget.PackageId.Equals(
                         packageIdentifier.PackageId,
                         StringComparison.OrdinalIgnoreCase))
                     {
-                        if (deploymentTarget.NuGet.NuGetConfigFile != null
+                        if (deploymentTarget.NuGet.NuGetConfigFile is {}
                             && !deploymentTarget.NuGet.NuGetConfigFile.Equals(notification.NugetConfig))
                         {
                             _logger.Information("Target {Target} does not match NuGet config", deploymentTarget.Id);
                             continue;
                         }
 
-                        if (deploymentTarget.NuGet.NuGetPackageSource != null
+                        if (deploymentTarget.NuGet.NuGetPackageSource is {}
                             && !deploymentTarget.NuGet.NuGetPackageSource.Equals(notification.NugetSource))
                         {
                             _logger.Information("Target {Target} does not match NuGet source", deploymentTarget.Id);
@@ -98,11 +98,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                         if (allowDeployment)
                         {
-                            var metadata = await _monitoringService.GetAppMetadataAsync(
+                            Core.Application.Metadata.AppVersion metadata = await _monitoringService.GetAppMetadataAsync(
                                                deploymentTarget,
                                                cancellationToken);
 
-                            if (metadata.SemanticVersion != null)
+                            if (metadata.SemanticVersion is {})
                             {
                                 if (packageIdentifier.Version > metadata.SemanticVersion)
                                 {

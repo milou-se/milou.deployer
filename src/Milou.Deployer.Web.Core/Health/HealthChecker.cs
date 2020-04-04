@@ -37,11 +37,11 @@ namespace Milou.Deployer.Web.Core.Health
 
             _logger.Debug("{HealthCheckCount} health checks are registered", _healthChecks.Length);
 
-            foreach (var healthCheck in _healthChecks)
+            foreach (IHealthCheck healthCheck in _healthChecks)
             {
                 try
                 {
-                    using (var cts =
+                    using (CancellationTokenSource cts =
                         _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(healthCheck.TimeoutInSeconds))
                     )
                     {

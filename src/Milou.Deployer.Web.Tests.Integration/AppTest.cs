@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var envArgs = new Dictionary<string, string> { [ConfigurationConstants.RestartTimeInSeconds] = "20" }
                 .ToImmutableDictionary();
 
-            var exitCode = await AppStarter.StartAsync(Array.Empty<string>(), envArgs, _output);
+            int exitCode = await AppStarter.StartAsync(Array.Empty<string>(), envArgs, _output);
 
             Assert.Equal(0, exitCode);
         }

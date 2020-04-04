@@ -21,8 +21,8 @@ namespace Milou.Deployer.Bootstrapper.ConsoleClient
                     NuGetPackageInstallResult nuGetPackageInstallResult =
                         await app.ExecuteAsync(args.ToImmutableArray(), cancellationToken: cts.Token).ConfigureAwait(false);
 
-                    exitCode = nuGetPackageInstallResult.SemanticVersion != null &&
-                               nuGetPackageInstallResult.PackageDirectory != null
+                    exitCode = nuGetPackageInstallResult.SemanticVersion is {} &&
+                               nuGetPackageInstallResult.PackageDirectory is {}
                         ? 0
                         : 1;
                 }

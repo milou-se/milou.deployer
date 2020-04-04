@@ -42,10 +42,10 @@ namespace Milou.Deployer.Waws
              */
 
 
-            var document =
+            XDocument document =
                 await XDocument.LoadAsync(File.OpenRead(publishSettingsFile), LoadOptions.None, cancellationToken);
 
-            var profiles = document?.Element(PublishData)
+            XElement[] profiles = document?.Element(PublishData)
                 ?.Descendants(PublishProfile).ToArray() ?? Array.Empty<XElement>();
 
             if (profiles.Length == 0)

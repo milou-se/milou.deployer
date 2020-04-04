@@ -17,10 +17,7 @@
             return string.Empty;
         }
 
-        public static string Checked(this bool value)
-        {
-            return Checked((bool?)value);
-        }
+        public static string Checked(this bool value) => Checked((bool?)value);
 
         public static string Selected(this bool? value)
         {
@@ -37,9 +34,6 @@
             return string.Empty;
         }
 
-        public static string Selected(this bool value)
-        {
-            return Selected((bool?)value);
-        }
+        public static string Selected(this bool value) => Selected((bool?)value);
     }
 }

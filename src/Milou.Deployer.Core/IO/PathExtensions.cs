@@ -18,12 +18,12 @@ namespace Milou.Deployer.Core.IO
 
         public static string GetRelativePath([NotNull] this FileInfo file, [NotNull] DirectoryInfo rootPath)
         {
-            if (file == null)
+            if (file is null)
             {
                 throw new ArgumentNullException(nameof(file));
             }
 
-            if (rootPath == null)
+            if (rootPath is null)
             {
                 throw new ArgumentNullException(nameof(rootPath));
             }
@@ -38,12 +38,12 @@ namespace Milou.Deployer.Core.IO
             [NotNull] this DirectoryInfo directoryInfo,
             [NotNull] DirectoryInfo rootPath)
         {
-            if (directoryInfo == null)
+            if (directoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(directoryInfo));
             }
 
-            if (rootPath == null)
+            if (rootPath is null)
             {
                 throw new ArgumentNullException(nameof(rootPath));
             }
@@ -58,7 +58,7 @@ namespace Milou.Deployer.Core.IO
         {
             if (!fullPath.StartsWith(rootFullPath, StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception("Could not find rootPath in fullPath when calculating relative path.");
+                throw new InvalidOperationException("Could not find rootPath in fullPath when calculating relative path.");
             }
 
             return fullPath.Substring(rootFullPath.Length);

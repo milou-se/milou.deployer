@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 "Server=localhost;Port=1000;User Id=testUser;Password=p@ssword;Database=postgres;Pooling=false",
                 true);
 
-            var asString = martenConfiguration.ToString();
+            string asString = martenConfiguration.ToString();
 
             Assert.Equal(
                 "ConnectionString: [Server=localhost; Port=1000; User Id=*****; Password=*****; Database=postgres; Pooling=false], Enabled: true",

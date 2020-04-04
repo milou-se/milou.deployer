@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         [PublicAPI]
         public async Task AgentConnect()
         {
-            var agentId = Context.UserIdentifier;
+            string agentId = Context.UserIdentifier;
 
             if (string.IsNullOrWhiteSpace(agentId))
             {

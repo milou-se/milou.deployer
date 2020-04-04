@@ -5,10 +5,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class DeploymentHistoryResponse
     {
-        public DeploymentHistoryResponse(IReadOnlyCollection<DeploymentTaskInfo> deploymentTasks)
-        {
-            DeploymentTasks = deploymentTasks;
-        }
+        public DeploymentHistoryResponse(IReadOnlyCollection<DeploymentTaskInfo> deploymentTasks) => DeploymentTasks = deploymentTasks;
 
         public IReadOnlyCollection<DeploymentTaskInfo> DeploymentTasks { get; }
     }

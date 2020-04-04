@@ -15,10 +15,7 @@ namespace Milou.Deployer.Web.Core.Logging
         [Metadata]
         public const string HttpLoggingConfigurationUrn = "urn:milou:deployer:web:http-logging";
 
-        public HttpLoggingConfiguration(bool enabled)
-        {
-            Enabled = enabled;
-        }
+        public HttpLoggingConfiguration(bool enabled) => Enabled = enabled;
 
         public bool Enabled { get; }
     }

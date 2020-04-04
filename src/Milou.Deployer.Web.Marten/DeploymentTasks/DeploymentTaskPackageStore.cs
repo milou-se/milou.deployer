@@ -15,9 +15,9 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
         public async Task<DeploymentTaskPackage> GetDeploymentTaskPackageAsync(string deploymentTaskId,
             CancellationToken cancellationToken)
         {
-            using var lightweightSession = _martenStore.LightweightSession();
+            using IDocumentSession lightweightSession = _martenStore.LightweightSession();
 
-            var found = await lightweightSession.Query<DeploymentTaskPackageData>()
+            DeploymentTaskPackageData found = await lightweightSession.Query<DeploymentTaskPackageData>()
                 .SingleOrDefaultAsync(data => data.Id == deploymentTaskId);
 
             if (found is null)

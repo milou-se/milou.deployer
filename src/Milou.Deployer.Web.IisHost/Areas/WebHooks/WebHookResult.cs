@@ -4,9 +4,6 @@
     {
         public bool Handled { get; }
 
-        public WebHookResult(in bool handled)
-        {
-            Handled = handled;
-        }
+        public WebHookResult(in bool handled) => Handled = handled;
     }
 }

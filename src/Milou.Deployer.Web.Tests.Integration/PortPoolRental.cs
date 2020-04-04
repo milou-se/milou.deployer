@@ -15,10 +15,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public int Port { get; }
 
-        public override string ToString()
-        {
-            return Port.ToString(CultureInfo.InvariantCulture);
-        }
+        public override string ToString() => Port.ToString(CultureInfo.InvariantCulture);
 
         public void Dispose()
         {

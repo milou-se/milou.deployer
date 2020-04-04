@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
 
         private HttpMessageHandler Configure(IServiceProvider provider)
         {
-            var agentConfiguration = provider.GetRequiredService<AgentConfiguration>();
+            AgentConfiguration agentConfiguration = provider.GetRequiredService<AgentConfiguration>();
             var httpMessageHandler = new HttpClientHandler();
 
             if (!agentConfiguration.CheckCertificateEnabled)
@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
 
         private void ConfigureClient(IServiceProvider serviceProvider, HttpClient httpClient)
         {
-            var agentConfiguration = serviceProvider.GetRequiredService<AgentConfiguration>();
+            AgentConfiguration agentConfiguration = serviceProvider.GetRequiredService<AgentConfiguration>();
 
             httpClient.BaseAddress = new Uri(agentConfiguration.ServerBaseUri);
 

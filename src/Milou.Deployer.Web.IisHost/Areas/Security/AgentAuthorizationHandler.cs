@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
-using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {

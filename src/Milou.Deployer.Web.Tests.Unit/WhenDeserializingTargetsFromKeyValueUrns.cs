@@ -10,10 +10,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class WhenDeserializingTargetsFromKeyValueUrns
     {
-        public WhenDeserializingTargetsFromKeyValueUrns(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public WhenDeserializingTargetsFromKeyValueUrns(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         private readonly ITestOutputHelper _testOutputHelper;
 
@@ -37,7 +34,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             var keyValueConfiguration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var targets = keyValueConfiguration.GetInstances<DeploymentTarget>();
+            System.Collections.Immutable.ImmutableArray<DeploymentTarget> targets = keyValueConfiguration.GetInstances<DeploymentTarget>();
 
             _testOutputHelper.WriteLine(JsonConvert.SerializeObject(targets, Formatting.Indented));
 

@@ -14,12 +14,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
             [NotNull] IReadOnlyCollection<PackageVersion> packageVersions,
             [NotNull] IReadOnlyCollection<DeploymentTarget> targets)
         {
-            if (packageVersions == null)
+            if (packageVersions is null)
             {
                 throw new ArgumentNullException(nameof(packageVersions));
             }
 
-            if (targets == null)
+            if (targets is null)
             {
                 throw new ArgumentNullException(nameof(targets));
             }

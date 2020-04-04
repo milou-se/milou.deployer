@@ -1,13 +1,8 @@
-﻿using System;
-
-namespace Milou.Deployer.Waws
+﻿namespace Milou.Deployer.Waws
 {
     internal class DeploymentSyncOptions
     {
-        public static DeploymentRuleCollection GetAvailableRules()
-        {
-            return new DeploymentRuleCollection(); //TODO
-        }
+        public static DeploymentRuleCollection GetAvailableRules() => new DeploymentRuleCollection(); //TODO
 
         public bool DeleteDestination { get; set; }
 

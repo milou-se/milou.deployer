@@ -6,10 +6,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public sealed class CreateOrganization : IRequest<CreateOrganizationResult>
     {
-        public CreateOrganization(string id)
-        {
-            Id = id;
-        }
+        public CreateOrganization(string id) => Id = id;
 
         [Required]
         public string Id { get; }

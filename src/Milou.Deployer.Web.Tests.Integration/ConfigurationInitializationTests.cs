@@ -9,8 +9,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void WhenInitializedWithCommandLineArg()
         {
-            var args = new[] { "urn:abc:123=hello world" };
-            var multiSourceKeyValueConfiguration =
+            string[] args = new[] { "urn:abc:123=hello world" };
+            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(args: args);
 
             Assert.NotNull(multiSourceKeyValueConfiguration);
@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void WhenInitializedWithEnvironmentVariable()
         {
             var args = new Dictionary<string, string> { ["urn:abc:123"] = "hello world" };
-            var multiSourceKeyValueConfiguration =
+            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(environmentVariables: args);
 
             Assert.NotNull(multiSourceKeyValueConfiguration);
@@ -31,9 +31,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void WhenInitializedWithEnvironmentVariableAndCommandLineArgs()
         {
-            var args = new[] { "urn:abc:123=hello arg world" };
+            string[] args = new[] { "urn:abc:123=hello arg world" };
             var environmentVariables = new Dictionary<string, string> { ["urn:abc:123"] = "hello environment world" };
-            var multiSourceKeyValueConfiguration =
+            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(environmentVariables: environmentVariables,
                     args: args);
 
@@ -44,7 +44,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void WhenInitializedWithNoParameters()
         {
-            var multiSourceKeyValueConfiguration =
+            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration();
 
             Assert.NotNull(multiSourceKeyValueConfiguration);

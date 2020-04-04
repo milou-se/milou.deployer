@@ -149,7 +149,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            var allVersions = await _packageInstaller.GetAllVersionsAsync(
+            ImmutableArray<global::NuGet.Versioning.SemanticVersion> allVersions = await _packageInstaller.GetAllVersionsAsync(
                                   new NuGetPackageId(packageId),
                                   nuGetSource: nugetPackageSource,
                                   nugetConfig: nugetConfigFile,
@@ -168,7 +168,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 .Select(version => new PackageVersion(packageId, version))
                 .ToArray();
 
-            foreach (var packageVersion in packageVersions)
+            foreach (PackageVersion packageVersion in packageVersions)
             {
                 _logger.Debug(
                     "Found package {Package} {Version}",
@@ -204,7 +204,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (addedPackages.Any())
             {
-                var settings = await _applicationSettingsStore.GetApplicationSettings(CancellationToken.None);
+                ApplicationSettings settings = await _applicationSettingsStore.GetApplicationSettings(CancellationToken.None);
                 TimeSpan cacheTime = settings.CacheTime;
                 _memoryCache.SetValue(cacheKey, packageVersions, cacheTime);
                 _logger.Debug(

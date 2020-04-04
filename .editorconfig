@@ -341,6 +341,17 @@ dotnet_diagnostic.CA1303.severity = none
 
 # CA2000: Dispose objects before losing scope
 dotnet_diagnostic.CA2000.severity = none
+# CA2000: Dispose objects before losing scope
+dotnet_diagnostic.CA2000.severity = none
 
 # IDE0001: Simplify Names
 dotnet_diagnostic.IDE0001.severity = none
+
+# CA2007: Configure await
+dotnet_diagnostic.CA2007.severity = none
+
+# S1854:
+dotnet_diagnostic.S1854.severity = none
+dotnet_diagnostic.S4457.severity = none
+dotnet_diagnostic.S927.severity = none
+dotnet_diagnostic.S1481.severity = none

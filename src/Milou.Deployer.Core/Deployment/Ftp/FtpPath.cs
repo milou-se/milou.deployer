@@ -73,7 +73,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public static bool operator !=(FtpPath left, FtpPath right) => !Equals(left, right);
 
-        public static bool TryParse(string value, FileSystemType fileSystemType, out FtpPath ftpPath)
+        public static bool TryParse(string? value, FileSystemType fileSystemType, out FtpPath? ftpPath)
         {
             CheckFileSystemTypeValue(fileSystemType);
             if (string.IsNullOrWhiteSpace(value))
@@ -82,7 +82,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 return false;
             }
 
-            if (!value.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+            if (!value!.StartsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 ftpPath = default;
                 return false;
@@ -110,7 +110,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public bool ContainsPath([NotNull] FtpPath excluded)
         {
-            if (excluded == null)
+            if (excluded is null)
             {
                 throw new ArgumentNullException(nameof(excluded));
             }

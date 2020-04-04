@@ -24,12 +24,12 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
                 return environmentTypes.ToImmutableArray();
             }
 
-            using var querySession = documentStore.QuerySession();
+            using IQuerySession querySession = documentStore.QuerySession();
 
-            var environmentTypeData = await querySession.Query<EnvironmentTypeData>()
+            System.Collections.Generic.IReadOnlyList<EnvironmentTypeData> environmentTypeData = await querySession.Query<EnvironmentTypeData>()
                 .ToListAsync<EnvironmentTypeData>(cancellationToken);
 
-            var enumerable = environmentTypeData.Select(EnvironmentTypeData.MapFromData).ToArray();
+            EnvironmentType[] enumerable = environmentTypeData.Select(EnvironmentTypeData.MapFromData).ToArray();
 
             memoryCache.SetValue(CacheKey, enumerable);
 

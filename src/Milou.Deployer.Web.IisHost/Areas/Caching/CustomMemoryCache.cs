@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
             }
 
-            if (_memoryCache.TryGetValue(key, out var cachedItem) && cachedItem is T cachedItemOfT)
+            if (_memoryCache.TryGetValue(key, out object cachedItem) && cachedItem is T cachedItemOfT)
             {
                 item = cachedItemOfT;
                 return true;
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
 
         public void SetValue<T>(string key, T item, TimeSpan? cacheTime) where T : class
         {
-            if (item == null)
+            if (item is null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
@@ -57,7 +57,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
             }
 
 
-            var cacheEntryAbsoluteExpirationRelativeToNow =
+            TimeSpan cacheEntryAbsoluteExpirationRelativeToNow =
                 cacheTime?.TotalSeconds > 0
                     ? cacheTime.Value
                     : TimeSpan.FromSeconds(900);
@@ -73,7 +73,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
 
         public void Invalidate(string? prefix = null)
         {
-            var keys = GetCachedKeys();
+            IReadOnlyCollection<string> keys = GetCachedKeys();
 
             if (!keys.Any())
             {
@@ -81,7 +81,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
                 return;
             }
 
-            var filteredKeys = keys;
+            IReadOnlyCollection<string> filteredKeys = keys;
 
             if (prefix.HasValue())
             {

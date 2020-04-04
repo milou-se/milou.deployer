@@ -8,10 +8,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     [UsedImplicitly]
     public class WorkerConfiguration : IConfigurationValues
     {
-        public WorkerConfiguration(int messageTimeOutInSeconds)
-        {
-            MessageTimeOutInSeconds = messageTimeOutInSeconds;
-        }
+        public WorkerConfiguration(int messageTimeOutInSeconds) => MessageTimeOutInSeconds = messageTimeOutInSeconds;
 
         public int MessageTimeOutInSeconds { get; }
     }

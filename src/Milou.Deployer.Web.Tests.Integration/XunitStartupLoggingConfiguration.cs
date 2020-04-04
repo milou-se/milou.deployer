@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public XunitStartupLoggingConfiguration(LoggingLevelSwitch levelSwitch, ITestOutputHelper testOutputHelper = null)
+        public XunitStartupLoggingConfiguration(LoggingLevelSwitch levelSwitch, ITestOutputHelper? testOutputHelper = null)
         {
             levelSwitch.MinimumLevel = LogEventLevel.Verbose;
             _testOutputHelper = testOutputHelper;

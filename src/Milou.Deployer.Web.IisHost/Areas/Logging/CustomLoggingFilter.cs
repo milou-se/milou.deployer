@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
     {
         public Action<HttpMessageHandlerBuilder> Configure(Action<HttpMessageHandlerBuilder> next)
         {
-            if (next == null)
+            if (next is null)
             {
                 throw new ArgumentNullException(nameof(next));
             }

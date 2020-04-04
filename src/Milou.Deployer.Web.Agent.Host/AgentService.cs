@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.Agent.Host
                 return;
             }
 
-            var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, deploymentTargetId);
+            Arbor.Processing.ExitCode exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, deploymentTargetId);
 
             var deploymentTaskAgentResult =
                 new DeploymentTaskAgentResult(deploymentTaskId, deploymentTargetId, exitCode.IsSuccess);
@@ -110,7 +110,7 @@ namespace Milou.Deployer.Web.Agent.Host
 
             _hubConnection.Closed += HubConnectionOnClosed;
 
-            _hubConnection.On<string, string>("Deploy", ExecuteDeploymentTask);
+            _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
         }
 
         private string? GetAgentId()
@@ -121,7 +121,7 @@ namespace Milou.Deployer.Web.Agent.Host
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = tokenHandler.ReadJwtToken(_agentConfiguration.AccessToken);
+            JwtSecurityToken jwtSecurityToken = tokenHandler.ReadJwtToken(_agentConfiguration.AccessToken);
 
             string? agentId = jwtSecurityToken.Claims
                 .SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)
@@ -148,6 +148,8 @@ namespace Milou.Deployer.Web.Agent.Host
                 await _hubConnection.StopAsync();
 
                 _logger.Debug("Stopped SignalR");
+
+                await _hubConnection.DisposeAsync();
             }
 
             _hubConnection = null;

@@ -7,9 +7,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     {
         public IReadOnlyCollection<LogItem> LogItems { get; }
 
-        public DeploymentLogViewOutputModel(IReadOnlyCollection<LogItem> logItems)
-        {
-            LogItems = logItems;
-        }
+        public DeploymentLogViewOutputModel(IReadOnlyCollection<LogItem> logItems) => LogItems = logItems;
     }
 }

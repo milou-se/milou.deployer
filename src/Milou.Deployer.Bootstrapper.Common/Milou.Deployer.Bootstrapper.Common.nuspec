@@ -31,6 +31,6 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin\$configuration$\netstandard2.0\**\*.*" target="lib\netstandard2.0" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
+    <file src="bin\$configuration$\netcoreapp3.1\**\*.*" target="lib\netcoreapp3.1" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
   </files>
 </package>

@@ -13,9 +13,6 @@ using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
-using Milou.Deployer.Web.Marten;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
@@ -49,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(AgentDeploymentDoneNotification notification, CancellationToken cancellationToken)
         {
-            var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
+            DeploymentTargetWorker? workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             workerByTargetId?.NotifyDeploymentDone(notification);
 
@@ -58,7 +55,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(AgentDeploymentFailedNotification notification, CancellationToken cancellationToken)
         {
-            var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
+            DeploymentTargetWorker? workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             workerByTargetId?.NotifyDeploymentFailed(notification);
 
@@ -67,7 +64,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(AgentLogNotification notification, CancellationToken cancellationToken)
         {
-            var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
+            DeploymentTargetWorker? workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             workerByTargetId?.LogProgress(notification);
 
@@ -144,7 +141,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
         {
-            var foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
+            DeploymentTargetWorker? foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
 
             Task.Run<Task>(() => _mediator.Publish(new DeploymentTaskCreatedNotification(deploymentTask)));
 
@@ -165,7 +162,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
                 .ToImmutableArray();
 
-            foreach (var deploymentTargetWorker in deploymentTargetWorkers)
+            foreach (DeploymentTargetWorker? deploymentTargetWorker in deploymentTargetWorkers)
             {
                 StartWorker(deploymentTargetWorker, stoppingToken);
             }
@@ -174,7 +171,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 try
                 {
-                    var completedTaskKeys = _tasks
+                    string[] completedTaskKeys = _tasks
                         .Where(pair => pair.Value.IsCompletedSuccessfully)
                         .Select(pair => pair.Key)
                         .ToArray();
@@ -223,25 +220,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     return;
                 }
 
-                var task = _tasks[deploymentTargetWorker.TargetId];
+                Task task = _tasks[deploymentTargetWorker.TargetId];
 
-                if (!task.IsCompleted)
+                if (!task.IsCompleted && _cancellations.ContainsKey(deploymentTargetWorker.TargetId))
                 {
-                    if (_cancellations.ContainsKey(deploymentTargetWorker.TargetId))
+                    CancellationTokenSource tokenSource = _cancellations[deploymentTargetWorker.TargetId];
+
+                    try
                     {
-                        var tokenSource = _cancellations[deploymentTargetWorker.TargetId];
-
-                        try
-                        {
-                            tokenSource.Cancel();
-                            tokenSource.Dispose();
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                        }
-
-                        _cancellations.Remove(deploymentTargetWorker.TargetId);
+                        tokenSource.Cancel();
+                        tokenSource.Dispose();
                     }
+                    catch (ObjectDisposedException)
+                    {
+                        // ignore
+                    }
+
+                    _cancellations.Remove(deploymentTargetWorker.TargetId);
                 }
 
                 _tasks.Remove(deploymentTargetWorker.TargetId);
@@ -252,7 +247,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTargetWorker.TargetId);
             }
 
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            var cancellationTokenSource = new CancellationTokenSource();
 
             var linked = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationTokenSource.Token);
 
@@ -280,6 +275,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 catch (ObjectDisposedException)
                 {
+                    // ignore
                 }
             }
         }

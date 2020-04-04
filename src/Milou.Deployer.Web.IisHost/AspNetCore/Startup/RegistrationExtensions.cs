@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             this IServiceCollection services,
             [NotNull] HttpLoggingConfiguration httpLoggingConfiguration)
         {
-            if (httpLoggingConfiguration == null)
+            if (httpLoggingConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(httpLoggingConfiguration));
             }
@@ -60,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             ILogger logger,
             EnvironmentConfiguration environmentConfiguration)
         {
-            var authenticationBuilder = serviceCollection
+            Microsoft.AspNetCore.Authentication.AuthenticationBuilder authenticationBuilder = serviceCollection
                 .AddAuthentication(
                     option =>
                     {
@@ -180,7 +180,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             IKeyValueConfiguration configuration,
             ILogger logger)
         {
-            var mvcBuilder = services.AddMvc(
+            IMvcBuilder mvcBuilder = services.AddMvc(
                     options =>
                     {
                         options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
@@ -192,14 +192,14 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
 
-            foreach (var filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
+            foreach (System.Reflection.Assembly filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
             {
                 logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
                 mvcBuilder.AddApplicationPart(filteredAssembly);
             }
 
             services.AddControllers();
-            var razorPagesBuilder = services.AddRazorPages();
+            IMvcBuilder razorPagesBuilder = services.AddRazorPages();
 
 #if DEBUG
             if (environmentConfiguration.ToHostEnvironment().IsDevelopment()

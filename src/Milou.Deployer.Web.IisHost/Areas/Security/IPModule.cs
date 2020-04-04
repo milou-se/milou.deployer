@@ -7,9 +7,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     [UsedImplicitly]
     public class IpModule : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder)
-        {
-            return builder.AddSingleton<AllowedIpAddressHandler>(this);
-        }
+        public IServiceCollection Register(IServiceCollection builder) => builder.AddSingleton<AllowedIpAddressHandler>(this);
     }
 }

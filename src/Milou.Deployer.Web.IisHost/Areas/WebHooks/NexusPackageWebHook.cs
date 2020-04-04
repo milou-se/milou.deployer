@@ -53,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            if (!request.Headers.TryGetValue(NexusSignatureHeader, out var signature))
+            if (!request.Headers.TryGetValue(NexusSignatureHeader, out Microsoft.Extensions.Primitives.StringValues signature))
             {
                 _logger.Debug("Web hook request does not contain nexus signature header");
                 return null;
@@ -65,7 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            var jsonBytes = Encoding.UTF8.GetBytes(content);
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(content);
 
             NexusConfig nexusConfig = await GetSignatureKeyAsync(cancellationToken);
 
@@ -81,9 +81,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            using var hasher = GetSignatureKey(nexusConfig);
-            var computedHash = hasher.ComputeHash(jsonBytes);
-            var expectedBytes = ((string)signature).FromHexToByteArray();
+            using HMACSHA1 hasher = GetSignatureKey(nexusConfig);
+            byte[] computedHash = hasher.ComputeHash(jsonBytes);
+            byte[] expectedBytes = ((string)signature).FromHexToByteArray();
 
             if (!computedHash.SequenceEqual(expectedBytes))
             {
@@ -91,7 +91,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            var webHookNotification = JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
+            NexusWebHookNotification webHookNotification = JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
 
             if (string.IsNullOrWhiteSpace(webHookNotification?.Audit?.Attributes?.Name))
             {
@@ -99,7 +99,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            var split = webHookNotification.Audit.Attributes.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string[] split = webHookNotification.Audit.Attributes.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             if (split.Length != 2)
             {
@@ -124,7 +124,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
         private async Task<NexusConfig> GetSignatureKeyAsync(CancellationToken cancellationToken)
         {
-            var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
 
             NexusConfig nexusConfig = applicationSettings.NexusConfig;
 
@@ -133,7 +133,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
         private HMACSHA1 GetSignatureKey(NexusConfig nexusConfig)
         {
-            var key = Encoding.UTF8.GetBytes(nexusConfig.HmacKey);
+            byte[] key = Encoding.UTF8.GetBytes(nexusConfig.HmacKey);
 
             return new HMACSHA1(key);
         }

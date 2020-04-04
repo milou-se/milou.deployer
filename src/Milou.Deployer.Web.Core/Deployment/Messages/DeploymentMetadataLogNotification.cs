@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             [NotNull] DeploymentTask deploymentTask,
             [NotNull] DeploymentTaskResult result)
         {
-            if (result == null)
+            if (result is null)
             {
                 throw new ArgumentNullException(nameof(result));
             }
@@ -30,9 +30,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         [NotNull]
         public DeploymentTaskResult Result { get; }
 
-        public override string ToString()
-        {
-            return $"{nameof(DeploymentTask)}: {DeploymentTask}, {nameof(Result)}: {Result}";
-        }
+        public override string ToString() => $"{nameof(DeploymentTask)}: {DeploymentTask}, {nameof(Result)}: {Result}";
     }
 }

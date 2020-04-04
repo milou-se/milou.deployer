@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [HttpGet]
         public async Task<IActionResult> Index([FromServices] IMediator mediator, [FromRoute] string deploymentTargetId)
         {
-            var response = await mediator.Send(new DeploymentHistoryRequest(deploymentTargetId));
+            DeploymentHistoryResponse response = await mediator.Send(new DeploymentHistoryRequest(deploymentTargetId));
 
             return View(new DeploymentHistoryViewOutputModel(response.DeploymentTasks));
         }
@@ -34,9 +34,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [FromRoute] string deploymentTaskId,
             [FromQuery] string level = null)
         {
-            var usedLevel = level.ParseOrDefault();
+            Serilog.Events.LogEventLevel usedLevel = level.ParseOrDefault();
 
-            var response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId, usedLevel));
+            DeploymentLogResponse response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId, usedLevel));
 
             return response.LogItems
                 .OrderBy(line => line.TimeStamp)

@@ -29,11 +29,11 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             await File.WriteAllTextAsync(manifestFile.File.FullName, deploymentTaskPackage.ManifestJson, Encoding.UTF8,
                 cancellationToken);
 
-            using var publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)
+            using TempFile? publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)
                 ? null
                 : TempFile.CreateTempFile(deploymentTaskPackage.DeploymentTargetId, ".publishSettings");
 
-            var currentDir = manifestFile.File!.Directory;
+            DirectoryInfo currentDir = manifestFile.File!.Directory;
 
             if (string.IsNullOrWhiteSpace(currentDir?.FullName))
             {
@@ -56,8 +56,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 await App.CreateAsync(deploymentTaskPackage.DeployerProcessArgs.ToArray(),
                     jobLogger,
                     httpClient,
-                    false,
-                    cancellationToken))
+                    false))
             {
                 NuGetPackageInstallResult result = await deployerApp.ExecuteAsync(
                     deploymentTaskPackage.DeployerProcessArgs,

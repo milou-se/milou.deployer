@@ -61,7 +61,7 @@ namespace Milou.Deployer.Web.IisHost
                     cancellationTokenSource.Token.Register(
                         () => TempLogger.WriteLine("App cancellation token triggered"));
 
-                    using var app = await App<ApplicationPipeline>.CreateAsync(cancellationTokenSource, args,
+                    using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(cancellationTokenSource, args,
                         environmentVariables, instances);
 
                     bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
@@ -125,7 +125,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 string fatalLogFile = Path.Combine(logDirectory, "Fatal.log");
 
-                var loggerConfiguration = new LoggerConfiguration()
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
                     .WriteTo.File(fatalLogFile, flushToDiskInterval: TimeSpan.FromMilliseconds(50));
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string? url) && Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
@@ -133,7 +133,7 @@ namespace Milou.Deployer.Web.IisHost
                     loggerConfiguration = loggerConfiguration.WriteTo.Seq(uri.AbsoluteUri);
                 }
 
-                var logger = loggerConfiguration
+                Serilog.Core.Logger logger = loggerConfiguration
                     .MinimumLevel.Verbose()
                     .CreateLogger();
 

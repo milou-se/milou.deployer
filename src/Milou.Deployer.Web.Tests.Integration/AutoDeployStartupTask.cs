@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.KVConfiguration.Urns;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +35,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             ILogger logger,
             IDeploymentTargetReadService readService,
             ConfigurationInstanceHolder configurationInstanceHolder,
-            TestConfiguration testConfiguration = null)
+            [CanBeNull] TestConfiguration testConfiguration = null)
         {
             _deploymentService = deploymentService;
             _testConfiguration = testConfiguration;
@@ -55,7 +56,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return;
             }
 
-            var targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
+            System.Collections.Immutable.ImmutableArray<DeploymentTarget> targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
 
             if (targets.Length != 1)
             {
@@ -68,7 +69,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             const string deploymentTargetId = TestDataCreator.Testtarget;
             var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId, nameof(AutoDeployStartupTask));
 
-            var deploymentTaskResult = await _deploymentService.ExecuteDeploymentAsync(
+            Core.Deployment.Messages.DeploymentTaskResult deploymentTaskResult = await _deploymentService.ExecuteDeploymentAsync(
                 deploymentTask,
                 _logger,
                 startupCancellationToken);

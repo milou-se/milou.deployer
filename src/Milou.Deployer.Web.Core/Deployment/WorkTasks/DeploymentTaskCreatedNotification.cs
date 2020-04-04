@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
     {
         public DeploymentTaskCreatedNotification([NotNull] DeploymentTask deploymentTask)
         {
-            if (deploymentTask == null)
+            if (deploymentTask is null)
             {
                 throw new ArgumentNullException(nameof(deploymentTask));
             }

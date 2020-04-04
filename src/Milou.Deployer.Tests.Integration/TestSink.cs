@@ -27,7 +27,7 @@ namespace Milou.Deployer.Tests.Integration
             Debug.WriteLine(line);
 
             _helper.WriteLine(line);
-            if (logEvent.Exception != null)
+            if (logEvent.Exception is {})
             {
                 string format = logEvent.Exception.ToString();
                 _helper.WriteLine(format);

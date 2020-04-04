@@ -9,9 +9,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
     {
         [HttpGet]
         [Route(ErrorRouteConstants.ErrorRoute, Name = ErrorRouteConstants.ErrorRouteName)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel(Activity.Current?.Id ?? HttpContext.TraceIdentifier));
-        }
+        public IActionResult Error() => View(new ErrorViewModel(Activity.Current?.Id ?? HttpContext.TraceIdentifier));
     }
 }

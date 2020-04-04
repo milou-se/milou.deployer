@@ -30,9 +30,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
         public async Task Handle(PackageEventNotification notification, CancellationToken cancellationToken)
         {
-            var deploymentTargets = await _readService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
+            System.Collections.Immutable.ImmutableArray<Core.Deployment.DeploymentTarget> deploymentTargets = await _readService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
 
-            var targetsMatchingPackage = deploymentTargets
+            Core.Deployment.DeploymentTarget[] targetsMatchingPackage = deploymentTargets
                 .Where(
                     target => target.PackageId.Equals(
                         notification.PackageVersion.PackageId,
@@ -44,7 +44,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return;
             }
 
-            var clientProxy = _targetHubContext.Clients.All;
+            IClientProxy clientProxy = _targetHubContext.Clients.All;
 
             await clientProxy.SendAsync(TargetHub.TargetsWithUpdates, notification.PackageVersion.PackageId, notification.PackageVersion.Version.ToNormalizedString(), targetsMatchingPackage.Select(target => target.Id).ToArray(), cancellationToken);
         }

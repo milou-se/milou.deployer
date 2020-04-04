@@ -9,12 +9,12 @@ namespace Milou.Deployer.Core.Deployment.Ftp
     {
         public static string RelativePath([NotNull] FileInfo fileInfo, [NotNull] DirectoryInfo baseDirectory)
         {
-            if (fileInfo == null)
+            if (fileInfo is null)
             {
                 throw new ArgumentNullException(nameof(fileInfo));
             }
 
-            if (baseDirectory == null)
+            if (baseDirectory is null)
             {
                 throw new ArgumentNullException(nameof(baseDirectory));
             }
@@ -28,12 +28,12 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public static string RelativePath([NotNull] DirectoryInfo directoryInfo, [NotNull] DirectoryInfo baseDirectory)
         {
-            if (directoryInfo == null)
+            if (directoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(directoryInfo));
             }
 
-            if (baseDirectory == null)
+            if (baseDirectory is null)
             {
                 throw new ArgumentNullException(nameof(baseDirectory));
             }

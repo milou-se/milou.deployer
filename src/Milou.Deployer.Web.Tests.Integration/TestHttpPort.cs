@@ -6,21 +6,12 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public sealed class TestHttpPort : IConfigureEnvironment, IDisposable
     {
-        public TestHttpPort(PortPoolRental portPoolRental)
-        {
-            Port = portPoolRental;
-        }
+        public TestHttpPort(PortPoolRental portPoolRental) => Port = portPoolRental;
 
         public PortPoolRental Port { get; }
 
-        public void Configure(EnvironmentConfiguration environmentConfiguration)
-        {
-            environmentConfiguration.HttpPort = Port.Port;
-        }
+        public void Configure(EnvironmentConfiguration environmentConfiguration) => environmentConfiguration.HttpPort = Port.Port;
 
-        public void Dispose()
-        {
-            Port?.Dispose();
-        }
+        public void Dispose() => Port?.Dispose();
     }
 }

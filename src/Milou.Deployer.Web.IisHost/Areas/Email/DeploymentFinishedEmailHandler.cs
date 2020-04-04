@@ -38,12 +38,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
                 return Task.CompletedTask;
             }
 
-            var result = notification.DeploymentTask.Status == WorkTaskStatus.Done ? "succeeded" : "failed";
+            string result = notification.DeploymentTask.Status == WorkTaskStatus.Done ? "succeeded" : "failed";
 
-            var subject =
+            string subject =
                 $"Deployment of {notification.DeploymentTask.PackageId} {notification.DeploymentTask.SemanticVersion.ToNormalizedString()} to {notification.DeploymentTask.DeploymentTargetId} {result}";
 
-            var body = $@"{notification.DeploymentTask.DeploymentTargetId}
+            string body = $@"{notification.DeploymentTask.DeploymentTargetId}
 Status: {notification.DeploymentTask.Status}
 Finished at time (UTC): {notification.FinishedAtUtc:O}
 Package ID: {notification.DeploymentTask.PackageId}
@@ -61,12 +61,12 @@ Log: {string.Join(Environment.NewLine, notification.LogLines.Select(line => line
                 Subject = subject
             };
 
-            foreach (var email in _emailNotificationConfiguration.To)
+            foreach (EmailAddress email in _emailNotificationConfiguration.To)
             {
                 message.To.Add(new MailboxAddress(email.Address));
             }
 
-            if (_emailNotificationConfiguration.From != null)
+            if (_emailNotificationConfiguration.From is {})
             {
                 message.From.Add(new MailboxAddress(_emailNotificationConfiguration.From.Address));
             }

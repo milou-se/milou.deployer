@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
             }
 
-            var parts = packageVersion.Split(' ');
+            string[] parts = packageVersion.Split(' ');
             string packageId = parts[0];
 
             var version = SemanticVersion.Parse(parts.Last());
@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             Guid deploymentTaskId,
             string startedBy)
         {
-            if (packageVersion == null)
+            if (packageVersion is null)
             {
                 throw new ArgumentNullException(nameof(packageVersion));
             }

@@ -15,8 +15,6 @@ using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
@@ -69,11 +67,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             while (!stoppingToken.IsCancellationRequested && IsRunning)
             {
-                var deploymentTask = _taskQueue.Take(stoppingToken);
+                DeploymentTask deploymentTask = _taskQueue.Take(stoppingToken);
 
                 await _serviceAdded.WaitAsync(stoppingToken);
 
-                if (!_services.TryGetValue(deploymentTask.DeploymentTaskId, out var deploymentService))
+                if (!_services.TryGetValue(deploymentTask.DeploymentTaskId, out IDeploymentService? deploymentService))
                 {
                     throw new InvalidOperationException($"Could not get service associated to deployment task id {deploymentTask.DeploymentTaskId}");
                 }
@@ -141,7 +139,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     using var combinedToken =
                         CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
 
-                    var result =
+                    Core.Deployment.Messages.DeploymentTaskResult result =
                         await service.ExecuteDeploymentAsync(deploymentTask, _logger, combinedToken.Token);
 
                     if (result.ExitCode.IsSuccess)
@@ -166,7 +164,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    if (deploymentTask != null)
+                    if (deploymentTask is {})
                     {
                         deploymentTask.Status = WorkTaskStatus.Failed;
                         _logger.Error(ex, "Failed when executing deployment task {TaskId}",
@@ -195,7 +193,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 try
                 {
-                    var deploymentTask = _queue.Take();
+                    DeploymentTask deploymentTask = _queue.Take();
 
                     _logger.Debug("Ignored queued deployment task {DeploymentTask}", deploymentTask);
                 }
@@ -210,7 +208,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (deploymentTask == null)
+            if (deploymentTask is null)
             {
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
@@ -222,9 +220,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                using (var cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10)))
+                using (CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
-                    var tasksInQueue = _queue.ToArray();
+                    DeploymentTask[] tasksInQueue = _queue.ToArray();
 
                     if (tasksInQueue.Length > 0
                         && tasksInQueue.Any(
@@ -241,12 +239,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         return;
                     }
 
-                    if (deploymentTask.StartedBy != null
+                    if (deploymentTask.StartedBy is {}
                         && deploymentTask.StartedBy.Equals(
                             nameof(AutoDeployBackgroundService),
                             StringComparison.OrdinalIgnoreCase))
                     {
-                        if (CurrentTask != null
+                        if (CurrentTask is {}
                             && CurrentTask.SemanticVersion == deploymentTask.SemanticVersion
                             && CurrentTask.PackageId == deploymentTask.PackageId)
                         {
@@ -367,7 +365,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out var service) && !string.IsNullOrWhiteSpace(notification.Message))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out IDeploymentService? service) && !string.IsNullOrWhiteSpace(notification.Message))
             {
                 service.Log(notification.Message);
             }
@@ -381,7 +379,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out IDeploymentService? service))
             {
                 service.TaskDone(notification.DeploymentTaskId);
             }
@@ -395,7 +393,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out IDeploymentService? service))
             {
                 service.TaskFailed(notification.DeploymentTaskId);
             }

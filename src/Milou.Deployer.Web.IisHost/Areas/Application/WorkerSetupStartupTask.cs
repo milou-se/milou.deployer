@@ -75,7 +75,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     startupTimeoutInSeconds = 30;
                 }
 
-                using (var startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
+                using (CancellationTokenSource startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
                 {
                     using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
                         stoppingToken,

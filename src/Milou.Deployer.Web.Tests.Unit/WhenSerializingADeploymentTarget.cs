@@ -9,10 +9,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class WhenSerializingADeploymentTarget
     {
-        public WhenSerializingADeploymentTarget(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public WhenSerializingADeploymentTarget(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         private readonly ITestOutputHelper _testOutputHelper;
 
@@ -21,13 +18,13 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             var target = new DeploymentTarget("myid", "myName", "tool");
 
-            var json = JsonConvert.SerializeObject(target,
+            string json = JsonConvert.SerializeObject(target,
                 Formatting.Indented,
                 new JsonSerializerSettings().UseCustomConverters());
 
             _testOutputHelper.WriteLine(json);
 
-            var deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            DeploymentTarget deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
             _testOutputHelper.WriteLine(deserialized.ToString());
 
@@ -49,13 +46,13 @@ namespace Milou.Deployer.Web.Tests.Unit
                     PackageListTimeout = TimeSpan.FromMinutes(1)
                 });
 
-            var json = JsonConvert.SerializeObject(target,
+            string json = JsonConvert.SerializeObject(target,
                 Formatting.Indented,
                 new JsonSerializerSettings().UseCustomConverters());
 
             _testOutputHelper.WriteLine(json);
 
-            var deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            DeploymentTarget deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
             _testOutputHelper.WriteLine(deserialized.ToString());
 

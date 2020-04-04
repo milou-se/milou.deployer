@@ -9,17 +9,17 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
     {
         public static async Task<TestConfiguration> CreateTestConfigurationAsync(CancellationToken cancellationToken)
         {
-            var projectName = "Milou.Deployer.Web.Tests.Integration";
+            string projectName = "Milou.Deployer.Web.Tests.Integration";
 
-            var baseDirectoryPath = Path.Combine(Path.GetTempPath(),
+            string baseDirectoryPath = Path.Combine(Path.GetTempPath(),
                 projectName + "-" + DateTime.UtcNow.Ticks);
 
             var baseDirectory = new DirectoryInfo(baseDirectoryPath);
 
             baseDirectory.Create();
-            var targetAppRoot = baseDirectory.CreateSubdirectory("target");
-            var nugetBaseDirectory = baseDirectory.CreateSubdirectory("nuget");
-            var nugetPackageDirectory = nugetBaseDirectory.CreateSubdirectory("packages");
+            DirectoryInfo targetAppRoot = baseDirectory.CreateSubdirectory("target");
+            DirectoryInfo nugetBaseDirectory = baseDirectory.CreateSubdirectory("nuget");
+            DirectoryInfo nugetPackageDirectory = nugetBaseDirectory.CreateSubdirectory("packages");
 
             var nugetConfigFile =
                 new FileInfo(Path.Combine(nugetBaseDirectory.FullName, $"{projectName}.nuget.config"));
@@ -31,7 +31,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
                 nugetPackageDirectory,
                 targetAppRoot);
 
-            var nugetConfigContent = await File.ReadAllTextAsync(nugetConfigFile.FullName, cancellationToken);
+            string nugetConfigContent = await File.ReadAllTextAsync(nugetConfigFile.FullName, cancellationToken);
 
             Console.WriteLine(
                 $"Created test configuration {testConfiguration} with nuget config file content {Environment.NewLine}{nugetConfigContent}");

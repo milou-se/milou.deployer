@@ -11,7 +11,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue = false)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue = true)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
@@ -39,7 +39,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue = true)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
@@ -53,7 +53,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue = false)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
@@ -67,7 +67,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue = false)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
@@ -81,7 +81,7 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue = true)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }

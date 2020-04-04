@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
     {
         public PackageVersion(string packageId, SemanticVersion version)
         {
-            if (version == null)
+            if (version is null)
             {
                 throw new ArgumentNullException(nameof(version));
             }

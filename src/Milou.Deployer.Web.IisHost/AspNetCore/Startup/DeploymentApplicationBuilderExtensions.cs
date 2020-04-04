@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
                 };
 
-            foreach (var proxyAddress in environmentConfiguration.ProxyAddresses)
+            foreach (System.Net.IPAddress proxyAddress in environmentConfiguration.ProxyAddresses)
             {
                 forwardedHeadersOptions.KnownProxies.Add(proxyAddress);
             }

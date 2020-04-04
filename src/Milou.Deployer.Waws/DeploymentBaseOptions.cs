@@ -7,10 +7,7 @@ namespace Milou.Deployer.Waws
 {
     internal class DeploymentBaseOptions
     {
-        public DeploymentBaseOptions()
-        {
-            AuthenticationType = AuthenticationType.Basic;
-        }
+        public DeploymentBaseOptions() => AuthenticationType = AuthenticationType.Basic;
 
         public TraceLevel TraceLevel { get; set; }
 

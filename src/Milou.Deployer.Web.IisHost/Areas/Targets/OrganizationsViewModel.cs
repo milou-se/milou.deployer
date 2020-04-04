@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
     {
         public OrganizationsViewModel([NotNull] IReadOnlyCollection<OrganizationInfo> organizations)
         {
-            if (organizations == null)
+            if (organizations is null)
             {
                 throw new ArgumentNullException(nameof(organizations));
             }

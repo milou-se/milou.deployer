@@ -90,7 +90,7 @@ namespace Milou.Deployer.Tests.Integration
                 new { definitions = deploymentExecutionDefinitions },
                 Formatting.Indented);
 
-            var deserializedDefinition = deserializedObject[0];
+            DeploymentExecutionDefinition deserializedDefinition = deserializedObject[0];
 
             Assert.Equal(serialized, serializedDeserialized);
 

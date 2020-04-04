@@ -35,19 +35,19 @@ namespace Milou.Deployer.Core.NuGet
         }
 
         [ItemCanBeNull]
-        public async Task<InstalledPackage> InstallPackageAsync(
+        public async Task<InstalledPackage?> InstallPackageAsync(
             DeploymentExecutionDefinition deploymentExecutionDefinition,
             DirectoryInfo tempDirectory,
             bool includeVersion = true,
-            SemanticVersion explicitVersion = null,
+            SemanticVersion? explicitVersion = null,
             CancellationToken cancellationToken = default)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (tempDirectory == null)
+            if (tempDirectory is null)
             {
                 throw new ArgumentNullException(nameof(tempDirectory));
             }
@@ -72,7 +72,7 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add(value);
             }
 
-            if (explicitVersion != null)
+            if (explicitVersion is {})
             {
                 AddVersion(explicitVersion.ToNormalizedString());
             }
@@ -151,11 +151,8 @@ namespace Milou.Deployer.Core.NuGet
 
             if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
             {
-                if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
-                {
-                    _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
-                        nugetSourceInDeploymentExecution);
-                }
+                _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
+                    nugetSourceInDeploymentExecution);
 
                 arguments.Add("-Source");
                 arguments.Add(nugetSourceInDeploymentExecution);
@@ -177,6 +174,7 @@ namespace Milou.Deployer.Core.NuGet
             }
 
             ExitCode? exitCode = default;
+
             using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 try

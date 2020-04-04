@@ -17,7 +17,7 @@ namespace Milou.Deployer.Core.IO
 
         public FileInfo File { get; private set; }
 
-        public static TempFile CreateTempFile(string name = null, string extension = null)
+        public static TempFile CreateTempFile(string? name = null, string? extension = null)
         {
             string defaultName = $"MD-tmp-{DateTime.UtcNow.Ticks}";
 
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Core.IO
 
             string tempDir = Path.GetTempPath();
 
-            DirectoryInfo customTempDir = default;
+            DirectoryInfo? customTempDir = default;
 
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -38,9 +38,7 @@ namespace Milou.Deployer.Core.IO
 
             string fileFullPath = Path.Combine(tempDir, fileName);
 
-            using (System.IO.File.Create(fileFullPath))
-            {
-            }
+            using var _ = System.IO.File.Create(fileFullPath);
 
             var fileInfo = new FileInfo(fileFullPath);
 
@@ -51,7 +49,7 @@ namespace Milou.Deployer.Core.IO
         {
             try
             {
-                if (File != null)
+                if (File is {})
                 {
                     File.Refresh();
 
@@ -61,7 +59,7 @@ namespace Milou.Deployer.Core.IO
                     }
                 }
 
-                if (_customTempDir != null)
+                if (_customTempDir is {})
                 {
                     _customTempDir.Refresh();
                     if (_customTempDir.Exists)
@@ -75,7 +73,7 @@ namespace Milou.Deployer.Core.IO
                 // ignore
             }
 
-            File = null;
+            File = null!;
         }
     }
 }

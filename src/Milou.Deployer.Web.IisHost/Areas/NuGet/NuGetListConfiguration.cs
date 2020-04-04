@@ -8,10 +8,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
     [UsedImplicitly]
     public class NuGetListConfiguration : IConfigurationValues
     {
-        public NuGetListConfiguration(int listTimeOutInSeconds)
-        {
-            ListTimeOutInSeconds = listTimeOutInSeconds <= 0 ? 7 : listTimeOutInSeconds;
-        }
+        public NuGetListConfiguration(int listTimeOutInSeconds) => ListTimeOutInSeconds = listTimeOutInSeconds <= 0 ? 7 : listTimeOutInSeconds;
 
         public int ListTimeOutInSeconds { get; }
     }

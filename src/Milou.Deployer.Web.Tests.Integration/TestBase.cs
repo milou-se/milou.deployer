@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             CancellationTokenSource = WebFixture?.App?.CancellationTokenSource;
 
-            if (webFixture.Exception != null)
+            if (webFixture.Exception is {})
             {
                 output.WriteLine(webFixture.Exception.ToString());
             }
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             GC.SuppressFinalize(this);
             Output?.WriteLine($"Disposing {nameof(TestBase<T>)}");
 
-            if (CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
+            if (CancellationTokenSource is {} && !CancellationTokenSource.IsCancellationRequested)
             {
                 try
                 {
@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
             }
 
-            if (WebFixture != null)
+            if (WebFixture is {})
             {
                 Output?.WriteLine($"Disposing {WebFixture}");
 

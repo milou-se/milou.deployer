@@ -26,8 +26,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
             }
 
-            var tryGetTargetSubscribers =
-                TargetMapping.TryGetValue(deploymentTargetId, out var subscribers);
+            bool tryGetTargetSubscribers =
+                TargetMapping.TryGetValue(deploymentTargetId, out HashSet<string>? subscribers);
 
             if (!tryGetTargetSubscribers)
             {
@@ -39,7 +39,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 
         public Task<Unit> Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            if (TargetMapping.TryGetValue(request.DeploymentTargetId, out var subscribers))
+            if (TargetMapping.TryGetValue(request.DeploymentTargetId, out HashSet<string>? subscribers))
             {
                 subscribers.Add(request.ConnectionId);
             }
@@ -55,12 +55,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 
         public Task<Unit> Handle(UnsubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            var hashSets = TargetMapping
+            HashSet<string>[] hashSets = TargetMapping
                 .Where(pair => pair.Value.Contains(request.ConnectionId))
                 .Select(pair => pair.Value)
                 .ToArray();
 
-            foreach (var hashSet in hashSets)
+            foreach (HashSet<string> hashSet in hashSets)
             {
                 hashSet.Remove(request.ConnectionId);
             }

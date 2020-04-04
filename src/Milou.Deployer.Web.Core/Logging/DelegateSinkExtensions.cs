@@ -13,12 +13,12 @@ namespace Milou.Deployer.Web.Core.Logging
             [NotNull] Action<string, LogEventLevel> action,
             LogEventLevel? minimumLevel = default)
         {
-            if (loggerConfiguration == null)
+            if (loggerConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(loggerConfiguration));
             }
 
-            if (action == null)
+            if (action is null)
             {
                 throw new ArgumentNullException(nameof(action));
             }

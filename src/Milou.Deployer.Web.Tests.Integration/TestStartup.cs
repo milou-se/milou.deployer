@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [PublicAPI]
         public void Configure(IApplicationBuilder app)
         {
-            var testConfiguration = app.ApplicationServices.GetRequiredService<TestConfiguration>();
+            TestConfiguration testConfiguration = app.ApplicationServices.GetRequiredService<TestConfiguration>();
 
             var staticFileOptions = new StaticFileOptions
             {

@@ -39,11 +39,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 
         public EmailAddress From { get; }
 
-        public override string ToString()
-        {
-            return
-                $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {string.Join("; ", To.Select(email => email.Address))}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";
-        }
+        public override string ToString() => $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {string.Join("; ", To.Select(email => email.Address))}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";
 
         public bool IsValid => !Enabled
                                || !To.IsDefaultOrEmpty

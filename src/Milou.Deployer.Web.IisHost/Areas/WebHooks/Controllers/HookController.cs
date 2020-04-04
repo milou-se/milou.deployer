@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
                 content = await streamReader.ReadToEndAsync();
             }
 
-            var result = await _packageWebHookHandler.HandleRequest(Request, content);
+            WebHookResult result = await _packageWebHookHandler.HandleRequest(Request, content);
 
             if (!result.Handled)
             {

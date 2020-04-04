@@ -2,9 +2,6 @@
 {
     public static class ObjectExtensions
     {
-        public static bool HasValue<T>(this T item) where T : class
-        {
-            return item != null;
-        }
+        public static bool HasValue<T>(this T item) where T : class => item is {};
     }
 }

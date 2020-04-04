@@ -16,17 +16,17 @@ namespace Milou.Deployer.Core.XmlTransformation
             [NotNull] DirectoryInfo contentDirectory,
             [NotNull] ILogger logger)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (contentDirectory == null)
+            if (contentDirectory is null)
             {
                 throw new ArgumentNullException(nameof(contentDirectory));
             }
 
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }

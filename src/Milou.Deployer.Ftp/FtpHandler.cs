@@ -30,8 +30,8 @@ namespace Milou.Deployer.Ftp
         [PublicAPI]
         public FtpHandler(
             [NotNull] FtpClient ftpClient,
-            ILogger logger = default,
-            FtpSettings ftpSettings = null)
+            [CanBeNull] ILogger? logger = default,
+            FtpSettings? ftpSettings = null)
         {
             _ftpSettings = ftpSettings ?? new FtpSettings();
             _logger = logger ?? Logger.None;
@@ -64,7 +64,7 @@ namespace Milou.Deployer.Ftp
                 sourceFile.Length,
                 filePath.Path);
 
-            var progress = GetProgressAction();
+            IProgress<FtpProgress> progress = GetProgressAction();
 
             try
             {
@@ -181,7 +181,7 @@ namespace Milou.Deployer.Ftp
         {
             try
             {
-                var ftpListItems =
+                FtpListItem[] ftpListItems =
                     await _ftpClient.GetListingAsync(path.Path,
                         FtpListOption.AllFiles | FtpListOption.Recursive,
                         cancellationToken);
@@ -204,7 +204,7 @@ namespace Milou.Deployer.Ftp
             FtpPath basePath,
             CancellationToken cancellationToken)
         {
-            var dir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
+            FtpPath dir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
                 FileSystemType.Directory));
 
             var summary = new DeploySummary();
@@ -217,7 +217,7 @@ namespace Milou.Deployer.Ftp
                 summary.CreatedDirectories.Add(dir.Path);
             }
 
-            var uploadSummary = await UploadFilesAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
+            DeploySummary uploadSummary = await UploadFilesAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
 
             summary.Add(uploadSummary);
 
@@ -244,7 +244,7 @@ namespace Milou.Deployer.Ftp
                 return summary;
             }
 
-            var relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
+            FtpPath relativeDir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
                 FileSystemType.Directory));
 
             _logger.Verbose("Uploading {Files} files", localPaths.Length);
@@ -365,9 +365,9 @@ namespace Milou.Deployer.Ftp
                 summary.CreatedFiles.Add(PathHelper.RelativePath(new FileInfo(path), baseDirectory));
             }
 
-            foreach (var directoryInfo in sourceDirectory.GetDirectories())
+            foreach (DirectoryInfo directoryInfo in sourceDirectory.GetDirectories())
             {
-                var subSummary = await UploadFilesAsync(directoryInfo, baseDirectory, basePath, cancellationToken);
+                DeploySummary subSummary = await UploadFilesAsync(directoryInfo, baseDirectory, basePath, cancellationToken);
 
                 summary.Add(subSummary);
             }
@@ -386,7 +386,7 @@ namespace Milou.Deployer.Ftp
 
             try
             {
-                var basePath = _ftpSettings.BasePath ?? FtpPath.Root;
+                FtpPath basePath = _ftpSettings.BasePath ?? FtpPath.Root;
 
                 if (!await DirectoryExistsAsync(basePath, cancellationToken))
                 {
@@ -395,16 +395,16 @@ namespace Milou.Deployer.Ftp
 
                 _logger.Debug("Listing files in remote path '{Path}'", basePath.Path);
 
-                var fileSystemItems =
+                ImmutableArray<FtpPath> fileSystemItems =
                     await ListDirectoryAsync(basePath, cancellationToken);
 
-                var sourceFiles = sourceDirectory
+                FtpPath[] sourceFiles = sourceDirectory
                     .GetFiles("*", SearchOption.AllDirectories)
                     .Select(s =>
                         basePath.Append(new FtpPath(PathHelper.RelativePath(s, sourceDirectory), FileSystemType.File)))
                     .ToArray();
 
-                var filesToKeep = fileSystemItems
+                FtpPath[] filesToKeep = fileSystemItems
                     .Where(s => KeepFile(s, ruleConfiguration))
                     .Where(s => s.Type == FileSystemType.File)
                     .ToArray();
@@ -415,7 +415,7 @@ namespace Milou.Deployer.Ftp
                     .Where(s => s.Type == FileSystemType.File)
                     .ToImmutableArray();
 
-                var updated = fileSystemItems.Except(filesToRemove)
+                System.Collections.Generic.IEnumerable<FtpPath> updated = fileSystemItems.Except(filesToRemove)
                     .Where(s => s.Type == FileSystemType.File);
 
                 if (ruleConfiguration.AppOfflineEnabled)
@@ -423,7 +423,7 @@ namespace Milou.Deployer.Ftp
                     using var tempFile = TempFile.CreateTempFile("App_Offline", ".htm");
                     var appOfflinePath = new FtpPath($"/{tempFile.File.Name}", FileSystemType.File);
 
-                    var appOfflineFullPath =
+                    FtpPath appOfflineFullPath =
                         (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(
                             appOfflinePath);
 
@@ -432,21 +432,21 @@ namespace Milou.Deployer.Ftp
                     _logger.Debug("Uploaded file '{App_Offline}'", appOfflineFullPath.Path);
                 }
 
-                var deleteFiles = await DeleteFilesAsync(ruleConfiguration, filesToRemove, cancellationToken);
+                DeploySummary deleteFiles = await DeleteFilesAsync(ruleConfiguration, filesToRemove, cancellationToken);
 
                 deploymentChangeSummary.Add(deleteFiles);
 
-                foreach (var ftpPath in filesToRemove)
+                foreach (FtpPath ftpPath in filesToRemove)
                 {
                     deploymentChangeSummary.Deleted.Add(ftpPath.Path);
                 }
 
-                foreach (var ftpPath in updated)
+                foreach (FtpPath ftpPath in updated)
                 {
                     deploymentChangeSummary.UpdatedFiles.Add(ftpPath.Path);
                 }
 
-                var uploadDirectoryAsync =
+                DeploySummary uploadDirectoryAsync =
                     await UploadDirectoryAsync(ruleConfiguration,
                         sourceDirectory,
                         sourceDirectory,
@@ -457,8 +457,8 @@ namespace Milou.Deployer.Ftp
 
                 if (ruleConfiguration.AppOfflineEnabled)
                 {
-                    var appOfflineFiles = sourceFiles.Intersect(fileSystemItems)
-                        .Where(file => file.Path != null &&
+                    FtpPath[] appOfflineFiles = sourceFiles.Intersect(fileSystemItems)
+                        .Where(file => file.Path is {} &&
                                        Path.GetFileName(file.Path)
                                            .Equals(DeploymentConstants.AppOfflineHtm,
                                                StringComparison.OrdinalIgnoreCase))
@@ -467,7 +467,7 @@ namespace Milou.Deployer.Ftp
                         .Select(file => new FtpPath(file, FileSystemType.File))
                         .ToArray();
 
-                    foreach (var appOfflineFile in appOfflineFiles)
+                    foreach (FtpPath appOfflineFile in appOfflineFiles)
                     {
                         bool fileExists = await FileExistsAsync(appOfflineFile, cancellationToken);
 
@@ -497,7 +497,7 @@ namespace Milou.Deployer.Ftp
         {
             var deploymentChangeSummary = new DeploySummary();
 
-            foreach (var fileSystemItem in fileSystemItems
+            foreach (FtpPath fileSystemItem in fileSystemItems
                 .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.File))
             {
                 if (ruleConfiguration.AppDataSkipDirectiveEnabled && fileSystemItem.IsAppDataDirectoryOrFile)
@@ -569,9 +569,9 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        public Task<bool> DirectoryExistsAsync([NotNull] FtpPath dir, CancellationToken cancellationToken)
+        public Task<bool> DirectoryExistsAsync(FtpPath dir, CancellationToken cancellationToken)
         {
-            if (dir == null)
+            if (dir is null)
             {
                 throw new ArgumentNullException(nameof(dir));
             }
@@ -587,16 +587,16 @@ namespace Milou.Deployer.Ftp
         }
 
         public Task UploadFileAsync(
-            [NotNull] FtpPath filePath,
-            [NotNull] FileInfo sourceFile,
+            FtpPath filePath,
+            FileInfo sourceFile,
             CancellationToken cancellationToken = default)
         {
-            if (filePath == null)
+            if (filePath is null)
             {
                 throw new ArgumentNullException(nameof(filePath));
             }
 
-            if (sourceFile == null)
+            if (sourceFile is null)
             {
                 throw new ArgumentNullException(nameof(sourceFile));
             }
@@ -614,9 +614,9 @@ namespace Milou.Deployer.Ftp
             return UploadFileInternalAsync(filePath, sourceFile, cancellationToken);
         }
 
-        public Task DeleteFileAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken)
+        public Task DeleteFileAsync(FtpPath filePath, CancellationToken cancellationToken)
         {
-            if (filePath == null)
+            if (filePath is null)
             {
                 throw new ArgumentNullException(nameof(filePath));
             }
@@ -629,9 +629,9 @@ namespace Milou.Deployer.Ftp
             return DeleteFileInternalAsync(filePath, cancellationToken);
         }
 
-        public Task DeleteDirectoryAsync([NotNull] FtpPath path, CancellationToken cancellationToken)
+        public Task DeleteDirectoryAsync(FtpPath path, CancellationToken cancellationToken)
         {
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }
@@ -644,9 +644,9 @@ namespace Milou.Deployer.Ftp
             return DeleteDirectoryInternalAsync(path, cancellationToken);
         }
 
-        public Task<bool> FileExistsAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken)
+        public Task<bool> FileExistsAsync(FtpPath filePath, CancellationToken cancellationToken)
         {
-            if (filePath == null)
+            if (filePath is null)
             {
                 throw new ArgumentNullException(nameof(filePath));
             }
@@ -654,9 +654,9 @@ namespace Milou.Deployer.Ftp
             return FileExistsInternalAsync(filePath, cancellationToken);
         }
 
-        public Task CreateDirectoryAsync([NotNull] FtpPath directoryPath, CancellationToken cancellationToken)
+        public Task CreateDirectoryAsync(FtpPath directoryPath, CancellationToken cancellationToken)
         {
-            if (directoryPath == null)
+            if (directoryPath is null)
             {
                 throw new ArgumentNullException(nameof(directoryPath));
             }
@@ -670,10 +670,10 @@ namespace Milou.Deployer.Ftp
         }
 
         public Task<ImmutableArray<FtpPath>> ListDirectoryAsync(
-            [NotNull] FtpPath path,
+            FtpPath path,
             CancellationToken cancellationToken = default)
         {
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }
@@ -684,9 +684,9 @@ namespace Milou.Deployer.Ftp
         public static async Task<FtpHandler> CreateWithPublishSettings(
             [NotNull] string publishSettingsFile,
             [NotNull] FtpSettings ftpSettings,
-            ILogger logger = default)
+            ILogger? logger = default)
         {
-            if (ftpSettings == null)
+            if (ftpSettings is null)
             {
                 throw new ArgumentNullException(nameof(ftpSettings));
             }
@@ -702,9 +702,9 @@ namespace Milou.Deployer.Ftp
 
             var credentials = new NetworkCredential(ftpPublishSettings.UserName, ftpPublishSettings.Password, "");
 
-            var fullUri = ftpPublishSettings.FtpBaseUri;
+            Uri fullUri = ftpPublishSettings.FtpBaseUri;
 
-            if (ftpSettings.BasePath != null)
+            if (ftpSettings.BasePath is {})
             {
                 var builder = new UriBuilder(fullUri) {Path = ftpSettings.BasePath.Path};
 
@@ -743,28 +743,28 @@ namespace Milou.Deployer.Ftp
         }
 
         public Task<DeploySummary> UploadDirectoryAsync(
-            [NotNull] RuleConfiguration ruleConfiguration,
-            [NotNull] DirectoryInfo sourceDirectory,
-            [NotNull] DirectoryInfo baseDirectory,
-            [NotNull] FtpPath basePath,
+            RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
+            DirectoryInfo baseDirectory,
+            FtpPath basePath,
             CancellationToken cancellationToken)
         {
-            if (ruleConfiguration == null)
+            if (ruleConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(ruleConfiguration));
             }
 
-            if (sourceDirectory == null)
+            if (sourceDirectory is null)
             {
                 throw new ArgumentNullException(nameof(sourceDirectory));
             }
 
-            if (baseDirectory == null)
+            if (baseDirectory is null)
             {
                 throw new ArgumentNullException(nameof(baseDirectory));
             }
 
-            if (basePath == null)
+            if (basePath is null)
             {
                 throw new ArgumentNullException(nameof(basePath));
             }
@@ -773,16 +773,16 @@ namespace Milou.Deployer.Ftp
         }
 
         public Task<DeploySummary> PublishAsync(
-            [NotNull] RuleConfiguration ruleConfiguration,
-            [NotNull] DirectoryInfo sourceDirectory,
+            RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken)
         {
-            if (ruleConfiguration == null)
+            if (ruleConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(ruleConfiguration));
             }
 
-            if (sourceDirectory == null)
+            if (sourceDirectory is null)
             {
                 throw new ArgumentNullException(nameof(sourceDirectory));
             }

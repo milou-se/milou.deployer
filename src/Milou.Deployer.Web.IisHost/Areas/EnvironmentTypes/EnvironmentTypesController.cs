@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.EnvironmentTypes
         [Route(HttpGetRoute, Name = HttpGetRouteName)]
         public async Task<ObjectResult> Index()
         {
-            var environmentTypes = await _environmentTypes.GetEnvironmentTypes();
+            System.Collections.Immutable.ImmutableArray<Core.Deployment.EnvironmentType> environmentTypes = await _environmentTypes.GetEnvironmentTypes();
 
             return new ObjectResult(new {Types = environmentTypes});
         }

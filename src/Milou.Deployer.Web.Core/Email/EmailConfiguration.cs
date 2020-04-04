@@ -10,12 +10,12 @@ namespace Milou.Deployer.Web.Core.Email
     public class EmailConfiguration
     {
         public EmailConfiguration(
-            string defaultFromEmailAddress,
-            string smtpHost,
+            string? defaultFromEmailAddress,
+            string? smtpHost,
             int port,
             bool useSsl,
-            string username,
-            string password,
+            string? username,
+            string? password,
             int notificationTimeOutInSeconds = 30,
             bool emailEnabled = true)
         {
@@ -29,17 +29,17 @@ namespace Milou.Deployer.Web.Core.Email
             EmailEnabled = emailEnabled;
         }
 
-        public string DefaultFromEmailAddress { get; }
+        public string? DefaultFromEmailAddress { get; }
 
-        public string SmtpHost { get; }
+        public string? SmtpHost { get; }
 
         public int Port { get; }
 
         public bool UseSsl { get; }
 
-        public string Username { get; }
+        public string? Username { get; }
 
-        public string Password { get; }
+        public string? Password { get; }
 
         public bool EmailEnabled { get; }
 

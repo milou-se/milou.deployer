@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void DisposeNonDisposable()
         {
-            var o = new object();
+            object o = new object();
             o.SafeDispose();
         }
 

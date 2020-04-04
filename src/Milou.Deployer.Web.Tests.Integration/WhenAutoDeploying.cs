@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             using (var httpClient = new HttpClient())
             {
-                using (var cancellationTokenSource =
+                using (CancellationTokenSource cancellationTokenSource =
                     WebFixture.App.Host.Services.GetService<CancellationTokenSource>())
                 {
                     cancellationTokenSource.Token.Register(() =>
@@ -61,7 +61,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                            && semanticVersion != expectedVersion)
                     {
                         // ReSharper disable MethodSupportsCancellation
-                        var startupTaskContext =
+                        StartupTaskContext startupTaskContext =
                             WebFixture.App.Host.Services.GetRequiredService<StartupTaskContext>();
 
                         while (!startupTaskContext.IsCompleted &&
@@ -75,7 +75,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                         string contents;
                         try
                         {
-                            using (var responseMessage = await httpClient.GetAsync(url))
+                            using (HttpResponseMessage responseMessage = await httpClient.GetAsync(url))
                             {
                                 contents = await responseMessage.Content.ReadAsStringAsync();
 
@@ -97,7 +97,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                                 ex);
                         }
 
-                        var tempFileName = Path.GetTempFileName();
+                        string tempFileName = Path.GetTempFileName();
                         await File.WriteAllTextAsync(tempFileName,
                             contents,
                             Encoding.UTF8,
@@ -111,7 +111,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                             File.Delete(tempFileName);
                         }
 
-                        var actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
+                        string actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
 
                         semanticVersion = SemanticVersion.Parse(actual);
                         await Task.Delay(TimeSpan.FromSeconds(1));

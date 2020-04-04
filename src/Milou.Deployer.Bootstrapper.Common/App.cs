@@ -35,12 +35,11 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         public static Task<App> CreateAsync(
             string[] args,
-            ILogger logger = default,
-            HttpClient httpClient = default,
-            bool disposeNested = true,
-            CancellationToken cancellationToken = default)
+            ILogger? logger = default,
+            HttpClient? httpClient = default,
+            bool disposeNested = true)
         {
-            if (args == null)
+            if (args is null)
             {
                 throw new ArgumentNullException(nameof(args));
             }
@@ -49,7 +48,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             if (logger is null)
             {
-                var loggerConfiguration = new LoggerConfiguration().WriteTo.Console();
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration().WriteTo.Console();
 
                 string correlationId = GetCorrelationId(appArgs);
 
@@ -61,9 +60,9 @@ namespace Milou.Deployer.Bootstrapper.Common
                 logger = loggerConfiguration.CreateLogger();
             }
 
-            string nugetSource = GetNuGetSource(appArgs);
-            string nugetConfig = GetNuGetConfig(appArgs);
-            string nugetExePath = GetNuGetExePath(appArgs);
+            string? nugetSource = GetNuGetSource(appArgs);
+            string? nugetConfig = GetNuGetConfig(appArgs);
+            string? nugetExePath = GetNuGetExePath(appArgs);
 
             httpClient ??= new HttpClient();
             var nuGetDownloadClient = new NuGetDownloadClient();
@@ -82,16 +81,16 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             if (_disposeNested)
             {
-                _packageInstaller = null;
+                _packageInstaller = null!;
                 _httpClient?.Dispose();
-                _httpClient = null;
+                _httpClient = null!;
 
                 if (_logger is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }
 
-                _logger = null;
+                _logger = null!;
             }
         }
 
@@ -110,8 +109,8 @@ namespace Milou.Deployer.Bootstrapper.Common
             }
             else
             {
-                string nugetSource = GetNuGetSource(appArgs);
-                string nugetConfig = GetNuGetConfig(appArgs);
+                string? nugetSource = GetNuGetSource(appArgs);
+                string? nugetConfig = GetNuGetConfig(appArgs);
 
                 try
                 {
@@ -139,18 +138,18 @@ namespace Milou.Deployer.Bootstrapper.Common
                     || nuGetPackageInstallResult.SemanticVersion is null)
                 {
                     _logger.Error("Could not download NuGet package {PackageId}", nuGetPackageId);
-                    return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo)null);
+                    return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo?)null);
                 }
 
                 if (IsDownloadOnly(appArgs))
                 {
-                    return (nuGetPackageInstallResult, (FileInfo)null);
+                    return (nuGetPackageInstallResult, (FileInfo?)null);
                 }
 
                 string deployerToolFilePath = Path.Combine(
                     nuGetPackageInstallResult.PackageDirectory.FullName,
                     "tools",
-                    "net472",
+                    "netcoreapp3.1",
                     "Milou.Deployer.ConsoleClient.exe");
 
                 deployerToolFile = new FileInfo(deployerToolFilePath);
@@ -166,7 +165,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                     deployerToolFile,
                     existingFiles);
 
-                return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo)null);
+                return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo?)null);
             }
 
             return (nuGetPackageInstallResult, deployerToolFile);
@@ -204,7 +203,7 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
-            var (nugetInstallResult, deployerExeFileInfo) = await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
+            (NuGetPackageInstallResult nugetInstallResult, FileInfo deployerExeFileInfo) = await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
 
             if (IsDownloadOnly(appArgs))
             {
@@ -239,9 +238,9 @@ namespace Milou.Deployer.Bootstrapper.Common
             return nugetInstallResult;
         }
 
-        private static string GetNuGetSource(ImmutableArray<string> appArgs)
+        private static string? GetNuGetSource(ImmutableArray<string> appArgs)
         {
-            string nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
+            string? nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
             return nugetSource;
         }
 
@@ -252,9 +251,9 @@ namespace Milou.Deployer.Bootstrapper.Common
             return correlationId;
         }
 
-        private static string GetNuGetExePath(ImmutableArray<string> appArgs)
+        private static string? GetNuGetExePath(ImmutableArray<string> appArgs)
         {
-            string exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
+            string? exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
 
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
@@ -264,9 +263,9 @@ namespace Milou.Deployer.Bootstrapper.Common
             return exePath;
         }
 
-        private static string GetNuGetConfig(ImmutableArray<string> appArgs)
+        private static string? GetNuGetConfig(ImmutableArray<string> appArgs)
         {
-            string nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
+            string? nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
 
             if (string.IsNullOrWhiteSpace(nugetConfig) || !File.Exists(nugetConfig))
             {

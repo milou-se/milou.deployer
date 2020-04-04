@@ -51,7 +51,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
             get
             {
                 if (!SemanticVersion.TryParse(Properties[DeployerAppConstants.SemanticVersionNormalized],
-                    out var semver))
+                    out SemanticVersion semver))
                 {
                     return null;
                 }
@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
                     Properties[DeployerAppConstants.DeploymentStartTime],
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal,
-                    out var deployedAtUtc))
+                    out DateTime deployedAtUtc))
                 {
                     return null;
                 }
@@ -85,7 +85,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
         {
             get
             {
-                if (SemanticVersion == null)
+                if (SemanticVersion is null)
                 {
                     return string.Empty;
                 }
@@ -118,7 +118,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
                 return DeployStatus.NoPackagesAvailable;
             }
 
-            var latestAvailable = AvailablePackageVersions.Latest();
+            SemanticVersion latestAvailable = AvailablePackageVersions.Latest();
 
             if (SemanticVersion == latestAvailable)
             {

@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.Tools
             if (usedArgs.Count == expected)
             {
                 using var hmac = new HMACSHA256();
-                var keyBytes = hmac.Key;
+                byte[] keyBytes = hmac.Key;
                 string key = Convert.ToBase64String(keyBytes);
                 string agentId = usedArgs[0];
 
@@ -60,7 +60,7 @@ namespace Milou.Deployer.Web.Tools
 
                 IdentityModelEventSource.ShowPII = true;
 
-                var securityToken = handler.CreateJwtSecurityToken(tokenDescriptor);
+                JwtSecurityToken securityToken = handler.CreateJwtSecurityToken(tokenDescriptor);
                 string jwt = handler.WriteToken(securityToken);
                 Console.WriteLine(key);
                 Console.WriteLine(jwt);

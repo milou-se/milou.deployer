@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             get
             {
                 string[] assemblyNameStartsWith = new[] {"Milou"};
-                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+                System.Collections.Immutable.ImmutableArray<Assembly> filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
 
                 return filteredAssemblies
                     .SelectMany(assembly => assembly.GetLoadableTypes())
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 typeof(AllowAnonymousAttribute)
             };
 
-            var attributes = controllerType.GetCustomAttributes(true).Where(attribute =>
+            object[] attributes = controllerType.GetCustomAttributes(true).Where(attribute =>
                     httpMethodAttributes.Any(authenticationAttribute => authenticationAttribute == attribute.GetType()))
                 .ToArray();
 

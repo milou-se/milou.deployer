@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
 
         public async Task<Unit> Handle(UpdateSettings request, CancellationToken cancellationToken)
         {
-            var applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
 
             if (request.CacheTime.HasValue)
             {
@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.NexusConfig.NuGetConfig = request.NexusConfig.NuGetConfig;
             }
 
-            if (request.AutoDeploy?.Enabled != null)
+            if (request.AutoDeploy?.Enabled is {})
             {
                 applicationSettings.AutoDeploy.Enabled = request.AutoDeploy.Enabled;
                 applicationSettings.AutoDeploy.PollingEnabled = request.AutoDeploy.PollingEnabled;

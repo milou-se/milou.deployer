@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             using (var httpClient = new HttpClient())
             {
-                var url = $"http://localhost:{HttpPort}";
+                string url = $"http://localhost:{HttpPort}";
 
                 try
                 {

@@ -31,9 +31,9 @@ namespace Milou.Deployer.Web.Marten
                 return applicationSettings;
             }
 
-            using (var querySession = _documentStore.QuerySession())
+            using (IQuerySession querySession = _documentStore.QuerySession())
             {
-                var applicationSettingsData =
+                ApplicationSettingsData applicationSettingsData =
                     await querySession.LoadAsync<ApplicationSettingsData>(AppSettings, cancellationToken);
 
                 applicationSettings = Map(applicationSettingsData);
@@ -44,7 +44,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task Save(ApplicationSettings applicationSettings)
         {
-            using (var querySession = _documentStore.OpenSession())
+            using (IDocumentSession querySession = _documentStore.OpenSession())
             {
                 ApplicationSettingsData data = MapToData(applicationSettings);
                 querySession.Store(data);

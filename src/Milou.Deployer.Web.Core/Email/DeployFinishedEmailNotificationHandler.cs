@@ -61,10 +61,10 @@ namespace Milou.Deployer.Web.Core.Email
                 return;
             }
 
-            using (var cancellationTokenSource =
+            using (CancellationTokenSource cancellationTokenSource =
                 _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
             {
-                var target =
+                Deployment.DeploymentTarget target =
                     await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
                         cancellationTokenSource.Token);
 
@@ -80,7 +80,7 @@ namespace Milou.Deployer.Web.Core.Email
 
                 var mimeMessage = new MimeMessage();
 
-                foreach (var targetEmailNotificationAddress in target.EmailNotificationAddresses)
+                foreach (string targetEmailNotificationAddress in target.EmailNotificationAddresses)
                 {
                     try
                     {

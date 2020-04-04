@@ -36,17 +36,17 @@ namespace Milou.Deployer.IIS
             [NotNull] ILogger logger,
             [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
         {
-            if (configuration == null)
+            if (configuration is null)
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
@@ -67,7 +67,7 @@ namespace Milou.Deployer.IIS
             {
                 _logger.Debug(
                     "Restored iis site state to {State} for site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
-                    _site?.State,
+                    _site.State,
                     _deploymentExecutionDefinition.IisSiteName,
                     _deploymentExecutionDefinition);
             }
@@ -88,7 +88,7 @@ namespace Milou.Deployer.IIS
                 return false;
             }
 
-            _site = null;
+            _site = null!;
             _previousSiteState = ObjectState.Unknown;
 
             if (_serverManager is null)
@@ -205,8 +205,8 @@ namespace Milou.Deployer.IIS
             finally
             {
                 _serverManager?.Dispose();
-                _serverManager = null;
-                _site = null;
+                _serverManager = null!;
+                _site = null!;
             }
 
             return true;

@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.Core.Email
                 return;
             }
 
-            if (mimeMessage == null)
+            if (mimeMessage is null)
             {
                 throw new ArgumentNullException(nameof(mimeMessage));
             }

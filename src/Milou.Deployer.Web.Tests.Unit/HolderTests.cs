@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             holder.AddInstance(new EnvironmentConfiguration { ApplicationBasePath = @"C:\app" });
 
-            var environmentConsumer = holder.Create<EnvironmentConsumer>();
+            EnvironmentConsumer environmentConsumer = holder.Create<EnvironmentConsumer>();
 
             Assert.NotNull(environmentConsumer);
             Assert.NotNull(environmentConsumer.EnvironmentConfiguration);

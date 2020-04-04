@@ -77,7 +77,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private int? GetHttpPort()
         {
-            var environmentConfiguration = App.Host.Services.GetService<EnvironmentConfiguration>();
+            EnvironmentConfiguration environmentConfiguration = App.Host.Services.GetService<EnvironmentConfiguration>();
 
             if (environmentConfiguration is null)
             {
@@ -130,9 +130,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private async Task<IReadOnlyCollection<string>> RunSetupAsync()
         {
-            var rootDirectory = VcsTestPathHelper.GetRootDirectory();
+            string rootDirectory = VcsTestPathHelper.GetRootDirectory();
 
-            var appRootDirectory = Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost");
+            string appRootDirectory = Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost");
 
             string[] args = { $"{ConfigurationConstants.ContentBasePath}={appRootDirectory}" };
 
@@ -148,28 +148,28 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public async Task InitializeAsync()
         {
-            var useDefaultDirectory = false;
+            bool useDefaultDirectory = false;
 
             if (bool.TryParse(
                 Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:AddLocalUserAccessPermission"),
-                out var addUser))
+                out bool addUser))
             {
                 _addLocalUserAccessPermission = addUser;
             }
 
             if (bool.TryParse(
                 Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:DefaultDirectory"),
-                out var useDefaultDirectoryEnabled))
+                out bool useDefaultDirectoryEnabled))
             {
                 useDefaultDirectory = useDefaultDirectoryEnabled;
             }
 
             useDefaultDirectory = true;
 
-            var version = Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:version")
+            string? version = Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:version")
                 .WithDefault("10.5.1");
 
-            DirectoryInfo postgresqlDbDir;
+            DirectoryInfo? postgresqlDbDir;
             if (useDefaultDirectory)
             {
                 postgresqlDbDir = null;
@@ -203,14 +203,14 @@ namespace Milou.Deployer.Web.Tests.Integration
                         new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
                 }
 
-                var connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
+                string connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
 
                 Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:connection-string",
                     connStr);
                 Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:enabled", "true");
 
                 await BeforeInitialize(_cancellationTokenSource.Token);
-                var args = await RunSetupAsync();
+                IReadOnlyCollection<string> args = await RunSetupAsync();
 
                 if (CancellationToken.IsCancellationRequested)
                 {
@@ -268,9 +268,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             App?.Dispose();
             _pgServer?.Dispose();
 
-            var files = FilesToClean.ToArray();
+            FileInfo[] files = FilesToClean.ToArray();
 
-            foreach (var fileInfo in files)
+            foreach (FileInfo fileInfo in files)
             {
                 try
                 {
@@ -288,9 +288,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                 FilesToClean.Remove(fileInfo);
             }
 
-            var directoryInfos = DirectoriesToClean.ToArray();
+            DirectoryInfo[] directoryInfos = DirectoriesToClean.ToArray();
 
-            foreach (var directoryInfo in directoryInfos.OrderByDescending(x => x.FullName.Length))
+            foreach (DirectoryInfo directoryInfo in directoryInfos.OrderByDescending(x => x.FullName.Length))
             {
                 await DeleteDirectoryAsync(directoryInfo);
                 DirectoriesToClean.Remove(directoryInfo);
@@ -301,29 +301,17 @@ namespace Milou.Deployer.Web.Tests.Integration
             await DeleteDirectoryAsync(_globalTempDir);
         }
 
-        public virtual void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
+        public virtual void Dispose() => GC.SuppressFinalize(this);
 
         protected virtual void OnException(Exception exception)
         {
         }
 
-        protected virtual Task AfterRunAsync()
-        {
-            return Task.CompletedTask;
-        }
+        protected virtual Task AfterRunAsync() => Task.CompletedTask;
 
-        protected virtual Task BeforeStartAsync(IReadOnlyCollection<string> args)
-        {
-            return Task.CompletedTask;
-        }
+        protected virtual Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
 
-        protected virtual Task BeforeInitialize(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        protected virtual Task BeforeInitialize(CancellationToken cancellationToken) => Task.CompletedTask;
 
         protected abstract Task RunAsync();
     }

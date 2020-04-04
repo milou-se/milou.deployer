@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [NotNull] IDeploymentTargetReadService getTargets,
             TimeoutHelper timeoutHelper)
         {
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }
@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             IReadOnlyCollection<DeploymentTarget> targets;
             try
             {
-                using (var cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30)))
+                using (System.Threading.CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
                     targets =
                         (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(

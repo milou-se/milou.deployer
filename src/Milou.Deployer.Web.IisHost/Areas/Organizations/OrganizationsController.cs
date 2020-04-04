@@ -13,18 +13,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
     {
         private readonly IMediator _mediator;
 
-        public OrganizationsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public OrganizationsController(IMediator mediator) => _mediator = mediator;
 
         [Route(OrganizationConstants.OrganizationBaseRoute, Name = OrganizationConstants.OrganizationBaseRouteName)]
         [HttpGet]
         public async Task<IActionResult> Index([FromServices] IDeploymentTargetReadService deploymentTargetReadService)
         {
-            var organizations = await deploymentTargetReadService.GetOrganizationsAsync();
+            System.Collections.Immutable.ImmutableArray<Core.Deployment.Targets.OrganizationInfo> organizations = await deploymentTargetReadService.GetOrganizationsAsync();
 
-            var createOrganizationResult = TempData.Get<CreateOrganizationResult>();
+            CreateOrganizationResult createOrganizationResult = TempData.Get<CreateOrganizationResult>();
 
             return View(new OrganizationsViewOutputModel(organizations, createOrganizationResult));
         }
@@ -36,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
             [FromBody] CreateOrganization createOrganization,
             [FromQuery] bool redirect = true)
         {
-            var createOrganizationResult = await _mediator.Send(createOrganization);
+            CreateOrganizationResult createOrganizationResult = await _mediator.Send(createOrganization);
 
             if (redirect)
             {

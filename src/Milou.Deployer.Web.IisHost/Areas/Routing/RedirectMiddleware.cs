@@ -52,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
 
             if (context.Response.StatusCode == 302)
             {
-                if (context.Response.Headers.TryGetValue(LocationHeader, out var values))
+                if (context.Response.Headers.TryGetValue(LocationHeader, out Microsoft.Extensions.Primitives.StringValues values))
                 {
                     if (values.Count == 1 && values[0].StartsWith("/"))
                     {

@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public static string GetRootDirectory()
         {
-            var originalSolutionPath = NCrunchEnvironment.GetOriginalSolutionPath();
+            string originalSolutionPath = NCrunchEnvironment.GetOriginalSolutionPath();
 
             if (!string.IsNullOrWhiteSpace(originalSolutionPath))
             {

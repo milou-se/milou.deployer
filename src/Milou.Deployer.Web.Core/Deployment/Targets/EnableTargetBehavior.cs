@@ -10,10 +10,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
     {
         private readonly IMediator _mediator;
 
-        public EnableTargetBehavior(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public EnableTargetBehavior(IMediator mediator) => _mediator = mediator;
 
         public async Task<Unit> Handle(EnableTarget request, CancellationToken cancellationToken, RequestHandlerDelegate<Unit> next)
         {

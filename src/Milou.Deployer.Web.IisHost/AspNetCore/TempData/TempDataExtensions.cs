@@ -53,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                     return default;
                 }
 
-                tempData.TryGetValue(key, out var o);
+                tempData.TryGetValue(key, out object? o);
 
                 switch (o)
                 {
@@ -67,7 +67,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                                 return default;
                             }
 
-                            var deserializeObject = JsonConvert.DeserializeObject<T>(json);
+                            T deserializeObject = JsonConvert.DeserializeObject<T>(json);
 
                             return deserializeObject;
                         }

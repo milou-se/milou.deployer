@@ -14,21 +14,21 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             bool allowExplicitPreRelease,
             string url,
             string packageId,
-            string iisSiteName = null,
-            string nugetPackageSource = null,
-            string nugetConfigFile = null,
+            string? iisSiteName = null,
+            string? nugetPackageSource = null,
+            string? nugetConfigFile = null,
             bool autoDeployEnabled = false,
-            string publishSettingsXml = null,
-            string targetDirectory = null,
-            string webConfigTransform = null,
-            string excludedFilePatterns = null,
-            string environmentTypeId = null,
-            string packageListTimeout = null,
-            string publishType = null,
-            string ftpPath = null,
-            string metadataTimeout = default,
+            string? publishSettingsXml = null,
+            string? targetDirectory = null,
+            string? webConfigTransform = null,
+            string? excludedFilePatterns = null,
+            string? environmentTypeId = null,
+            string? packageListTimeout = null,
+            string? publishType = null,
+            string? ftpPath = null,
+            string? metadataTimeout = default,
             bool requireEnvironmentConfig = default,
-            string environmentConfiguration = null,
+            string? environmentConfiguration = null,
             bool packageListPrefixEnabled = false,
             string? packageListPrefix = null)
         {
@@ -38,8 +38,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             Url = uri;
             PackageId = packageId?.Trim();
             ExcludedFilePatterns = excludedFilePatterns;
-            PublishType.TryParseOrDefault(publishType, out var foundPublishType);
-            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
+            PublishType.TryParseOrDefault(publishType, out PublishType? foundPublishType);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
             PublishType = foundPublishType;
             FtpPath = path;
             IisSiteName = iisSiteName;

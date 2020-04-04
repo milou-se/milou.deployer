@@ -37,12 +37,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
         {
             try
             {
-                var environmentTypes = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
+                System.Collections.Immutable.ImmutableArray<Core.Deployment.EnvironmentType> environmentTypes = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
 
-                var targets =
+                System.Collections.Immutable.ImmutableArray<Core.Deployment.DeploymentTarget> targets =
                     await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
 
-                foreach (var deploymentTarget in targets)
+                foreach (Core.Deployment.DeploymentTarget deploymentTarget in targets)
                 {
                     string? typeId = default;
                     string environmentConfiguration = deploymentTarget.EnvironmentConfiguration;
@@ -52,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                     {
                         string configuration = environmentConfiguration.Trim();
 
-                        var foundType = environmentTypes.SingleOrDefault(type =>
+                        Core.Deployment.EnvironmentType foundType = environmentTypes.SingleOrDefault(type =>
                             type.Name.Trim().Equals(configuration,
                                 StringComparison.OrdinalIgnoreCase));
 

@@ -54,12 +54,12 @@ namespace Milou.Deployer.Core.Deployment
             NuGetPackageInstaller nugetPackageInstaller,
             IFtpHandlerFactory ftpHandlerFactor)
         {
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            if (keyValueConfiguration == null)
+            if (keyValueConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(keyValueConfiguration));
             }
@@ -343,7 +343,7 @@ namespace Milou.Deployer.Core.Deployment
                     expectedVersion.ToNormalizedString());
             }
 
-            var foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
+            SemanticVersion foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
 
             return new EnvironmentPackageResult(true, foundPackage);
         }
@@ -594,7 +594,7 @@ namespace Milou.Deployer.Core.Deployment
                             return ExitCode.Failure;
                         }
 
-                        if (environmentPackageResult.Version != null)
+                        if (environmentPackageResult.Version is {})
                         {
                             _logger.Information("Installed environment package version {Version}",
                                 environmentPackageResult.Version.ToNormalizedString());
@@ -713,7 +713,7 @@ namespace Milou.Deployer.Core.Deployment
 
                         if (!File.Exists(sourceAppOffline) && !targetAppOffline.Exists)
                         {
-                            using var _ = File.Create(targetAppOffline.FullName);
+                            using FileStream _ = File.Create(targetAppOffline.FullName);
 
                             _logger.Debug("Created offline file '{File}'", targetAppOffline.FullName);
 
@@ -824,7 +824,7 @@ namespace Milou.Deployer.Core.Deployment
                             }
                             else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType)
                             {
-                                var basePath = deploymentExecutionDefinition.FtpPath;
+                                FtpPath basePath = deploymentExecutionDefinition.FtpPath;
 
                                 bool isSecure = deploymentExecutionDefinition.PublishType == PublishType.Ftps;
 

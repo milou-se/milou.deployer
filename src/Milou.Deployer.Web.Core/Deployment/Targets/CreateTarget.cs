@@ -20,10 +20,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         [Required]
         public string Name { get; }
 
-        public override string ToString()
-        {
-            return Id;
-        }
+        public override string ToString() => Id;
 
         public bool IsValid => Id.HasValue() && Name.HasValue() &&
                                !Id.Equals(Constants.NotAvailable, StringComparison.OrdinalIgnoreCase);

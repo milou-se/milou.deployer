@@ -4,6 +4,8 @@
     {
         public const string HubRoute = "/agents";
 
+        public const string SignalRDeployCommand = "Deploy";
+
         public const string DeploymentTaskResult = "/deployment-task/result";
 
         public const string DeploymentTaskResultName = nameof(DeploymentTaskResult);

@@ -61,12 +61,12 @@ namespace Milou.Deployer.ConsoleClient
 
             if (_appSettings is IDisposable disposableSettings)
             {
-                _appSettings = null;
+                _appSettings = null!;
                 disposableSettings.Dispose();
             }
 
             _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+            _cancellationTokenSource = null!;
         }
 
         public async Task<int> ExecuteAsync(string[] args, CancellationToken cancellationToken = default)
@@ -233,7 +233,7 @@ namespace Milou.Deployer.ConsoleClient
                 string inputVersion = Console.ReadLine();
 
                 if (!string.IsNullOrWhiteSpace(inputVersion) &&
-                    SemanticVersion.TryParse(inputVersion, out var semanticInputVersion))
+                    SemanticVersion.TryParse(inputVersion, out SemanticVersion semanticInputVersion))
                 {
                     version = semanticInputVersion;
                     Logger.Debug("Using interactive version from user: {Version}", semanticInputVersion.ToNormalizedString());

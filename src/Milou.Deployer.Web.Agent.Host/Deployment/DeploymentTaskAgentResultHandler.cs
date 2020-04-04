@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
+﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -24,7 +22,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
         public async Task<Unit> Handle(DeploymentTaskAgentResult request, CancellationToken cancellationToken)
         {
-            var httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
+            HttpClient httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
 
             await httpClient.PostAsJsonAsync(AgentConstants.DeploymentTaskResult, request, cancellationToken);
 

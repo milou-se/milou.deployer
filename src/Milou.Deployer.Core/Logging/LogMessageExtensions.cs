@@ -14,7 +14,7 @@ namespace Milou.Deployer.Core.Logging
         private const string MessageTemplate = "{Message}";
         private const string MessageTemplateWithCategory = "{Category} {Message}";
 
-        public static void ParseAndLog(this ILogger logger, string message, string category = null)
+        public static void ParseAndLog(this ILogger logger, string? message, string? category = null)
         {
             if (logger is null)
             {
@@ -26,44 +26,44 @@ namespace Milou.Deployer.Core.Logging
                 return;
             }
 
-            (string Message, LogEventLevel Level) parsed = Parse(message);
+            (string parsedMessage, LogEventLevel level) = Parse(message!);
 
-            switch (parsed.Level)
+            switch (level)
             {
                 case LogEventLevel.Fatal when string.IsNullOrWhiteSpace(category):
-                    logger.Fatal(MessageTemplate, parsed.Message);
+                    logger.Fatal(MessageTemplate, parsedMessage);
                     break;
                 case LogEventLevel.Fatal:
-                    logger.Fatal(MessageTemplateWithCategory, category, parsed.Message);
+                    logger.Fatal(MessageTemplateWithCategory, category, parsedMessage);
                     break;
                 case LogEventLevel.Error when string.IsNullOrWhiteSpace(category):
-                    logger.Error(MessageTemplate, parsed.Message);
+                    logger.Error(MessageTemplate, parsedMessage);
                     break;
                 case LogEventLevel.Error:
-                    logger.Error(MessageTemplateWithCategory, category, parsed.Message);
+                    logger.Error(MessageTemplateWithCategory, category, parsedMessage);
                     break;
                 case LogEventLevel.Information when string.IsNullOrWhiteSpace(category):
-                    logger.Information(MessageTemplate, parsed.Message);
+                    logger.Information(MessageTemplate, parsedMessage);
                     break;
                 case LogEventLevel.Information:
-                    logger.Information(MessageTemplateWithCategory, category, parsed.Message);
+                    logger.Information(MessageTemplateWithCategory, category, parsedMessage);
                     break;
                 case LogEventLevel.Debug when string.IsNullOrWhiteSpace(category):
-                    logger.Debug(MessageTemplate, parsed.Message);
+                    logger.Debug(MessageTemplate, parsedMessage);
                     break;
                 case LogEventLevel.Debug:
-                    logger.Debug(MessageTemplateWithCategory, category, parsed.Message);
+                    logger.Debug(MessageTemplateWithCategory, category, parsedMessage);
                     break;
                 case LogEventLevel.Verbose when string.IsNullOrWhiteSpace(category):
-                    logger.Verbose(MessageTemplate, parsed.Message);
+                    logger.Verbose(MessageTemplate, parsedMessage);
                     break;
                 case LogEventLevel.Verbose:
-                    logger.Verbose(MessageTemplateWithCategory, category, parsed.Message);
+                    logger.Verbose(MessageTemplateWithCategory, category, parsedMessage);
                     break;
             }
         }
 
-        public static (string, LogEventLevel) Parse(string message)
+        public static (string?, LogEventLevel) Parse(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
             {

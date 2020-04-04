@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
 
@@ -29,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 return Ok();
             }
 
-            foreach (var serilogSinkEvent in events.Events)
+            foreach (SerilogSinkEvent serilogSinkEvent in events.Events)
             {
                 if (serilogSinkEvent is null)
                 {

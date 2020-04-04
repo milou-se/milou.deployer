@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             }
             else
             {
-                var response = httpContext.Response;
+                HttpResponse response = httpContext.Response;
                 response.StatusCode = (int)HttpStatusCode.TemporaryRedirect;
 
                 response.Headers.TryAdd("location", _startupSegment.Value);

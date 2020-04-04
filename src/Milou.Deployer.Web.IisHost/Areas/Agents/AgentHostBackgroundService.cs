@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         {
             await Task.Yield();
 
-            var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
 
             if (!applicationSettings.HostAgentEnabled)
             {
@@ -46,12 +46,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 _logger.Debug("No agent exe has been specified");
 
                 SemanticVersion? currentVersion = await GetCurrentVersionAsync();
-                var nuGetPackageVersion = currentVersion is {}
+                NuGetPackageVersion nuGetPackageVersion = currentVersion is {}
                     ? new NuGetPackageVersion(currentVersion)
                     : NuGetPackageVersion.LatestAvailable;
                 NuGetPackage nugetPackage = new NuGetPackage(new NuGetPackageId("Milou.Deployer.Web.Agent.Host"),
                     nuGetPackageVersion);
-                var nugetPackageSettings = NugetPackageSettings.Default;
+                NugetPackageSettings nugetPackageSettings = NugetPackageSettings.Default;
                 string fileName = Assembly.GetExecutingAssembly().Location;
 
                 if (string.IsNullOrWhiteSpace(fileName))
@@ -67,7 +67,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 }
 
                 DirectoryInfo targetDirectory = fileInfo.Directory.CreateSubdirectory("agent");
-                var result = await _packageInstaller.InstallPackageAsync(nugetPackage, nugetPackageSettings,
+                NuGetPackageInstallResult result = await _packageInstaller.InstallPackageAsync(nugetPackage, nugetPackageSettings,
                     installBaseDirectory: targetDirectory, cancellationToken: stoppingToken);
 
                 if (result?.SemanticVersion is {})
@@ -83,7 +83,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
 
             _logger.Information("Starting agent as sub-process {Path}", applicationSettings.AgentExe);
-            var exitCode = await ProcessRunner.ExecuteProcessAsync(
+            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(
                 applicationSettings.AgentExe,
                 workingDirectory: new FileInfo(applicationSettings.AgentExe).Directory,
                 cancellationToken: stoppingToken);

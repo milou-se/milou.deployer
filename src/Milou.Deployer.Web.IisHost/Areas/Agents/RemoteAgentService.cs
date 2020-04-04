@@ -12,10 +12,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
     {
         private readonly AgentHub _agentHub;
 
-        public RemoteAgentService(AgentHub agentHub)
-        {
-            _agentHub = agentHub;
-        }
+        public RemoteAgentService(AgentHub agentHub) => _agentHub = agentHub;
 
         public async Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(DeploymentTask deploymentTask,
             CancellationToken cancellationToken)

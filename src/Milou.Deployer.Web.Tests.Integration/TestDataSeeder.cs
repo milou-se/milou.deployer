@@ -16,10 +16,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly IMediator _mediator;
 
-        public TestDataSeeder(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public TestDataSeeder(IMediator mediator) => _mediator = mediator;
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {

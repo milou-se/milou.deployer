@@ -2,10 +2,7 @@
 {
     public class ErrorViewModel
     {
-        public ErrorViewModel(string requestId)
-        {
-            RequestId = requestId;
-        }
+        public ErrorViewModel(string requestId) => RequestId = requestId;
 
         public string RequestId { get; }
     }

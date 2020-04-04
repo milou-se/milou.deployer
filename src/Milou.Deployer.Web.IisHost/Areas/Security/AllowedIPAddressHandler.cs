@@ -17,17 +17,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             [NotNull] IEnumerable<AllowedHostName> hostNames,
             [NotNull] ILogger logger)
         {
-            if (hostNames == null)
+            if (hostNames is null)
             {
                 throw new ArgumentNullException(nameof(hostNames));
             }
 
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            foreach (var allowedHostName in hostNames)
+            foreach (AllowedHostName allowedHostName in hostNames)
             {
                 if (!IpAddressMap.TrySet(allowedHostName.HostName, IPAddress.None))
                 {
@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
         public static bool SetDomainIp([NotNull] string domain, [NotNull] IPAddress ipAddress)
         {
-            if (ipAddress == null)
+            if (ipAddress is null)
             {
                 throw new ArgumentNullException(nameof(ipAddress));
             }

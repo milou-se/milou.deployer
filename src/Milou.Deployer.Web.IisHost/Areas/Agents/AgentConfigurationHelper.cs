@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                     SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var jwtSecurityToken = handler.CreateJwtSecurityToken(securityTokenDescriptor);
+            JwtSecurityToken jwtSecurityToken = handler.CreateJwtSecurityToken(securityTokenDescriptor);
 
             string accessToken =
                 handler.WriteToken(jwtSecurityToken);

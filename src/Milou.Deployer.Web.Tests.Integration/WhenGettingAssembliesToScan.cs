@@ -12,10 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class WhenGettingAssembliesToScan
     {
-        public WhenGettingAssembliesToScan(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        public WhenGettingAssembliesToScan(ITestOutputHelper output) => _output = output;
 
         private readonly ITestOutputHelper _output;
 
@@ -23,7 +20,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void ItShouldFindAllKnownAssemblies()
         {
             string[] assemblyNameStartsWith = { "Milou" };
-            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+            ImmutableArray<System.Reflection.Assembly> filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
             var assemblies = filteredAssemblies
                 .Where(assembly => !assembly.GetName().Name.EndsWith(".Views", StringComparison.OrdinalIgnoreCase))
                 .ToImmutableArray();

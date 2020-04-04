@@ -5,12 +5,12 @@ namespace Milou.Deployer.Core.Deployment.Ftp
     public class FtpSettings
     {
         public FtpSettings(
-            FtpPath basePath = default,
+            FtpPath? basePath = default,
             bool isSecure = true,
             int batchSize = 10,
             int maxAttempts = 3,
             LogEventLevel logLevel = LogEventLevel.Information,
-            FtpPath publicRootPath = null)
+            FtpPath? publicRootPath = null)
         {
             BasePath = basePath;
             IsSecure = isSecure;
@@ -20,9 +20,9 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             PublicRootPath = publicRootPath;
         }
 
-        public FtpPath PublicRootPath { get; }
+        public FtpPath? PublicRootPath { get; }
 
-        public FtpPath BasePath { get; }
+        public FtpPath? BasePath { get; }
 
         public bool IsSecure { get; }
 

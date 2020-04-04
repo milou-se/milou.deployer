@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimInRangeForAllowedNetworkShouldMarkContextSucceeded()
         {
-            var logger = Logger.None;
+            Serilog.ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimInRangeForMultipleAllowedNetworksShouldMarkContextSucceeded()
         {
-            var logger = Logger.None;
+            Serilog.ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24",
@@ -76,7 +76,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimMissingShouldMarkContextSucceeded()
         {
-            var logger = Logger.None;
+            Serilog.ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
@@ -104,7 +104,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimOutOfRangeForAllowedNetworkShouldMarkContextNotSucceeded()
         {
-            var logger = Logger.None;
+            Serilog.ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
@@ -133,7 +133,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimWithoutNetworksShouldMarkContextNotSucceeded()
         {
-            var logger = Logger.None;
+            Serilog.ILogger logger = Logger.None;
 
             var handler =
                 new DefaultAuthorizationHandler(NoConfiguration.Empty,

@@ -10,9 +10,7 @@ namespace Milou.Deployer.Tests.Integration
         public static LoggerConfiguration TestSink(
             this LoggerSinkConfiguration loggerConfiguration,
             ITestOutputHelper testOutputHelper,
-            IFormatProvider formatProvider = null)
-        {
-            return loggerConfiguration.Sink(new TestSink(formatProvider, testOutputHelper));
-        }
+            IFormatProvider formatProvider = null) =>
+            loggerConfiguration.Sink(new TestSink(formatProvider, testOutputHelper));
     }
 }

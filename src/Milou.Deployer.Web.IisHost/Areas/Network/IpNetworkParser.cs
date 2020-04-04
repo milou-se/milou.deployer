@@ -6,7 +6,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
 {
     public static class IpNetworkParser
     {
-        public static bool TryParse(string value, out IPNetwork network)
+        public static bool TryParse(string? value, out IPNetwork? network)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
                 return false;
             }
 
-            var parts = value.Split("/");
+            string[] parts = value.Split("/");
 
             if (parts.Length != 2)
             {
@@ -22,13 +22,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
                 return false;
             }
 
-            if (!IPAddress.TryParse(parts[0], out var address))
+            if (!IPAddress.TryParse(parts[0], out IPAddress address))
             {
                 network = default;
                 return false;
             }
 
-            if (!int.TryParse(parts[1], out var length))
+            if (!int.TryParse(parts[1], out int length))
             {
                 network = default;
                 return false;

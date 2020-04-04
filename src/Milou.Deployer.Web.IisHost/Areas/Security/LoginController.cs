@@ -12,25 +12,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         [Route("/login")]
         [HttpGet]
         // GET
-        public IActionResult Index()
-        {
-            return View();
-        }
+        public IActionResult Index() => View();
 
         [AllowAnonymous]
         [Route("/login/external")]
         [HttpGet]
-        public IActionResult MakeChallenge()
-        {
-            return Challenge(OpenIdConnectDefaults.AuthenticationScheme);
-        }
+        public IActionResult MakeChallenge() => Challenge(OpenIdConnectDefaults.AuthenticationScheme);
 
         [Route("/me")]
         [HttpGet]
-        public IActionResult Me()
-        {
-            return new ObjectResult(
+        public IActionResult Me() =>
+            new ObjectResult(
                 new { Claims = HttpContext.User.Claims.Select(c => c.Type + " " + c.Value).ToArray() });
-        }
     }
 }

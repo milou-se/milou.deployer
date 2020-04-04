@@ -12,7 +12,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 
         public TransformationResult(bool isSuccess, IEnumerable<string> transformedFiles)
         {
-            if (transformedFiles == null)
+            if (transformedFiles is null)
             {
                 throw new ArgumentNullException(nameof(transformedFiles));
             }

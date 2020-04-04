@@ -29,7 +29,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public void Add([NotNull] DeploySummary other)
         {
-            if (other == null)
+            if (other is null)
             {
                 throw new ArgumentNullException(nameof(other));
             }

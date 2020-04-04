@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Processing;
 using Milou.Deployer.Core.Deployment;
-using Milou.Deployer.Core.Deployment.Ftp;
 using Serilog;
 
 namespace Milou.Deployer.Waws
@@ -83,9 +82,9 @@ namespace Milou.Deployer.Waws
                 cancellationToken);
         }
 
-        private static string GetDestinationParameter(string siteName, string destinationPath)
+        private static string GetDestinationParameter(string siteName, string? destinationPath)
         {
-            string path = string.IsNullOrWhiteSpace(destinationPath) ? null : $"/{destinationPath.TrimStart('/')}";
+            string? path = string.IsNullOrWhiteSpace(destinationPath) ? null : $"/{destinationPath.TrimStart('/')}";
             string destinationParameter = $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{siteName}{path}\"";
             return destinationParameter;
         }
@@ -195,7 +194,7 @@ namespace Milou.Deployer.Waws
 
             string ParseEntry(string entry)
             {
-                var asSpan = entry.AsSpan();
+                ReadOnlySpan<char> asSpan = entry.AsSpan();
 
                 int start = asSpan.IndexOf('(') + 1;
                 int end = asSpan.LastIndexOf(')');
@@ -247,7 +246,7 @@ namespace Milou.Deployer.Waws
                 _logger.Error("{Message}", message);
             }
 
-            var exitCode = await ProcessRunner.ExecuteProcessAsync(
+            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(
                 exePath,
                 arguments,
                 Log,

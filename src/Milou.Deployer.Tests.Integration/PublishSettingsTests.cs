@@ -10,7 +10,7 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public async Task LoadSampleFileShouldWork()
         {
-            var publishSettings = await PublishSettings.Load(GetTestFile("sample.PublishSettings"));
+            PublishSettings publishSettings = await PublishSettings.Load(GetTestFile("sample.PublishSettings"));
 
             Assert.NotNull(publishSettings);
             Assert.Equal("$deploy-test", publishSettings.Username);

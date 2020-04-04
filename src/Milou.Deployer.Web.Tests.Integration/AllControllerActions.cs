@@ -14,10 +14,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class AllControllerActions
     {
-        public AllControllerActions(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public AllControllerActions(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         private readonly ITestOutputHelper _testOutputHelper;
 
@@ -27,7 +24,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             var type = Type.GetType($"{controller}, {assembly}");
 
-            var actionMethod = type.GetMethods()
+            Assert.NotNull(type);
+
+            MethodInfo[] actionMethod = type.GetMethods()
                 .Where(method => method.Name.Equals(action, StringComparison.OrdinalIgnoreCase)).ToArray();
 
             Type[] httpMethodAttributes =
@@ -35,9 +34,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                 typeof(HttpPostAttribute), typeof(HttpGetAttribute), typeof(HttpDeleteAttribute)
             };
 
-            foreach (var methodInfo in actionMethod)
+            foreach (MethodInfo methodInfo in actionMethod)
             {
-                var attributes = methodInfo.GetCustomAttributes()
+                Attribute[] attributes = methodInfo.GetCustomAttributes()
                     .Where(attribute =>
                         httpMethodAttributes.Any(httpMethodAttribute => httpMethodAttribute == attribute.GetType()))
                     .ToArray();
@@ -53,7 +52,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
             ApplicationAssemblies.FilteredAssemblies(useCache: false)
-                .Concat(new[] { typeof(DeployController).Assembly })
+                .Concat(new[] {typeof(DeployController).Assembly})
                 .Distinct()
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
@@ -68,9 +67,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                 .ToArray();
 
         [Fact]
-        public void ShouldFindControllers()
-        {
-            Assert.NotEmpty(Data);
-        }
+        public void ShouldFindControllers() => Assert.NotEmpty(Data);
     }
 }

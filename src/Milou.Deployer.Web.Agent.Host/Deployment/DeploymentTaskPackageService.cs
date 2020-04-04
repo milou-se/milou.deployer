@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         public async Task<DeploymentTaskPackage?> GetDeploymentTaskPackageAsync(string deploymentTaskId,
             CancellationToken cancellationToken = default)
         {
-            var httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
+            HttpClient httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
 
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{AgentConstants.DeploymentTaskPackageRoute.Replace("{deploymentTaskId}", deploymentTaskId)}");

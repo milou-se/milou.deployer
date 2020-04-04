@@ -36,12 +36,12 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] DeployerConfiguration deployerConfiguration,
             ILogger logger)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (deployerConfiguration == null)
+            if (deployerConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(deployerConfiguration));
             }

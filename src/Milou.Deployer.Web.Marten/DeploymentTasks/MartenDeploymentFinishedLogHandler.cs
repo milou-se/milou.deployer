@@ -27,9 +27,9 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
         {
             string taskLogId = $"deploymentTaskLog/{notification.DeploymentTask.DeploymentTaskId}";
 
-            using (var session = _documentStore.OpenSession())
+            using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var existing = await session.Query<TaskLog>().Where(taskLog => taskLog.Id == taskLogId).ToListAsync();
+                System.Collections.Generic.IReadOnlyList<TaskLog> existing = await session.Query<TaskLog>().Where(taskLog => taskLog.Id == taskLogId).ToListAsync();
 
                 if (existing.Any())
                 {
@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                 await session.SaveChangesAsync(cancellationToken);
             }
 
-            foreach (var notificationLogLine in notification.LogLines.Select((item, index) => (item,index)))
+            foreach ((Core.Deployment.Targets.LogItem item, int index) notificationLogLine in notification.LogLines.Select((item, index) => (item,index)))
             {
                 notificationLogLine.item.TaskLogId = taskLogId;
                 notificationLogLine.item.Id = $"{taskLogId}/{notificationLogLine.index + 1}";

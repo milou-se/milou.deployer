@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var clock = new CustomSystemClock(timeZoneId: "W. Europe Standard Time");
 
-            var formatted = dateTime.ToLocalTimeFormatted(clock);
+            string formatted = dateTime.ToLocalTimeFormatted(clock);
 
             Assert.Equal("2000-03-05 08:11:13", formatted);
         }
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var clock = new CustomSystemClock(timeZoneId: "W. Europe Standard Time");
 
-            var formatted = dateTime.ToLocalTimeFormatted(clock);
+            string formatted = dateTime.ToLocalTimeFormatted(clock);
 
             Assert.Equal("2000-03-05 08:11:13", formatted);
         }

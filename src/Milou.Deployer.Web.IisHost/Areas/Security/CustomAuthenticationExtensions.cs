@@ -9,11 +9,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             this AuthenticationBuilder builder,
             string authenticationScheme,
             string displayName,
-            Action<MilouAuthenticationOptions> configureOptions)
-        {
-            return builder.AddScheme<MilouAuthenticationOptions, MilouAuthenticationHandler>(authenticationScheme,
+            Action<MilouAuthenticationOptions> configureOptions) =>
+            builder.AddScheme<MilouAuthenticationOptions, MilouAuthenticationHandler>(authenticationScheme,
                 displayName,
                 configureOptions);
-        }
     }
 }

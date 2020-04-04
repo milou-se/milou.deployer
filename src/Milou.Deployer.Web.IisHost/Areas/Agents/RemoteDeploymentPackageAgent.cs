@@ -22,9 +22,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public async Task<ExitCode> RunAsync(string deploymentTaskId, string deploymentTargetId, CancellationToken cancellationToken = default)
         {
             //TODO use agent id
-            await _agentHub.Clients.All.SendAsync("Deploy", deploymentTaskId, deploymentTargetId);
+            await _agentHub.Clients.All.SendAsync(AgentConstants.SignalRDeployCommand, deploymentTaskId, deploymentTargetId, cancellationToken: cancellationToken);
 
-            await Task.Delay(TimeSpan.FromSeconds(10)); //TODO
+            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken); //TODO
 
             return ExitCode.Success;
         }

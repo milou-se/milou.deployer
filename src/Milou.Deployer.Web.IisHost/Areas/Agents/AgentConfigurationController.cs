@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public async Task<IActionResult> Index([FromBody]CreateAgentInstallConfiguration createAgentInstallConfiguration,
             [FromServices] IMediator mediator)
         {
-            var agentInstallConfiguration = await mediator.Send(createAgentInstallConfiguration);
+            AgentInstallConfiguration agentInstallConfiguration = await mediator.Send(createAgentInstallConfiguration);
 
             return new ObjectResult(agentInstallConfiguration);
         }

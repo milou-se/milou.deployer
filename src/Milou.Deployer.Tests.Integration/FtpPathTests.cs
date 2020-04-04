@@ -33,7 +33,7 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public void ParentShouldBeFoundForSubPath()
         {
-            var fileSystemItem = new FtpPath("/testpath/testsub", FileSystemType.Directory).Parent;
+            FtpPath fileSystemItem = new FtpPath("/testpath/testsub", FileSystemType.Directory).Parent;
 
             Assert.Equal("/testpath", fileSystemItem.Path);
         }
@@ -89,7 +89,7 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public void AppendFileToFolderShouldHaveFullPath()
         {
-            var fileSystemItem = new FtpPath("/a", FileSystemType.Directory).Append(new FtpPath("/b/c.txt", FileSystemType.File));
+            FtpPath fileSystemItem = new FtpPath("/a", FileSystemType.Directory).Append(new FtpPath("/b/c.txt", FileSystemType.File));
 
             Assert.Equal("/a/b/c.txt", fileSystemItem.Path);
         }

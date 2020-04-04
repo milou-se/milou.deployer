@@ -45,9 +45,9 @@ namespace Milou.Deployer.Web.Core.Logging
 
         public Task<Unit> Handle(ChangeLogLevelRequest request, CancellationToken cancellationToken)
         {
-            if (TryParse(request.ChangeLogLevel.NewLevel, out var newLevel))
+            if (TryParse(request.ChangeLogLevel.NewLevel, out LogEventLevel newLevel))
             {
-                var oldLevel = _levelSwitch.MinimumLevel;
+                LogEventLevel oldLevel = _levelSwitch.MinimumLevel;
 
                 if (oldLevel != newLevel)
                 {

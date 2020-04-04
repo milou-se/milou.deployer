@@ -6,10 +6,7 @@ namespace Milou.Deployer.Web.Core.Security
     //TODO extract from project
     public class EmailAddress
     {
-        private EmailAddress(string address)
-        {
-            Address = address;
-        }
+        private EmailAddress(string address) => Address = address;
 
         public string Address { get; }
 

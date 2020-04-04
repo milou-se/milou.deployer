@@ -2,10 +2,7 @@
 {
     public class ChangeLogLevel
     {
-        public ChangeLogLevel(string newLevel)
-        {
-            NewLevel = newLevel;
-        }
+        public ChangeLogLevel(string newLevel) => NewLevel = newLevel;
 
         public string NewLevel { get; }
     }

@@ -31,7 +31,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public string Name { get; }
 
-        public static bool TryParseOrDefault(string value, out PublishType publishType)
+        public static bool TryParseOrDefault(string value, out PublishType? publishType)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -39,11 +39,11 @@ namespace Milou.Deployer.Core.Deployment
                 return false;
             }
 
-            var found = All.SingleOrDefault(a => a.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
+            PublishType found = All.SingleOrDefault(a => a.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
 
             publishType = found ?? Default;
 
-            return found != null;
+            return found is {};
         }
 
         public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);

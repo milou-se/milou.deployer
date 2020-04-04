@@ -24,11 +24,9 @@ namespace Milou.Deployer.Web.Marten
     {
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
-        public MartenModule([NotNull] IKeyValueConfiguration keyValueConfiguration)
-        {
+        public MartenModule([NotNull] IKeyValueConfiguration keyValueConfiguration) =>
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
-        }
 
         private void ConfigureMarten(StoreOptions options, string connectionString)
         {
@@ -46,7 +44,7 @@ namespace Milou.Deployer.Web.Marten
 
         public IServiceCollection Register(IServiceCollection builder)
         {
-            var configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
+            System.Collections.Immutable.ImmutableArray<MartenConfiguration> configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
 
             if (configurations.IsDefaultOrEmpty)
             {
@@ -62,7 +60,7 @@ namespace Milou.Deployer.Web.Marten
                 return builder;
             }
 
-            var configuration = configurations.Single();
+            MartenConfiguration configuration = configurations.Single();
 
             if (!string.IsNullOrWhiteSpace(configuration.ConnectionString) && configuration.Enabled)
             {
@@ -71,12 +69,12 @@ namespace Milou.Deployer.Web.Marten
                 builder.AddSingleton(typeof(IDeploymentTargetService), typeof(MartenStore), this);
                 builder.AddSingleton<IDeploymentTaskPackageStore, DeploymentTaskPackageStore>();
 
-                var genericInterfaces = typeof(MartenStore)
+                Type[] genericInterfaces = typeof(MartenStore)
                     .GetInterfaces()
                     .Where(type => type.IsGenericType)
                     .ToArray();
 
-                foreach (var genericInterface in genericInterfaces)
+                foreach (Type genericInterface in genericInterfaces)
                 {
                     builder.Add(new ExtendedServiceDescriptor(genericInterface,
                         typeof(MartenStore),
