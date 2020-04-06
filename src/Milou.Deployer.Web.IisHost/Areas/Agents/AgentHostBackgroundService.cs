@@ -1,11 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions;
+using Arbor.KVConfiguration.Schema.Json;
 using Arbor.Processing;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Settings;
 using NuGet.Versioning;
 using Serilog;
@@ -49,7 +54,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 NuGetPackageVersion nuGetPackageVersion = currentVersion is {}
                     ? new NuGetPackageVersion(currentVersion)
                     : NuGetPackageVersion.LatestAvailable;
-                NuGetPackage nugetPackage = new NuGetPackage(new NuGetPackageId("Milou.Deployer.Web.Agent.Host"),
+                var nugetPackage = new NuGetPackage(new NuGetPackageId("Milou.Deployer.Web.Agent.Host"),
                     nuGetPackageVersion);
                 NugetPackageSettings nugetPackageSettings = NugetPackageSettings.Default;
                 string fileName = Assembly.GetExecutingAssembly().Location;
@@ -94,6 +99,42 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
         }
 
-        private async Task<SemanticVersion?> GetCurrentVersionAsync() => default;
+        private async Task<SemanticVersion?> GetCurrentVersionAsync()
+        {
+            string applicationMetadataPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory!,
+                "wwwroot",
+                "applicationmetadata.json");
+
+            string json = await File.ReadAllTextAsync(applicationMetadataPath);
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return default;
+            }
+
+            try
+            {
+                ConfigurationItems configuration =
+                    JsonConfigurationSerializer.Deserialize(json);
+
+                string? version = configuration.Keys.FirstOrDefault(key =>
+                    key.Key.Equals(DeployerAppConstants.SemanticVersionNormalized, StringComparison.Ordinal))?.Value;
+
+                if (string.IsNullOrWhiteSpace(version) ||
+                    !SemanticVersion.TryParse(version, out SemanticVersion? semanticVersion))
+                {
+                    return default;
+                }
+
+                return semanticVersion;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex, "Could not get version from applicationmetadata.json");
+
+                return default;
+            }
+        }
     }
 }

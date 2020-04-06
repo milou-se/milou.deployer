@@ -219,8 +219,8 @@
       },
       "Arbor.AspNetCore.Host": {
         "type": "Transitive",
-        "resolved": "0.6.0-build.1583328634",
-        "contentHash": "OTN/l3UCkJyiwU87BWyjN0fYr6EtOuH17LBCWM3Y7mj/lFnVgmVesdVT20zOnj5Rm+c3uEdAf7m752j6kXWqNQ==",
+        "resolved": "0.7.0-build.1586203062",
+        "contentHash": "12QxkPfNHCPV03zFUxq4vHeJ/ofKqt9ZGoZPGrJfW7a9ElKiPOpMJrDOheKjeZ0QefEqK26pwoqfJrURzha1+g==",
         "dependencies": {
           "Arbor.App.Extensions": "0.4.0-build.1583328273",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
@@ -261,6 +261,17 @@
           "Microsoft.Extensions.Logging.Abstractions": "3.0.1",
           "Microsoft.Extensions.Primitives": "3.0.1",
           "Newtonsoft.Json": "12.0.3"
+        }
+      },
+      "Arbor.Docker": {
+        "type": "Transitive",
+        "resolved": "0.4.0-build.0",
+        "contentHash": "9DX8JGM2YgBVIlqNuCot7Yjahuert5d8ixg6fn150KIRUv/OdgKNjeiV8+KyyihR0ZLGJQaJXIayV9Yvat4P4g==",
+        "dependencies": {
+          "Arbor.Processing": "0.5.1-build.0",
+          "JetBrains.Annotations": "2019.1.3",
+          "Serilog": "2.9.0",
+          "System.Collections.Immutable": "1.7.0"
         }
       },
       "Arbor.KVConfiguration.Core": {
@@ -2583,7 +2594,7 @@
       "milou.deployer.web.agent.host": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AspNetCore.Host": "0.6.0-build.1583328634",
+          "Arbor.AspNetCore.Host": "0.7.0-build.1586203062",
           "Arbor.Processing": "0.5.1-build.0",
           "Microsoft.AspNet.WebApi.Client": "5.2.7",
           "Microsoft.AspNetCore.SignalR.Client": "3.1.3",
@@ -2641,8 +2652,9 @@
         "type": "Project",
         "dependencies": {
           "Arbor.App.Extensions": "0.4.0-build.1583495382",
-          "Arbor.AspNetCore.Host": "0.6.0-build.1583328634",
+          "Arbor.AspNetCore.Host": "0.7.0-build.1586203062",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
+          "Arbor.Docker": "0.4.0-build.0",
           "Arbor.KVConfiguration.Core": "0.20.0",
           "Arbor.KVConfiguration.DependencyInjection": "0.20.0",
           "Arbor.KVConfiguration.JsonConfiguration": "0.20.0",

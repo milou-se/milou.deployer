@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v3.1": {
       "Arbor.AspNetCore.Host": {
         "type": "Direct",
-        "requested": "[0.6.0-build.1583328634, )",
-        "resolved": "0.6.0-build.1583328634",
-        "contentHash": "OTN/l3UCkJyiwU87BWyjN0fYr6EtOuH17LBCWM3Y7mj/lFnVgmVesdVT20zOnj5Rm+c3uEdAf7m752j6kXWqNQ==",
+        "requested": "[0.7.0-build.1586203062, )",
+        "resolved": "0.7.0-build.1586203062",
+        "contentHash": "12QxkPfNHCPV03zFUxq4vHeJ/ofKqt9ZGoZPGrJfW7a9ElKiPOpMJrDOheKjeZ0QefEqK26pwoqfJrURzha1+g==",
         "dependencies": {
           "Arbor.App.Extensions": "0.4.0-build.1583328273",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
