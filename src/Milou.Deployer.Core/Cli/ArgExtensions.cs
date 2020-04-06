@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Cli
 {
     public static class ArgExtensions
     {
-        public static string GetArgumentValueOrDefault(this IEnumerable<string> args, string argumentName)
+        [CanBeNull]
+        public static string? GetArgumentValueOrDefault(this IEnumerable<string> args, string argumentName)
         {
             if (args is null)
             {

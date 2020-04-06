@@ -505,7 +505,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     tempDirectoriesToClean.Add(packageInstallTempDirectory);
 
-                    InstalledPackage installedMainPackage =
+                    InstalledPackage? installedMainPackage =
                         await _packageInstaller.InstallPackageAsync(
                             deploymentExecutionDefinition,
                             packageInstallTempDirectory,
@@ -778,7 +778,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     try
                     {
-                        IIisManager manager = default;
+                        IIisManager? manager = default;
 
                         if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinition.IisSiteName))
                         {
@@ -822,7 +822,7 @@ namespace Milou.Deployer.Core.Deployment
                                         : deploymentExecutionDefinition.TargetDirectoryPath
                                 ).ConfigureAwait(false);
                             }
-                            else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType)
+                            else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType && deploymentExecutionDefinition.FtpPath is {})
                             {
                                 FtpPath basePath = deploymentExecutionDefinition.FtpPath;
 

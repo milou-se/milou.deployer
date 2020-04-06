@@ -193,13 +193,13 @@ namespace Milou.Deployer.Core.Deployment
 
         public bool? PackageListPrefixEnabled { get; }
 
-        public string NugetExePath { get; }
+        public string? NugetExePath { get; }
 
-        public string IisSiteName { get; }
+        public string? IisSiteName { get; }
 
-        public string NuGetConfigFile { get; }
+        public string? NuGetConfigFile { get; }
 
-        public string NuGetPackageSource { get; }
+        public string? NuGetPackageSource { get; }
 
         [JsonProperty(nameof(FtpPath))]
         public string? FtpPathValue => FtpPath?.Path;
