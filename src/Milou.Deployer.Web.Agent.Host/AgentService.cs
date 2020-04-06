@@ -14,7 +14,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace Milou.Deployer.Web.Agent.Host
 {
-    public class AgentService : BackgroundService, IAsyncDisposable
+    public sealed class AgentService : BackgroundService, IAsyncDisposable
     {
         private readonly IDeploymentPackageAgent _deploymentPackageAgent;
         private readonly ILogger _logger;

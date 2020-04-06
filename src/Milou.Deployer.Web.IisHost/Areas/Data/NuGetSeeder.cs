@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                 foreach (Core.Deployment.DeploymentTarget deploymentTarget in targets)
                 {
                     string? typeId = default;
-                    string environmentConfiguration = deploymentTarget.EnvironmentConfiguration;
+                    string? environmentConfiguration = deploymentTarget.EnvironmentConfiguration;
 
                     if (string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentTypeId)
                         && !string.IsNullOrWhiteSpace(environmentConfiguration))

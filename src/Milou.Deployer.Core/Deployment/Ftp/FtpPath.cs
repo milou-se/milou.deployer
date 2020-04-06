@@ -36,7 +36,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public bool IsRoot => Path.Equals(RootPath, StringComparison.OrdinalIgnoreCase);
 
-        public FtpPath Parent
+        public FtpPath? Parent
         {
             get
             {

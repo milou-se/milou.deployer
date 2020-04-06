@@ -28,10 +28,8 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 
             doc.Add(configurationElement);
 
-            using (var fileStream = new FileStream(filePath.FullName, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                await doc.SaveAsync(fileStream, SaveOptions.None, cancellationToken);
-            }
+            using var fileStream = new FileStream(filePath.FullName, FileMode.OpenOrCreate, FileAccess.Write);
+            await doc.SaveAsync(fileStream, SaveOptions.None, cancellationToken);
         }
     }
 }

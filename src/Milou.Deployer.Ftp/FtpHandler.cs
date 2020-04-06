@@ -97,7 +97,7 @@ namespace Milou.Deployer.Ftp
         private async Task DeleteFileInternalAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken)
         {
             int attempt = 1;
-            const int MaxAttempts = 5;
+            const int maxAttempts = 5;
 
             while (true)
             {
@@ -111,7 +111,7 @@ namespace Milou.Deployer.Ftp
                 }
                 catch (Exception ex)
                 {
-                    if (attempt > MaxAttempts)
+                    if (attempt > maxAttempts)
                     {
                         throw new FtpException($"Could not delete file '{filePath.Path}'", ex);
                     }
@@ -316,7 +316,7 @@ namespace Milou.Deployer.Ftp
                     uploaded += files.Length;
                     string elapsed = $"{stopwatch.Elapsed.TotalSeconds:F2}";
 
-                    string percentage = $"{100 * uploaded / (double)totalCount:F1}";
+                    string percentage = $"{100.0D * uploaded / totalCount:F1}";
 
                     string paddedPercentage = new string(' ', 5 - percentage.Length) + percentage;
 

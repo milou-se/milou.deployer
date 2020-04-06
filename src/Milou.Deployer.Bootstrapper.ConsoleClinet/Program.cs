@@ -16,12 +16,12 @@ namespace Milou.Deployer.Bootstrapper.ConsoleClient
         {
             int exitCode;
 
-            using (App app = await App.CreateAsync(args).ConfigureAwait(false))
+            using (BootstrapperApp bootstrapperApp = await BootstrapperApp.CreateAsync(args).ConfigureAwait(false))
             {
                 using var cts = new CancellationTokenSource(GetTimeout(args));
 
                 NuGetPackageInstallResult nuGetPackageInstallResult =
-                    await app.ExecuteAsync(args.ToImmutableArray(), cts.Token).ConfigureAwait(false);
+                    await bootstrapperApp.ExecuteAsync(args.ToImmutableArray(), cts.Token).ConfigureAwait(false);
 
                 exitCode = nuGetPackageInstallResult.SemanticVersion is {} &&
                            nuGetPackageInstallResult.PackageDirectory is {}

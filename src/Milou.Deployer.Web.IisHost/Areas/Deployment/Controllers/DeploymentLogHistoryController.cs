@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         public async Task<ActionResult<string[]>> LogJson(
             [FromServices] IMediator mediator,
             [FromRoute] string deploymentTaskId,
-            [FromQuery] string level = null)
+            [FromQuery] string? level = null)
         {
             Serilog.Events.LogEventLevel usedLevel = level.ParseOrDefault();
 

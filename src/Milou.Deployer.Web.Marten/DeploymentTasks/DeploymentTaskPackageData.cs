@@ -9,11 +9,11 @@
 
         public string[] ProcessArgs { get; set; }
 
-        public string NuGetConfigXml { get; set; }
+        public string? NuGetConfigXml { get; set; }
 
-        public string ManifestJson { get; set; }
+        public string? ManifestJson { get; set; }
 
-        public string PublishSettingsXml { get; set; }
+        public string? PublishSettingsXml { get; set; }
 
         public string AgentId { get; set; }
     }

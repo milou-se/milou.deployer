@@ -44,6 +44,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (ObjectDisposedException)
                 {
+                    // ignore
                 }
             }
 
@@ -58,7 +59,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     disposable.Dispose();
                 }
 
-                WebFixture = null;
+                WebFixture = null!;
             }
         }
     }

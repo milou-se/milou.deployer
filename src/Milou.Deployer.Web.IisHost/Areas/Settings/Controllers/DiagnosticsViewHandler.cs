@@ -72,6 +72,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(_environmentConfiguration.ContentBasePath))
+            {
+                return NoConfiguration.Empty;
+            }
+
             string applicationMetadataJsonFilePath = Path.Combine(_environmentConfiguration.ContentBasePath,
                 "wwwroot",
                 "applicationmetadata.json");
@@ -81,7 +86,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 return NoConfiguration.Empty;
             }
 
-            string json = await File.ReadAllTextAsync(applicationMetadataJsonFilePath, Encoding.UTF8, cancellationToken);
+            string json =
+                await File.ReadAllTextAsync(applicationMetadataJsonFilePath, Encoding.UTF8, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(json))
             {
@@ -138,7 +144,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
             IKeyValueConfiguration applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
 
-            ServiceInstance GetInstance(ServiceRegistrationInfo serviceRegistrationInfo)
+            ServiceInstance? GetInstance(ServiceRegistrationInfo serviceRegistrationInfo)
             {
                 Type registrationType = serviceRegistrationInfo.ServiceDescriptorServiceType;
 
@@ -191,8 +197,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 }
             }
 
-            ImmutableArray<DeploymentTargetWorker?> deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
-                .SafeToImmutableArray();
+            ImmutableArray<DeploymentTargetWorker> deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
+                .Where(item => item is {})
+                .SafeToImmutableArray()!;
 
             ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
 
@@ -204,7 +211,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 aspNetConfigurationValues,
                 serviceDiagnosticsRegistrations
                     .Select(GetInstance)
-                    .Where(item => item is object)
+                    .Where(item => item is {})
                     .ToImmutableArray(),
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,

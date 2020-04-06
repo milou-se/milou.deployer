@@ -138,7 +138,7 @@ namespace Milou.Deployer.Core.Deployment
             FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
             FtpPath = path;
 
-            PublishType = publishTypeValue;
+            PublishType = publishTypeValue ?? PublishType.Default;
 
             ExcludedFilePatternsCombined = excludedFilePatterns ?? "";
 

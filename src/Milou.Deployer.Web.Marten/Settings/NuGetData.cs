@@ -7,8 +7,8 @@ namespace Milou.Deployer.Web.Marten.Settings
     {
         public TimeSpan? PackageListTimeout { get; set; }
 
-        public string NuGetConfigFile { get; set; }
+        public string? NuGetConfigFile { get; set; }
 
-        public string NuGetPackageSource { get; set; }
+        public string? NuGetPackageSource { get; set; }
     }
 }

@@ -147,7 +147,7 @@ namespace Milou.Deployer.Core.NuGet
 
             const string sourceKey = ConfigurationKeys.NuGetSource;
             string nugetSourceInConfiguration = _deployerConfiguration.NuGetSource;
-            string nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
+            string? nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
 
             if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
             {

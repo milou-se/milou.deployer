@@ -177,10 +177,10 @@ namespace Milou.Deployer.Waws
 
                     bool TargetExistsInSource(FileInfo targetFile)
                     {
-                        string expectedSourceName = targetFile.FullName.Replace(targetDir.FullName, "");
+                        string expectedSourceName = targetFile.FullName.Replace(targetDir.FullName, "", StringComparison.Ordinal);
 
                         bool sourceFileExists = allSourceFiles.Any(sourceFile =>
-                            sourceFile.FullName.Replace(sourceDir.FullName, "").Equals(expectedSourceName,
+                            sourceFile.FullName.Replace(sourceDir.FullName, "", StringComparison.Ordinal).Equals(expectedSourceName,
                                 StringComparison.OrdinalIgnoreCase));
 
                         return sourceFileExists;
@@ -215,7 +215,7 @@ namespace Milou.Deployer.Waws
                     foreach (FileInfo fileInfo in toDelete)
                     {
                         fileInfo.Delete();
-                        logAction($"Deleted file '{fileInfo.FullName}'");
+                        logAction?.Invoke($"Deleted file '{fileInfo.FullName}'");
                     }
 
                     DeleteEmptyDirectory(targetDir);
@@ -271,9 +271,9 @@ namespace Milou.Deployer.Waws
 
                         if (appOfflineFile.Exists)
                         {
-                            logAction($"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction?.Invoke($"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                             appOfflineFile.Delete();
-                            logAction($"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction?.Invoke($"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                         }
                     }
                 }

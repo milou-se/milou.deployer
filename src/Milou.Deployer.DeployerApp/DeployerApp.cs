@@ -166,7 +166,7 @@ namespace Milou.Deployer.DeployerApp
 
             AssemblyName assemblyName = executingAssembly.GetName();
 
-            string assemblyVersion = assemblyName.Version.ToString().ThrowIfNullOrEmpty();
+            string? assemblyVersion = assemblyName.Version?.ToString().ThrowIfNullOrEmpty();
 
             string location = executingAssembly.Location.ThrowIfNullOrEmpty();
 

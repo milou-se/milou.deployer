@@ -41,17 +41,12 @@ namespace Milou.Deployer.Web.Core.Health
             {
                 try
                 {
-                    using (CancellationTokenSource cts =
-                        _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(healthCheck.TimeoutInSeconds))
-                    )
-                    {
-                        using (var combined =
-                            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token))
-                        {
-                            _logger.Debug("Making health check with {Check}", healthCheck.Description);
-                            await healthCheck.CheckHealthAsync(combined.Token);
-                        }
-                    }
+                    using CancellationTokenSource cts =
+                        _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(healthCheck.TimeoutInSeconds));
+                    using var combined =
+                       CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token);
+                    _logger.Debug("Making health check with {Check}", healthCheck.Description);
+                    await healthCheck.CheckHealthAsync(combined.Token);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {

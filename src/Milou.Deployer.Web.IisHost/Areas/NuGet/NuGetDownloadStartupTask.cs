@@ -57,24 +57,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             {
                 var fromSeconds = TimeSpan.FromSeconds(initialNuGetDownloadTimeoutInSeconds);
 
-                using (CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(fromSeconds))
+                using CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(fromSeconds);
+                string? downloadDirectory = _configuration[DeployerAppConstants.NuGetExeDirectory].WithDefault(null);
+                string? exeVersion = _configuration[DeployerAppConstants.NuGetExeVersion].WithDefault(null);
+
+                HttpClient httpClient = _httpClientFactory.CreateClient();
+
+                var nuGetDownloadClient = new NuGetDownloadClient();
+                NuGetDownloadResult nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(
+                    new NuGetDownloadSettings(downloadDirectory: downloadDirectory, nugetExeVersion: exeVersion),
+                    _logger,
+                    httpClient,
+                    cts.Token);
+
+                if (nuGetDownloadResult.Succeeded)
                 {
-                    string? downloadDirectory = _configuration[DeployerAppConstants.NuGetExeDirectory].WithDefault(null);
-                    string? exeVersion = _configuration[DeployerAppConstants.NuGetExeVersion].WithDefault(null);
-
-                    HttpClient httpClient = _httpClientFactory.CreateClient();
-
-                    var nuGetDownloadClient = new NuGetDownloadClient();
-                    NuGetDownloadResult nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(
-                        new NuGetDownloadSettings(downloadDirectory: downloadDirectory, nugetExeVersion: exeVersion),
-                        _logger,
-                        httpClient,
-                        cts.Token);
-
-                    if (nuGetDownloadResult.Succeeded)
-                    {
-                        nugetExePath = nuGetDownloadResult.NuGetExePath;
-                    }
+                    nugetExePath = nuGetDownloadResult.NuGetExePath;
                 }
             }
             catch (Exception ex)
@@ -82,7 +80,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 _logger.Warning(ex, "Could not download nuget.exe");
             }
 
-            _nugetConfiguration.NugetExePath = nugetExePath;
+            if (_configuration is { })
+            {
+                _nugetConfiguration.NugetExePath = nugetExePath;
+            }
 
             IsCompleted = true;
         }

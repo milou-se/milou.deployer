@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 
         public DeploymentTaskPackageStore(IDocumentStore martenStore) => _martenStore = martenStore;
 
-        public async Task<DeploymentTaskPackage> GetDeploymentTaskPackageAsync(string deploymentTaskId,
+        public async Task<DeploymentTaskPackage?> GetDeploymentTaskPackageAsync(string deploymentTaskId,
             CancellationToken cancellationToken)
         {
             using IDocumentSession lightweightSession = _martenStore.LightweightSession();

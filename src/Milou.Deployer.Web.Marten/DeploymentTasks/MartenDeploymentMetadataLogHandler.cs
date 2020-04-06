@@ -17,25 +17,23 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 
         public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
         {
-            using (IDocumentSession session = _documentStore.OpenSession())
+            using IDocumentSession session = _documentStore.OpenSession();
+            var taskMetadata = new TaskMetadata
             {
-                var taskMetadata = new TaskMetadata
-                {
-                    PackageId = notification.DeploymentTask.PackageId,
-                    Version = notification.DeploymentTask.SemanticVersion.ToNormalizedString(),
-                    DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
-                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
-                    Id = $"deploymentTaskMetadata/{notification.DeploymentTask.DeploymentTaskId}",
-                    StartedAtUtc = notification.Result.StartedAtUtc,
-                    FinishedAtUtc = notification.Result.FinishedAtUtc,
-                    Metadata = notification.Result.Metadata,
-                    ExitCode = notification.Result.ExitCode.Code
-                };
+                PackageId = notification.DeploymentTask.PackageId,
+                Version = notification.DeploymentTask.SemanticVersion.ToNormalizedString(),
+                DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
+                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                Id = $"deploymentTaskMetadata/{notification.DeploymentTask.DeploymentTaskId}",
+                StartedAtUtc = notification.Result.StartedAtUtc,
+                FinishedAtUtc = notification.Result.FinishedAtUtc,
+                Metadata = notification.Result.Metadata,
+                ExitCode = notification.Result.ExitCode.Code
+            };
 
-                session.Store(taskMetadata);
+            session.Store(taskMetadata);
 
-                await session.SaveChangesAsync(cancellationToken);
-            }
+            await session.SaveChangesAsync(cancellationToken);
         }
     }
 }

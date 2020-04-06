@@ -108,8 +108,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     return;
                 }
 
-                DeploymentTask deploymentTask = default;
-                IDeploymentService service = default;
+                DeploymentTask? deploymentTask = default;
+                IDeploymentService? service = default;
 
                 try
                 {
@@ -177,7 +177,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 finally
                 {
-                    CurrentTask = null;
+                    CurrentTask = null!;
                     _serviceAdded.Reset();
                     _loggingCompleted.Reset();
                     service.SafeDispose();
@@ -220,60 +220,59 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                using (CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10)))
-                {
-                    DeploymentTask[] tasksInQueue = _queue.ToArray();
+                using CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10));
 
-                    if (tasksInQueue.Length > 0
-                        && tasksInQueue.Any(
-                            queued =>
-                                queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
-                                && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
+                DeploymentTask[] tasksInQueue = _queue.ToArray();
+
+                if (tasksInQueue.Length > 0
+                    && tasksInQueue.Any(
+                        queued =>
+                            queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
+                            && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
+                {
+                    _logger.Warning(
+                        "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, current queue length {Length}",
+                        deploymentTask.PackageId,
+                        deploymentTask.SemanticVersion.ToNormalizedString(),
+                        tasksInQueue.Length);
+
+                    return;
+                }
+
+                if (deploymentTask.StartedBy is {}
+                    && deploymentTask.StartedBy.Equals(
+                        nameof(AutoDeployBackgroundService),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (CurrentTask is {}
+                        && CurrentTask.SemanticVersion == deploymentTask.SemanticVersion
+                        && CurrentTask.PackageId == deploymentTask.PackageId)
                     {
-                        _logger.Warning(
-                            "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, current queue length {Length}",
-                            deploymentTask.PackageId,
-                            deploymentTask.SemanticVersion.ToNormalizedString(),
-                            tasksInQueue.Length);
+                        _logger.Warning("A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
                         return;
                     }
 
-                    if (deploymentTask.StartedBy is {}
-                        && deploymentTask.StartedBy.Equals(
-                            nameof(AutoDeployBackgroundService),
-                            StringComparison.OrdinalIgnoreCase))
+                    if (tasksInQueue.Length > 0
+                        && tasksInQueue.Any(
+                            queued => queued?.StartedBy?.Equals(
+                                nameof(AutoDeployBackgroundService),
+                                StringComparison.OrdinalIgnoreCase) == true))
                     {
-                        if (CurrentTask is {}
-                            && CurrentTask.SemanticVersion == deploymentTask.SemanticVersion
-                            && CurrentTask.PackageId == deploymentTask.PackageId)
-                        {
-                            _logger.Warning("A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
+                        _logger.Warning("A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
-                            return;
-                        }
-
-                        if (tasksInQueue.Length > 0
-                            && tasksInQueue.Any(
-                                queued => queued.StartedBy.Equals(
-                                    nameof(AutoDeployBackgroundService),
-                                    StringComparison.OrdinalIgnoreCase)))
-                        {
-                            _logger.Warning("A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
-
-                            return;
-                        }
+                        return;
                     }
-
-                    deploymentTask.Status = WorkTaskStatus.Enqueued;
-                    deploymentTask.EnqueuedAtUtc = _clock.UtcNow().UtcDateTime;
-                    _queue.Add(deploymentTask, cts.Token);
-
-                    _logger.Information(
-                        "Enqueued deployment task {DeploymentTask}, current queue length {Length}",
-                        deploymentTask,
-                        tasksInQueue);
                 }
+
+                deploymentTask.Status = WorkTaskStatus.Enqueued;
+                deploymentTask.EnqueuedAtUtc = _clock.UtcNow().UtcDateTime;
+                _queue.Add(deploymentTask, cts.Token);
+
+                _logger.Information(
+                    "Enqueued deployment task {DeploymentTask}, current queue length {Length}",
+                    deploymentTask,
+                    tasksInQueue);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {

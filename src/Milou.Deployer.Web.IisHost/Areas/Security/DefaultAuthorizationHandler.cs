@@ -79,7 +79,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 {
                     EmailAddress?[] matches = emailClaims.Select(claim =>
                         {
-                            bool parsed = EmailAddress.TryParse(claim.Value, out EmailAddress parsedAddress);
+                            bool parsed = EmailAddress.TryParse(claim.Value, out EmailAddress? parsedAddress);
 
                             if (!parsed)
                             {
@@ -87,7 +87,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                             }
 
                             return parsedAddress;
-                        }).Where(emailAddress => emailAddress is {})
+                        })
+                        .Where(emailAddress => emailAddress is {})
                         .Where(emailAddress => _allowedEmailDomains.Any(domain =>
                             domain.Domain.Equals(emailAddress.Domain, StringComparison.OrdinalIgnoreCase)))
                         .ToArray();

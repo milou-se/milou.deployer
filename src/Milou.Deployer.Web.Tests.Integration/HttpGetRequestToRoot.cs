@@ -19,19 +19,17 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override async Task RunAsync()
         {
-            using (var httpClient = new HttpClient())
-            {
-                string url = $"http://localhost:{HttpPort}";
+            using var httpClient = new HttpClient();
+            string url = $"http://localhost:{HttpPort}";
 
-                try
-                {
-                    ResponseMessage = await httpClient.GetAsync(url, CancellationToken);
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    App?.Logger?.Error(ex, "Error in test when making HTTP GET request {Url}", url);
-                    Assert.NotNull(ex);
-                }
+            try
+            {
+                ResponseMessage = await httpClient.GetAsync(url, CancellationToken);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                App?.Logger?.Error(ex, "Error in test when making HTTP GET request {Url}", url);
+                Assert.NotNull(ex);
             }
         }
     }

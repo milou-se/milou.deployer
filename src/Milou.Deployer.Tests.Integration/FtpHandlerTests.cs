@@ -33,22 +33,19 @@ namespace Milou.Deployer.Tests.Integration
                 AppOfflineEnabled = true
             };
 
-            using (var cancellationTokenSource =
-                new CancellationTokenSource(TimeSpan.FromSeconds(50)))
+            using var cancellationTokenSource =
+                new CancellationTokenSource(TimeSpan.FromSeconds(50));
+            DeploySummary summary = await handler.PublishAsync(ruleConfiguration,
+sourceDirectory,
+cancellationTokenSource.Token);
 
+            _testOutputHelper.WriteLine(summary.ToDisplayValue());
+
+            System.Collections.Immutable.ImmutableArray<FtpPath> fileSystemItems = await handler.ListDirectoryAsync(FtpPath.Root, cancellationTokenSource.Token);
+
+            foreach (FtpPath fileSystemItem in fileSystemItems)
             {
-                DeploySummary summary = await handler.PublishAsync(ruleConfiguration,
-                    sourceDirectory,
-                    cancellationTokenSource.Token);
-
-                _testOutputHelper.WriteLine(summary.ToDisplayValue());
-
-                System.Collections.Immutable.ImmutableArray<FtpPath> fileSystemItems = await handler.ListDirectoryAsync(FtpPath.Root, cancellationTokenSource.Token);
-
-                foreach (FtpPath fileSystemItem in fileSystemItems)
-                {
-                    _testOutputHelper.WriteLine(fileSystemItem.Path);
-                }
+                _testOutputHelper.WriteLine(fileSystemItem.Path);
             }
         }
     }

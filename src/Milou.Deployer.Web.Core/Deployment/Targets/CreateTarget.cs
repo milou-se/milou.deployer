@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
     public class CreateTarget : IRequest<CreateTargetResult>
     {
-        public CreateTarget(string id, string name)
+        public CreateTarget(string? id, string? name)
         {
             Id = id?.Trim();
             Name = name?.Trim();

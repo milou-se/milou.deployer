@@ -27,7 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
 
         public IReadOnlyCollection<string> CachedKeys => GetCachedKeys();
 
-        public bool TryGetValue<T>(string key, out T item) where T : class
+        public bool TryGetValue<T>(string key, out T? item) where T : class
         {
             if (string.IsNullOrWhiteSpace(key))
             {

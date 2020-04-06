@@ -8,7 +8,7 @@ using Serilog;
 
 namespace Milou.Deployer.Waws
 {
-    internal class DeploymentObject : IDisposable
+    internal sealed class DeploymentObject : IDisposable
     {
         private readonly ILogger _logger;
 
@@ -99,14 +99,9 @@ namespace Milou.Deployer.Waws
 
                 string url;
 
-                if (!deploymentBaseOptions.ComputerName.StartsWith("https://"))
-                {
-                    url = $"https://{deploymentBaseOptions.ComputerName}";
-                }
-                else
-                {
-                    url = deploymentBaseOptions.ComputerName;
-                }
+                url = !deploymentBaseOptions.ComputerName.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                    ? $"https://{deploymentBaseOptions.ComputerName}"
+                    : deploymentBaseOptions.ComputerName;
 
                 if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.SiteName))
                 {
@@ -192,7 +187,7 @@ namespace Milou.Deployer.Waws
             var syncToInternal = new DeploySummary();
             onConfigureArgs(arguments);
 
-            string ParseEntry(string entry)
+            static string ParseEntry(string entry)
             {
                 ReadOnlySpan<char> asSpan = entry.AsSpan();
 

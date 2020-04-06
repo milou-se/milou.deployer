@@ -36,7 +36,7 @@ namespace Milou.Deployer.Tests.Integration
                     }
                 }
 
-                Directory = null;
+                Directory = null!;
             }
         }
     }

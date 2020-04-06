@@ -75,21 +75,19 @@ namespace Milou.Deployer.Web.Tests.Integration
                     string contents;
                     try
                     {
-                        using (HttpResponseMessage responseMessage = await httpClient.GetAsync(url))
+                        using HttpResponseMessage responseMessage = await httpClient.GetAsync(url);
+                        contents = await responseMessage.Content.ReadAsStringAsync();
+
+                        Output.WriteLine($"{responseMessage.StatusCode} {contents}");
+
+                        if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable
+                            || responseMessage.StatusCode == HttpStatusCode.NotFound)
                         {
-                            contents = await responseMessage.Content.ReadAsStringAsync();
-
-                            Output.WriteLine($"{responseMessage.StatusCode} {contents}");
-
-                            if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable
-                                || responseMessage.StatusCode == HttpStatusCode.NotFound)
-                            {
-                                await Task.Delay(TimeSpan.FromMilliseconds(100));
-                                continue;
-                            }
-
-                            Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+                            await Task.Delay(TimeSpan.FromMilliseconds(100));
+                            continue;
                         }
+
+                        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
                     }
                     catch (Exception ex) when (!ex.IsFatal())
                     {

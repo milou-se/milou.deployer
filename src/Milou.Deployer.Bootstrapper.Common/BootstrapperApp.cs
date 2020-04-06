@@ -18,14 +18,14 @@ using Serilog;
 
 namespace Milou.Deployer.Bootstrapper.Common
 {
-    public sealed class App : IDisposable
+    public sealed class BootstrapperApp : IDisposable
     {
         private readonly bool _disposeNested;
         private HttpClient _httpClient;
         private ILogger _logger;
         private NuGetPackageInstaller _packageInstaller;
 
-        private App(NuGetPackageInstaller packageInstaller, ILogger logger, HttpClient httpClient, bool disposeNested)
+        private BootstrapperApp(NuGetPackageInstaller packageInstaller, ILogger logger, HttpClient httpClient, bool disposeNested)
         {
             _packageInstaller = packageInstaller ?? throw new ArgumentNullException(nameof(packageInstaller));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -33,7 +33,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             _disposeNested = disposeNested;
         }
 
-        public static Task<App> CreateAsync(
+        public static Task<BootstrapperApp> CreateAsync(
             string[] args,
             ILogger? logger = default,
             HttpClient? httpClient = default,
@@ -50,7 +50,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             {
                 LoggerConfiguration loggerConfiguration = new LoggerConfiguration().WriteTo.Console();
 
-                string correlationId = GetCorrelationId(appArgs);
+                string? correlationId = GetCorrelationId(appArgs);
 
                 if (!string.IsNullOrWhiteSpace(correlationId))
                 {
@@ -74,7 +74,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                 nuGetDownloadSettings,
                 logger);
 
-            return Task.FromResult(new App(nuGetPackageInstaller, logger, httpClient, disposeNested));
+            return Task.FromResult(new BootstrapperApp(nuGetPackageInstaller, logger, httpClient, disposeNested));
         }
 
         public void Dispose()
@@ -173,7 +173,7 @@ namespace Milou.Deployer.Bootstrapper.Common
 
         private static FileInfo? GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
         {
-            string exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
+            string? exePath = appArgs.GetArgumentValueOrDefault("deployer-exe");
 
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
@@ -244,9 +244,9 @@ namespace Milou.Deployer.Bootstrapper.Common
             return nugetSource;
         }
 
-        private static string GetCorrelationId(ImmutableArray<string> appArgs)
+        private static string? GetCorrelationId(ImmutableArray<string> appArgs)
         {
-            string correlationId = appArgs.GetArgumentValueOrDefault("correlation-id");
+            string? correlationId = appArgs.GetArgumentValueOrDefault("correlation-id");
 
             return correlationId;
         }

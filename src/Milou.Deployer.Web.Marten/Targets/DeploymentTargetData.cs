@@ -20,19 +20,19 @@ namespace Milou.Deployer.Web.Marten.Targets
 
         public Uri Url { get; set; }
 
-        public string IisSiteName { get; set; }
+        public string? IisSiteName { get; set; }
 
         public bool AutoDeployEnabled { get; set; }
 
         public string PackageId { get; set; }
 
-        public string PublishSettingsXml { get; set; }
+        public string? PublishSettingsXml { get; set; }
 
-        public string TargetDirectory { get; set; }
+        public string? TargetDirectory { get; set; }
 
-        public string WebConfigTransform { get; set; }
+        public string? WebConfigTransform { get; set; }
 
-        public string ExcludedFilePatterns { get; set; }
+        public string? ExcludedFilePatterns { get; set; }
 
         public string PublishType { get; set; }
 

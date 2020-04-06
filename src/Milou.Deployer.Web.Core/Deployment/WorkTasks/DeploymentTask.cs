@@ -43,7 +43,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             [NotNull] PackageVersion packageVersion,
             [NotNull] string deploymentTargetId,
             Guid deploymentTaskId,
-            string startedBy)
+            string? startedBy)
         {
             if (packageVersion is null)
             {
@@ -58,7 +58,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
                 $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.Ordinal)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
-        public string StartedBy { get; }
+        public string? StartedBy { get; }
 
 
         public SemanticVersion SemanticVersion { get; }

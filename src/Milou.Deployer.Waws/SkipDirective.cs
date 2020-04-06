@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace Milou.Deployer.Waws
+﻿namespace Milou.Deployer.Waws
 {
     internal class SkipDirective
     {
@@ -15,6 +13,6 @@ namespace Milou.Deployer.Waws
 
         public string Path { get; }
 
-        public string Description { get; }
+        public string? Description { get; }
     }
 }

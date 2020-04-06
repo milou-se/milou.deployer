@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _logger = logger;
         }
 
-        public async Task<PackageEventNotification> TryGetWebHookNotification(
+        public async Task<PackageEventNotification?> TryGetWebHookNotification(
             HttpRequest request,
             string content,
             CancellationToken cancellationToken)

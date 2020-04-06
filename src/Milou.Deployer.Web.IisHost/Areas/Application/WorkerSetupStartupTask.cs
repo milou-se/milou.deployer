@@ -75,20 +75,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     startupTimeoutInSeconds = 30;
                 }
 
-                using (CancellationTokenSource startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
-                {
-                    using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
-                        stoppingToken,
-                        startupToken.Token))
-                    {
-                        targetIds =
-                            (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linkedToken.Token))
-                            .Select(deploymentTarget => deploymentTarget.Id)
-                            .ToArray();
+                using CancellationTokenSource startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds));
+                using var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
+stoppingToken,
+startupToken.Token);
+                targetIds =
+(await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linkedToken.Token))
+.Select(deploymentTarget => deploymentTarget.Id)
+.ToArray();
 
-                        _logger.Debug("Found deployment target IDs {IDs}", targetIds);
-                    }
-                }
+                _logger.Debug("Found deployment target IDs {IDs}", targetIds);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {

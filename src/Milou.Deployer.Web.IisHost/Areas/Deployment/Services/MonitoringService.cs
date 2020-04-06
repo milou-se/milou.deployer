@@ -92,41 +92,37 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     });
                 }
 
-                using (var linkedTokenSource =
-                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
+                using var linkedTokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token);
+                Task<(HttpResponseMessage, string)> metadataTask = GetApplicationMetadataTask(target, linkedTokenSource.Token);
+
+                Task<IReadOnlyCollection<PackageVersion>> allowedPackagesTask = GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+
+                await Task.WhenAll(metadataTask, allowedPackagesTask);
+
+                (HttpResponseMessage response, string message) = await metadataTask;
+
+                IReadOnlyCollection<PackageVersion> packages = await allowedPackagesTask;
+
+                using HttpResponseMessage httpResponseMessage = response;
+                if (httpResponseMessage is null)
                 {
-                    Task<(HttpResponseMessage, string)> metadataTask = GetApplicationMetadataTask(target, linkedTokenSource.Token);
-
-                    Task<IReadOnlyCollection<PackageVersion>> allowedPackagesTask = GetAllowedPackagesAsync(target, linkedTokenSource.Token);
-
-                    await Task.WhenAll(metadataTask, allowedPackagesTask);
-
-                    (HttpResponseMessage response, string message) = await metadataTask;
-
-                    IReadOnlyCollection<PackageVersion> packages = await allowedPackagesTask;
-
-                    using (HttpResponseMessage httpResponseMessage = response)
-                    {
-                        if (httpResponseMessage is null)
-                        {
-                            return new AppVersion(
-                                target,
-                                message ?? $"Could not get application metadata from target {target.Url}, no response",
-                                packages);
-                        }
-
-                        if (!httpResponseMessage.IsSuccessStatusCode)
-                        {
-                            return new AppVersion(
-                                target,
-                                message ?? $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
-                                packages);
-                        }
-
-                        appMetadata =
-                            await GetAppVersionAsync(httpResponseMessage, target, packages, linkedTokenSource.Token);
-                    }
+                    return new AppVersion(
+                        target,
+                        message ?? $"Could not get application metadata from target {target.Url}, no response",
+                        packages);
                 }
+
+                if (!httpResponseMessage.IsSuccessStatusCode)
+                {
+                    return new AppVersion(
+                        target,
+                        message ?? $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
+                        packages);
+                }
+
+                appMetadata =
+                    await GetAppVersionAsync(httpResponseMessage, target, packages, linkedTokenSource.Token);
             }
 
             if (appMetadata.SemanticVersion is {})
@@ -150,103 +146,101 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             using (CancellationTokenSource cancellationTokenSource =
                 _timeoutHelper.CreateCancellationTokenSource(applicationSettings.DefaultMetadataRequestTimeout))
             {
-                using (var linkedTokenSource =
-                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
+                using var linkedTokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token);
+                var tasks = new Dictionary<string, Task<(HttpResponseMessage, string)>>();
+
+                foreach (DeploymentTarget deploymentTarget in targets)
                 {
-                    var tasks = new Dictionary<string, Task<(HttpResponseMessage, string)>>();
-
-                    foreach (DeploymentTarget deploymentTarget in targets)
+                    if (!deploymentTarget.Enabled)
                     {
-                        if (!deploymentTarget.Enabled)
-                        {
-                            appVersions.Add(new AppVersion(
-                                deploymentTarget,
-                                "Disabled",
-                                ImmutableArray<PackageVersion>.Empty));
-                        }
-                        else if (deploymentTarget.Url is {})
-                        {
-                            Task<(HttpResponseMessage, string)> getApplicationMetadataTask =
-                                GetApplicationMetadataTask(deploymentTarget, linkedTokenSource.Token);
-
-                            tasks.Add(deploymentTarget.Id, getApplicationMetadataTask);
-                        }
-                        else
-                        {
-                            appVersions.Add(new AppVersion(
-                                deploymentTarget,
-                                "Missing URL",
-                                ImmutableArray<PackageVersion>.Empty));
-                        }
+                        appVersions.Add(new AppVersion(
+                            deploymentTarget,
+                            "Disabled",
+                            ImmutableArray<PackageVersion>.Empty));
                     }
-
-                    await Task.WhenAll(tasks.Values);
-
-                    foreach (KeyValuePair<string, Task<(HttpResponseMessage, string)>> pair in tasks)
+                    else if (deploymentTarget.Url is { })
                     {
-                        DeploymentTarget target = targets.Single(deploymentTarget => deploymentTarget.Id == pair.Key);
+                        Task<(HttpResponseMessage, string)> getApplicationMetadataTask =
+                            GetApplicationMetadataTask(deploymentTarget, linkedTokenSource.Token);
 
-                        IReadOnlyCollection<PackageVersion> allowedPackages =
-                            await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+                        tasks.Add(deploymentTarget.Id, getApplicationMetadataTask);
+                    }
+                    else
+                    {
+                        appVersions.Add(new AppVersion(
+                            deploymentTarget,
+                            "Missing URL",
+                            ImmutableArray<PackageVersion>.Empty));
+                    }
+                }
 
-                        try
+                await Task.WhenAll(tasks.Values);
+
+                foreach (KeyValuePair<string, Task<(HttpResponseMessage, string)>> pair in tasks)
+                {
+                    DeploymentTarget target = targets.Single(deploymentTarget => deploymentTarget.Id == pair.Key);
+
+                    IReadOnlyCollection<PackageVersion> allowedPackages =
+                        await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+
+                    try
+                    {
+                        (HttpResponseMessage Response, string Message) result = await pair.Value;
+
+                        AppVersion appVersion;
+                        using (HttpResponseMessage response = result.Response)
                         {
-                            (HttpResponseMessage Response, string Message) result = await pair.Value;
+                            string message = result.Message;
 
-                            AppVersion appVersion;
-                            using (HttpResponseMessage response = result.Response)
+                            if (response.HasValue() && response.IsSuccessStatusCode)
                             {
-                                string message = result.Message;
-
-                                if (response.HasValue() && response.IsSuccessStatusCode)
+                                appVersion = await GetAppVersionAsync(
+                                                 response,
+                                                 target,
+                                                 allowedPackages,
+                                                 linkedTokenSource.Token);
+                            }
+                            else
+                            {
+                                if (message.HasValue())
                                 {
-                                    appVersion = await GetAppVersionAsync(
-                                                     response,
-                                                     target,
-                                                     allowedPackages,
-                                                     linkedTokenSource.Token);
+                                    IReadOnlyCollection<PackageVersion> packages =
+                                        await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+                                    appVersion = new AppVersion(target, message, packages);
+
+                                    _logger.Error(
+                                        "Could not get metadata for target {Name} ({Url}), http status code {StatusCode}",
+                                        target.Name,
+                                        target.Url,
+                                        response?.StatusCode.ToString() ?? Constants.NotAvailable);
                                 }
                                 else
                                 {
-                                    if (message.HasValue())
-                                    {
-                                        IReadOnlyCollection<PackageVersion> packages =
-                                            await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
-                                        appVersion = new AppVersion(target, message, packages);
+                                    IReadOnlyCollection<PackageVersion> packages =
+                                        await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+                                    appVersion = new AppVersion(target, "Unknown error", packages);
 
-                                        _logger.Error(
-                                            "Could not get metadata for target {Name} ({Url}), http status code {StatusCode}",
-                                            target.Name,
-                                            target.Url,
-                                            response?.StatusCode.ToString() ?? Constants.NotAvailable);
-                                    }
-                                    else
-                                    {
-                                        IReadOnlyCollection<PackageVersion> packages =
-                                            await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
-                                        appVersion = new AppVersion(target, "Unknown error", packages);
-
-                                        _logger.Error(
-                                            "Could not get metadata for target {Name} ({Url}), http status code {StatusCode}",
-                                            target.Name,
-                                            target.Url,
-                                            response?.StatusCode.ToString() ?? Constants.NotAvailable);
-                                    }
+                                    _logger.Error(
+                                        "Could not get metadata for target {Name} ({Url}), http status code {StatusCode}",
+                                        target.Name,
+                                        target.Url,
+                                        response?.StatusCode.ToString() ?? Constants.NotAvailable);
                                 }
                             }
-
-                            appVersions.Add(appVersion);
                         }
-                        catch (JsonReaderException ex)
-                        {
-                            appVersions.Add(new AppVersion(target, ex.Message, ImmutableArray<PackageVersion>.Empty));
 
-                            _logger.Error(
-                                ex,
-                                "Could not get metadata for target {Name} ({Url})",
-                                target.Name,
-                                target.Url);
-                        }
+                        appVersions.Add(appVersion);
+                    }
+                    catch (JsonReaderException ex)
+                    {
+                        appVersions.Add(new AppVersion(target, ex.Message, ImmutableArray<PackageVersion>.Empty));
+
+                        _logger.Error(
+                            ex,
+                            "Could not get metadata for target {Name} ({Url})",
+                            target.Name,
+                            target.Url);
                     }
                 }
             }

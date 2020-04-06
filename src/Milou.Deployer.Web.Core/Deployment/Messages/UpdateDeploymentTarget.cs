@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             ExcludedFilePatterns = excludedFilePatterns;
             PublishType.TryParseOrDefault(publishType, out PublishType? foundPublishType);
             FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
-            PublishType = foundPublishType;
+            PublishType = foundPublishType ?? PublishType.Default;
             FtpPath = path;
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
@@ -78,23 +78,23 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public bool AllowExplicitPreRelease { get; }
 
-        public string IisSiteName { get; }
+        public string? IisSiteName { get; }
 
-        public string NugetPackageSource { get; }
+        public string? NugetPackageSource { get; }
 
-        public string NugetConfigFile { get; }
+        public string? NugetConfigFile { get; }
 
         public bool AutoDeployEnabled { get; }
 
-        public string PublishSettingsXml { get; }
+        public string? PublishSettingsXml { get; }
 
-        public string TargetDirectory { get; }
+        public string? TargetDirectory { get; }
 
-        public string WebConfigTransform { get; }
+        public string? WebConfigTransform { get; }
 
-        public string PackageId { get; }
+        public string? PackageId { get; }
 
-        public string ExcludedFilePatterns { get; }
+        public string? ExcludedFilePatterns { get; }
 
         public PublishType PublishType { get; }
 

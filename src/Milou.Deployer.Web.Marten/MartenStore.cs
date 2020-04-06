@@ -182,9 +182,12 @@ namespace Milou.Deployer.Web.Marten
                                 .Where(target =>
                                     target.ProjectId is {}
                                     && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase));
+
                             return new ProjectInfo(org.Id,
                                 project.Id,
-                                deploymentTargetDatas.Select(s => MapDataToTarget(s, environmentTypes))
+                                deploymentTargetDatas
+                                    .Select(s => MapDataToTarget(s, environmentTypes))
+                                    .Where(item => item is {})!
                             );
                         })
                         .ToImmutableArray()))
@@ -218,98 +221,92 @@ namespace Milou.Deployer.Web.Marten
 
         private async Task<DeploymentTarget> FindDeploymentTargetAsync(string deploymentTargetId, CancellationToken cancellationToken)
         {
-            using (IQuerySession session = _documentStore.QuerySession())
+            using IQuerySession session = _documentStore.QuerySession();
+            try
             {
-                try
-                {
-                    DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
-                        .SingleOrDefaultAsync(target =>
-                                target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
-                            cancellationToken);
+                DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
+                    .SingleOrDefaultAsync(target =>
+                            target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
+                        cancellationToken);
 
-                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
-                    DeploymentTarget? deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
+                ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
+                DeploymentTarget? deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
 
-                    return deploymentTarget ?? DeploymentTarget.None;
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    _logger.Warning(ex, "Could not get deployment target with id {Id}", deploymentTargetId);
-                    return DeploymentTarget.None;
-                }
+                return deploymentTarget ?? DeploymentTarget.None;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Warning(ex, "Could not get deployment target with id {Id}", deploymentTargetId);
+                return DeploymentTarget.None;
             }
         }
 
         public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
             CancellationToken cancellationToken = default)
         {
-            using (IQuerySession session = _documentStore.QuerySession())
+            using IQuerySession session = _documentStore.QuerySession();
+            try
             {
-                try
-                {
-                    IReadOnlyList<DeploymentTargetData> targets =
-                        await session.Query<DeploymentTargetData>()
-                            .Where(target => target.Enabled)
-                            .ToListAsync(cancellationToken);
+                IReadOnlyList<DeploymentTargetData> targets =
+                    await session.Query<DeploymentTargetData>()
+                        .Where(target => target.Enabled)
+                        .ToListAsync(cancellationToken);
 
-                    IReadOnlyList<ProjectData> projects =
-                        await session.Query<ProjectData>()
-                            .ToListAsync<ProjectData>(cancellationToken);
+                IReadOnlyList<ProjectData> projects =
+                    await session.Query<ProjectData>()
+                        .ToListAsync<ProjectData>(cancellationToken);
 
-                    IReadOnlyList<OrganizationData> organizations =
-                        await session.Query<OrganizationData>()
-                            .ToListAsync<OrganizationData>(
-                                cancellationToken);
+                IReadOnlyList<OrganizationData> organizations =
+                    await session.Query<OrganizationData>()
+                        .ToListAsync<OrganizationData>(
+                            cancellationToken);
 
-                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
+                ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
 
-                    ImmutableArray<OrganizationInfo> organizationsInfo =
-                        MapDataToOrganizations(organizations, projects, targets, environmentTypes);
+                ImmutableArray<OrganizationInfo> organizationsInfo =
+                    MapDataToOrganizations(organizations, projects, targets, environmentTypes);
 
-                    return organizationsInfo;
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    _logger.Warning(ex, "Could not get any organizations targets");
-                    return ImmutableArray<OrganizationInfo>.Empty;
-                }
+                return organizationsInfo;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Warning(ex, "Could not get any organizations targets");
+                return ImmutableArray<OrganizationInfo>.Empty;
             }
         }
 
         public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default, CancellationToken stoppingToken = default)
         {
-            using (IQuerySession session = _documentStore.QuerySession())
+            using IQuerySession session = _documentStore.QuerySession();
+            bool Filter(DeploymentTarget target)
             {
-                bool Filter(DeploymentTarget target)
+                if (options is null || options.OnlyEnabled)
                 {
-                    if (options is null || options.OnlyEnabled)
-                    {
-                        return target.Enabled;
-                    }
-
-                    return true;
+                    return target.Enabled;
                 }
 
-                try
-                {
-                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: stoppingToken);
+                return true;
+            }
 
-                    IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
-                        .ToListAsync<DeploymentTargetData>(stoppingToken);
+            try
+            {
+                ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: stoppingToken);
 
-                    var deploymentTargets = targets
-                        .Select(targetData => MapDataToTarget(targetData, environmentTypes)!)
-                        .Where(Filter)
-                        .OrderBy(target => target.Name)
-                        .ToImmutableArray();
+                IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
+                    .ToListAsync<DeploymentTargetData>(stoppingToken);
 
-                    return deploymentTargets;
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    _logger.Warning(ex, "Could not get any deployment targets");
-                    return ImmutableArray<DeploymentTarget>.Empty;
-                }
+                var deploymentTargets = targets
+                    .Select(targetData => MapDataToTarget(targetData, environmentTypes)!)
+                    .Where(Filter)
+                    .OrderBy(target => target.Name)
+                    .ToImmutableArray();
+
+                return deploymentTargets;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Warning(ex, "Could not get any deployment targets");
+                return ImmutableArray<DeploymentTarget>.Empty;
             }
         }
 
@@ -317,17 +314,15 @@ namespace Milou.Deployer.Web.Marten
             string organizationId,
             CancellationToken cancellationToken = default)
         {
-            using (IQuerySession session = _documentStore.QuerySession())
-            {
-                IReadOnlyList<ProjectData> projects =
-                    await session.Query<ProjectData>().Where(project =>
-                            project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase))
-                        .ToListAsync(cancellationToken);
+            using IQuerySession session = _documentStore.QuerySession();
+            IReadOnlyList<ProjectData> projects =
+await session.Query<ProjectData>().Where(project =>
+project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase))
+.ToListAsync(cancellationToken);
 
-                return projects.Select(project =>
-                        new ProjectInfo(project.OrganizationId, project.Id, ImmutableArray<DeploymentTarget>.Empty))
-                    .ToImmutableArray();
-            }
+            return projects.Select(project =>
+                    new ProjectInfo(project.OrganizationId, project.Id, ImmutableArray<DeploymentTarget>.Empty))
+                .ToImmutableArray();
         }
 
         public async Task<CreateOrganizationResult> Handle(
@@ -585,48 +580,44 @@ namespace Milou.Deployer.Web.Marten
                 throw new ArgumentNullException(nameof(request));
             }
 
-            using (IDocumentSession session = _documentStore.OpenSession())
+            using IDocumentSession session = _documentStore.OpenSession();
+            EnvironmentTypeData environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId.Trim(), cancellationToken);
+
+            if (environmentTypeData is { })
             {
-                EnvironmentTypeData environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId.Trim(), cancellationToken);
-
-                if (environmentTypeData is {})
-                {
-                    return new CreateEnvironmentResult(environmentTypeData.Id, Result.AlreadyExists);
-                }
-
-                EnvironmentTypeData data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
-
-                if (data.Id.IsNullOrWhiteSpace())
-                {
-                    return new CreateEnvironmentResult("", Result.Failed);
-                }
-
-                return new CreateEnvironmentResult(data.Id, Result.Created);
+                return new CreateEnvironmentResult(environmentTypeData.Id, Result.AlreadyExists);
             }
+
+            EnvironmentTypeData data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
+
+            if (data.Id.IsNullOrWhiteSpace())
+            {
+                return new CreateEnvironmentResult("", Result.Failed);
+            }
+
+            return new CreateEnvironmentResult(data.Id, Result.Created);
         }
 
         public async Task Handle(DeploymentTaskCreatedNotification notification, CancellationToken cancellationToken)
         {
-            using (IDocumentSession session = _documentStore.OpenSession())
+            using IDocumentSession session = _documentStore.OpenSession();
+            session.Store(new DeploymentTaskData
             {
-                session.Store(new DeploymentTaskData
-                {
-                    Id = notification.DeploymentTask.DeploymentTaskId,
-                    PackageVersion = notification.DeploymentTask.PackageVersion,
-                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
-                    StartedBy = notification.DeploymentTask.StartedBy,
-                    AgentId = ""
-                });
+                Id = notification.DeploymentTask.DeploymentTaskId,
+                PackageVersion = notification.DeploymentTask.PackageVersion,
+                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                StartedBy = notification.DeploymentTask.StartedBy,
+                AgentId = ""
+            });
 
-                await session.SaveChangesAsync(cancellationToken);
-            }
+            await session.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<Unit> Handle(CreateDeploymentTaskPackage request, CancellationToken cancellationToken)
         {
             using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var deploymentTaskPackageData = new DeploymentTaskPackageData()
+                var deploymentTaskPackageData = new DeploymentTaskPackageData
                 {
                     Id = request.DeploymentTaskPackage.DeploymentTaskId,
                     DeploymentTargetId = request.DeploymentTaskPackage.DeploymentTargetId,

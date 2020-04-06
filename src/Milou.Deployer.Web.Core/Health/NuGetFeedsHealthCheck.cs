@@ -82,25 +82,21 @@ namespace Milou.Deployer.Web.Core.Health
         {
             try
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Get, nugetFeed))
+                using var request = new HttpRequestMessage(HttpMethod.Get, nugetFeed);
+                using HttpResponseMessage httpResponseMessage = await _httpClient.CreateClient(nugetFeed.Host)
+.SendAsync(request, cancellationToken);
+                if (httpResponseMessage.StatusCode == HttpStatusCode.OK ||
+httpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    using (HttpResponseMessage httpResponseMessage = await _httpClient.CreateClient(nugetFeed.Host)
-                        .SendAsync(request, cancellationToken))
-                    {
-                        if (httpResponseMessage.StatusCode == HttpStatusCode.OK ||
-                            httpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
-                        {
-                            nugetFeeds[nugetFeed] = true;
-                        }
-                        else
-                        {
-                            nugetFeeds[nugetFeed] = false;
-                            _logger.Verbose(
-                                "Failed to get expected result from NuGet feed {Feed}, status code {HttpStatusCode}",
-                                nugetFeed,
-                                httpResponseMessage.StatusCode);
-                        }
-                    }
+                    nugetFeeds[nugetFeed] = true;
+                }
+                else
+                {
+                    nugetFeeds[nugetFeed] = false;
+                    _logger.Verbose(
+                        "Failed to get expected result from NuGet feed {Feed}, status code {HttpStatusCode}",
+                        nugetFeed,
+                        httpResponseMessage.StatusCode);
                 }
             }
             catch (Exception ex) when (!ex.IsFatal())

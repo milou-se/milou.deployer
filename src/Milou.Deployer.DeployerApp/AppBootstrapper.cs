@@ -11,17 +11,15 @@ namespace Milou.Deployer.DeployerApp
             int exitCode;
             try
             {
-                using (DeployerApp deployerApp = await AppBuilder.BuildAppAsync(args).ConfigureAwait(false))
+                using DeployerApp deployerApp = await AppBuilder.BuildAppAsync(args).ConfigureAwait(false);
+                try
                 {
-                    try
-                    {
-                        exitCode = await deployerApp.ExecuteAsync(args).ConfigureAwait(false);
-                    }
-                    catch (Exception ex) when (!ex.IsFatal())
-                    {
-                        deployerApp.Logger.Fatal(ex, "Could not execute deployment");
-                        exitCode = 2;
-                    }
+                    exitCode = await deployerApp.ExecuteAsync(args).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    deployerApp.Logger.Fatal(ex, "Could not execute deployment");
+                    exitCode = 2;
                 }
             }
             catch (Exception ex) when (!ex.IsFatal())

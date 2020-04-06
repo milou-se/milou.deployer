@@ -85,7 +85,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
             return organizations.ToImmutableArray();
         }
 
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions options = default, CancellationToken stoppingToken = default)
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default, CancellationToken stoppingToken = default)
         {
             ImmutableArray<OrganizationInfo> organizations = await GetOrganizationsAsync(stoppingToken);
 

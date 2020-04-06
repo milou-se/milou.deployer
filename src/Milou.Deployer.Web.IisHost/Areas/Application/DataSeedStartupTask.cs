@@ -70,17 +70,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             {
                 try
                 {
-                    using (CancellationTokenSource startupToken =
-                        _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds)))
-                    {
-                        using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
-                            cancellationToken,
-                            startupToken.Token))
-                        {
-                            _logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
-                            await dataSeeder.SeedAsync(linkedToken.Token);
-                        }
-                    }
+                    using CancellationTokenSource startupToken =
+                        _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds));
+                    using var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
+cancellationToken,
+startupToken.Token);
+                    _logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
+                    await dataSeeder.SeedAsync(linkedToken.Token);
                 }
                 catch (TaskCanceledException ex)
                 {

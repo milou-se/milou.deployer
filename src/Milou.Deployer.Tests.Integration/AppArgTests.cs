@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.DeployerApp;
 using Serilog;
@@ -56,7 +55,7 @@ namespace Milou.Deployer.Tests.Integration
         public async Task TempPathShouldBeSetWhenDefined()
         {
             string tempPath;
-            string oldTemp = default;
+            string? oldTemp = default;
 
             Directory.CreateDirectory(@"C:\temp");
 
@@ -67,11 +66,9 @@ namespace Milou.Deployer.Tests.Integration
 
                 CancellationToken cancellationToken = default;
 
-                using (DeployerApp.DeployerApp deployerApp = await
-                    AppBuilder.BuildAppAsync(args, null, cancellationToken))
-                {
-                    tempPath = Path.GetTempPath();
-                }
+                using DeployerApp.DeployerApp deployerApp = await
+                    AppBuilder.BuildAppAsync(args, null, cancellationToken);
+                tempPath = Path.GetTempPath();
             }
             finally
             {

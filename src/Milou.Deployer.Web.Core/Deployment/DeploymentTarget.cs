@@ -61,10 +61,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            PublishType.TryParseOrDefault(publishType, out PublishType type);
-            PublishType = type;
+            PublishType.TryParseOrDefault(publishType, out PublishType? type);
+            PublishType = type ?? PublishType.Default;
 
-            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
             FtpPath = path;
 
             Url = url;
@@ -155,7 +155,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public PublishType PublishType { get; }
 
         [JsonProperty(nameof(FtpPath))]
-        public string FtpPathValue => FtpPath?.Path;
+        public string? FtpPathValue => FtpPath?.Path;
 
         [JsonIgnore]
         public FtpPath? FtpPath { get; }

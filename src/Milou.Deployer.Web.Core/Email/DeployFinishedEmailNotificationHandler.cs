@@ -27,7 +27,7 @@ namespace Milou.Deployer.Web.Core.Email
             [NotNull] IDeploymentTargetReadService targetSource,
             [NotNull] ILogger logger,
             TimeoutHelper timeoutHelper,
-            EmailConfiguration emailConfiguration = null)
+            EmailConfiguration? emailConfiguration = null)
         {
             _smtpService = smtpService ?? throw new ArgumentNullException(nameof(smtpService));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -61,58 +61,56 @@ namespace Milou.Deployer.Web.Core.Email
                 return;
             }
 
-            using (CancellationTokenSource cancellationTokenSource =
-                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
+            using CancellationTokenSource cancellationTokenSource =
+                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds));
+            Deployment.DeploymentTarget target =
+await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
+cancellationTokenSource.Token);
+
+            if (target is null)
             {
-                Deployment.DeploymentTarget target =
-                    await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
-                        cancellationTokenSource.Token);
+                return;
+            }
 
-                if (target is null)
-                {
-                    return;
-                }
+            if (!target.EmailNotificationAddresses.Any())
+            {
+                return;
+            }
 
-                if (!target.EmailNotificationAddresses.Any())
-                {
-                    return;
-                }
+            var mimeMessage = new MimeMessage();
 
-                var mimeMessage = new MimeMessage();
-
-                foreach (string targetEmailNotificationAddress in target.EmailNotificationAddresses)
-                {
-                    try
-                    {
-                        mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
-                    }
-                    catch (Exception ex) when (!ex.IsFatal())
-                    {
-                        _logger.Error(ex,
-                            "Could not add email address {EmailAddress} when sending deployment finished notification email",
-                            targetEmailNotificationAddress);
-                    }
-                }
-
-                mimeMessage.Body = new TextPart
-                {
-                    Text =
-                        $@"Deployment finished for {notification.DeploymentTask}
-{notification.Result.Metadata}"
-                };
-
-                mimeMessage.Subject = $"Deployment finished for {notification.DeploymentTask}";
-
+            foreach (string targetEmailNotificationAddress in target.EmailNotificationAddresses)
+            {
                 try
                 {
-                    await _smtpService.SendAsync(mimeMessage, cancellationTokenSource.Token);
+                    mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Error(ex,
-                        "Could not send email to '{To}'",
-                        string.Join(", ", target.EmailNotificationAddresses));
+                        "Could not add email address {EmailAddress} when sending deployment finished notification email",
+                        targetEmailNotificationAddress);
                 }
+            }
+
+            mimeMessage.Body = new TextPart
+            {
+                Text =
+                    $@"Deployment finished for {notification.DeploymentTask}
+{notification.Result.Metadata}"
+            };
+
+            mimeMessage.Subject = $"Deployment finished for {notification.DeploymentTask}";
+
+            try
+            {
+                await _smtpService.SendAsync(mimeMessage, cancellationTokenSource.Token);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex,
+                    "Could not send email to '{To}'",
+                    string.Join(", ", target.EmailNotificationAddresses));
             }
         }
     }

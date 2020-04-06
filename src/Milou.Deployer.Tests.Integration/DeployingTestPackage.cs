@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Milou.Deployer.ConsoleClient;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.DeployerApp;
@@ -73,66 +72,64 @@ namespace Milou.Deployer.Tests.Integration
                     int exitCode;
                     using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                     {
-                        using (var testTargetDirectory = TempDirectory.CreateTempDirectory())
+                        using var testTargetDirectory = TempDirectory.CreateTempDirectory();
+                        using (TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
                         {
-                            using (TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory))
+                            string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
+
+                            _output.WriteLine(json);
+
+                            var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json,
+                                new { definitions = Array.Empty<DeploymentExecutionDefinition>() });
+
+                            Assert.NotNull(deploymentExecutionDefinition);
+                            Assert.NotNull(deploymentExecutionDefinition.definitions);
+
+                            Assert.Single(deploymentExecutionDefinition.definitions);
+
+                            string nugetConfig = Path.Combine(
+                                VcsTestPathHelper.FindVcsRootPath(),
+                                "src",
+                                "Milou.Deployer.Tests.Integration",
+                                "Config",
+                                "NuGet.Config");
+
+                            string[] args = { tempFile.File.FullName, "-nuget-config=" + nugetConfig };
+
+                            Serilog.Core.Logger logger = new LoggerConfiguration()
+                                .WriteTo.TestSink(_output)
+                                .MinimumLevel.Verbose()
+                                .CreateLogger();
+
+                            using (logger)
                             {
-                                string json = File.ReadAllText(tempFile.File.FullName, Encoding.UTF8);
-
-                                _output.WriteLine(json);
-
-                                var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json,
-                                    new { definitions = Array.Empty<DeploymentExecutionDefinition>() });
-
-                                Assert.NotNull(deploymentExecutionDefinition);
-                                Assert.NotNull(deploymentExecutionDefinition.definitions);
-
-                                Assert.Single(deploymentExecutionDefinition.definitions);
-
-                                string nugetConfig = Path.Combine(
-                                    VcsTestPathHelper.FindVcsRootPath(),
-                                    "src",
-                                    "Milou.Deployer.Tests.Integration",
-                                    "Config",
-                                    "NuGet.Config");
-
-                                string[] args = { tempFile.File.FullName, "-nuget-config=" + nugetConfig };
-
-                                Serilog.Core.Logger logger = new LoggerConfiguration()
-                                    .WriteTo.TestSink(_output)
-                                    .MinimumLevel.Verbose()
-                                    .CreateLogger();
-
-                                using (logger)
+                                using (DeployerApp.DeployerApp deployerApp = await
+                                    AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
                                 {
-                                    using (DeployerApp.DeployerApp deployerApp = await
-                                        AppBuilder.BuildAppAsync(args, logger, cancellationTokenSource.Token))
-                                    {
-                                        exitCode = await deployerApp.ExecuteAsync(args,
-                                            cancellationTokenSource.Token);
-                                    }
-
-                                    logger?.Dispose();
+                                    exitCode = await deployerApp.ExecuteAsync(args,
+                                        cancellationTokenSource.Token);
                                 }
+
+                                logger?.Dispose();
                             }
-
-                            FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
-                            Assert.NotNull(indexHtml);
-
-                            DirectoryInfo wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
-
-                            Assert.NotNull(wwwrootDirectory);
-                            FileInfo applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
-                            Assert.NotNull(applicationmetadata);
-
-                            string text = File.ReadAllText(applicationmetadata.FullName);
-
-                            var metadata = JsonConvert.DeserializeAnonymousType(
-                                text,
-                                new { keys = new List<KeyValuePair<string, string>>() });
-
-                            Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
                         }
+
+                        FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
+                        Assert.NotNull(indexHtml);
+
+                        DirectoryInfo wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
+
+                        Assert.NotNull(wwwrootDirectory);
+                        FileInfo applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
+                        Assert.NotNull(applicationmetadata);
+
+                        string text = File.ReadAllText(applicationmetadata.FullName);
+
+                        var metadata = JsonConvert.DeserializeAnonymousType(
+                            text,
+                            new { keys = new List<KeyValuePair<string, string>>() });
+
+                        Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
                     }
 
                     Assert.Equal(0, exitCode);

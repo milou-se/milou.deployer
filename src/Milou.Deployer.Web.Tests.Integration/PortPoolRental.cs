@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _disposeAction?.Invoke(this);
 
-            _disposeAction = null;
+            _disposeAction = null!;
         }
     }
 }

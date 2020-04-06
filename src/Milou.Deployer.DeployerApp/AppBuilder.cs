@@ -138,8 +138,8 @@ namespace Milou.Deployer.DeployerApp
                     logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
                 }
 
-                string nugetSource = args.GetArgumentValueOrDefault("nuget-source");
-                string nugetConfig = args.GetArgumentValueOrDefault("nuget-config");
+                string? nugetSource = args.GetArgumentValueOrDefault("nuget-source");
+                string? nugetConfig = args.GetArgumentValueOrDefault("nuget-config");
 
                 var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(
                     true,
@@ -249,7 +249,7 @@ namespace Milou.Deployer.DeployerApp
             return LoggingConstants.DefaultFormat;
         }
 
-        private static string GetMachineSettingsFile(DirectoryInfo currentDirectory)
+        private static string? GetMachineSettingsFile(DirectoryInfo currentDirectory)
         {
             if (currentDirectory is null)
             {

@@ -74,7 +74,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public async Task Handle(TargetDisabled notification, CancellationToken cancellationToken)
         {
             if (!_configurationInstanceHolder.TryGet(notification.TargetId,
-                out DeploymentTargetWorker worker))
+                out DeploymentTargetWorker? worker))
             {
                 _logger.Warning("Could not get worker for target id {TargetId}", notification.TargetId);
                 return;
@@ -86,7 +86,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public Task Handle(TargetEnabled notification, CancellationToken cancellationToken)
         {
             if (!_configurationInstanceHolder.TryGet(notification.TargetId,
-                out DeploymentTargetWorker worker))
+                out DeploymentTargetWorker? worker))
             {
                 _logger.Warning("Could not get worker for target id {TargetId}", notification.TargetId);
                 return Task.CompletedTask;

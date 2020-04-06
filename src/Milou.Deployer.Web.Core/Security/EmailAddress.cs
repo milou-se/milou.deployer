@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Core.Security
 
         public string Domain => Address.Split('@').Last();
 
-        public static bool TryParse(string email, out EmailAddress emailAddress)
+        public static bool TryParse(string email, out EmailAddress? emailAddress)
         {
             if (string.IsNullOrWhiteSpace(email))
             {

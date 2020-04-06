@@ -50,13 +50,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             IReadOnlyCollection<DeploymentTarget> targets;
             try
             {
-                using (System.Threading.CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30)))
-                {
-                    targets =
-                        (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(
-                            organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                        .SafeToReadOnlyCollection();
-                }
+                using System.Threading.CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30));
+                targets =
+(await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(
+organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
+.SafeToReadOnlyCollection();
             }
             catch (Exception ex)
             {

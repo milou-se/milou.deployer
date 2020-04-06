@@ -178,17 +178,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
-                    using (var linked =
+                    using var linked =
                         CancellationTokenSource.CreateLinkedTokenSource(
                             stoppingToken,
-                            packageVersionCancellationTokenSource.Token))
-                    {
-                        packageVersions =
-                            (await _packageService.GetPackageVersionsAsync(
-                                 deploymentTarget.PackageId,
-                                 cancellationToken: linked.Token,
-                                 logger: _logger)).ToImmutableHashSet();
-                    }
+                            packageVersionCancellationTokenSource.Token);
+                    packageVersions =
+(await _packageService.GetPackageVersionsAsync(
+deploymentTarget.PackageId,
+cancellationToken: linked.Token,
+logger: _logger)).ToImmutableHashSet();
                 }
 
                 return packageVersions;
@@ -209,17 +207,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
                 {
-                    using (var linkedCancellationTokenSource =
-                        CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken))
-                    {
-                        CancellationToken cancellationToken = linkedCancellationTokenSource.Token;
+                    using var linkedCancellationTokenSource =
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
+                    CancellationToken cancellationToken = linkedCancellationTokenSource.Token;
 
-                        System.Collections.Generic.IEnumerable<Task<AppVersion>> tasks = targetsWithUrl.Select(
-                            target =>
-                                _monitoringService.GetAppMetadataAsync(target, cancellationToken));
+                    System.Collections.Generic.IEnumerable<Task<AppVersion>> tasks = targetsWithUrl.Select(
+                        target =>
+                            _monitoringService.GetAppMetadataAsync(target, cancellationToken));
 
-                        appVersions = await Task.WhenAll(tasks);
-                    }
+                    appVersions = await Task.WhenAll(tasks);
                 }
 
                 return appVersions;
@@ -241,16 +237,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
-                    using (var linked =
+                    using var linked =
                         CancellationTokenSource.CreateLinkedTokenSource(
                             stoppingToken,
-                            targetsTokenSource.Token))
-                    {
-                        deploymentTargets =
-                            (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linked.Token))
-                            .Where(target => target.Enabled && target.AutoDeployEnabled)
-                            .ToImmutableArray();
-                    }
+                            targetsTokenSource.Token);
+                    deploymentTargets =
+(await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linked.Token))
+.Where(target => target.Enabled && target.AutoDeployEnabled)
+.ToImmutableArray();
                 }
 
                 return deploymentTargets;

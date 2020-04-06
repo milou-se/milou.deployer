@@ -52,13 +52,13 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
             Directory.SetCurrentDirectory(currentDir.FullName);
 
-            using (App deployerApp =
-                await App.CreateAsync(deploymentTaskPackage.DeployerProcessArgs.ToArray(),
+            using (BootstrapperApp deployerBootstrapperApp =
+                await BootstrapperApp.CreateAsync(deploymentTaskPackage.DeployerProcessArgs.ToArray(),
                     jobLogger,
                     httpClient,
                     false))
             {
-                NuGetPackageInstallResult result = await deployerApp.ExecuteAsync(
+                NuGetPackageInstallResult result = await deployerBootstrapperApp.ExecuteAsync(
                     deploymentTaskPackage.DeployerProcessArgs,
                     cancellationToken);
 

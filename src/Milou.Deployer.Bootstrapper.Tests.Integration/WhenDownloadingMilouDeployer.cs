@@ -16,22 +16,18 @@ namespace Milou.Deployer.Bootstrapper.Tests.Integration
         {
             string[] args = { Constants.AllowPreRelease, Constants.DownloadOnly };
 
-            using (Logger logger = new LoggerConfiguration()
+            using Logger logger = new LoggerConfiguration()
                 .WriteTo.Debug()
                 .MinimumLevel.Verbose()
-                .CreateLogger())
-            {
-                using (App app = await App.CreateAsync(args, logger))
-                {
-                    NuGetPackageInstallResult nuGetPackageInstallResult =
-                        await app.ExecuteAsync(args.ToImmutableArray());
+                .CreateLogger();
+            using BootstrapperApp bootstrapperApp = await BootstrapperApp.CreateAsync(args, logger);
+            NuGetPackageInstallResult nuGetPackageInstallResult =
+await bootstrapperApp.ExecuteAsync(args.ToImmutableArray());
 
-                    Assert.NotNull(nuGetPackageInstallResult);
-                    Assert.NotNull(nuGetPackageInstallResult.NuGetPackageId);
-                    Assert.NotNull(nuGetPackageInstallResult.PackageDirectory);
-                    Assert.NotNull(nuGetPackageInstallResult.SemanticVersion);
-                }
-            }
+            Assert.NotNull(nuGetPackageInstallResult);
+            Assert.NotNull(nuGetPackageInstallResult.NuGetPackageId);
+            Assert.NotNull(nuGetPackageInstallResult.PackageDirectory);
+            Assert.NotNull(nuGetPackageInstallResult.SemanticVersion);
         }
     }
 }

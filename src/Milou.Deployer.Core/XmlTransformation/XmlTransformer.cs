@@ -99,10 +99,8 @@ namespace Milou.Deployer.Core.XmlTransformation
                     transformationFile.FullName,
                     destFilePath);
 
-                using (var destinationFileStream = new FileStream(destFilePath, FileMode.OpenOrCreate))
-                {
-                    xmlTransformableDocument.Save(destinationFileStream);
-                }
+                using var destinationFileStream = new FileStream(destFilePath, FileMode.OpenOrCreate);
+                xmlTransformableDocument.Save(destinationFileStream);
             }
 
             File.Copy(destFilePath, originalFile.FullName, true);

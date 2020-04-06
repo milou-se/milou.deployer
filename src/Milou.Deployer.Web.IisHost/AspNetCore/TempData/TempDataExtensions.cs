@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                 return;
             }
 
-            string key = typeof(T).FullName;
+            string? key = typeof(T).FullName;
 
             if (string.IsNullOrWhiteSpace(key))
             {
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
             }
         }
 
-        public static T Get<T>(this ITempDataDictionary? tempData) where T : class
+        public static T? Get<T>(this ITempDataDictionary? tempData) where T : class
         {
             try
             {

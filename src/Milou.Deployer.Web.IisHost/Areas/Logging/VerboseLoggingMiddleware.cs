@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
         {
             bool loggingEnabled = _logger.IsEnabled(LogEventLevel.Verbose);
 
-            string commonRequestInfo = null;
+            string? commonRequestInfo = null;
 
             if (loggingEnabled)
             {

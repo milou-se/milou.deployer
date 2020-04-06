@@ -29,68 +29,66 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public static FtpPublishSettings Load(string publishSettingsFile)
         {
-            using (var fileStream = new FileStream(publishSettingsFile, FileMode.Open))
+            using var fileStream = new FileStream(publishSettingsFile, FileMode.Open);
+            var document = XDocument.Load(fileStream);
+
+            System.Collections.Generic.IEnumerable<XElement> descendantNodes =
+                document.Element("publishData")?
+                    .Descendants("publishProfile") ??
+                throw new InvalidOperationException("Missing publishData and publishProfiles");
+
+            XElement ftpElement = descendantNodes.SingleOrDefault(element =>
             {
-                var document = XDocument.Load(fileStream);
+                string? ftpAttribute = element.Attribute(PublishMethodAttribute)?.Value;
 
-                System.Collections.Generic.IEnumerable<XElement> descendantNodes =
-                    document.Element("publishData")?
-                        .Descendants("publishProfile") ??
-                    throw new InvalidOperationException("Missing publishData and publishProfiles");
-
-                XElement ftpElement = descendantNodes.SingleOrDefault(element =>
+                if (ftpAttribute is null)
                 {
-                    string? ftpAttribute = element.Attribute(PublishMethodAttribute)?.Value;
-
-                    if (ftpAttribute is null)
-                    {
-                        return false;
-                    }
-
-                    if (ftpAttribute.Equals("FTP", StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
-
                     return false;
-                });
-
-                if (ftpElement is null)
-                {
-                    throw new InvalidOperationException("Could not find element with publishMethod FTP");
                 }
 
-                string? userName = ftpElement.Attribute(UsernameAttribute)?.Value;
-                string? password = ftpElement.Attribute(UserPasswordAttribute)?.Value;
-                string? ftpBaseUri = ftpElement.Attribute(PublishUrlAttribute)?.Value;
-
-                if (string.IsNullOrWhiteSpace(userName))
+                if (ftpAttribute.Equals("FTP", StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new InvalidOperationException($"Missing {UsernameAttribute} in publish settings");
+                    return true;
                 }
 
-                if (string.IsNullOrWhiteSpace(password))
-                {
-                    throw new InvalidOperationException($"Missing {UserPasswordAttribute} in publish settings");
-                }
+                return false;
+            });
 
-                if (string.IsNullOrWhiteSpace(ftpBaseUri))
-                {
-                    throw new InvalidOperationException($"Missing {PublishUrlAttribute} in publish settings");
-                }
-
-                if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out Uri? uri))
-                {
-                    throw new InvalidOperationException($"The ftp uri '{ftpBaseUri}' is not valid");
-                }
-
-                if (!uri.Scheme.Equals("ftp", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new InvalidOperationException($"Invalid scheme for ftp URI {uri.AbsoluteUri}");
-                }
-
-                return new FtpPublishSettings(userName, password, uri);
+            if (ftpElement is null)
+            {
+                throw new InvalidOperationException("Could not find element with publishMethod FTP");
             }
+
+            string? userName = ftpElement.Attribute(UsernameAttribute)?.Value;
+            string? password = ftpElement.Attribute(UserPasswordAttribute)?.Value;
+            string? ftpBaseUri = ftpElement.Attribute(PublishUrlAttribute)?.Value;
+
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                throw new InvalidOperationException($"Missing {UsernameAttribute} in publish settings");
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new InvalidOperationException($"Missing {UserPasswordAttribute} in publish settings");
+            }
+
+            if (string.IsNullOrWhiteSpace(ftpBaseUri))
+            {
+                throw new InvalidOperationException($"Missing {PublishUrlAttribute} in publish settings");
+            }
+
+            if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out Uri? uri))
+            {
+                throw new InvalidOperationException($"The ftp uri '{ftpBaseUri}' is not valid");
+            }
+
+            if (!uri.Scheme.Equals("ftp", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException($"Invalid scheme for ftp URI {uri.AbsoluteUri}");
+            }
+
+            return new FtpPublishSettings(userName, password, uri);
         }
     }
 }

@@ -21,6 +21,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
+    [UsedImplicitly]
     public class AutoDeployStartupTask : BackgroundService, IStartupTask
     {
         private readonly IDeploymentService _deploymentService;
@@ -35,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             ILogger logger,
             IDeploymentTargetReadService readService,
             ConfigurationInstanceHolder configurationInstanceHolder,
-            [CanBeNull] TestConfiguration testConfiguration = null)
+            TestConfiguration? testConfiguration = null)
         {
             _deploymentService = deploymentService;
             _testConfiguration = testConfiguration;

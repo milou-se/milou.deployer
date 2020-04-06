@@ -132,7 +132,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             return applicationMetadataJsonFilePath;
         }
 
-        private static string GetAssemblyFileVersion()
+        private static string? GetAssemblyFileVersion()
         {
             Assembly currentAssembly = typeof(ApplicationMetadataCreator).Assembly;
 

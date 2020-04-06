@@ -37,7 +37,7 @@ using Constants = Milou.Deployer.Bootstrapper.Common.Constants;
 namespace Milou.Deployer.Web.Core.Deployment
 {
     [UsedImplicitly]
-    public class DeploymentService : IDeploymentService, IDisposable
+    public sealed class DeploymentService : IDeploymentService, IDisposable
     {
         private readonly IAgentService _agentService;
         private readonly IKeyValueConfiguration _configuration;
@@ -235,6 +235,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 ClearTemporaryDirectoriesAndFiles(ImmutableArray<TempFile>.Empty, pair.Value);
             }
+
+            _statusChangedEvent.Dispose();
         }
 
         private void LogToQueue(string message)
@@ -622,7 +624,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 }
             };
 
-            string nugetXml = null;
+            string? nugetXml = null;
 
             if (publishSettingsFile?.Exists ?? false)
             {
@@ -714,7 +716,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var tempFile = TempFile.CreateTempFile();
 
-            using (var fileStream = new FileStream(tempFile.File.FullName, FileMode.Open, FileAccess.Write))
+            using (var fileStream = new FileStream(tempFile.File!.FullName!, FileMode.Open, FileAccess.Write))
             {
                 doc.Save(fileStream);
             }

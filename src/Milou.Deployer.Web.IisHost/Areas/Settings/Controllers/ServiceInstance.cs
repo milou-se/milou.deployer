@@ -4,7 +4,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {
     public class ServiceInstance
     {
-        public ServiceInstance(Type registrationType, object instance, Type module)
+        public ServiceInstance(Type registrationType, object instance, Type? module)
         {
             RegistrationType = registrationType;
             Instance = instance;
@@ -13,6 +13,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         public Type RegistrationType { get; }
         public object Instance { get; }
-        public Type Module { get; }
+        public Type? Module { get; }
     }
 }
