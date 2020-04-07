@@ -1,6 +1,7 @@
 ﻿#if DEBUG
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.AspNetCore.Host;
@@ -42,7 +43,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
         {
             var dockerArgs = new List<ContainerArgs>();
 
-
             var smtp4Dev = new ContainerArgs(
                 "rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
@@ -62,6 +62,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             dockerArgs.Add(postgres);
 
             _dockerContext = await DockerContext.CreateContextAsync(dockerArgs, _logger);
+
+            await _dockerContext.ContainerTask;
+
+            _logger.Debug("Started containers {Containers}", string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
         }
     }
 }

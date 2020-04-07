@@ -71,9 +71,9 @@
       },
       "Arbor.Docker": {
         "type": "Direct",
-        "requested": "[0.4.0-build.0, )",
-        "resolved": "0.4.0-build.0",
-        "contentHash": "9DX8JGM2YgBVIlqNuCot7Yjahuert5d8ixg6fn150KIRUv/OdgKNjeiV8+KyyihR0ZLGJQaJXIayV9Yvat4P4g==",
+        "requested": "[0.4.0-build.1586274862, )",
+        "resolved": "0.4.0-build.1586274862",
+        "contentHash": "w4BfpwIliP7sL5Fm1XNs8ZRELpmNwUQ8hrQGdygz/gFp3elYkboNkl2M1zZbNV7DEoKwoZaus0ges+FZG58a3w==",
         "dependencies": {
           "Arbor.Processing": "0.5.1-build.0",
           "JetBrains.Annotations": "2019.1.3",
