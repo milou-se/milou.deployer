@@ -8,10 +8,12 @@ using Arbor.App.Extensions;
 using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
+using Marten;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Startup;
+using Milou.Deployer.Web.Marten.Targets;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
@@ -23,17 +25,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly ImmutableArray<IDataSeeder> _dataSeeders;
         private readonly ILogger _logger;
         private readonly TimeoutHelper _timeoutHelper;
+        private readonly IDocumentStore _store;
 
         public DataSeedStartupTask(
             IEnumerable<IDataSeeder> dataSeeders,
             IKeyValueConfiguration configuration,
             ILogger logger,
-            TimeoutHelper timeoutHelper)
+            TimeoutHelper timeoutHelper, IDocumentStore store)
         {
             _dataSeeders = dataSeeders.SafeToImmutableArray();
             _configuration = configuration;
             _logger = logger;
             _timeoutHelper = timeoutHelper;
+            _store = store;
         }
 
         public bool IsCompleted { get; private set; }
@@ -57,6 +61,32 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         private async Task RunSeeders(CancellationToken cancellationToken)
         {
+            bool retry = true;
+
+            while (retry && !cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    using var session = _store.OpenSession();
+
+                    await session.Query<DeploymentTargetData>().ToListAsync(token: cancellationToken);
+
+                    retry = false;
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    var messages = new List<string> {"the database system is starting up", "57P03", "0x80004005"};
+
+                    if (messages.Any(message => ex.Message.Contains(message, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
+                        _logger.Debug("Database is not ready");
+                    }
+                }
+            }
+
+            _logger.Debug("Database is ready");
+
             if (!int.TryParse(_configuration[DeployerAppConstants.SeedTimeoutInSeconds],
                     out int seedTimeoutInSeconds) ||
                 seedTimeoutInSeconds <= 0)

@@ -30,9 +30,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
             _isDisposing = true;
 
-            _logger.Information("Disposed async");
-
             await _dockerContext.DisposeAsync();
+
+            _logger.Information("Disposed DockerContext");
 
             _isDisposed = true;
             _isDisposing = false;
@@ -40,7 +40,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
-            IReadOnlyCollection<ContainerArgs> dockerArgs = new List<ContainerArgs>();
+            var dockerArgs = new List<ContainerArgs>();
+
+
+            var smtp4Dev = new ContainerArgs(
+                "rnwood/smtp4dev:linux-amd64-v3",
+                "smtp4devtest",
+                new Dictionary<int, int> { [3125] = 80, [2526] = 25 }
+            );
+
+            var variables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
+
+            var postgres = new ContainerArgs(
+                "postgres",
+                "postgres-deploy",
+                new Dictionary<int, int> {[5433] = 5432},
+                environmentVariables: variables
+            );
+
+            dockerArgs.Add(smtp4Dev);
+            dockerArgs.Add(postgres);
+
             _dockerContext = await DockerContext.CreateContextAsync(dockerArgs, _logger);
         }
     }

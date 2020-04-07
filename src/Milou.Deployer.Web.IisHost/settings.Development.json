@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "keys": [
+    {
+      "key": "urn:arbor:app:web:assembly-prefix",
+      "value": "Milou"
+    },
+    {
+      "key": "urn:arbor:app:web:assembly-prefix",
+      "value": "Arbor"
+    },
+    {
+      "key": "urn:milou:deployer:web:nuget-configuration:default:nuget-exe-path",
+      "value": ""
+    },
+    {
+      "key": "ASPNETCORE_ENVIRONMENT",
+      "value": "Development"
+    },
+    {
+      "key": "urn:milou:deployer:web:marten:singleton:connection-string",
+      "value": "host=localhost;port=5433;database=postgres;password=test;username=postgres"
+    },
+    {
+      "key": "urn:arbor:app:web:log:level",
+      "value": "debug"
+    },
+    {
+      "key": "urn:milou:deployer:web:marten:singleton:enabled",
+      "value": true
+    }
+  ]
+}
