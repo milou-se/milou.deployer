@@ -17,7 +17,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
         private readonly ILogger _logger;
         private DockerContext _dockerContext;
         private bool _isDisposed;
-
         private bool _isDisposing;
 
         public DockerDeveloperModule(ILogger logger) => _logger = logger;
@@ -51,11 +50,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
             var variables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
 
+            string[] postgresArgs = {"-v", "deploydata:/var/lib/postgresql/data"};
+
             var postgres = new ContainerArgs(
                 "postgres",
                 "postgres-deploy",
                 new Dictionary<int, int> {[5433] = 5432},
-                environmentVariables: variables
+                environmentVariables: variables,
+                args: postgresArgs
             );
 
             dockerArgs.Add(smtp4Dev);

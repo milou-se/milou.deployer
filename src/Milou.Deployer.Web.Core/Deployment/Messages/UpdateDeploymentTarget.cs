@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public UpdateDeploymentTarget(
             string id,
             bool allowExplicitPreRelease,
-            string url,
+            string? url,
             string packageId,
             string? iisSiteName = null,
             string? nugetPackageSource = null,

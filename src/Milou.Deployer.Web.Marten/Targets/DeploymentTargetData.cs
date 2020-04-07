@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.Marten.Targets
         [ForeignKey(typeof(ProjectData))]
         public string ProjectId { get; set; }
 
-        public Uri Url { get; set; }
+        public Uri? Url { get; set; }
 
         public string? IisSiteName { get; set; }
 

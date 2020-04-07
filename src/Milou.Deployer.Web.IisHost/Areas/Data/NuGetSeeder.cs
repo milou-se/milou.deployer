@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -44,53 +46,60 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
 
                 foreach (Core.Deployment.DeploymentTarget deploymentTarget in targets)
                 {
-                    string? typeId = default;
-                    string? environmentConfiguration = deploymentTarget.EnvironmentConfiguration;
-
-                    if (string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentTypeId)
-                        && !string.IsNullOrWhiteSpace(environmentConfiguration))
-                    {
-                        string configuration = environmentConfiguration.Trim();
-
-                        Core.Deployment.EnvironmentType foundType = environmentTypes.SingleOrDefault(type =>
-                            type.Name.Trim().Equals(configuration,
-                                StringComparison.OrdinalIgnoreCase));
-
-                        if (foundType is { })
-                        {
-                            typeId = foundType.Id;
-                            environmentConfiguration = null;
-                        }
-                    }
-
-                    var updateDeploymentTarget = new UpdateDeploymentTarget(
-                        deploymentTarget.Id,
-                        deploymentTarget.AllowExplicitExplicitPreRelease ?? false,
-                        deploymentTarget.Url.ToString(),
-                        deploymentTarget.PackageId,
-                        deploymentTarget.IisSiteName,
-                        deploymentTarget.NuGet.NuGetPackageSource,
-                        deploymentTarget.NuGet.NuGetConfigFile,
-                        deploymentTarget.AutoDeployEnabled,
-                        deploymentTarget.PublishSettingsXml,
-                        deploymentTarget.TargetDirectory,
-                        deploymentTarget.WebConfigTransform,
-                        deploymentTarget.ExcludedFilePatterns,
-                        deploymentTarget.EnvironmentTypeId ?? typeId,
-                        deploymentTarget.NuGet.PackageListTimeout?.ToString(),
-                        deploymentTarget.PublishType?.ToString(),
-                        deploymentTarget.FtpPath?.Path,
-                        deploymentTarget.MetadataTimeout?.ToString(),
-                        deploymentTarget.RequireEnvironmentConfiguration ?? false,
-                        environmentConfiguration);
-
-                    await _mediator.Send(updateDeploymentTarget, cancellationToken);
+                    await UpdateTarget(cancellationToken, deploymentTarget, environmentTypes);
                 }
             }
             catch (TaskCanceledException ex)
             {
                 _logger.Error(ex, "Could not run seeder task");
             }
+        }
+
+        private async Task UpdateTarget(CancellationToken cancellationToken,
+            DeploymentTarget deploymentTarget,
+            ImmutableArray<EnvironmentType> environmentTypes)
+        {
+            string? typeId = default;
+            string? environmentConfiguration = deploymentTarget.EnvironmentConfiguration;
+
+            if (string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentTypeId)
+                && !string.IsNullOrWhiteSpace(environmentConfiguration))
+            {
+                string configuration = environmentConfiguration.Trim();
+
+                Core.Deployment.EnvironmentType foundType = environmentTypes.SingleOrDefault(type =>
+                    type.Name.Trim().Equals(configuration,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (foundType is { })
+                {
+                    typeId = foundType.Id;
+                    environmentConfiguration = null;
+                }
+            }
+
+            var updateDeploymentTarget = new UpdateDeploymentTarget(
+                deploymentTarget.Id,
+                deploymentTarget.AllowExplicitExplicitPreRelease ?? false,
+                deploymentTarget.Url?.ToString(),
+                deploymentTarget.PackageId,
+                deploymentTarget.IisSiteName,
+                deploymentTarget.NuGet.NuGetPackageSource,
+                deploymentTarget.NuGet.NuGetConfigFile,
+                deploymentTarget.AutoDeployEnabled,
+                deploymentTarget.PublishSettingsXml,
+                deploymentTarget.TargetDirectory,
+                deploymentTarget.WebConfigTransform,
+                deploymentTarget.ExcludedFilePatterns,
+                deploymentTarget.EnvironmentTypeId ?? typeId,
+                deploymentTarget.NuGet.PackageListTimeout?.ToString(),
+                deploymentTarget.PublishType?.ToString(),
+                deploymentTarget.FtpPath?.Path,
+                deploymentTarget.MetadataTimeout?.ToString(),
+                deploymentTarget.RequireEnvironmentConfiguration ?? false,
+                environmentConfiguration);
+
+            await _mediator.Send(updateDeploymentTarget, cancellationToken);
         }
 
         public int Order => int.MaxValue;

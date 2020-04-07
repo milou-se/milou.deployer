@@ -99,7 +99,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public IReadOnlyCollection<string> EmailNotificationAddresses { get; }
 
-        public Uri Url { get; }
+        public Uri? Url { get; }
 
         public string EnvironmentConfiguration { get; }
 

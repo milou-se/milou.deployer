@@ -89,7 +89,7 @@ namespace Milou.Deployer.Web.Marten
             }
 
             EnvironmentType environmentType =
-                environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTargetData.EnvironmentTypeId)) ??
+                environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTargetData.EnvironmentTypeId, StringComparison.Ordinal)) ??
                 EnvironmentType.Unknown;
 
             DeploymentTarget? deploymentTargetAsync = null;
@@ -458,7 +458,7 @@ project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase
                 targetName = data.Name;
 
                 data.PackageId = request.PackageId;
-                data.Url = request.Url!;
+                data.Url = request.Url;
                 data.IisSiteName = request.IisSiteName;
                 data.AllowExplicitPreRelease = request.AllowExplicitPreRelease;
                 data.AutoDeployEnabled = request.AutoDeployEnabled;
@@ -506,7 +506,7 @@ project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase
 
             using (IDocumentSession session = _documentStore.OpenSession())
             {
-                IReadOnlyList<DeploymentTargetData> deploymentTargetData = await session.Query<DeploymentTargetData>().Where(target => target.Id == request.DeploymentTargetId).ToListAsync();
+                IReadOnlyList<DeploymentTargetData> deploymentTargetData = await session.Query<DeploymentTargetData>().Where(target => target.Id == request.DeploymentTargetId).ToListAsync(token: cancellationToken);
 
                 if (deploymentTargetData.Count == 0)
                 {
