@@ -33,13 +33,12 @@ SET Arbor.Build.NuGet.PackageUpload.Enabled=true
 SET Arbor.Build.NuGet.Package.ExcludesCommaSeparated=Arbor.Build.Bootstrapper.nuspec
 
 IF "%GITHUB_REPOSITORY%" NEQ "milou-se/milou.deployer" (
+	ECHO The current repository is a fork, skipping package upload
 	SET Arbor.Build.NuGet.PackageUpload.Enabled=false
 	SET Arbor.Build.NuGet.PackageUpload.ForceUploadEnabled=false
 )
 
-ECHO REPO is %GITHUB_REPOSITORY%
-
-REM CALL dotnet arbor-build
+CALL dotnet arbor-build
 
 REM Restore variables to default
 
