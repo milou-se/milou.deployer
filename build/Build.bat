@@ -32,12 +32,12 @@ SET Arbor.Build.NuGet.PackageUpload.Enabled=true
 
 SET Arbor.Build.NuGet.Package.ExcludesCommaSeparated=Arbor.Build.Bootstrapper.nuspec
 
-IF "%GITHUB_HEAD_REF%" NEQ "" (
-	SET Arbor.X.NuGet.PackageUpload.Enabled=false
+IF "%GITHUB_REPOSITORY%" NEQ "milou-se/milou.deployer" (
+	SET Arbor.Build.NuGet.PackageUpload.Enabled=false
 	SET Arbor.Build.NuGet.PackageUpload.ForceUploadEnabled=false
 )
 
-ECHO HEAD REF %GITHUB_HEAD_REF%
+ECHO REPO is %GITHUB_REPOSITORY%
 
 REM CALL dotnet arbor-build
 
