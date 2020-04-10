@@ -39,8 +39,6 @@ IF "%GITHUB_HEAD_REF%" NEQ "" (
 
 ECHO HEAD REF %GITHUB_HEAD_REF%
 
-CALL "SET"
-
 REM CALL dotnet arbor-build
 
 REM Restore variables to default
