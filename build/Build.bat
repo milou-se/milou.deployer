@@ -37,7 +37,11 @@ IF "%GITHUB_HEAD_REF%" NEQ "" (
 	SET Arbor.Build.NuGet.PackageUpload.ForceUploadEnabled=false
 )
 
-CALL dotnet arbor-build
+ECHO HEAD REF %GITHUB_HEAD_REF%
+
+CALL "SET"
+
+REM CALL dotnet arbor-build
 
 REM Restore variables to default
 
