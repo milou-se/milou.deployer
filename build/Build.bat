@@ -32,6 +32,11 @@ SET Arbor.Build.NuGet.PackageUpload.Enabled=true
 
 SET Arbor.Build.NuGet.Package.ExcludesCommaSeparated=Arbor.Build.Bootstrapper.nuspec
 
+IF "%GITHUB_HEAD_REF%" NEQ "" (
+	SET Arbor.X.NuGet.PackageUpload.Enabled=false
+	SET Arbor.Build.NuGet.PackageUpload.ForceUploadEnabled=false
+)
+
 CALL dotnet arbor-build
 
 REM Restore variables to default

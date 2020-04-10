@@ -157,13 +157,24 @@ namespace Milou.Deployer.Web.Core.Deployment
                     logger,
                     cancellationToken);
 
-                IDeploymentPackageAgent agent =
-                    await _agentService.GetAgentForDeploymentTask(deploymentTask, cancellationToken);
+                ExitCode deployExitCode;
 
-                _tempData.TempLogger.Debug("Using deployment agent {Agent}", agent.ToString());
+                try
+                {
+                    IDeploymentPackageAgent agent =
+                        await _agentService.GetAgentForDeploymentTask(deploymentTask, cancellationToken);
 
-                ExitCode deployExitCode = await agent.RunAsync(deploymentTask.DeploymentTaskId,
-                    deploymentTask.DeploymentTargetId, cancellationToken);
+                    _tempData.TempLogger.Debug("Using deployment agent {Agent}", agent.ToString());
+
+                    deployExitCode = await agent.RunAsync(deploymentTask.DeploymentTaskId,
+                        deploymentTask.DeploymentTargetId, cancellationToken);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    _logger.Error(ex, "Could not get deploy agent");
+                    deployExitCode = ExitCode.Failure;
+                    deploymentTask.Status = WorkTaskStatus.Failed;
+                }
 
                 if (deployExitCode.IsSuccess)
                 {

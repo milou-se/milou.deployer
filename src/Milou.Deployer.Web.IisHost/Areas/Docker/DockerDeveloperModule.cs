@@ -45,7 +45,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var smtp4Dev = new ContainerArgs(
                 "rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
-                new Dictionary<int, int> { [3125] = 80, [2526] = 25 }
+                new Dictionary<int, int> { [3125] = 80, [2526] = 25 },
+                environmentVariables: new Dictionary<string, string>()
+                {
+                    ["ServerOptions:TlsMode"] = "None"
+                }
             );
 
             var variables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};

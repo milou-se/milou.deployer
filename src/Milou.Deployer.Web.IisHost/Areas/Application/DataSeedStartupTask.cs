@@ -25,13 +25,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly ImmutableArray<IDataSeeder> _dataSeeders;
         private readonly ILogger _logger;
         private readonly TimeoutHelper _timeoutHelper;
-        private readonly IDocumentStore _store;
+        private readonly IDocumentStore? _store;
 
         public DataSeedStartupTask(
             IEnumerable<IDataSeeder> dataSeeders,
             IKeyValueConfiguration configuration,
             ILogger logger,
-            TimeoutHelper timeoutHelper, IDocumentStore store)
+            TimeoutHelper timeoutHelper,
+            IDocumentStore? store)
         {
             _dataSeeders = dataSeeders.SafeToImmutableArray();
             _configuration = configuration;
@@ -61,26 +62,29 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         private async Task RunSeeders(CancellationToken cancellationToken)
         {
-            bool retry = true;
-
-            while (retry && !cancellationToken.IsCancellationRequested)
+            if (_store is { })
             {
-                try
+                bool retry = true;
+
+                while (retry && !cancellationToken.IsCancellationRequested)
                 {
-                    using var session = _store.OpenSession();
-
-                    await session.Query<DeploymentTargetData>().ToListAsync(token: cancellationToken);
-
-                    retry = false;
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    var messages = new List<string> {"the database system is starting up", "57P03", "0x80004005"};
-
-                    if (messages.Any(message => ex.Message.Contains(message, StringComparison.OrdinalIgnoreCase)))
+                    try
                     {
-                        await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
-                        _logger.Debug("Database is not ready");
+                        using var session = _store.OpenSession();
+
+                        await session.Query<DeploymentTargetData>().ToListAsync(token: cancellationToken);
+
+                        retry = false;
+                    }
+                    catch (Exception ex) when (!ex.IsFatal())
+                    {
+                        var messages = new List<string> {"the database system is starting up", "57P03", "0x80004005"};
+
+                        if (messages.Any(message => ex.Message.Contains(message, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
+                            _logger.Debug("Database is not ready");
+                        }
                     }
                 }
             }

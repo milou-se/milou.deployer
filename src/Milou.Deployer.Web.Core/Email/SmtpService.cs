@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -56,12 +57,19 @@ namespace Milou.Deployer.Web.Core.Email
             }
 
             using var client = new SmtpClient();
+
+            if (!_emailConfiguration.UseSsl)
+            {
+                client.SslProtocols = SslProtocols.None;
+            }
+
             await client.ConnectAsync(_emailConfiguration.SmtpHost,
 _emailConfiguration.Port,
 _emailConfiguration.UseSsl,
 cancellationToken);
 
             client.AuthenticationMechanisms.Remove("XOAUTH2");
+
 
             if (!string.IsNullOrWhiteSpace(_emailConfiguration.Username)
                 && !string.IsNullOrWhiteSpace(_emailConfiguration.Password))

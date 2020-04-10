@@ -36,7 +36,8 @@ namespace Milou.Deployer.Web.Tests.Unit
                 ImmutableArray<IDataSeeder>.Empty,
                 configuration,
                 _logger,
-                new TimeoutHelper());
+                new TimeoutHelper(),
+                null);
 
             await _startupTask.StartAsync(CancellationToken.None);
 

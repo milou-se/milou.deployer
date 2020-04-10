@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		build\Build.bat = build\Build.bat
+		.github\workflows\ci.yml = .github\workflows\ci.yml
 		Directory.Build.props = Directory.Build.props
 		LICENSE.txt = LICENSE.txt
 		nuget.config = nuget.config
@@ -54,7 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.WindowsS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Ftp", "src\Milou.Deployer.Ftp\Milou.Deployer.Ftp.csproj", "{7C618A87-DC1F-4531-8963-D1B864EFE11B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.DeployerApp", "src\Milou.Deployer.DeployerApp\Milou.Deployer.DeployerApp.csproj", "{84AF602F-7627-493B-B2D5-33EFF6916D4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.DeployerApp", "src\Milou.Deployer.DeployerApp\Milou.Deployer.DeployerApp.csproj", "{84AF602F-7627-493B-B2D5-33EFF6916D4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

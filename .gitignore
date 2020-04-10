@@ -257,3 +257,4 @@ Session.vim
 Milou.Deployer.v3.ncrunchsolution
 Buffer-*.json
 Buffer.bookmark
+src/Milou.Deployer.Web.IisHost/config.user.json
