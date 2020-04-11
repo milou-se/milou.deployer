@@ -438,7 +438,7 @@ namespace Milou.Deployer.Ftp
 
                 foreach (FtpPath ftpPath in filesToRemove)
                 {
-                    deploymentChangeSummary.Deleted.Add(ftpPath.Path);
+                    deploymentChangeSummary.DeletedFiles.Add(ftpPath.Path);
                 }
 
                 foreach (FtpPath ftpPath in updated)
@@ -514,7 +514,7 @@ namespace Milou.Deployer.Ftp
 
                 await DeleteFileAsync(fileSystemItem, cancellationToken);
 
-                deploymentChangeSummary.Deleted.Add(fileSystemItem.Path);
+                deploymentChangeSummary.DeletedFiles.Add(fileSystemItem.Path);
             }
 
             return deploymentChangeSummary;

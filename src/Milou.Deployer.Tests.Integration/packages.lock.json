@@ -50,6 +50,18 @@
           "System.Diagnostics.Debug": "4.3.0"
         }
       },
+      "Serilog.Sinks.XUnit": {
+        "type": "Direct",
+        "requested": "[2.0.4, )",
+        "resolved": "2.0.4",
+        "contentHash": "L9R01Z3EzsNlr6iPozwSX1TekFHyg8YiaaUncXG+WWSvT/wQp/8jIsN1EmXYtTbPbfUgzNdTdU/lCveYPFtNlA==",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1",
+          "Serilog": "2.9.0",
+          "xunit.abstractions": "2.0.3",
+          "xunit.core": "2.4.1"
+        }
+      },
       "System.Collections.Immutable": {
         "type": "Direct",
         "requested": "[1.7.0, )",

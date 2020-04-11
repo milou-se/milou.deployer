@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
 
-            Assert.Null(environmentConfig);
+            Assert.True(string.IsNullOrWhiteSpace(environmentConfig));
         }
 
         [Fact]

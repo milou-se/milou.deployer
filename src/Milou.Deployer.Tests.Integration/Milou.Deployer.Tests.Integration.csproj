@@ -15,6 +15,7 @@
     <PackageReference Include="NCrunch.Framework" Version="4.0.0.1" />
     <PackageReference Include="NuGet.Versioning" Version="5.5.1" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
+    <PackageReference Include="Serilog.Sinks.XUnit" Version="2.0.4" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -32,6 +33,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Milou.Deployer.ConsoleClient\Milou.Deployer.ConsoleClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestData\AppDataTest\Target\App_Data\" />
   </ItemGroup>
 
 </Project>

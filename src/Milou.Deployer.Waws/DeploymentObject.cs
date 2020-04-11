@@ -59,14 +59,14 @@ namespace Milou.Deployer.Waws
                     }
                 };
             }
-            else  if (Provider == DeploymentWellKnownProvider.DirPath &&
+            else if (Provider == DeploymentWellKnownProvider.DirPath &&
                      destinationProvider == DeploymentWellKnownProvider.DirPath)
             {
                 action = arguments =>
                 {
                     string dest = CreateDestination(deploymentBaseOptions) + "=" + destinationPath;
 
-                    arguments.AddRange(new[] { "-verb:sync", $"-source:dirPath=\"{Path}\"", dest, "-verbose" });
+                    arguments.AddRange(new[] {"-verb:sync", $"-source:dirPath=\"{Path}\"", dest, "-verbose"});
                 };
             }
             else
@@ -97,9 +97,7 @@ namespace Milou.Deployer.Waws
             {
                 dest += "contentPath";
 
-                string url;
-
-                url = !deploymentBaseOptions.ComputerName.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                string url = !deploymentBaseOptions.ComputerName.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
                     ? $"https://{deploymentBaseOptions.ComputerName}"
                     : deploymentBaseOptions.ComputerName;
 
@@ -131,18 +129,14 @@ namespace Milou.Deployer.Waws
         }
 
         public async Task<DeploySummary> SyncTo(DeploymentBaseOptions baseOptions,
-            DeploymentSyncOptions syncOptions, CancellationToken cancellationToken = default)
+            DeploymentSyncOptions syncOptions,
+            CancellationToken cancellationToken = default)
         {
             void Configure(List<string> arguments)
             {
                 string dest = CreateDestination(baseOptions);
 
-                arguments.AddRange(new[]
-                {
-                    "-verb:delete",
-                    dest,
-                    "-verbose"
-                });
+                arguments.AddRange(new[] {"-verb:delete", dest, "-verbose"});
 
                 if (!string.IsNullOrWhiteSpace(Path) && !string.IsNullOrWhiteSpace(DeploymentBaseOptions.SiteName))
                 {
@@ -165,8 +159,6 @@ namespace Milou.Deployer.Waws
         {
             string exePath = @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe";
 
-            //var exePath = @"C:\Tools\Arbor.ProcessDiagnostics\ConsoleApp1.exe";
-
             var arguments = new List<string>();
 
             if (syncOptions.WhatIf)
@@ -187,6 +179,17 @@ namespace Milou.Deployer.Waws
             var syncToInternal = new DeploySummary();
             onConfigureArgs(arguments);
 
+
+            if (syncOptions.DoNotDelete)
+            {
+                arguments.Add($"-enableRule:{DeploymentRule.DoNotDeleteRule.Name}");
+            }
+
+            foreach (var skipDirective in deploymentBaseOptions.SkipDirectives)
+            {
+                arguments.Add("-skip:" + skipDirective.Path);
+            }
+
             static string ParseEntry(string entry)
             {
                 ReadOnlySpan<char> asSpan = entry.AsSpan();
@@ -197,7 +200,6 @@ namespace Milou.Deployer.Waws
 
                 if (length <= 0)
                 {
-
                 }
 
                 return asSpan.Slice(start, length).ToString();
@@ -220,7 +222,7 @@ namespace Milou.Deployer.Waws
 
                 if (message.Contains("deleting file (", StringComparison.OrdinalIgnoreCase))
                 {
-                    syncToInternal.Deleted.Add(ParseEntry(message));
+                    syncToInternal.DeletedFiles.Add(ParseEntry(message));
                 }
                 else if (message.Contains("adding file (", StringComparison.OrdinalIgnoreCase))
                 {
@@ -245,7 +247,10 @@ namespace Milou.Deployer.Waws
                 exePath,
                 arguments,
                 Log,
-                standardErrorAction: LogError,
+                LogError,
+                (message, _) => _logger.Verbose("{Message}", message),
+                debugAction: (message, _) => _logger.Debug("{Message}", message),
+                verboseAction: (message, _) => _logger.Verbose("{Message}", message),
                 formatArgs: false,
                 cancellationToken: cancellationToken);
 

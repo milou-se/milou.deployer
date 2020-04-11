@@ -11,7 +11,7 @@ namespace Milou.Deployer.Core.Deployment
     {
         public TimeSpan TotalTime { get; set; }
 
-        public List<string> Deleted { get; } = new List<string>();
+        public List<string> DeletedFiles { get; } = new List<string>();
 
         public List<string> DeletedDirectories { get; } = new List<string>();
 
@@ -34,7 +34,7 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(other));
             }
 
-            Deleted.AddRange(other.Deleted);
+            DeletedFiles.AddRange(other.DeletedFiles);
             DeletedDirectories.AddRange(other.DeletedDirectories);
             CreatedDirectories.AddRange(other.CreatedDirectories);
             UpdatedFiles.AddRange(other.UpdatedFiles);
@@ -75,10 +75,10 @@ namespace Milou.Deployer.Core.Deployment
                 }
             }
 
-            if (Deleted.Count > 0)
+            if (DeletedFiles.Count > 0)
             {
                 builder.AppendLine("Deleted files:");
-                foreach (string deletedFile in Deleted)
+                foreach (string deletedFile in DeletedFiles)
                 {
                     builder.AppendLine("* " + deletedFile);
                 }
@@ -87,7 +87,7 @@ namespace Milou.Deployer.Core.Deployment
             builder.AppendLine("Ignored files: " + IgnoredFiles.Count);
             builder.AppendLine("Created files: " + CreatedFiles.Count);
             builder.AppendLine("Updated files: " + UpdatedFiles.Count);
-            builder.AppendLine("Deleted files: " + Deleted.Count);
+            builder.AppendLine("Deleted files: " + DeletedFiles.Count);
 
             builder.AppendLine($"Total time: {TotalTime.TotalSeconds.ToString("F1", CultureInfo.InvariantCulture)} seconds");
 

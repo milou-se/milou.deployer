@@ -2,6 +2,8 @@
 {
     internal class DeploymentRule
     {
+        public static readonly DeploymentRule DoNotDeleteRule = new DeploymentRule(nameof(DoNotDeleteRule));
+
         public DeploymentRule(string name) => Name = name;
 
         public string Name { get;  }

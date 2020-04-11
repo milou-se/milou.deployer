@@ -2,7 +2,10 @@
 {
     internal class DeploymentSyncOptions
     {
-        public static DeploymentRuleCollection GetAvailableRules() => new DeploymentRuleCollection(); //TODO
+        public static DeploymentRuleCollection GetAvailableRules() => new DeploymentRuleCollection
+        {
+            DeploymentRule.DoNotDeleteRule
+        };
 
         public bool DeleteDestination { get; set; }
 
