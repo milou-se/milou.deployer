@@ -22,7 +22,6 @@ Artifacts
 [Rr]eleases/
 x64/
 x86/
-build/
 bld/
 [Bb]in/
 [Oo]bj/
@@ -258,3 +257,6 @@ Milou.Deployer.v3.ncrunchsolution
 Buffer-*.json
 Buffer.bookmark
 src/Milou.Deployer.Web.IisHost/config.user.json
+servertemp
+agenttemp
+temp
