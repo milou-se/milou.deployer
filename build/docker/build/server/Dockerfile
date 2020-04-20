@@ -6,6 +6,8 @@ RUN .\install-common.ps1
 COPY install-dotnetcore.ps1 c:/
 RUN .\install-dotnetcore.ps1
 
+ENV urn:arbor:app:web:settings:json-file=c:\config\settings.json
+
 VOLUME ["c:/config", "C:/logs"]
 
 EXPOSE 34343
