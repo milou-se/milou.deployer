@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
     {
         public ProjectsViewOutputModel(
             ImmutableArray<ProjectInfo> organizations,
-            CreateProjectResult createProjectResult,
+            CreateProjectResult? createProjectResult,
             string organizationId)
         {
             Projects = organizations;
@@ -17,7 +17,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
         }
 
         public ImmutableArray<ProjectInfo> Projects { get; }
-        public CreateProjectResult CreateProjectResult { get; }
+
+        public CreateProjectResult? CreateProjectResult { get; }
+
         public string OrganizationId { get; }
     }
 }

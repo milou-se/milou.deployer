@@ -121,7 +121,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
 
-            string packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
+            string? packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
             if (!string.IsNullOrWhiteSpace(packageSource))
             {

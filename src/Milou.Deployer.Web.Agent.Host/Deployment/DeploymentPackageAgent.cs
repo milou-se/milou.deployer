@@ -57,7 +57,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 using CancellationTokenSource cancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromMinutes(30));
 
-                DeploymentTaskPackage deploymentTaskPackage =
+                DeploymentTaskPackage? deploymentTaskPackage =
                     await _deploymentTaskPackageService.GetDeploymentTaskPackageAsync(deploymentTaskId,
                         cancellationTokenSource.Token);
 

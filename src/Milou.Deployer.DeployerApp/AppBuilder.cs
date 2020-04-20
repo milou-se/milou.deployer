@@ -54,7 +54,7 @@ namespace Milou.Deployer.DeployerApp
 
             try
             {
-                string machineSettings =
+                string? machineSettings =
                     GetMachineSettingsFile(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "tools", "Milou.Deployer")));
 
                 AppSettingsBuilder appSettingsBuilder;

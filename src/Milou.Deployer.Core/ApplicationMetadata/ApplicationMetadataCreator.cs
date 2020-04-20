@@ -116,14 +116,14 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 deployerAssemblyVersion,
                 deployerAssemblyFileVersion,
                 packageId
-            }.ToImmutableArray();
+            };
 
             if (environmentPackageResult.Version is {})
             {
                 keys.Add(environmentConfiguration);
             }
 
-            string serialized = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
+            string serialized = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys.ToImmutableArray()));
 
             File.WriteAllText(applicationMetadataJsonFilePath, serialized, Encoding.UTF8);
 
@@ -159,13 +159,13 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             }
         }
 
-        private static string GetAssemblyVersion()
+        private static string? GetAssemblyVersion()
         {
             Assembly currentAssembly = typeof(ApplicationMetadataCreator).Assembly;
 
             AssemblyName assemblyName = currentAssembly.GetName();
 
-            string assemblyVersion = assemblyName.Version.ToString();
+            string? assemblyVersion = assemblyName.Version?.ToString();
 
             return assemblyVersion;
         }

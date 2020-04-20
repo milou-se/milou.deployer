@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.Core.Security
             bool forwardSet;
             bool reverseSet;
 
-            T2 oldValue = null;
+            T2? oldValue = null;
 
             if (!_forward.ContainsKey(t1))
             {
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Core.Security
             }
             else
             {
-                if (_forward.TryGetValue(t1, out T2 ov))
+                if (_forward.TryGetValue(t1, out T2? ov))
                 {
                     oldValue = ov;
                 }

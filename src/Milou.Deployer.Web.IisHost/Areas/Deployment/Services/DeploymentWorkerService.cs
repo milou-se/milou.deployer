@@ -127,7 +127,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             if (!_configurationInstanceHolder.TryGet(targetId,
-                out DeploymentTargetWorker worker))
+                out DeploymentTargetWorker? worker))
             {
                 int registered = _configurationInstanceHolder.RegisteredTypes
                     .Count(type => type == typeof(DeploymentTargetWorker));

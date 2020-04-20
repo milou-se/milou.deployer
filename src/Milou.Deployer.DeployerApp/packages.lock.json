@@ -101,8 +101,8 @@
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "32.3.2",
-        "contentHash": "CEo1EdHQMATZ7ozJfRd5xDAdOPqG+1K3A2dCceyCU6v6R6Af2tdc9FPYdly+7sQHkP/HIlZDAUZEf5hBz+RFKg==",
+        "resolved": "32.3.3",
+        "contentHash": "lo3bbEVSuJd4FlXRbX+h7C+68e20IK69MZuwVTC8gimhjJfVbs6a3/8bsVALE/OLc+KUBSLrs9+gTZzHouYrQw==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
@@ -1341,7 +1341,7 @@
       "milou.deployer.ftp": {
         "type": "Project",
         "dependencies": {
-          "FluentFTP": "32.3.2",
+          "FluentFTP": "32.3.3",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.9.0"
         }

@@ -286,7 +286,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return appVersion;
         }
 
-        private async Task<(HttpResponseMessage, string)> GetWrappedResponseAsync(
+        private async Task<(HttpResponseMessage?, string)> GetWrappedResponseAsync(
             Uri applicationMetadataUri,
             CancellationToken cancellationToken)
         {
@@ -308,7 +308,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     ex,
                     "Could not get application metadata for {ApplicationMetadataUri}",
                     applicationMetadataUri);
-                return ((HttpResponseMessage)null, "Timeout");
+                return ((HttpResponseMessage?)null, "Timeout");
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
@@ -316,7 +316,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     ex,
                     "Could not get application metadata for {ApplicationMetadataUri}",
                     applicationMetadataUri);
-                return ((HttpResponseMessage)null, ex.Message);
+                return ((HttpResponseMessage?)null, ex.Message);
             }
         }
 

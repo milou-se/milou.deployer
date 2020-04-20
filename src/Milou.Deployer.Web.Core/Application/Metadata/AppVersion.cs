@@ -118,7 +118,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
                 return DeployStatus.NoPackagesAvailable;
             }
 
-            SemanticVersion latestAvailable = AvailablePackageVersions.Latest();
+            SemanticVersion latestAvailable = AvailablePackageVersions.Latest()!;
 
             if (SemanticVersion == latestAvailable)
             {

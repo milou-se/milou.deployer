@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
             IPNetwork[] ipNetworksFromConfig = keyValueConfiguration[DeployerAppConstants.AllowedIpNetworks]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(network => (HasValue: IpNetworkParser.TryParse(network, out IPNetwork ipNetwork), ipNetwork))
+                .Select(network => (HasValue: IpNetworkParser.TryParse(network, out IPNetwork? ipNetwork), ipNetwork))
                 .Where(network => network.HasValue)
                 .Select(network => network.ipNetwork)
                 .ToArray();

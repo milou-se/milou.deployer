@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
         {
             System.Collections.Immutable.ImmutableArray<Core.Deployment.Targets.OrganizationInfo> organizations = await deploymentTargetReadService.GetOrganizationsAsync();
 
-            CreateOrganizationResult createOrganizationResult = TempData.Get<CreateOrganizationResult>();
+            CreateOrganizationResult? createOrganizationResult = TempData.Get<CreateOrganizationResult>();
 
             return View(new OrganizationsViewOutputModel(organizations, createOrganizationResult));
         }

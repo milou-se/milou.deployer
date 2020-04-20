@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
         {
             System.Collections.Immutable.ImmutableArray<Core.Deployment.Targets.ProjectInfo> projects = await deploymentTargetReadService.GetProjectsAsync(organizationId);
 
-            CreateProjectResult createProjectResult = TempData.Get<CreateProjectResult>();
+            CreateProjectResult? createProjectResult = TempData.Get<CreateProjectResult>();
 
             return View(new ProjectsViewOutputModel(projects, createProjectResult, organizationId));
         }

@@ -55,7 +55,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
             string substring = fullName.Substring(baseFullName.Length);
 
-            string relative = $"/{substring.Replace("\\", "/").TrimStart('/')}";
+            string relative = $"/{substring.Replace("\\", "/", StringComparison.Ordinal).TrimStart('/')}";
 
             return relative;
         }

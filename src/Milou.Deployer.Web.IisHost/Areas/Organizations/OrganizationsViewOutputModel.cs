@@ -8,13 +8,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
     {
         public OrganizationsViewOutputModel(
             ImmutableArray<OrganizationInfo> organizations,
-            CreateOrganizationResult createOrganizationResult)
+            CreateOrganizationResult? createOrganizationResult)
         {
             Organizations = organizations;
             CreateOrganizationResult = createOrganizationResult;
         }
 
         public ImmutableArray<OrganizationInfo> Organizations { get; }
-        public CreateOrganizationResult CreateOrganizationResult { get; }
+
+        public CreateOrganizationResult? CreateOrganizationResult { get; }
     }
 }

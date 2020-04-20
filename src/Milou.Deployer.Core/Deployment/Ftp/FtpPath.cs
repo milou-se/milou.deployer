@@ -22,7 +22,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
             Path = path.Equals(RootPath, StringComparison.OrdinalIgnoreCase)
                        ? RootPath
-                       : $"/{path.TrimStart('/').Replace("//", "/")}";
+                       : $"/{path.TrimStart('/').Replace("//", "/", StringComparison.Ordinal)}";
 
             Type = type;
         }

@@ -171,7 +171,7 @@ namespace Milou.Deployer.Core.Deployment
                 ?? ( SemanticVersion.TryParse(
                     packageDirectory.Name.Replace(
                         deploymentExecutionDefinition.PackageId,
-                        "").TrimStart('.'),
+                        "", StringComparison.Ordinal).TrimStart('.'),
                     out SemanticVersion semanticVersion)
                     ? semanticVersion
                     : fallback);

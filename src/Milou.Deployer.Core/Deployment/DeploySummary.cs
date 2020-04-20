@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -48,14 +49,16 @@ namespace Milou.Deployer.Core.Deployment
         {
             var builder = new StringBuilder();
 
+            var updatedDirectories = CreatedDirectories.Intersect(DeletedDirectories).ToImmutableArray();
 
-            string[] updatedDirectories = CreatedDirectories.Intersect(DeletedDirectories).ToArray();
-
-
-            //builder.AppendLine("Ignored directories: " + IgnoredDirectories.Count);
-            //builder.AppendLine("Created directories: " + CreatedDirectories.Except(updatedDirectories).Count());
-            //builder.AppendLine("Updated directories: " + updatedDirectories.Length);
-            //builder.AppendLine("Deleted directories: " + DeletedDirectories.Except(updatedDirectories).Count());
+            if (updatedDirectories.Length > 0)
+            {
+                builder.AppendLine("Updated directories:");
+                foreach (string updateDirectory in updatedDirectories)
+                {
+                    builder.AppendLine("* " + updateDirectory);
+                }
+            }
 
             if (CreatedFiles.Count > 0)
             {

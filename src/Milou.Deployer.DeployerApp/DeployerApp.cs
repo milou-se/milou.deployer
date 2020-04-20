@@ -123,7 +123,7 @@ namespace Milou.Deployer.DeployerApp
                         ? fallbackManifestPath
                         : nonFlagArgs[0];
 
-                    string version = args.GetArgumentValueOrDefault("version");
+                    string? version = args.GetArgumentValueOrDefault("version");
 
                     SemanticVersion? semanticVersion = default;
 

@@ -1,7 +1,7 @@
 ﻿using Serilog;
 using Xunit.Abstractions;
 
-namespace Milou.Deployer.Web.Tests.Unit
+namespace Milou.Deployer.Tests.Integration
 {
     public static class LoggerHelper
     {

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.Waws;
-using Milou.Deployer.Web.Tests.Unit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -49,7 +48,7 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
                 logger.Debug("Existing file before deploy: {File}", fileInfo.Name);
             }
 
-            Assert.True(filesBefore.Any(file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase)));
+            Assert.Contains(filesBefore, file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase));
 
 
             var result = await webDeployHelper.DeployContentToOneSiteAsync(
@@ -70,7 +69,7 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
                 logger.Debug("Existing file after deploy: {File}", fileInfo.Name);
             }
 
-            Assert.False(filesAfter.Any(file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase)));
+            Assert.DoesNotContain(filesAfter, file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase));
 
             Assert.Contains("AddMe.txt", result.CreatedFiles.Select(f => new FileInfo(f).Name));
             Assert.Contains("UpdateMe.txt", result.UpdatedFiles.Select(f => new FileInfo(f).Name));

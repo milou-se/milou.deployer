@@ -26,7 +26,7 @@ namespace Milou.Deployer.Core.Logging
                 return;
             }
 
-            (string parsedMessage, LogEventLevel level) = Parse(message!);
+            (string? parsedMessage, LogEventLevel level) = Parse(message!);
 
             switch (level)
             {
@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.Logging
             }
         }
 
-        public static (string?, LogEventLevel) Parse(string message)
+        public static (string?, LogEventLevel) Parse(string? message)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
