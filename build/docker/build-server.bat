@@ -3,7 +3,7 @@ SET BuildTemp=%~dp0ServerTemp
 
 IF EXIST "%BuildTemp%" (
   ECHO "Removing temp directory '%BuildTemp%'"
-  RD "%BuildTemp%" /s /q
+  RD "%BuildTemp%/" /s /q
 )
 
 ECHO "Creating directory '%BuildTemp%'"
@@ -16,7 +16,7 @@ CD ..
 
 SET Artifacts=Artifacts\Websites\Milou.Deployer.Web.IisHost\AnyCPU\debug
 ECHO Copying files from %Artifacts% to %BuildTemp%
-xcopy "%Artifacts%" "%BuildTemp%\data" /e /s
+xcopy "%Artifacts%" "%BuildTemp%\data\" /e /s
 
 CD "%~dp0"
 
@@ -27,7 +27,7 @@ cd "%BuildTemp%"
 
 ECHO "Running docker build in '%CD%'"
 
-CALL docker build .
+CALL docker build -t %DOCKER_BASE_TAG%deployer-server:latest .
 
 ECHO "Getting back to script directory"
 
