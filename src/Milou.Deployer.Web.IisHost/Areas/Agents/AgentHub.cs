@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
@@ -9,16 +7,14 @@ using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Core.Security;
 using Serilog;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
+namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     [Authorize(Policy = AuthorizationPolicies.Agent)]
     [UsedImplicitly]
     public class AgentHub : Hub
     {
-        private readonly List<string> _agentIds = new List<string>();
-
-        private readonly IMediator _mediator;
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
 
         public AgentHub([NotNull] IMediator mediator, ILogger logger)
         {
@@ -26,11 +22,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             _logger = logger;
         }
 
-        public ImmutableArray<string> AgentIds => _agentIds.ToImmutableArray();
+        public override Task OnDisconnectedAsync(Exception exception) =>
+            //exception.
+            //_mediator.Publish(new AgentDisconnected())
+            Task.CompletedTask;
 
         public override Task OnConnectedAsync()
         {
-            _logger.Debug("SignalR Agent client connected, user {User}",this.Context.User.Identity.Name);
+            _logger.Debug("SignalR Agent client connected, user {User}", Context.User.Identity.Name);
 
             return base.OnConnectedAsync();
         }
@@ -42,10 +41,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 
             if (string.IsNullOrWhiteSpace(agentId))
             {
+                _logger.Warning("The connected agent has no agent id");
                 return;
             }
 
-            _agentIds.Add(agentId);
+            await _mediator.Publish(new AgentConnected(agentId));
         }
     }
 }

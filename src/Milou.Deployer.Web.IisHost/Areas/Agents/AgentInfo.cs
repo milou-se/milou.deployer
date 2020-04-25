@@ -1,7 +1,16 @@
-﻿namespace Milou.Deployer.Web.IisHost.Areas.Agents
+﻿using System;
+
+namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class AgentInfo
     {
-        public string Name { get; }
+        public AgentInfo(string id, DateTimeOffset connectedAt)
+        {
+            Id = id;
+            ConnectedAt = connectedAt;
+        }
+
+        public string Id { get; }
+        public DateTimeOffset ConnectedAt { get; }
     }
 }

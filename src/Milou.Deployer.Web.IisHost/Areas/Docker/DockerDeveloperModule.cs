@@ -45,11 +45,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var smtp4Dev = new ContainerArgs(
                 "rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
-                new Dictionary<int, int> { [3125] = 80, [2526] = 25 },
-                environmentVariables: new Dictionary<string, string>()
-                {
-                    ["ServerOptions:TlsMode"] = "None"
-                }
+                new Dictionary<int, int> {[3125] = 80, [2526] = 25},
+                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
             );
 
             var variables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
@@ -60,8 +57,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 "postgres",
                 "postgres-deploy",
                 new Dictionary<int, int> {[5433] = 5432},
-                environmentVariables: variables,
-                args: postgresArgs
+                variables,
+                postgresArgs
             );
 
             dockerArgs.Add(smtp4Dev);
@@ -71,7 +68,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
             await _dockerContext.ContainerTask;
 
-            _logger.Debug("Started containers {Containers}", string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
+            _logger.Debug("Started containers {Containers}",
+                string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
         }
     }
 }

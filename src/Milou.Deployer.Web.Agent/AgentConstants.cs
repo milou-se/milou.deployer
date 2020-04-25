@@ -2,7 +2,7 @@
 {
     public static class AgentConstants
     {
-        public const string HubRoute = "/agents";
+        public const string HubRoute = "/agents/hub";
 
         public const string SignalRDeployCommand = "Deploy";
 

@@ -111,7 +111,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return View(new EditTargetViewOutputModel(deploymentTarget, environmentTypes));
         }
 
-        [AllowAnonymous]
         [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
         [HttpGet]
         public async Task<IActionResult> Index(

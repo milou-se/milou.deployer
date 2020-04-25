@@ -25,7 +25,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route(AgentConstants.DeploymentTaskPackageRoute, Name = AgentConstants.DeploymentTaskPackageRouteName)]
-        public async Task<IActionResult> DeploymentTaskPackage([NotNull] string deploymentTaskId,
+        public async Task<IActionResult> DeploymentTaskPackage(
+            [NotNull] string deploymentTaskId,
             [FromServices] IDeploymentTaskPackageStore deploymentTaskPackageStore)
         {
             if (string.IsNullOrWhiteSpace(deploymentTaskId))
@@ -33,8 +34,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new BadRequestResult();
             }
 
-            DeploymentTaskPackage deploymentTaskPackage = await
-                deploymentTaskPackageStore.GetDeploymentTaskPackageAsync(deploymentTaskId, CancellationToken.None);
+            DeploymentTaskPackage deploymentTaskPackage =
+                await deploymentTaskPackageStore.GetDeploymentTaskPackageAsync(
+                    deploymentTaskId, CancellationToken.None);
 
             return new ObjectResult(deploymentTaskPackage);
         }
