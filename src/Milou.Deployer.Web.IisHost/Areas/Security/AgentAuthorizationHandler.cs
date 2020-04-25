@@ -15,6 +15,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 return Task.CompletedTask;
             }
 
+            if (!context.User.HasClaim(claim => claim.Type == "milou_agent" && !string.IsNullOrWhiteSpace(claim.Value)))
+            {
+                return Task.CompletedTask;
+            }
+
             context.Succeed(requirement);
 
             return Task.CompletedTask;
