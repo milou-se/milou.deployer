@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {

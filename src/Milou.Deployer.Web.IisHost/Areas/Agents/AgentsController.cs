@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 using Milou.Deployer.Web.IisHost.Controllers;
 using NuGet.Common;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Agents
+namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentState
     {

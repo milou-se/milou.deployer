@@ -5,7 +5,7 @@ using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Serilog;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Agents
+namespace Milou.Deployer.Web.Core.Agents
 {
     [UsedImplicitly]
     public class AgentsData

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {

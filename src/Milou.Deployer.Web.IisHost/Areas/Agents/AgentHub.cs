@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Security;
 using Serilog;
 
