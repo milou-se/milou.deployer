@@ -63,8 +63,8 @@
       },
       "Arbor.Tooler": {
         "type": "Transitive",
-        "resolved": "0.9.0",
-        "contentHash": "mDd6OVud5euymyQPGfsS1nY9Wdg5FwiejTdNUrBq0xewriC2/EbiKpYMPRjs/PWeyJ9QBrUrvBLuDBbx4zCtig==",
+        "resolved": "0.9.1",
+        "contentHash": "l7EJKzvkHFTzZfzmIJqnAM9sn7WQpuVcG50f5E+c4n12oCNaesjgRFs9DMEqtObN8CLfVg9IkiGvCxBpXKF3wA==",
         "dependencies": {
           "Arbor.Processing": "0.4.0",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
@@ -902,7 +902,7 @@
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "0.20.0",
           "Arbor.Processing": "0.6.0",
-          "Arbor.Tooler": "0.9.0",
+          "Arbor.Tooler": "0.9.1",
           "JetBrains.Annotations": "2020.1.0",
           "Microsoft.Extensions.Primitives": "3.1.3",
           "Microsoft.Web.Xdt": "3.0.0",

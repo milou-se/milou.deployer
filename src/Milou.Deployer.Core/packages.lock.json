@@ -20,9 +20,9 @@
       },
       "Arbor.Tooler": {
         "type": "Direct",
-        "requested": "[0.9.0, )",
-        "resolved": "0.9.0",
-        "contentHash": "mDd6OVud5euymyQPGfsS1nY9Wdg5FwiejTdNUrBq0xewriC2/EbiKpYMPRjs/PWeyJ9QBrUrvBLuDBbx4zCtig==",
+        "requested": "[0.9.1, )",
+        "resolved": "0.9.1",
+        "contentHash": "l7EJKzvkHFTzZfzmIJqnAM9sn7WQpuVcG50f5E+c4n12oCNaesjgRFs9DMEqtObN8CLfVg9IkiGvCxBpXKF3wA==",
         "dependencies": {
           "Arbor.Processing": "0.4.0",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",

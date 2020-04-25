@@ -3,15 +3,15 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1586540975" />
-    <PackageReference Include="DotNext.Threading" Version="2.2.0" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1586959860" />
+    <PackageReference Include="DotNext.Threading" Version="2.3.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0" />
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0" />
     <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.20.0" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.7.2" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.9.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.9.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="MailKit" Version="2.6.0" />
     <PackageReference Include="Marten" Version="3.9.0" />

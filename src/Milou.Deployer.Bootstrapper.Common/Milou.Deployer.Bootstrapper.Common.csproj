@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1586540975" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1586959860" />
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.9.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.9.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

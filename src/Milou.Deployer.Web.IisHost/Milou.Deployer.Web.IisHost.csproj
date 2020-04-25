@@ -31,9 +31,9 @@
     </ItemGroup>
     <ItemGroup>
 
-      <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1586540975" />
+      <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1586959860" />
 
-      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1586541213" />
+      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1586961231" />
 
       <PackageReference Include="Arbor.Docker" Version="0.4.0-build.1586541162" Condition="'$(Configuration)' == 'Debug'" />
 
@@ -47,7 +47,7 @@
         <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0" />
         <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.20.0" />
         <PackageReference Include="Arbor.ModelBinding" Version="0.7.2" />
-        <PackageReference Include="Arbor.Tooler" Version="0.9.0" />
+        <PackageReference Include="Arbor.Tooler" Version="0.9.1" />
         <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
         <PackageReference Include="MediatR" Version="8.0.1" />

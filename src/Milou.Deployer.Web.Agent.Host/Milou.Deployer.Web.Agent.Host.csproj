@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1586541213" />
+    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1586961231" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.3" />
