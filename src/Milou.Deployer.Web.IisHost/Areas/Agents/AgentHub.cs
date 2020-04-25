@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 return;
             }
 
-            await _mediator.Publish(new AgentConnected(agentId));
+            await _mediator.Publish(new AgentConnected(agentId, Context.ConnectionId));
         }
     }
 }

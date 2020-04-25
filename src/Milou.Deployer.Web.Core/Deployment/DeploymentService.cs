@@ -21,6 +21,7 @@ using MediatR;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Logging;
 using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Credentials;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
@@ -54,6 +55,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         private readonly IDeploymentTargetService _targetSource;
         private DeploymentTask _current;
         private DeploymentTaskTempData? _tempData;
+        private readonly AgentsData _agentsData;
 
         public DeploymentService(
             [NotNull] ILogger logger,
@@ -64,7 +66,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             ICredentialReadService credentialReadService,
             IDeploymentTargetService deploymentTargetService,
             IAgentService agentService,
-            IKeyValueConfiguration configuration)
+            IKeyValueConfiguration configuration,
+            AgentsData agentsData)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -76,6 +79,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             _deploymentTargetService = deploymentTargetService;
             _agentService = agentService;
             _configuration = configuration;
+            _agentsData = agentsData;
         }
 
         private Dictionary<string, List<DirectoryInfo>> TempDirectories { get; } =
@@ -158,10 +162,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                     cancellationToken);
 
                 ExitCode deployExitCode;
-
+                IDeploymentPackageAgent? agent = default;
                 try
                 {
-                    IDeploymentPackageAgent agent =
+                    agent =
                         await _agentService.GetAgentForDeploymentTask(deploymentTask, cancellationToken);
 
                     _tempData.TempLogger.Debug("Using deployment agent {Agent}", agent.ToString());
@@ -174,6 +178,9 @@ namespace Milou.Deployer.Web.Core.Deployment
                     _logger.Error(ex, "Could not get deploy agent");
                     deployExitCode = ExitCode.Failure;
                     deploymentTask.Status = WorkTaskStatus.Failed;
+                }
+                finally
+                {
                 }
 
                 if (deployExitCode.IsSuccess)

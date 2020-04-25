@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.Web.Agent;
@@ -19,7 +20,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _agents = agents;
         }
 
-        public async Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(DeploymentTask deploymentTask,
+        public async Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(
+            DeploymentTask deploymentTask,
             CancellationToken cancellationToken)
         {
             if (_agents.Agents.Length == 0)
@@ -27,11 +29,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 throw new InvalidOperationException("No agent available");
             }
 
-            if (_agents.Agents.Length == 1)
-            {
-                string agentId = _agents.Agents[0].Id;
+            var availableAgents = _agents.Agents.Where(agent => agent.CurrentDeploymentTaskId is null).ToArray();
 
-                return new RemoteDeploymentPackageAgent(_agentHub, agentId);
+            if (availableAgents.Length > 0)
+            {
+                var agentInfo = availableAgents.FirstOrDefault(); // improve algorithm to select agent
+                string agentId = agentInfo.Id;
+                _agents.AgentAssigned(agentId, deploymentTask.DeploymentTaskId);
+
+                return new RemoteDeploymentPackageAgent(_agentHub, _agents, agentId);
             }
 
             throw new NotSupportedException("Does not yet support multiple agents");

@@ -1,32 +1,41 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Processing;
 using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
+using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class RemoteDeploymentPackageAgent : IDeploymentPackageAgent
     {
         private readonly AgentHub _agentHub;
-        private readonly string _agentId;
+        private readonly AgentsData _agentsData;
 
-        public RemoteDeploymentPackageAgent(AgentHub agentHub, string agentId)
+        public RemoteDeploymentPackageAgent(AgentHub agentHub, AgentsData agentsData, string agentId)
         {
             _agentHub = agentHub;
-            _agentId = agentId;
+            _agentsData = agentsData;
+            AgentId = agentId;
         }
 
-        public async Task<ExitCode> RunAsync(string deploymentTaskId, string deploymentTargetId, CancellationToken cancellationToken = default)
+        public async Task<ExitCode> RunAsync(string deploymentTaskId,
+            string deploymentTargetId,
+            CancellationToken cancellationToken = default)
         {
-            //TODO use agent id
-            await _agentHub.Clients.All.SendAsync(AgentConstants.SignalRDeployCommand, deploymentTaskId, deploymentTargetId, cancellationToken: cancellationToken);
+            var agent = _agentsData.Agents.SingleOrDefault(current =>
+                current.Id.Equals(AgentId, StringComparison.Ordinal));
+
+            await _agentHub.Clients.Clients(agent.ConnectionId).SendAsync(AgentConstants.SignalRDeployCommand,
+                deploymentTaskId, deploymentTargetId, cancellationToken);
 
             await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken); //TODO
 
             return ExitCode.Success;
         }
+
+        public string AgentId { get; }
     }
 }

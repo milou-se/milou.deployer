@@ -30,16 +30,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
+        private readonly AgentsData _agents;
         private readonly Dictionary<string, Task> _tasks;
 
         public DeploymentWorkerService(
             ConfigurationInstanceHolder configurationInstanceHolder,
             ILogger logger,
-            IMediator mediator)
+            IMediator mediator,
+            AgentsData agents)
         {
             _configurationInstanceHolder = configurationInstanceHolder;
             _logger = logger;
             _mediator = mediator;
+            _agents = agents;
             _tasks = new Dictionary<string, Task>();
             _cancellations = new Dictionary<string, CancellationTokenSource>();
         }
@@ -50,6 +53,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             workerByTargetId?.NotifyDeploymentDone(notification);
 
+            _agents.AgentDone(notification.AgentId);
+
             return Task.CompletedTask;
         }
 
@@ -58,6 +63,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTargetWorker? workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             workerByTargetId?.NotifyDeploymentFailed(notification);
+
+            _agents.AgentDone(notification.AgentId);
 
             return Task.CompletedTask;
         }

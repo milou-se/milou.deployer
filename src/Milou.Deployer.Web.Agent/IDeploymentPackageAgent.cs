@@ -13,5 +13,7 @@ namespace Milou.Deployer.Web.Agent
             string deploymentTaskId,
             string deploymentTargetId,
             CancellationToken cancellationToken = default);
+
+        string AgentId { get; }
     }
 }

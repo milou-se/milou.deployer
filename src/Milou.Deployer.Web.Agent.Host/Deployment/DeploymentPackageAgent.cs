@@ -33,6 +33,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             _deploymentPackageHandler = deploymentPackageHandler;
             _deploymentTaskPackageService = deploymentTaskPackageService;
             _agentConfiguration = agentConfiguration;
+            AgentId = _agentConfiguration.AgentId();
         }
 
         public async Task<ExitCode> RunAsync(string deploymentTaskId,
@@ -99,5 +100,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
             return exitCode;
         }
+
+        public string AgentId { get; }
     }
 }

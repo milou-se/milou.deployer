@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using Arbor.App.Extensions.Time;
@@ -22,14 +23,20 @@ namespace Milou.Deployer.Web.Core.Agents
             _logger = logger;
         }
 
-        public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key, agent.Value.ConnectedAt)).ToImmutableArray();
+        public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key, agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId)).ToImmutableArray();
 
-        public void AgentConnected(string agentId)
+        public void AgentConnected(AgentConnected agentConnected)
         {
+            var agentId = agentConnected.AgentId;
+
             if (!_agents.ContainsKey(agentId))
             {
                 _agents.TryAdd(agentId,
-                    new AgentState(agentId) {ConnectedAt = _customClock.UtcNow(), IsConnected = true});
+                    new AgentState(agentId)
+                    {
+                        ConnectedAt = _customClock.UtcNow(), IsConnected = true,
+                        ConnectionId = agentConnected.ConnectionId
+                    });
             }
             else
             {
@@ -37,12 +44,33 @@ namespace Milou.Deployer.Web.Core.Agents
                 {
                     state.IsConnected = true;
                     state.ConnectedAt = _customClock.UtcNow();
+                    state.ConnectionId = agentConnected.ConnectionId;
                 }
                 else
                 {
                     _logger.Error("Could not get agent state for agent id {AgentId}", agentId);
                 }
             }
+        }
+
+        public void AgentAssigned(string agentId, string deploymentTaskId)
+        {
+            if (!_agents.TryGetValue(agentId, out var state))
+            {
+               throw new InvalidOperationException($"The agent {agentId} could not be found");
+            }
+
+            state.CurrentDeploymentTaskId = deploymentTaskId;
+        }
+
+        public void AgentDone(string agentId)
+        {
+            if (!_agents.TryGetValue(agentId, out var state))
+            {
+                throw new InvalidOperationException($"The agent {agentId} could not be found");
+            }
+
+            state.CurrentDeploymentTaskId = default;
         }
     }
 }

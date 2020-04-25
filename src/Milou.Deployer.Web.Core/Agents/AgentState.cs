@@ -11,5 +11,9 @@ namespace Milou.Deployer.Web.Core.Agents
         public DateTimeOffset ConnectedAt { get; set; }
 
         public string AgentId { get; }
+
+        public string? ConnectionId { get; set; }
+
+        public string? CurrentDeploymentTaskId { get; set; }
     }
 }

@@ -48,6 +48,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         {
             //TODO check deploymentTargetId and deploymentTaskId belongs together
 
+            string? agentId = User.Identity.Name!;
+
             await Task.Delay(TimeSpan.FromSeconds(2));
 
             if (deploymentTaskAgentResult.Succeeded)
@@ -56,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                     deploymentTaskAgentResult.DeploymentTaskId);
 
                 await _mediator.Publish(new AgentDeploymentDoneNotification(deploymentTaskAgentResult.DeploymentTaskId,
-                    deploymentTaskAgentResult.DeploymentTargetId));
+                    deploymentTaskAgentResult.DeploymentTargetId, agentId));
             }
             else
             {
@@ -64,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                     deploymentTaskAgentResult.DeploymentTaskId);
 
                 await _mediator.Publish(new AgentDeploymentFailedNotification(
-                    deploymentTaskAgentResult.DeploymentTaskId, deploymentTaskAgentResult.DeploymentTargetId));
+                    deploymentTaskAgentResult.DeploymentTaskId, deploymentTaskAgentResult.DeploymentTargetId, agentId));
             }
 
             return Ok();

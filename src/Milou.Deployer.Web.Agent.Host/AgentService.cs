@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
@@ -10,25 +8,41 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Serilog;
-using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Milou.Deployer.Web.Agent.Host
 {
     public sealed class AgentService : BackgroundService, IAsyncDisposable
     {
+        private readonly AgentConfiguration? _agentConfiguration;
         private readonly IDeploymentPackageAgent _deploymentPackageAgent;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly AgentConfiguration? _agentConfiguration;
 
         private HubConnection? _hubConnection;
 
-        public AgentService(IDeploymentPackageAgent deploymentPackageAgent, ILogger logger, IMediator mediator, AgentConfiguration? agentConfiguration = default)
+        public AgentService(IDeploymentPackageAgent deploymentPackageAgent,
+            ILogger logger,
+            IMediator mediator,
+            AgentConfiguration? agentConfiguration = default)
         {
             _deploymentPackageAgent = deploymentPackageAgent;
             _logger = logger;
             _mediator = mediator;
             _agentConfiguration = agentConfiguration;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_hubConnection is { })
+            {
+                await _hubConnection.StopAsync();
+
+                _logger.Debug("Stopped SignalR");
+
+                await _hubConnection.DisposeAsync();
+            }
+
+            _hubConnection = null;
         }
 
         private async Task ExecuteDeploymentTask(string deploymentTaskId, string deploymentTargetId)
@@ -38,7 +52,7 @@ namespace Milou.Deployer.Web.Agent.Host
                 return;
             }
 
-            Arbor.Processing.ExitCode exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, deploymentTargetId);
+            var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, deploymentTargetId);
 
             var deploymentTaskAgentResult =
                 new DeploymentTaskAgentResult(deploymentTaskId, deploymentTargetId, exitCode.IsSuccess);
@@ -48,15 +62,22 @@ namespace Milou.Deployer.Web.Agent.Host
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (_agentConfiguration is null)
+            {
+                _logger.Error("Agent configuration is missing");
+                return;
+            }
+
             _logger.Information("Starting Agent service {Service}", nameof(AgentService));
 
             await Task.Yield();
 
-            string? agentId = GetAgentId();
+            string agentId = _agentConfiguration.AgentId();
 
             if (string.IsNullOrWhiteSpace(agentId))
             {
-                _logger.Error("Could not find agent id, token length is {TokenLength}", _agentConfiguration?.AccessToken.Length.ToString() ?? "N/A");
+                _logger.Error("Could not find agent id, token length is {TokenLength}",
+                    _agentConfiguration?.AccessToken.Length.ToString() ?? "N/A");
                 return;
             }
 
@@ -86,7 +107,7 @@ namespace Milou.Deployer.Web.Agent.Host
 
                         if (_agentConfiguration.StartupDelay >= TimeSpan.FromMilliseconds(20))
                         {
-                            await Task.Delay(_agentConfiguration.StartupDelay.Value, stoppingToken);
+                            await Task.Delay(_agentConfiguration.StartupDelay!.Value, stoppingToken);
                         }
                     }
                 }
@@ -113,22 +134,6 @@ namespace Milou.Deployer.Web.Agent.Host
             _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
         }
 
-        private string? GetAgentId()
-        {
-            if (string.IsNullOrWhiteSpace(_agentConfiguration?.AccessToken))
-            {
-                return default;
-            }
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtSecurityToken = tokenHandler.ReadJwtToken(_agentConfiguration.AccessToken);
-
-            string? agentId = jwtSecurityToken.Claims
-                .SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)
-                ?.Value;
-
-            return agentId;
-        }
 
         private async Task<string> GetAccessToken() => _agentConfiguration!.AccessToken;
 
@@ -139,20 +144,6 @@ namespace Milou.Deployer.Web.Agent.Host
                 await Task.Delay(new Random().Next(0, 5) * 1000);
                 await _hubConnection.StartAsync();
             }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_hubConnection is { })
-            {
-                await _hubConnection.StopAsync();
-
-                _logger.Debug("Stopped SignalR");
-
-                await _hubConnection.DisposeAsync();
-            }
-
-            _hubConnection = null;
         }
     }
 }

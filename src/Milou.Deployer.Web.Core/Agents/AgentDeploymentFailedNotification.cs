@@ -4,13 +4,17 @@ namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentDeploymentFailedNotification : INotification
     {
-        public string DeploymentTaskId { get; }
-        public string DeploymentTargetId { get; }
-
-        public AgentDeploymentFailedNotification(string deploymentTaskId, string deploymentTargetId)
+        public AgentDeploymentFailedNotification(string deploymentTaskId, string deploymentTargetId, string agentId)
         {
             DeploymentTaskId = deploymentTaskId;
             DeploymentTargetId = deploymentTargetId;
+            AgentId = agentId;
         }
+
+        public string DeploymentTaskId { get; }
+
+        public string DeploymentTargetId { get; }
+
+        public string AgentId { get; }
     }
 }
