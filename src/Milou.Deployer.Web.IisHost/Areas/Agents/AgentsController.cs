@@ -1,24 +1,21 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Agents;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 using Milou.Deployer.Web.IisHost.Controllers;
-using NuGet.Common;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     [Area(nameof(Agents))]
     public class AgentsController : BaseApiController
     {
+        public const string AgentsRoute = "~/agents";
+        public const string AgentsRouteName = nameof(AgentsRoute);
         private readonly AgentsData _agentsData;
 
-        public AgentsController(AgentsData agentsData)
-        {
-            _agentsData = agentsData;
-        }
+        public AgentsController(AgentsData agentsData) => _agentsData = agentsData;
 
         [HttpGet]
-        [Route("~/agents")]
+        [Route(AgentsRoute, Name = AgentsRouteName)]
         public async Task<IActionResult> Index()
         {
             var agents = _agentsData.Agents;

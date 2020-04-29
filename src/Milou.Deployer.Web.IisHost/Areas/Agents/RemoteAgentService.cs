@@ -6,6 +6,7 @@ using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
+using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
@@ -13,11 +14,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
     {
         private readonly AgentHub _agentHub;
         private readonly AgentsData _agents;
+        private readonly ILogger _logger;
 
-        public RemoteAgentService(AgentHub agentHub, AgentsData agents)
+        public RemoteAgentService(AgentHub agentHub, AgentsData agents, ILogger logger)
         {
             _agentHub = agentHub;
             _agents = agents;
+            _logger = logger;
         }
 
         public async Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(
@@ -29,18 +32,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 throw new InvalidOperationException("No agent available");
             }
 
-            var availableAgents = _agents.Agents.Where(agent => agent.CurrentDeploymentTaskId is null).ToArray();
-
-            if (availableAgents.Length > 0)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                var agentInfo = availableAgents.FirstOrDefault(); // improve algorithm to select agent
-                string agentId = agentInfo.Id;
-                _agents.AgentAssigned(agentId, deploymentTask.DeploymentTaskId);
+                var availableAgents = _agents.Agents.Where(agent => agent.CurrentDeploymentTaskId is null).ToArray();
 
-                return new RemoteDeploymentPackageAgent(_agentHub, _agents, agentId);
+                var agentInfo = availableAgents.FirstOrDefault(); // improve algorithm to select agent
+
+                if (agentInfo is {})
+                {
+                    _logger.Information("Deployment task {DeploymentTaskId} was assigned to agent {Agent}", deploymentTask.DeploymentTaskId, agentInfo.Id);
+                    string agentId = agentInfo.Id;
+                    _agents.AgentAssigned(agentId, deploymentTask.DeploymentTaskId);
+
+                    return new RemoteDeploymentPackageAgent(_agentHub, _agents, agentId);
+                }
+
+                _logger.Debug("Waiting for agent to be available for deployment task {DeploymentTaskId}", deploymentTask.DeploymentTaskId);
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
 
-            throw new NotSupportedException("Does not yet support multiple agents");
+            throw new InvalidOperationException("Waiting for available agent timed out");
         }
     }
 }

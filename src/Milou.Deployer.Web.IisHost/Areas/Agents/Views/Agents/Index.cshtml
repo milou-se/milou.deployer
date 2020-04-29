@@ -1,11 +1,27 @@
-﻿@model Milou.Deployer.Web.IisHost.Areas.Agents.AgentsViewModel
+﻿@using Milou.Deployer.Web.Core.Extensions
+@model Milou.Deployer.Web.IisHost.Areas.Agents.AgentsViewModel
+@inject IAppTime AppTime;
 
-<h2>Agents</h2>
+<h1>Agents</h1>
 
-@foreach (var agent in Model.Agents)
+@if (Model.Agents.Any())
 {
-    <div>@agent.Id</div>
+    @foreach (var agent in Model.Agents)
+    {
+        <h2>@agent.Id</h2>
 
-    <p>Connected at: @agent.ConnectedAt.ToString("O")</p>
-    <p>CurrentDeploymentTaskId: @agent.CurrentDeploymentTaskId</p>
+        <p>Connected at: @agent.ConnectedAt.ToLocalDateTimeFormat(AppTime)</p>
+        @if (agent.CurrentDeploymentTaskId is { })
+        {
+            <p>Current deployment task id: @agent.CurrentDeploymentTaskId</p>
+        }
+        else
+        {
+            <p>No current deployment task</p>
+        }
+    }
+}
+else
+{
+    <p>No agent are currently connected</p>
 }
