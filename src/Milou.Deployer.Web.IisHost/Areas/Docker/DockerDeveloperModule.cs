@@ -61,7 +61,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 postgresArgs
             );
 
-            string[] fptArgs = {/*"--net", "host"*/};
             var ftpVariables = new Dictionary<string, string>
             {
                 ["FTP_USER"] = "testuser",
@@ -83,8 +82,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 "fauria/vsftpd",
                 "ftp",
                 ftpPorts,
-                ftpVariables,
-                fptArgs
+                ftpVariables
             );
 
             dockerArgs.Add(smtp4Dev);
