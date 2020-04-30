@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Ftp;
+using Milou.Deployer.Tests.Integration.SkipTests;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -19,19 +20,37 @@ namespace Milou.Deployer.Tests.Integration
         [Fact(Skip = "Depending on publish settings")]
         public async Task PublishFilesShouldSyncFiles()
         {
+            var logger = _testOutputHelper.FromTestOutput();
+
+            var (source, deployTargetDirectory, temp) = TestDataHelper.CopyTestData(logger);
+
             var ftpSettings = new FtpSettings(
-                new FtpPath("/site/", FileSystemType.Directory),
-                publicRootPath: new FtpPath("/site/wwwroot", FileSystemType.Directory));
+                new FtpPath("/", FileSystemType.Directory),
+                publicRootPath: new FtpPath("/", FileSystemType.Directory),
+                isSecure: false);
+
+            string publishSettingsFile = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
+                typeof(FtpHandlerTests).Namespace,
+                "ftpdocker.PublishSettings");
 
             FtpHandler handler = await FtpHandler.CreateWithPublishSettings(
-                @"C:\Temp\deploy-test-target.PublishSettings",
+                publishSettingsFile,
                 ftpSettings);
 
-            var sourceDirectory = new DirectoryInfo(@"C:\Temp\Ftptest");
+            var sourceDirectory = new DirectoryInfo(source);
             var ruleConfiguration = new RuleConfiguration
             {
                 AppOfflineEnabled = true
             };
+
+            using var initialCancellationTokenSource =
+                new CancellationTokenSource(TimeSpan.FromSeconds(50));
+            DeploySummary initialSummary = await handler.PublishAsync(ruleConfiguration,
+deployTargetDirectory,
+initialCancellationTokenSource.Token);
+
+            _testOutputHelper.WriteLine("Initial:");
+            _testOutputHelper.WriteLine(initialSummary.ToDisplayValue());
 
             using var cancellationTokenSource =
                 new CancellationTokenSource(TimeSpan.FromSeconds(50));
@@ -39,6 +58,7 @@ namespace Milou.Deployer.Tests.Integration
 sourceDirectory,
 cancellationTokenSource.Token);
 
+            _testOutputHelper.WriteLine("Result:");
             _testOutputHelper.WriteLine(summary.ToDisplayValue());
 
             System.Collections.Immutable.ImmutableArray<FtpPath> fileSystemItems = await handler.ListDirectoryAsync(FtpPath.Root, cancellationTokenSource.Token);
@@ -47,6 +67,8 @@ cancellationTokenSource.Token);
             {
                 _testOutputHelper.WriteLine(fileSystemItem.Path);
             }
+
+            temp.Dispose();
         }
     }
 }
