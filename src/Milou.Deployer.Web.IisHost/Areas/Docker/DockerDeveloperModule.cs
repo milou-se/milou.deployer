@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
             );
 
-            var variables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
+            var postgresVariables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
 
             string[] postgresArgs = {"-v", "deploydata:/var/lib/postgresql/data"};
 
@@ -57,12 +57,39 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 "postgres",
                 "postgres-deploy",
                 new Dictionary<int, int> {[5433] = 5432},
-                variables,
+                postgresVariables,
                 postgresArgs
+            );
+
+            string[] fptArgs = {/*"--net", "host"*/};
+            var ftpVariables = new Dictionary<string, string>
+            {
+                ["FTP_USER"] = "testuser",
+                ["FTP_PASS"] = "testpw",
+            };
+
+            var ftpPorts = new Dictionary<int, int>
+            {
+                [21] = 21,
+                [20] = 20
+            };
+
+            for (int i = 21100; i <= 21110; i++)
+            {
+                ftpPorts.Add(i, i);
+            }
+
+            var ftp = new ContainerArgs(
+                "fauria/vsftpd",
+                "ftp",
+                ftpPorts,
+                ftpVariables,
+                fptArgs
             );
 
             dockerArgs.Add(smtp4Dev);
             dockerArgs.Add(postgres);
+            dockerArgs.Add(ftp);
 
             _dockerContext = await DockerContext.CreateContextAsync(dockerArgs, _logger);
 
