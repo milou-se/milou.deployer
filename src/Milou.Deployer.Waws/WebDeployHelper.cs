@@ -17,7 +17,7 @@ namespace Milou.Deployer.Waws
 
         public async Task<DeploySummary> DeployContentToOneSiteAsync(
             string sourcePath,
-            string publishSettingsFile,
+            string? publishSettingsFile,
             TimeSpan appOfflineDelay,
             string? password = null,
             bool allowUntrusted = false,
@@ -50,11 +50,11 @@ namespace Milou.Deployer.Waws
             return deploymentChangeSummary;
         }
 
-        public event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
+        public event EventHandler<CustomEventArgs>? DeploymentTraceEventHandler;
 
         private async Task<DeploySummary> DeployContentToOneSiteAsync2(
             string sourcePath,
-            string publishSettingsFile,
+            string? publishSettingsFile,
             TimeSpan appOfflineDelay,
             string? password = null,
             bool allowUntrusted = false,
@@ -72,7 +72,7 @@ namespace Milou.Deployer.Waws
 
             PublishSettings? publishSettings = default;
 
-            if (File.Exists(publishSettingsFile))
+            if (!string.IsNullOrWhiteSpace(publishSettingsFile) && File.Exists(publishSettingsFile))
             {
                 publishSettings = await PublishSettings.Load(publishSettingsFile);
             }
@@ -263,7 +263,7 @@ namespace Milou.Deployer.Waws
         }
 
         private static async Task<DeploymentBaseOptions> SetBaseOptions(
-            PublishSettings publishSettings,
+            PublishSettings? publishSettings,
             bool allowUntrusted)
         {
             if (publishSettings is {})

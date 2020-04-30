@@ -39,7 +39,7 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 
             deployTargetDirectory.Refresh();
 
-            WebDeployHelper webDeployHelper = new WebDeployHelper(logger);
+            var webDeployHelper = new WebDeployHelper(logger);
 
             var filesBefore = deployTargetDirectory.GetFiles();
 
@@ -50,12 +50,11 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 
             Assert.Contains(filesBefore, file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase));
 
-
             var result = await webDeployHelper.DeployContentToOneSiteAsync(
                 source, null, TimeSpan.MinValue,
                 appDataSkipDirectiveEnabled: true,
                 doNotDelete: false,
-                logAction: message => logger.Information(message),
+                logAction: message => logger.Information("{Message}", message),
                 targetPath: deployTargetDirectory.FullName);
 
             logger.Information("Result: {Result}", result.ToDisplayValue());
