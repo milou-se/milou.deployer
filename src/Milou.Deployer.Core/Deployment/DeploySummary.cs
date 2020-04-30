@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Core.Deployment
 {
@@ -12,19 +13,19 @@ namespace Milou.Deployer.Core.Deployment
     {
         public TimeSpan TotalTime { get; set; }
 
-        public List<string> DeletedFiles { get; } = new List<string>();
+        public HashSet<string> DeletedFiles { get; } = new HashSet<string>();
 
-        public List<string> DeletedDirectories { get; } = new List<string>();
+        public HashSet<string> DeletedDirectories { get; } = new HashSet<string>();
 
-        public List<string> CreatedDirectories { get; } = new List<string>();
+        public HashSet<string> CreatedDirectories { get; } = new HashSet<string>();
 
-        public List<string> CreatedFiles { get; private set; } = new List<string>();
+        public HashSet<string> CreatedFiles { get; private set; } = new HashSet<string>();
 
-        public List<string> IgnoredFiles { get; } = new List<string>();
+        public HashSet<string> IgnoredFiles { get; } = new HashSet<string>();
 
-        public List<string> IgnoredDirectories { get; } = new List<string>();
+        public HashSet<string> IgnoredDirectories { get; } = new HashSet<string>();
 
-        public List<string> UpdatedFiles { get; } = new List<string>();
+        public HashSet<string> UpdatedFiles { get; } = new HashSet<string>();
 
         public int ExitCode { get; set; }
 
@@ -40,7 +41,7 @@ namespace Milou.Deployer.Core.Deployment
             CreatedDirectories.AddRange(other.CreatedDirectories);
             UpdatedFiles.AddRange(other.UpdatedFiles);
             CreatedFiles.AddRange(other.CreatedFiles);
-            CreatedFiles = CreatedFiles.Except(UpdatedFiles).ToList();
+            CreatedFiles = CreatedFiles.Except(UpdatedFiles).ToHashSet();
             IgnoredFiles.AddRange(other.IgnoredFiles);
             IgnoredDirectories.AddRange(other.IgnoredDirectories);
         }

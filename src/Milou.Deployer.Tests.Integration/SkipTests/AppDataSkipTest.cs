@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Milou.Deployer.Core.IO;
 using Milou.Deployer.Waws;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,36 +17,11 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
         [Fact]
         public async Task ShouldSkipAppData()
         {
-            string testDataPath = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
-                "Milou.Deployer.Tests.Integration", "TestData", "AppDataTest");
-            string source = Path.Combine(testDataPath, "Source");
-            string target = Path.Combine(testDataPath, "Target");
-
             var logger = _output.FromTestOutput();
-
-            using var tempTargetDir = TempDirectory.CreateTempDirectory();
-            var deployTargetDirectory = tempTargetDir.Directory;
-
-            deployTargetDirectory.Refresh();
-            RecursiveIO.RecursiveDelete(deployTargetDirectory, logger);
-
-            deployTargetDirectory.EnsureExists();
-            var testTargetDirectory = new DirectoryInfo(target);
-            RecursiveIO.RecursiveCopy(testTargetDirectory, deployTargetDirectory, logger,
-                ImmutableArray<string>.Empty);
-
-            deployTargetDirectory.Refresh();
-
             var webDeployHelper = new WebDeployHelper(logger);
 
-            var filesBefore = deployTargetDirectory.GetFiles();
+            var (source, deployTargetDirectory, temp) = TestDataHelper.CopyTestData(logger);
 
-            foreach (var fileInfo in filesBefore)
-            {
-                logger.Debug("Existing file before deploy: {File}", fileInfo.Name);
-            }
-
-            Assert.Contains(filesBefore, file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase));
 
             var result = await webDeployHelper.DeployContentToOneSiteAsync(
                 source, null, TimeSpan.MinValue,
@@ -78,6 +51,8 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
                 File.ReadAllTextAsync(Path.Combine(deployTargetDirectory.FullName, "App_Data", "Data.txt"));
 
             Assert.Equal("Defined in target", appDataFileContent);
+
+            temp.Dispose();
         }
     }
 }
