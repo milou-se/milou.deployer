@@ -718,7 +718,8 @@ namespace Milou.Deployer.Ftp
                 ReadTimeout = 5000,
                 DataConnectionConnectTimeout = 2000,
                 DataConnectionReadTimeout = 2000,
-                DataConnectionType = FtpDataConnectionType.PASV
+                DataConnectionType = FtpDataConnectionType.PASV,
+                Port = fullUri.Port
             };
 
             if (ftpSettings.IsSecure)

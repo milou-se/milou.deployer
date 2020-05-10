@@ -45,7 +45,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var smtp4Dev = new ContainerArgs(
                 "rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
-                new Dictionary<int, int> {[3125] = 80, [2526] = 25},
+                 new List<PortMapping>
+                 {
+                     PortMapping.MapSinglePort(3125, 80),
+                     PortMapping.MapSinglePort(2526, 25)
+                 },
                 new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
             );
 
@@ -56,7 +60,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var postgres = new ContainerArgs(
                 "postgres",
                 "postgres-deploy",
-                new Dictionary<int, int> {[5433] = 5432},
+                new List<PortMapping>
+                {
+                    PortMapping.MapSinglePort(5433, 5432)
+                },
                 postgresVariables,
                 postgresArgs
             );
@@ -67,16 +74,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 ["FTP_PASS"] = "testpw",
             };
 
-            var ftpPorts = new Dictionary<int, int>
-            {
-                [21] = 21,
-                [20] = 20
-            };
+            var passivePorts = new PortRange(21100, 21110);
 
-            for (int i = 21100; i <= 21110; i++)
+            var ftpPorts = new List<PortMapping>
             {
-                ftpPorts.Add(i, i);
-            }
+                PortMapping.MapSinglePort(20, 20),
+                PortMapping.MapSinglePort(21, 21),
+                new PortMapping(passivePorts, passivePorts)
+            };
 
             var ftp = new ContainerArgs(
                 "fauria/vsftpd",

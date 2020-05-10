@@ -143,8 +143,8 @@
       },
       "Arbor.Docker": {
         "type": "Transitive",
-        "resolved": "0.4.0-build.1586541162",
-        "contentHash": "zAsxpesC1U6iuK+Wmskx0MBBYDsQ7lr+3/Dvx+Qyc1VCLrk2mijqoUkOM/LKqRvIK+c0/dyc7nZ5HQnqj68tjw==",
+        "resolved": "0.4.0-build.1589128629",
+        "contentHash": "XBmfaSo4msRkU08OWXaEs3UNvd3TrD+XgE1dJ9hjoTVxmpLj31CvbQVDkjJ/y2Wtq6Q9gM1+CKBVr56x7tXleg==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.1.0",
@@ -2333,7 +2333,7 @@
           "Arbor.App.Extensions": "0.4.0-build.1586959860",
           "Arbor.AspNetCore.Host": "0.7.0-build.1586961231",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
-          "Arbor.Docker": "0.4.0-build.1586541162",
+          "Arbor.Docker": "0.4.0-build.1589128629",
           "Arbor.KVConfiguration.Core": "0.20.0",
           "Arbor.KVConfiguration.DependencyInjection": "0.20.0",
           "Arbor.KVConfiguration.JsonConfiguration": "0.20.0",

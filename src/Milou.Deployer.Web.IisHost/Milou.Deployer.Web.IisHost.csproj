@@ -38,7 +38,7 @@
 
       <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1586961231" />
 
-      <PackageReference Include="Arbor.Docker" Version="0.4.0-build.1586541162" Condition="'$(Configuration)' == 'Debug'" />
+      <PackageReference Include="Arbor.Docker" Version="0.4.0-build.1589128629" Condition="'$(Configuration)' == 'Debug'" />
 
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.20.0" />
