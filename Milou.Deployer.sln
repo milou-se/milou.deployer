@@ -29,9 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.ConsoleClient", "src\Milou.Deployer.Bootstrapper.ConsoleClinet\Milou.Deployer.Bootstrapper.ConsoleClient.csproj", "{408BE227-0D12-48F2-B903-0929977878B4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Tests.Integration", "src\Milou.Deployer.Tests.Integration\Milou.Deployer.Tests.Integration.csproj", "{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Tests.Integration", "tests\Milou.Deployer.Tests.Integration\Milou.Deployer.Tests.Integration.csproj", "{82D3C554-EEB0-48B8-B7CE-7DBF129F16B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.Tests.Integration", "src\Milou.Deployer.Bootstrapper.Tests.Integration\Milou.Deployer.Bootstrapper.Tests.Integration.csproj", "{25594590-A1AF-4B9E-840F-16F7C0FB9A87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.Tests.Integration", "tests\Milou.Deployer.Bootstrapper.Tests.Integration\Milou.Deployer.Bootstrapper.Tests.Integration.csproj", "{25594590-A1AF-4B9E-840F-16F7C0FB9A87}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.IIS", "src\Milou.Deployer.IIS\Milou.Deployer.IIS.csproj", "{1CDBFF1D-1B84-404A-97DC-2A2D9841B2EF}"
 EndProject
@@ -45,11 +45,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.IisHost"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Marten", "src\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj", "{2622E998-CC79-42BE-885A-8444DDC6A311}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Integration", "src\Milou.Deployer.Web.Tests.Integration\Milou.Deployer.Web.Tests.Integration.csproj", "{565F3674-5823-44C4-A2C8-60A00BBB6300}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Integration", "tests\Milou.Deployer.Web.Tests.Integration\Milou.Deployer.Web.Tests.Integration.csproj", "{565F3674-5823-44C4-A2C8-60A00BBB6300}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tools", "src\Milou.Deployer.Web.Tools\Milou.Deployer.Web.Tools.csproj", "{DC344BD5-2BB9-4C14-ACDB-10354A241EB1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Unit", "src\Milou.Deployer.Web.Tests.Unit\Milou.Deployer.Web.Tests.Unit.csproj", "{73800D5A-1999-4C7B-83BD-10CF36CDA2C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Unit", "tests\Milou.Deployer.Web.Tests.Unit\Milou.Deployer.Web.Tests.Unit.csproj", "{73800D5A-1999-4C7B-83BD-10CF36CDA2C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.WindowsService", "src\Milou.Deployer.Web.WindowsService\Milou.Deployer.Web.WindowsService.csproj", "{86D027C1-6596-4F00-A332-D91CC29AA5A8}"
 EndProject
@@ -78,6 +78,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{48FBA6E2-E7DB-4A7C-8B60-6E39807B757F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{369F510A-74DD-404A-BC97-07ED783D7B21}"
+	ProjectSection(SolutionItems) = preProject
+		tests\.editorconfig = tests\.editorconfig
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployer", "Deployer", "{EB1C7EF0-3F2D-4D08-912A-DD71DDF54246}"
 EndProject

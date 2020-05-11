@@ -12,7 +12,7 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
         public static (string source, DirectoryInfo deployTargetDirectory, TempDirectory tempTargetDir) CopyTestData(
             ILogger logger)
         {
-            string testDataPath = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
+            string testDataPath = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "tests",
                 "Milou.Deployer.Tests.Integration", "TestData", "AppDataTest");
             string source = Path.Combine(testDataPath, "Source");
             string target = Path.Combine(testDataPath, "Target");

@@ -1,31 +1,35 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ArborPublishEnabled>false</ArborPublishEnabled>
+    <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
+    <ArborBuild_NuGetWebPackageEnabled>false</ArborBuild_NuGetWebPackageEnabled>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0" />
-    <PackageReference Include="Arbor.ModelBinding" Version="0.7.2" />
+    <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="MailKit" Version="2.6.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.5.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.3" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.3" />
+    <PackageReference Include="MysticMind.PostgresEmbed" Version="1.4.0" />
+    <PackageReference Include="NCrunch.Framework" Version="4.0.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NuGet.Packaging" Version="5.5.1" />
-    <PackageReference Include="Serilog" Version="2.9.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="0.20.0" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="2.0.4" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.analyzers" Version="0.10.0" />
     <PackageReference Include="xunit.runner.console" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -34,10 +38,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
-    <ProjectReference Include="..\Milou.Deployer.Web.IisHost\Milou.Deployer.Web.IisHost.csproj" />
-  </ItemGroup>
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.Agent.Host\Milou.Deployer.Web.Agent.Host.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.IisHost\Milou.Deployer.Web.IisHost.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
+</ItemGroup>
 </Project>

@@ -12,7 +12,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
             [NotNull] string packageId,
             bool useCache = true,
-            ILogger? logger = null,
             bool includePreReleased = false,
             string? nugetPackageSource = null,
             string? nugetConfigFile = null,

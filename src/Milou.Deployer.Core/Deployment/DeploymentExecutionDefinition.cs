@@ -86,7 +86,7 @@ namespace Milou.Deployer.Core.Deployment
             ExcludedFilePatternsCombined = excludedFilePatterns;
 
             PublishType = PublishType.TryParseOrDefault(publishType, out var publishTypeValue)
-                ? publishTypeValue
+                ? publishTypeValue!
                 : PublishType.Default;
         }
 

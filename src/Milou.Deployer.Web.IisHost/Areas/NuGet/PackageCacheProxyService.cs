@@ -47,7 +47,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
             string packageId,
             bool useCache = true,
-            ILogger? logger = null,
             bool includePreReleased = false,
             string? nugetPackageSource = null,
             string? nugetConfigFile = null,
@@ -59,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (useCache)
             {
-                var packages = await _memoryCache.Get<PackageVersions>(cacheKey, cancellationToken);
+                var packages = await _memoryCache.Get<PackageVersions>(cacheKey, _logger, cancellationToken);
                 _logger.Debug(
                     "Returning packages from cache with key {Key} for package id {PackageId}",
                     cacheKey,
@@ -73,7 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 }
             }
 
-            var addedPackages = (await _packageService.GetPackageVersionsAsync(packageId, useCache, _logger,
+            var addedPackages = (await _packageService.GetPackageVersionsAsync(packageId, useCache,
                 includePreReleased, nugetPackageSource, nugetConfigFile, cancellationToken)).ToArray();
 
             if (addedPackages.Length > 0)
@@ -88,7 +87,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                 var packageVersions = new PackageVersions {Versions = versions};
 
-                await _memoryCache.Set(cacheKey, packageVersions, cancellationToken);
+                await _memoryCache.Set(cacheKey, packageVersions, _logger, cancellationToken);
 
                 _logger.Debug(
                     "Cached {Packages} packages with key {CacheKey} for {Duration} seconds",

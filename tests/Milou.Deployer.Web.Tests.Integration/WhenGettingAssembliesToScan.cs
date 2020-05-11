@@ -24,7 +24,17 @@ namespace Milou.Deployer.Web.Tests.Integration
                 ApplicationAssemblies.FilteredAssemblies(useCache: false,
                     assemblyNameStartsWith: assemblyNameStartsWith);
             var assemblies = filteredAssemblies
-                .Where(assembly => !assembly.GetName().Name.EndsWith(".Views", StringComparison.OrdinalIgnoreCase))
+                .Where(assembly =>
+                {
+                    string? assemblyName = assembly.GetName()?.Name;
+
+                    if (string.IsNullOrWhiteSpace(assemblyName))
+                    {
+                        return false;
+                    }
+
+                    return !assemblyName.EndsWith(".Views", StringComparison.OrdinalIgnoreCase);
+                })
                 .ToImmutableArray();
 
             _output.WriteLine(string.Join(

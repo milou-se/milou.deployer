@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         {
             using var manifestFile = TempFile.CreateTempFile("manifest", ".json");
 
-            await File.WriteAllTextAsync(manifestFile.File.FullName, deploymentTaskPackage.ManifestJson, Encoding.UTF8,
+            await File.WriteAllTextAsync(manifestFile.File!.FullName, deploymentTaskPackage.ManifestJson, Encoding.UTF8,
                 cancellationToken);
 
             using var publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)

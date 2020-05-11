@@ -53,7 +53,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
             string packageId,
             bool useCache = true,
-            ILogger? logger = null,
             bool includePreReleased = false,
             string? nugetPackageSource = null,
             string? nugetConfigFile = null,
@@ -86,11 +85,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (!string.IsNullOrWhiteSpace(packageSource))
             {
-                logger?.Debug("Using package source '{PackageSource}' for package {Package}", packageSource, packageId);
+                _logger.Debug("Using package source '{PackageSource}' for package {Package}", packageSource, packageId);
             }
             else
             {
-                logger?.Debug(
+                _logger.Debug(
                     "There is no package source defined in app settings, key '{PackageSourceAppSettingsKey}', using all sources",
                     packageSourceAppSettingsKey);
             }
@@ -103,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 _logger.Debug("Using NuGet config file {NuGetConfigFile} for package {Package}", configFile, packageId);
             }
 
-            logger?.Debug(
+            _logger.Debug(
                 "Running NuGet from package service to find package {PackageId} with timeout {Seconds} seconds",
                 packageId,
                 _deploymentConfiguration.ListTimeOutInSeconds);

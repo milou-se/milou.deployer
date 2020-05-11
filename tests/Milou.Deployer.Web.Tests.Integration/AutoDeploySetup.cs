@@ -71,7 +71,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             await File.WriteAllTextAsync(settingsFile, serializedConfigurationItems, Encoding.UTF8, cancellationToken);
 
             var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
-                "src",
+                "tests",
                 milouDeployerWebTestsIntegration));
 
             FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");

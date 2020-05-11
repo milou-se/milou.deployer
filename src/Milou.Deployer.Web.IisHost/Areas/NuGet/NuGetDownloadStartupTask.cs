@@ -80,7 +80,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 _logger.Warning(ex, "Could not download nuget.exe");
             }
 
-            if (_configuration is { })
+            if (_configuration is { } && _nugetConfiguration is {})
             {
                 _nugetConfiguration.NugetExePath = nugetExePath;
             }

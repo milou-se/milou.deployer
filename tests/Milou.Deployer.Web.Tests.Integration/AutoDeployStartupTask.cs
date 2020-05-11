@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly IDeploymentService _deploymentService;
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
-        private readonly TestConfiguration _testConfiguration;
+        private readonly TestConfiguration? _testConfiguration;
         private readonly TestHttpPort _testSiteHttpPort;
         private IWebHost _webHost;
 
@@ -41,7 +41,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             _deploymentService = deploymentService;
             _testConfiguration = testConfiguration;
-            _testSiteHttpPort = configurationInstanceHolder.GetInstances<TestHttpPort>().Values.SingleOrDefault();
+            _testSiteHttpPort = configurationInstanceHolder.GetInstances<TestHttpPort>().Values.SingleOrDefault() ?? throw new InvalidOperationException("Missing test http port");
             _logger = logger;
             _readService = readService;
         }

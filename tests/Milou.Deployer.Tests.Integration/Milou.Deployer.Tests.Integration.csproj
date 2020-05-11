@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Milou.Deployer.Core\IO\TempFile.cs" Link="TempFile.cs" />
+    <Compile Include="..\..\src\Milou.Deployer.Core\IO\TempFile.cs" Link="TempFile.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Milou.Deployer.ConsoleClient\Milou.Deployer.ConsoleClient.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.ConsoleClient\Milou.Deployer.ConsoleClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

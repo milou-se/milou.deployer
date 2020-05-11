@@ -73,9 +73,9 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public void ParentShouldBeFoundForSubPath()
         {
-            FtpPath fileSystemItem = new FtpPath("/testpath/testsub", FileSystemType.Directory).Parent;
+            FtpPath? fileSystemItem = new FtpPath("/testpath/testsub", FileSystemType.Directory).Parent;
 
-            Assert.Equal("/testpath", fileSystemItem.Path);
+            Assert.Equal("/testpath", fileSystemItem?.Path);
         }
 
         [Fact]

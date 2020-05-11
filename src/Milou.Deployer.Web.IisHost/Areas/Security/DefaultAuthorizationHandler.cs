@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(network => (HasValue: IpNetworkParser.TryParse(network, out var ipNetwork), ipNetwork))
                 .Where(network => network.HasValue)
-                .Select(network => network.ipNetwork)
+                .Select(network => network.ipNetwork!)
                 .ToArray();
 
             _allowedNetworks = ipNetworksFromConfig.ToImmutableHashSet();
@@ -90,7 +90,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                         })
                         .Where(emailAddress => emailAddress is {})
                         .Where(emailAddress => _allowedEmailDomains.Any(domain =>
-                            domain.Domain.Equals(emailAddress.Domain, StringComparison.OrdinalIgnoreCase)))
+                            domain.Domain.Equals(emailAddress!.Domain, StringComparison.OrdinalIgnoreCase)))
                         .ToArray();
 
                     if (matches.Length > 0)

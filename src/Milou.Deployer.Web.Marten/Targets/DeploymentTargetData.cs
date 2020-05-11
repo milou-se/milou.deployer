@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Marten.Targets
 
         public bool AutoDeployEnabled { get; set; }
 
-        public string PackageId { get; set; }
+        public string? PackageId { get; set; }
 
         public string? PublishSettingsXml { get; set; }
 

@@ -369,7 +369,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         target.PackageId,
                         nugetConfigFile: target.NuGet.NuGetConfigFile,
                         nugetPackageSource: target.NuGet.NuGetPackageSource,
-                        logger: _logger,
                         includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPreRelease,
                         cancellationToken: cancellationToken);
 

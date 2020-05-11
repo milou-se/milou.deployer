@@ -149,7 +149,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 {
                     _logger.Error(ex,
                         "Could not get instance form registration type {Type}",
-                        serviceRegistrationInfo.ServiceDescriptorImplementationType.FullName);
+                        serviceRegistrationInfo.ServiceDescriptorImplementationType?.FullName);
                     return default;
                 }
             }

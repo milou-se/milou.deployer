@@ -29,7 +29,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return filteredAssemblies
                     .SelectMany(assembly => assembly.GetLoadableTypes())
                     .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
-                    .Select(type => new object[] {type.AssemblyQualifiedName})
+                    .Select(type => new object[] {type.AssemblyQualifiedName!})
                     .ToArray();
             }
         }
