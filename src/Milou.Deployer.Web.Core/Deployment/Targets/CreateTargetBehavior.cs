@@ -11,7 +11,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public CreateTargetBehavior(IMediator mediator) => _mediator = mediator;
 
-        public async Task<CreateTargetResult> Handle(CreateTarget request, CancellationToken cancellationToken, RequestHandlerDelegate<CreateTargetResult> next)
+        public async Task<CreateTargetResult> Handle(CreateTarget request,
+            CancellationToken cancellationToken,
+            RequestHandlerDelegate<CreateTargetResult> next)
         {
             CreateTargetResult response = await next();
 

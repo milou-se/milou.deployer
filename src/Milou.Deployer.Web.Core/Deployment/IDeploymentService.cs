@@ -10,12 +10,13 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public interface IDeploymentService
     {
+        BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; }
+
         Task<DeploymentTaskResult> ExecuteDeploymentAsync(
             [NotNull] DeploymentTask deploymentTask,
             ILogger logger,
             CancellationToken cancellationToken);
 
-        BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; }
         void Log(string message);
         void TaskDone(string deploymentTaskId);
         void TaskFailed(string deploymentTaskId);

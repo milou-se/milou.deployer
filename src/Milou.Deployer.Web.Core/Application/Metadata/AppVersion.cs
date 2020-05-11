@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
                     Properties[DeployerAppConstants.DeploymentStartTime],
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal,
-                    out DateTime deployedAtUtc))
+                    out var deployedAtUtc))
                 {
                     return null;
                 }

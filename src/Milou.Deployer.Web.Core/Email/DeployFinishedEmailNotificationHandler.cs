@@ -6,6 +6,7 @@ using Arbor.App.Extensions;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using MimeKit;
@@ -35,14 +36,14 @@ namespace Milou.Deployer.Web.Core.Email
             _timeoutHelper = timeoutHelper;
 
             _emailConfiguration = emailConfiguration ?? new EmailConfiguration(
-                                      null,
-                                      null,
-                                      -1,
-                                      false,
-                                      null,
-                                      null,
-                                      30,
-                                      false);
+                null,
+                null,
+                -1,
+                false,
+                null,
+                null,
+                30,
+                false);
         }
 
         public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
@@ -62,10 +63,11 @@ namespace Milou.Deployer.Web.Core.Email
             }
 
             using CancellationTokenSource cancellationTokenSource =
-                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds));
-            Deployment.DeploymentTarget target =
-await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
-cancellationTokenSource.Token);
+                _timeoutHelper.CreateCancellationTokenSource(
+                    TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds));
+            DeploymentTarget target =
+                await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
+                    cancellationTokenSource.Token);
 
             if (target is null)
             {

@@ -11,7 +11,8 @@ namespace Milou.Deployer.Web.Core.Credentials
     [UsedImplicitly]
     public class ConfigurationCredentialReadService : ICredentialReadService
     {
-        [NotNull] private readonly IKeyValueConfiguration _keyValueConfiguration;
+        [NotNull]
+        private readonly IKeyValueConfiguration _keyValueConfiguration;
 
         private readonly ILogger _logger;
 

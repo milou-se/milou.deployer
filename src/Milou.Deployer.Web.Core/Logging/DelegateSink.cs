@@ -11,7 +11,8 @@ namespace Milou.Deployer.Web.Core.Logging
     {
         private readonly Action<string, LogEventLevel> _action;
 
-        public DelegateSink([NotNull] Action<string, LogEventLevel> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
+        public DelegateSink([NotNull] Action<string, LogEventLevel> action) =>
+            _action = action ?? throw new ArgumentNullException(nameof(action));
 
         public void Emit([NotNull] LogEvent logEvent)
         {
@@ -30,7 +31,8 @@ namespace Milou.Deployer.Web.Core.Logging
                 Level = logEvent.Level.ToString(),
                 logEvent.Timestamp,
                 RenderedTemplate = renderedTemplate,
-                FormattedTimestamp = logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)
+                FormattedTimestamp =
+                    logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)
             };
 
             string message = JsonConvert.SerializeObject(output);

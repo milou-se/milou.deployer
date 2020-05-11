@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap-theme.css" Link="wwwroot\content\bootstrap-theme.css" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap-theme.min.css" Link="wwwroot\content\bootstrap-theme.min.css" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap.css" Link="wwwroot\content\bootstrap.css" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap.min.css" Link="wwwroot\content\bootstrap.min.css" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\Site.css" Link="wwwroot\content\Site.css" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.eot" Link="wwwroot\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.ttf" Link="wwwroot\fonts\glyphicons-halflings-regular.ttf" />
@@ -28,33 +24,27 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap-theme.css.map" Link="wwwroot\content\bootstrap-theme.css.map" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap-theme.min.css.map" Link="wwwroot\content\bootstrap-theme.min.css.map" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap.css.map" Link="wwwroot\content\bootstrap.css.map" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\bootstrap.min.css.map" Link="wwwroot\content\bootstrap.min.css.map" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.svg" Link="wwwroot\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.woff2" Link="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\bootstrap.js" Link="wwwroot\scripts\bootstrap.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\bootstrap.min.js" Link="wwwroot\scripts\bootstrap.min.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery-3.1.1.intellisense.js" Link="wwwroot\scripts\jquery-3.1.1.intellisense.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery-3.1.1.js" Link="wwwroot\scripts\jquery-3.1.1.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery-3.1.1.min.js" Link="wwwroot\scripts\jquery-3.1.1.min.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery-3.1.1.min.map" Link="wwwroot\scripts\jquery-3.1.1.min.map" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery-3.1.1.slim.js" Link="wwwroot\scripts\jquery-3.1.1.slim.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery-3.1.1.slim.min.js" Link="wwwroot\scripts\jquery-3.1.1.slim.min.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery-3.1.1.slim.min.map" Link="wwwroot\scripts\jquery-3.1.1.slim.min.map" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery.validate-vsdoc.js" Link="wwwroot\scripts\jquery.validate-vsdoc.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery.validate.js" Link="wwwroot\scripts\jquery.validate.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery.validate.min.js" Link="wwwroot\scripts\jquery.validate.min.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery.validate.unobtrusive.js" Link="wwwroot\scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\jquery.validate.unobtrusive.min.js" Link="wwwroot\scripts\jquery.validate.unobtrusive.min.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\modernizr-2.8.3.js" Link="wwwroot\scripts\modernizr-2.8.3.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\respond.js" Link="wwwroot\scripts\respond.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\respond.matchmedia.addListener.js" Link="wwwroot\scripts\respond.matchmedia.addListener.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\respond.matchmedia.addListener.min.js" Link="wwwroot\scripts\respond.matchmedia.addListener.min.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\respond.min.js" Link="wwwroot\scripts\respond.min.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\signalr.js" Link="wwwroot\scripts\signalr.js" />
-    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\signalr.js.map" Link="wwwroot\scripts\signalr.js.map" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.intellisense.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.intellisense.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.min.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.min.map" Link="wwwroot\scripts\Libs\jquery-3.1.1.min.map" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.slim.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.slim.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.slim.min.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.slim.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.slim.min.map" Link="wwwroot\scripts\Libs\jquery-3.1.1.slim.min.map" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate-vsdoc.js" Link="wwwroot\scripts\Libs\jquery.validate-vsdoc.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.js" Link="wwwroot\scripts\Libs\jquery.validate.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.min.js" Link="wwwroot\scripts\Libs\jquery.validate.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.unobtrusive.js" Link="wwwroot\scripts\Libs\jquery.validate.unobtrusive.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.unobtrusive.min.js" Link="wwwroot\scripts\Libs\jquery.validate.unobtrusive.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\modernizr-2.8.3.js" Link="wwwroot\scripts\Libs\modernizr-2.8.3.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.js" Link="wwwroot\scripts\Libs\respond.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.matchmedia.addListener.js" Link="wwwroot\scripts\Libs\respond.matchmedia.addListener.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.matchmedia.addListener.min.js" Link="wwwroot\scripts\Libs\respond.matchmedia.addListener.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.min.js" Link="wwwroot\scripts\Libs\respond.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js" Link="wwwroot\scripts\Libs\signalr.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js.map" Link="wwwroot\scripts\Libs\signalr.js.map" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Site.js" Link="wwwroot\scripts\Site.js" />
   </ItemGroup>
 

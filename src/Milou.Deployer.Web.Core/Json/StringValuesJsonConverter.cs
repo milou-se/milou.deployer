@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Core.Json
             {
                 var array = JArray.Load(reader);
 
-                string[]? values = array.ToObject<string[]>();
+                var values = array.ToObject<string[]>();
 
                 return new StringValues(values);
             }
@@ -60,6 +60,7 @@ namespace Milou.Deployer.Web.Core.Json
         /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => throw new NotSupportedException();
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) =>
+            throw new NotSupportedException();
     }
 }

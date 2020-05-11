@@ -5,8 +5,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
     public interface IDataSeeder
     {
-        Task SeedAsync(CancellationToken cancellationToken);
-
         int Order { get; }
+        Task SeedAsync(CancellationToken cancellationToken);
     }
 }

@@ -15,7 +15,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             ValidationErrors = ImmutableArray<ValidationError>.Empty;
         }
 
-        public CreateTargetResult(params ValidationError[] validationErrors) => ValidationErrors = validationErrors.SafeToImmutableArray();
+        public CreateTargetResult(params ValidationError[] validationErrors) =>
+            ValidationErrors = validationErrors.SafeToImmutableArray();
 
         [JsonConstructor]
         private CreateTargetResult(string targetName, ValidationError[] validationErrors)
@@ -27,9 +28,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public string TargetId { get; }
 
         [PublicAPI]
-        public string TargetName { get; }
+        public ImmutableArray<ValidationError> ValidationErrors { get; }
 
         [PublicAPI]
-        public ImmutableArray<ValidationError> ValidationErrors { get; }
+        public string TargetName { get; }
     }
 }

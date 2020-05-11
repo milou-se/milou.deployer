@@ -2,7 +2,10 @@
 {
     public class DeploymentTaskCreated
     {
-        public DeploymentTaskCreated(string deploymentTaskId, string packageVersion, string deploymentTargetId, string startedBy)
+        public DeploymentTaskCreated(string deploymentTaskId,
+            string packageVersion,
+            string deploymentTargetId,
+            string startedBy)
         {
             DeploymentTaskId = deploymentTaskId;
             PackageVersion = packageVersion;

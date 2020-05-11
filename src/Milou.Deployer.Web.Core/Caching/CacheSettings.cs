@@ -7,13 +7,10 @@ namespace Milou.Deployer.Web.Core.Caching
     [Optional]
     public class CacheSettings : IConfigurationValues
     {
-        public string Host { get; }
-
         public const string Urn = "urn:arbor:app:caching:redis";
 
-        public CacheSettings(string host)
-        {
-            Host = host;
-        }
+        public CacheSettings(string host) => Host = host;
+
+        public string Host { get; }
     }
 }

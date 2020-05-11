@@ -13,7 +13,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             ValidationErrors = ImmutableArray<ValidationError>.Empty;
         }
 
-        public CreateProjectResult(params ValidationError[] validationErrors) => ValidationErrors = validationErrors.SafeToImmutableArray();
+        public CreateProjectResult(params ValidationError[] validationErrors) =>
+            ValidationErrors = validationErrors.SafeToImmutableArray();
 
         [JsonConstructor]
         private CreateProjectResult(string projectName, ValidationError[] validationErrors)

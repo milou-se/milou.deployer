@@ -7,6 +7,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public interface IAgentService
     {
-        Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(DeploymentTask deploymentTask, CancellationToken cancellationToken);
+        Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(DeploymentTask deploymentTask,
+            CancellationToken cancellationToken);
     }
 }

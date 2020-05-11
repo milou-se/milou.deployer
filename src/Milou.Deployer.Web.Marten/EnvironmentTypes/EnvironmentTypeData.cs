@@ -5,13 +5,12 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
     [MartenData]
     public class EnvironmentTypeData
     {
+        public static readonly EnvironmentTypeData Empty = new EnvironmentTypeData {Id = ""};
         public string PreReleaseBehavior { get; set; }
 
         public string Id { get; set; }
 
         public string Name { get; set; }
-
-        public static readonly EnvironmentTypeData Empty = new EnvironmentTypeData {Id = ""};
 
         public static EnvironmentTypeData MapToData(EnvironmentType environmentType) =>
             new EnvironmentTypeData

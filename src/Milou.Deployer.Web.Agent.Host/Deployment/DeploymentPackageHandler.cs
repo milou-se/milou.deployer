@@ -29,7 +29,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             await File.WriteAllTextAsync(manifestFile.File.FullName, deploymentTaskPackage.ManifestJson, Encoding.UTF8,
                 cancellationToken);
 
-            using TempFile? publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)
+            using var publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)
                 ? null
                 : TempFile.CreateTempFile(deploymentTaskPackage.DeploymentTargetId, ".publishSettings");
 

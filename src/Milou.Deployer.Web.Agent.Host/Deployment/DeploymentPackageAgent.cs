@@ -7,6 +7,8 @@ using Arbor.Processing;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Agent.Host.Logging;
 using Serilog;
+using Serilog.Core;
+using Serilog.Sinks.Http;
 
 namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
@@ -42,9 +44,9 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         {
             _logger.Information("Received deployment task {DeploymentTaskId}", deploymentTaskId);
 
-            Serilog.Sinks.Http.IHttpClient client = _logHttpClientFactory.CreateClient(deploymentTaskId, deploymentTargetId);
+            IHttpClient client = _logHttpClientFactory.CreateClient(deploymentTaskId, deploymentTargetId);
 
-            Serilog.Core.Logger logger = new LoggerConfiguration()
+            Logger logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .WriteTo.Logger(_logger)
                 .WriteTo.DurableHttpUsingTimeRolledBuffers(AgentConstants.DeploymentTaskLogRoute,
@@ -58,7 +60,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 using CancellationTokenSource cancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromMinutes(30));
 
-                DeploymentTaskPackage? deploymentTaskPackage =
+                var deploymentTaskPackage =
                     await _deploymentTaskPackageService.GetDeploymentTaskPackageAsync(deploymentTaskId,
                         cancellationTokenSource.Token);
 

@@ -21,14 +21,14 @@ namespace Milou.Deployer.Web.Core.Email
         public SmtpService(EmailConfiguration emailConfiguration, [NotNull] ILogger logger)
         {
             _emailConfiguration = emailConfiguration ?? new EmailConfiguration(
-                                      null,
-                                      null,
-                                      -1,
-                                      false,
-                                      null,
-                                      null,
-                                      30,
-                                      false);
+                null,
+                null,
+                -1,
+                false,
+                null,
+                null,
+                30,
+                false);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -64,9 +64,9 @@ namespace Milou.Deployer.Web.Core.Email
             }
 
             await client.ConnectAsync(_emailConfiguration.SmtpHost,
-_emailConfiguration.Port,
-_emailConfiguration.UseSsl,
-cancellationToken);
+                _emailConfiguration.Port,
+                _emailConfiguration.UseSsl,
+                cancellationToken);
 
             client.AuthenticationMechanisms.Remove("XOAUTH2");
 

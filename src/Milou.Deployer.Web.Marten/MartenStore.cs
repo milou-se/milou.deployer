@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -40,172 +39,22 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<CreateEnvironment, CreateEnvironmentResult>,
         IRequestHandler<CreateDeploymentTaskPackage, Unit>
     {
+        private readonly ICustomMemoryCache _cache;
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
 
         private readonly IMediator _mediator;
-        private readonly ICustomMemoryCache _cache;
 
-        public MartenStore([NotNull] IDocumentStore documentStore, ILogger logger, IMediator mediator, ICustomMemoryCache cache)
+        public MartenStore([NotNull] IDocumentStore documentStore,
+            ILogger logger,
+            IMediator mediator,
+            ICustomMemoryCache cache)
         {
             _documentStore = documentStore ?? throw new ArgumentNullException(nameof(documentStore));
             _logger = logger;
             _mediator = mediator;
             _cache = cache;
         }
-
-        private async Task<CreateProjectResult> CreateProjectAsync(
-            CreateProject createProject,
-            CancellationToken cancellationToken)
-        {
-            if (!createProject.IsValid)
-            {
-                return new CreateProjectResult(new ValidationError("Id or organization id is invalid"));
-            }
-
-            using (IDocumentSession session = _documentStore.OpenSession())
-            {
-                var data = new ProjectData
-                {
-                    Id = createProject.Id,
-                    OrganizationId = createProject.OrganizationId
-                };
-
-                session.Store(data);
-
-                await session.SaveChangesAsync(cancellationToken);
-            }
-
-            _logger.Information("Created project with id {Id}", createProject.Id);
-
-            return new CreateProjectResult(createProject.Id);
-        }
-
-        private DeploymentTarget? MapDataToTarget(DeploymentTargetData deploymentTargetData, ImmutableArray<EnvironmentType> environmentTypes)
-        {
-            if (deploymentTargetData is null)
-            {
-                return null;
-            }
-
-            EnvironmentType environmentType =
-                environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTargetData.EnvironmentTypeId, StringComparison.Ordinal)) ??
-                EnvironmentType.Unknown;
-
-            DeploymentTarget? deploymentTargetAsync = null;
-            try
-            {
-                deploymentTargetAsync = new DeploymentTarget(
-                    deploymentTargetData.Id,
-                    deploymentTargetData.Name,
-                    deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable)!,
-                    deploymentTargetData.PublishSettingsXml,
-                    deploymentTargetData.AllowExplicitPreRelease,
-                    url: deploymentTargetData.Url,
-                    iisSiteName: deploymentTargetData.IisSiteName,
-                    autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
-                    targetDirectory: deploymentTargetData.TargetDirectory,
-                    webConfigTransform: deploymentTargetData.WebConfigTransform,
-                    excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
-                    environmentTypeId: deploymentTargetData.EnvironmentTypeId,
-                    environmentType: environmentType,
-                    enabled: deploymentTargetData.Enabled,
-                    publishType: deploymentTargetData.PublishType,
-                    ftpPath: deploymentTargetData.FtpPath,
-                    metadataTimeout: deploymentTargetData.MetadataTimeout,
-                    nuget: MapNuGet(deploymentTargetData.NuGetData),
-                    requireEnvironmentConfig: deploymentTargetData.RequireEnvironmentConfig,
-                    environmentConfiguration: deploymentTargetData.EnvironmentConfiguration,
-                    packageListPrefixEnabled: deploymentTargetData.PackageListPrefixEnabled,
-                    packageListPrefix: deploymentTargetData.PackageListPrefix);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Could not get deployment target from data {Data}", JsonConvert.SerializeObject(deploymentTargetData));
-            }
-
-            return deploymentTargetAsync;
-        }
-
-        private TargetNuGetSettings MapNuGet(NuGetData? nugetData)
-        {
-            if (nugetData is null)
-            {
-                return new TargetNuGetSettings();
-            }
-
-            return new TargetNuGetSettings
-            {
-                PackageListTimeout = nugetData.PackageListTimeout,
-                NuGetPackageSource = nugetData.NuGetPackageSource,
-                NuGetConfigFile = nugetData.NuGetConfigFile
-            };
-        }
-
-        private async Task<CreateOrganizationResult> CreateOrganizationAsync(
-            CreateOrganization createOrganization,
-            CancellationToken cancellationToken)
-        {
-            if (!createOrganization.IsValid)
-            {
-                return new CreateOrganizationResult(new ValidationError("Missing ID"));
-            }
-
-            using (IDocumentSession session = _documentStore.OpenSession())
-            {
-                var data = new OrganizationData
-                {
-                    Id = createOrganization.Id
-                };
-
-                session.Store(data);
-
-                await session.SaveChangesAsync(cancellationToken);
-            }
-
-            _logger.Information("Created organization with id {Id}", createOrganization.Id);
-
-            return new CreateOrganizationResult();
-        }
-
-        private ImmutableArray<OrganizationInfo> MapDataToOrganizations(
-            IReadOnlyList<OrganizationData> organizations,
-            IReadOnlyList<ProjectData> projects,
-            IReadOnlyList<DeploymentTargetData> targets,
-            ImmutableArray<EnvironmentType> environmentTypes) =>
-            organizations.Select(org => new OrganizationInfo(org.Id,
-                    projects
-                        .Where(project => project.OrganizationId.Equals(org.Id, StringComparison.OrdinalIgnoreCase))
-                        .Select(project =>
-                        {
-                            IEnumerable<DeploymentTargetData> deploymentTargetDatas = targets
-                                .Where(target =>
-                                    target.ProjectId is {}
-                                    && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase));
-
-                            return new ProjectInfo(org.Id,
-                                project.Id,
-                                deploymentTargetDatas
-                                    .Select(s => MapDataToTarget(s, environmentTypes))
-                                    .Where(item => item is {})!
-                            );
-                        })
-                        .ToImmutableArray()))
-                .Concat(new[]
-                {
-                    new OrganizationInfo("NA",
-                        new[]
-                        {
-                            new ProjectInfo(
-                                "NA",
-                                "NA",
-                                targets
-                                    .Where(target => target.ProjectId is null)
-                                    .Select(s => MapDataToTarget(s, environmentTypes))
-                                    .Where(t => t is {}))
-                        })
-                })
-                .ToImmutableArray();
 
         public Task<DeploymentTarget> GetDeploymentTargetAsync(
             [NotNull] string deploymentTargetId,
@@ -217,28 +66,6 @@ namespace Milou.Deployer.Web.Marten
             }
 
             return FindDeploymentTargetAsync(deploymentTargetId, cancellationToken);
-        }
-
-        private async Task<DeploymentTarget> FindDeploymentTargetAsync(string deploymentTargetId, CancellationToken cancellationToken)
-        {
-            using IQuerySession session = _documentStore.QuerySession();
-            try
-            {
-                DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
-                    .SingleOrDefaultAsync(target =>
-                            target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
-                        cancellationToken);
-
-                ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
-                DeploymentTarget? deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
-
-                return deploymentTarget ?? DeploymentTarget.None;
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Warning(ex, "Could not get deployment target with id {Id}", deploymentTargetId);
-                return DeploymentTarget.None;
-            }
         }
 
         public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
@@ -261,9 +88,9 @@ namespace Milou.Deployer.Web.Marten
                         .ToListAsync<OrganizationData>(
                             cancellationToken);
 
-                ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
+                var environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken);
 
-                ImmutableArray<OrganizationInfo> organizationsInfo =
+                var organizationsInfo =
                     MapDataToOrganizations(organizations, projects, targets, environmentTypes);
 
                 return organizationsInfo;
@@ -275,9 +102,11 @@ namespace Milou.Deployer.Web.Marten
             }
         }
 
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default, CancellationToken stoppingToken = default)
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default,
+            CancellationToken stoppingToken = default)
         {
             using IQuerySession session = _documentStore.QuerySession();
+
             bool Filter(DeploymentTarget target)
             {
                 if (options is null || options.OnlyEnabled)
@@ -290,7 +119,7 @@ namespace Milou.Deployer.Web.Marten
 
             try
             {
-                ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: stoppingToken);
+                var environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, stoppingToken);
 
                 IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
                     .ToListAsync<DeploymentTargetData>(stoppingToken);
@@ -316,13 +145,63 @@ namespace Milou.Deployer.Web.Marten
         {
             using IQuerySession session = _documentStore.QuerySession();
             IReadOnlyList<ProjectData> projects =
-await session.Query<ProjectData>().Where(project =>
-project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase))
-.ToListAsync(cancellationToken);
+                await session.Query<ProjectData>().Where(project =>
+                        project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase))
+                    .ToListAsync(cancellationToken);
 
             return projects.Select(project =>
                     new ProjectInfo(project.OrganizationId, project.Id, ImmutableArray<DeploymentTarget>.Empty))
                 .ToImmutableArray();
+        }
+
+        public async Task<Unit> Handle(CreateDeploymentTaskPackage request, CancellationToken cancellationToken)
+        {
+            using (IDocumentSession session = _documentStore.OpenSession())
+            {
+                var deploymentTaskPackageData = new DeploymentTaskPackageData
+                {
+                    Id = request.DeploymentTaskPackage.DeploymentTaskId,
+                    DeploymentTargetId = request.DeploymentTaskPackage.DeploymentTargetId,
+                    NuGetConfigXml = request.DeploymentTaskPackage.NugetConfigXml,
+                    ManifestJson = request.DeploymentTaskPackage.ManifestJson,
+                    PublishSettingsXml = request.DeploymentTaskPackage.PublishSettingsXml,
+                    AgentId = request.DeploymentTaskPackage.AgentId,
+                    ProcessArgs = request.DeploymentTaskPackage.DeployerProcessArgs.ToArray()
+                };
+
+                session.Store(deploymentTaskPackageData);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<CreateEnvironmentResult> Handle([NotNull] CreateEnvironment request,
+            CancellationToken cancellationToken)
+        {
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            using IDocumentSession session = _documentStore.OpenSession();
+            EnvironmentTypeData environmentTypeData =
+                await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId.Trim(), cancellationToken);
+
+            if (environmentTypeData is { })
+            {
+                return new CreateEnvironmentResult(environmentTypeData.Id, Result.AlreadyExists);
+            }
+
+            EnvironmentTypeData data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
+
+            if (data.Id.IsNullOrWhiteSpace())
+            {
+                return new CreateEnvironmentResult("", Result.Failed);
+            }
+
+            return new CreateEnvironmentResult(data.Id, Result.Created);
         }
 
         public async Task<CreateOrganizationResult> Handle(
@@ -349,7 +228,8 @@ project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase
             return CreateProjectAsync(request, cancellationToken);
         }
 
-        public async Task<CreateTargetResult> Handle([NotNull] CreateTarget createTarget, CancellationToken cancellationToken)
+        public async Task<CreateTargetResult> Handle([NotNull] CreateTarget createTarget,
+            CancellationToken cancellationToken)
         {
             if (createTarget is null)
             {
@@ -363,11 +243,7 @@ project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase
 
             using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var data = new DeploymentTargetData
-                {
-                    Id = createTarget.Id,
-                    Name = createTarget.Name
-                };
+                var data = new DeploymentTargetData {Id = createTarget.Id, Name = createTarget.Name};
 
                 session.Store(data);
 
@@ -431,6 +307,92 @@ project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase
             return new DeploymentLogResponse(taskLog);
         }
 
+        public async Task<Unit> Handle([NotNull] DisableTarget request, CancellationToken cancellationToken)
+        {
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            using (IDocumentSession session = _documentStore.OpenSession())
+            {
+                DeploymentTargetData deploymentTargetData =
+                    await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+
+                if (deploymentTargetData is null)
+                {
+                    return Unit.Value;
+                }
+
+                deploymentTargetData.Enabled = false;
+
+                session.Store(deploymentTargetData);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<Unit> Handle(EnableTarget request, CancellationToken cancellationToken)
+        {
+            using (IDocumentSession session = _documentStore.OpenSession())
+            {
+                DeploymentTargetData deploymentTargetData =
+                    await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+
+                if (deploymentTargetData is null)
+                {
+                    return Unit.Value;
+                }
+
+                deploymentTargetData.Enabled = true;
+
+                session.Store(deploymentTargetData);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)
+        {
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (request.DeploymentTargetId is null)
+            {
+                throw new ArgumentNullException(nameof(request.DeploymentTargetId));
+            }
+
+            using (IDocumentSession session = _documentStore.OpenSession())
+            {
+                IReadOnlyList<DeploymentTargetData> deploymentTargetData = await session.Query<DeploymentTargetData>()
+                    .Where(target => target.Id == request.DeploymentTargetId).ToListAsync(cancellationToken);
+
+                if (deploymentTargetData.Count == 0)
+                {
+                    _logger.Warning("Could not delete deployment target with id {DeploymentTargetId}, not found",
+                        request.DeploymentTargetId);
+
+                    return Unit.Value;
+                }
+
+                session.Delete<DeploymentTargetData>(request.DeploymentTargetId);
+                session.DeleteWhere<TaskMetadata>(m =>
+                    m.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase));
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            _logger.Information("Deleted deployment target with id {DeploymentTargetId}", request.DeploymentTargetId);
+
+            return Unit.Value;
+        }
+
         public async Task<UpdateDeploymentTargetResult> Handle(
             [NotNull] UpdateDeploymentTarget request,
             CancellationToken cancellationToken)
@@ -492,110 +454,176 @@ project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase
             return updateDeploymentTargetResult;
         }
 
-        public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)
+        private async Task<CreateProjectResult> CreateProjectAsync(
+            CreateProject createProject,
+            CancellationToken cancellationToken)
         {
-            if (request is null)
+            if (!createProject.IsValid)
             {
-                throw new ArgumentNullException(nameof(request));
-            }
-
-            if (request.DeploymentTargetId is null)
-            {
-                throw new ArgumentNullException(nameof(request.DeploymentTargetId));
+                return new CreateProjectResult(new ValidationError("Id or organization id is invalid"));
             }
 
             using (IDocumentSession session = _documentStore.OpenSession())
             {
-                IReadOnlyList<DeploymentTargetData> deploymentTargetData = await session.Query<DeploymentTargetData>().Where(target => target.Id == request.DeploymentTargetId).ToListAsync(token: cancellationToken);
+                var data = new ProjectData {Id = createProject.Id, OrganizationId = createProject.OrganizationId};
 
-                if (deploymentTargetData.Count == 0)
-                {
-                    _logger.Warning("Could not delete deployment target with id {DeploymentTargetId}, not found", request.DeploymentTargetId);
-
-                    return Unit.Value;
-                }
-
-                session.Delete<DeploymentTargetData>(request.DeploymentTargetId);
-                session.DeleteWhere<TaskMetadata>(m => m.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase));
+                session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);
             }
 
-            _logger.Information("Deleted deployment target with id {DeploymentTargetId}", request.DeploymentTargetId);
+            _logger.Information("Created project with id {Id}", createProject.Id);
 
-            return Unit.Value;
+            return new CreateProjectResult(createProject.Id);
         }
 
-        public async Task<Unit> Handle(EnableTarget request, CancellationToken cancellationToken)
+        private DeploymentTarget? MapDataToTarget(DeploymentTargetData deploymentTargetData,
+            ImmutableArray<EnvironmentType> environmentTypes)
         {
+            if (deploymentTargetData is null)
+            {
+                return null;
+            }
+
+            EnvironmentType environmentType =
+                environmentTypes.SingleOrDefault(type =>
+                    type.Id.Equals(deploymentTargetData.EnvironmentTypeId, StringComparison.Ordinal)) ??
+                EnvironmentType.Unknown;
+
+            DeploymentTarget? deploymentTargetAsync = null;
+            try
+            {
+                deploymentTargetAsync = new DeploymentTarget(
+                    deploymentTargetData.Id,
+                    deploymentTargetData.Name,
+                    deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable)!,
+                    deploymentTargetData.PublishSettingsXml,
+                    deploymentTargetData.AllowExplicitPreRelease,
+                    deploymentTargetData.Url,
+                    iisSiteName: deploymentTargetData.IisSiteName,
+                    autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
+                    targetDirectory: deploymentTargetData.TargetDirectory,
+                    webConfigTransform: deploymentTargetData.WebConfigTransform,
+                    excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
+                    environmentTypeId: deploymentTargetData.EnvironmentTypeId,
+                    environmentType: environmentType,
+                    enabled: deploymentTargetData.Enabled,
+                    publishType: deploymentTargetData.PublishType,
+                    ftpPath: deploymentTargetData.FtpPath,
+                    metadataTimeout: deploymentTargetData.MetadataTimeout,
+                    nuget: MapNuGet(deploymentTargetData.NuGetData),
+                    requireEnvironmentConfig: deploymentTargetData.RequireEnvironmentConfig,
+                    environmentConfiguration: deploymentTargetData.EnvironmentConfiguration,
+                    packageListPrefixEnabled: deploymentTargetData.PackageListPrefixEnabled,
+                    packageListPrefix: deploymentTargetData.PackageListPrefix);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not get deployment target from data {Data}",
+                    JsonConvert.SerializeObject(deploymentTargetData));
+            }
+
+            return deploymentTargetAsync;
+        }
+
+        private TargetNuGetSettings MapNuGet(NuGetData? nugetData)
+        {
+            if (nugetData is null)
+            {
+                return new TargetNuGetSettings();
+            }
+
+            return new TargetNuGetSettings
+            {
+                PackageListTimeout = nugetData.PackageListTimeout,
+                NuGetPackageSource = nugetData.NuGetPackageSource,
+                NuGetConfigFile = nugetData.NuGetConfigFile
+            };
+        }
+
+        private async Task<CreateOrganizationResult> CreateOrganizationAsync(
+            CreateOrganization createOrganization,
+            CancellationToken cancellationToken)
+        {
+            if (!createOrganization.IsValid)
+            {
+                return new CreateOrganizationResult(new ValidationError("Missing ID"));
+            }
+
             using (IDocumentSession session = _documentStore.OpenSession())
             {
-                DeploymentTargetData deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+                var data = new OrganizationData {Id = createOrganization.Id};
 
-                if (deploymentTargetData is null)
-                {
-                    return Unit.Value;
-                }
-
-                deploymentTargetData.Enabled = true;
-
-                session.Store(deploymentTargetData);
+                session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);
             }
 
-            return Unit.Value;
+            _logger.Information("Created organization with id {Id}", createOrganization.Id);
+
+            return new CreateOrganizationResult();
         }
 
-        public async Task<Unit> Handle([NotNull] DisableTarget request, CancellationToken cancellationToken)
-        {
-            if (request is null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
+        private ImmutableArray<OrganizationInfo> MapDataToOrganizations(
+            IReadOnlyList<OrganizationData> organizations,
+            IReadOnlyList<ProjectData> projects,
+            IReadOnlyList<DeploymentTargetData> targets,
+            ImmutableArray<EnvironmentType> environmentTypes) =>
+            organizations.Select(org => new OrganizationInfo(org.Id,
+                    projects
+                        .Where(project => project.OrganizationId.Equals(org.Id, StringComparison.OrdinalIgnoreCase))
+                        .Select(project =>
+                        {
+                            IEnumerable<DeploymentTargetData> deploymentTargetDatas = targets
+                                .Where(target =>
+                                    target.ProjectId is {}
+                                    && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase));
 
-            using (IDocumentSession session = _documentStore.OpenSession())
-            {
-                DeploymentTargetData deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
-
-                if (deploymentTargetData is null)
+                            return new ProjectInfo(org.Id,
+                                project.Id,
+                                deploymentTargetDatas
+                                    .Select(s => MapDataToTarget(s, environmentTypes))
+                                    .Where(item => item is {})!
+                            );
+                        })
+                        .ToImmutableArray()))
+                .Concat(new[]
                 {
-                    return Unit.Value;
-                }
+                    new OrganizationInfo("NA",
+                        new[]
+                        {
+                            new ProjectInfo(
+                                "NA",
+                                "NA",
+                                targets
+                                    .Where(target => target.ProjectId is null)
+                                    .Select(s => MapDataToTarget(s, environmentTypes))
+                                    .Where(t => t is {}))
+                        })
+                })
+                .ToImmutableArray();
 
-                deploymentTargetData.Enabled = false;
-
-                session.Store(deploymentTargetData);
-
-                await session.SaveChangesAsync(cancellationToken);
-            }
-
-            return Unit.Value;
-        }
-
-        public async Task<CreateEnvironmentResult> Handle([NotNull] CreateEnvironment request, CancellationToken cancellationToken)
+        private async Task<DeploymentTarget> FindDeploymentTargetAsync(string deploymentTargetId,
+            CancellationToken cancellationToken)
         {
-            if (request is null)
+            using IQuerySession session = _documentStore.QuerySession();
+            try
             {
-                throw new ArgumentNullException(nameof(request));
+                DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
+                    .SingleOrDefaultAsync(target =>
+                            target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
+                        cancellationToken);
+
+                var environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken);
+                var deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
+
+                return deploymentTarget ?? DeploymentTarget.None;
             }
-
-            using IDocumentSession session = _documentStore.OpenSession();
-            EnvironmentTypeData environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId.Trim(), cancellationToken);
-
-            if (environmentTypeData is { })
+            catch (Exception ex) when (!ex.IsFatal())
             {
-                return new CreateEnvironmentResult(environmentTypeData.Id, Result.AlreadyExists);
+                _logger.Warning(ex, "Could not get deployment target with id {Id}", deploymentTargetId);
+                return DeploymentTarget.None;
             }
-
-            EnvironmentTypeData data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
-
-            if (data.Id.IsNullOrWhiteSpace())
-            {
-                return new CreateEnvironmentResult("", Result.Failed);
-            }
-
-            return new CreateEnvironmentResult(data.Id, Result.Created);
         }
 
         public async Task Handle(DeploymentTaskCreatedNotification notification, CancellationToken cancellationToken)
@@ -611,30 +639,6 @@ project.OrganizationId.Equals(organizationId, StringComparison.OrdinalIgnoreCase
             });
 
             await session.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task<Unit> Handle(CreateDeploymentTaskPackage request, CancellationToken cancellationToken)
-        {
-            using (IDocumentSession session = _documentStore.OpenSession())
-            {
-                var deploymentTaskPackageData = new DeploymentTaskPackageData
-                {
-                    Id = request.DeploymentTaskPackage.DeploymentTaskId,
-                    DeploymentTargetId = request.DeploymentTaskPackage.DeploymentTargetId,
-                    NuGetConfigXml = request.DeploymentTaskPackage.NugetConfigXml,
-                    ManifestJson = request.DeploymentTaskPackage.ManifestJson,
-                    PublishSettingsXml = request.DeploymentTaskPackage.PublishSettingsXml,
-                    AgentId = request.DeploymentTaskPackage.AgentId,
-                    ProcessArgs = request.DeploymentTaskPackage.DeployerProcessArgs.ToArray()
-                };
-
-                session.Store(deploymentTaskPackageData);
-
-                await session.SaveChangesAsync(cancellationToken);
-            }
-
-            return Unit.Value;
-
         }
     }
 }

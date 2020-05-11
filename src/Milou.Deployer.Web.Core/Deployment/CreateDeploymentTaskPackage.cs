@@ -5,8 +5,9 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public class CreateDeploymentTaskPackage : IRequest<Unit>
     {
-        public DeploymentTaskPackage DeploymentTaskPackage { get; }
+        public CreateDeploymentTaskPackage(DeploymentTaskPackage deploymentTaskPackage) =>
+            DeploymentTaskPackage = deploymentTaskPackage;
 
-        public CreateDeploymentTaskPackage(DeploymentTaskPackage deploymentTaskPackage) => DeploymentTaskPackage = deploymentTaskPackage;
+        public DeploymentTaskPackage DeploymentTaskPackage { get; }
     }
 }

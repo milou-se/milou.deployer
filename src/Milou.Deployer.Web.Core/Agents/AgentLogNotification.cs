@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public string DeploymentTargetId { get; }
 
-        public string Message { get;  }
+        public string Message { get; }
 
         public string DeploymentTaskId { get; }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -16,8 +17,10 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
     {
         private const string CacheKey = "urn:milou:deployer:web:cache:environment-types";
 
-        public static async Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(this IDocumentStore documentStore, ICustomMemoryCache memoryCache, CancellationToken cancellationToken =
-            default)
+        public static async Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(this IDocumentStore documentStore,
+            ICustomMemoryCache memoryCache,
+            CancellationToken cancellationToken =
+                default)
         {
             if (memoryCache.TryGetValue(CacheKey, out EnvironmentType[] environmentTypes))
             {
@@ -26,7 +29,7 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
 
             using IQuerySession querySession = documentStore.QuerySession();
 
-            System.Collections.Generic.IReadOnlyList<EnvironmentTypeData> environmentTypeData = await querySession.Query<EnvironmentTypeData>()
+            IReadOnlyList<EnvironmentTypeData> environmentTypeData = await querySession.Query<EnvironmentTypeData>()
                 .ToListAsync<EnvironmentTypeData>(cancellationToken);
 
             EnvironmentType[] enumerable = environmentTypeData.Select(EnvironmentTypeData.MapFromData).ToArray();
@@ -36,13 +39,18 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             return enumerable.ToImmutableArray();
         }
 
-        public static async Task<EnvironmentTypeData> StoreEnvironmentType(this IDocumentSession session, CreateEnvironment request, ICustomMemoryCache memoryCache, ILogger logger, CancellationToken cancellationToken)
+        public static async Task<EnvironmentTypeData> StoreEnvironmentType(this IDocumentSession session,
+            CreateEnvironment request,
+            ICustomMemoryCache memoryCache,
+            ILogger logger,
+            CancellationToken cancellationToken)
         {
             memoryCache.Invalidate(CacheKey);
 
             try
             {
-                var environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(request.EnvironmentTypeId.Trim(),
+                var environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(
+                    request.EnvironmentTypeId.Trim(),
                     request.EnvironmentTypeName.Trim(), PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
 
                 session.Store(environmentTypeData);

@@ -24,10 +24,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         [PublicAPI]
         public static IReadOnlyCollection<PreReleaseBehavior> All { get; } = new[]
         {
-            Invalid,
-            AllowWithForceFlag,
-            Allow,
-            Deny
+            Invalid, AllowWithForceFlag, Allow, Deny
         };
 
         public static PreReleaseBehavior Parse(string? value) =>

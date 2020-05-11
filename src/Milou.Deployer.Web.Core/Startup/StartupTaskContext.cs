@@ -11,7 +11,8 @@ namespace Milou.Deployer.Web.Core.Startup
 
         private bool _isCompleted;
 
-        public StartupTaskContext(IEnumerable<IStartupTask> startupTasks) => _startupTasks = startupTasks.SafeToImmutableArray();
+        public StartupTaskContext(IEnumerable<IStartupTask> startupTasks) =>
+            _startupTasks = startupTasks.SafeToImmutableArray();
 
         public bool IsCompleted
         {

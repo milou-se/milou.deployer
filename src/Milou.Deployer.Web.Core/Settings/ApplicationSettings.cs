@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Milou.Deployer.Web.Core.Integration.Nexus;
 
 namespace Milou.Deployer.Web.Core.Settings

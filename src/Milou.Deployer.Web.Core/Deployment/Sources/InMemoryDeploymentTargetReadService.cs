@@ -26,6 +26,54 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
             _dataCreator = dataCreator;
         }
 
+        public async Task<DeploymentTarget> GetDeploymentTargetAsync(
+            string deploymentTargetId,
+            CancellationToken cancellationToken = default)
+        {
+            var organizations = await GetOrganizationsAsync(cancellationToken);
+
+            DeploymentTarget foundDeploymentTarget = organizations
+                .SelectMany(organizationInfo => organizationInfo.Projects)
+                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
+                .SingleOrDefault(deploymentTarget => deploymentTarget.Id == deploymentTargetId);
+
+            return foundDeploymentTarget;
+        }
+
+        public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            IReadOnlyCollection<OrganizationInfo> organizations = await GetTargetsAsync();
+
+            return organizations.ToImmutableArray();
+        }
+
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default,
+            CancellationToken stoppingToken = default)
+        {
+            var organizations = await GetOrganizationsAsync(stoppingToken);
+
+            bool Filter(DeploymentTarget target)
+            {
+                if (options is null || options.OnlyEnabled)
+                {
+                    return target.Enabled;
+                }
+
+                return true;
+            }
+
+            return organizations
+                .SelectMany(organizationInfo => organizationInfo.Projects)
+                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
+                .Where(Filter)
+                .ToImmutableArray();
+        }
+
+        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(
+            string organizationId,
+            CancellationToken cancellationToken = default) => Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
+
         [PublicAPI]
         public Task<IReadOnlyCollection<OrganizationInfo>> GetTargetsAsync()
         {
@@ -62,52 +110,5 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
 
             return Task.FromResult<IReadOnlyCollection<OrganizationInfo>>(targets);
         }
-
-        public async Task<DeploymentTarget> GetDeploymentTargetAsync(
-            string deploymentTargetId,
-            CancellationToken cancellationToken = default)
-        {
-            ImmutableArray<OrganizationInfo> organizations = await GetOrganizationsAsync(cancellationToken);
-
-            DeploymentTarget foundDeploymentTarget = organizations
-                .SelectMany(organizationInfo => organizationInfo.Projects)
-                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
-                .SingleOrDefault(deploymentTarget => deploymentTarget.Id == deploymentTargetId);
-
-            return foundDeploymentTarget;
-        }
-
-        public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
-            CancellationToken cancellationToken = default)
-        {
-            IReadOnlyCollection<OrganizationInfo> organizations = await GetTargetsAsync();
-
-            return organizations.ToImmutableArray();
-        }
-
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default, CancellationToken stoppingToken = default)
-        {
-            ImmutableArray<OrganizationInfo> organizations = await GetOrganizationsAsync(stoppingToken);
-
-            bool Filter(DeploymentTarget target)
-            {
-                if (options is null || options.OnlyEnabled)
-                {
-                    return target.Enabled;
-                }
-
-                return true;
-            }
-
-            return organizations
-                .SelectMany(organizationInfo => organizationInfo.Projects)
-                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
-                .Where(Filter)
-                .ToImmutableArray();
-        }
-
-        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(
-            string organizationId,
-            CancellationToken cancellationToken = default) => Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
     }
 }

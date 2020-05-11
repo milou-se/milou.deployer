@@ -10,8 +10,8 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
     [UsedImplicitly]
     public class DeploymentTaskAgentResultHandler : IRequestHandler<DeploymentTaskAgentResult>
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly AgentConfiguration _agentConfiguration;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public DeploymentTaskAgentResultHandler(IHttpClientFactory httpClientFactory,
             AgentConfiguration agentConfiguration)

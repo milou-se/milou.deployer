@@ -2,9 +2,8 @@
 
 namespace Milou.Deployer.Web.Marten
 {
-    [AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple =false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public sealed class MartenDataAttribute : Attribute
     {
-
     }
 }

@@ -6,7 +6,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class CreateOrganizationResult
     {
-        public CreateOrganizationResult(params ValidationError[] validationErrors) => ValidationErrors = validationErrors.SafeToImmutableArray();
+        public CreateOrganizationResult(params ValidationError[] validationErrors) =>
+            ValidationErrors = validationErrors.SafeToImmutableArray();
 
         public ImmutableArray<ValidationError> ValidationErrors { get; }
     }

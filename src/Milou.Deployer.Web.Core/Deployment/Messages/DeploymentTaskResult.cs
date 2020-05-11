@@ -36,6 +36,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public string Metadata { get; }
 
-        public override string ToString() => $"{nameof(DeploymentTaskId)}: {DeploymentTaskId}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(ExitCode)}: {ExitCode}, {nameof(StartedAtUtc)}: {StartedAtUtc}, {nameof(FinishedAtUtc)}: {FinishedAtUtc}, {nameof(Metadata)}: {Metadata}";
+        public override string ToString() =>
+            $"{nameof(DeploymentTaskId)}: {DeploymentTaskId}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(ExitCode)}: {ExitCode}, {nameof(StartedAtUtc)}: {StartedAtUtc}, {nameof(FinishedAtUtc)}: {FinishedAtUtc}, {nameof(Metadata)}: {Metadata}";
     }
 }

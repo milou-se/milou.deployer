@@ -32,6 +32,53 @@ namespace Milou.Deployer.Web.Core.Health
             _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
         }
 
+        public int TimeoutInSeconds { get; } = 7;
+
+        public string Description { get; } = "NuGet feed check";
+
+        public async Task<HealthCheckResult> CheckHealthAsync(CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(_nuGetConfiguration.NugetExePath) ||
+                !File.Exists(_nuGetConfiguration.NugetExePath))
+            {
+                _logger.Warning("Could not perform health checks of NuGet feeds, nuget.exe is missing");
+                return new HealthCheckResult(false);
+            }
+
+            var args = new List<string> {"Sources", "-Format", "Short"};
+
+            var lines = new List<string>();
+
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
+                args,
+                (message, _) =>
+                {
+                    lines.Add(message);
+                    _logger.Verbose("{Message}", message);
+                },
+                (message, category) => _logger.Verbose("{Category}{Message}", category, message),
+                (message, category) => _logger.Verbose("{Category}{Message}", category, message),
+                debugAction: (message, category) => _logger.Verbose("{Category}{Message}", category, message),
+                cancellationToken: cancellationToken);
+
+            if (!exitCode.IsSuccess)
+            {
+                return new HealthCheckResult(false);
+            }
+
+            ConcurrentDictionary<Uri, bool?> nugetFeeds = GetFeedUrls(lines);
+
+            var tasks = nugetFeeds.Keys
+                .Select(nugetFeed => CheckFeedAsync(nugetFeed, nugetFeeds, cancellationToken))
+                .ToList();
+
+            await Task.WhenAll(tasks);
+
+            bool allSucceeded = nugetFeeds.All(pair => pair.Value == true);
+
+            return new HealthCheckResult(allSucceeded);
+        }
+
         private ConcurrentDictionary<Uri, bool?> GetFeedUrls(List<string> lines)
         {
             var nugetFeeds = new ConcurrentDictionary<Uri, bool?>();
@@ -64,7 +111,7 @@ namespace Milou.Deployer.Web.Core.Health
                     continue;
                 }
 
-                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 {
                     continue;
                 }
@@ -84,9 +131,9 @@ namespace Milou.Deployer.Web.Core.Health
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, nugetFeed);
                 using HttpResponseMessage httpResponseMessage = await _httpClient.CreateClient(nugetFeed.Host)
-.SendAsync(request, cancellationToken);
+                    .SendAsync(request, cancellationToken);
                 if (httpResponseMessage.StatusCode == HttpStatusCode.OK ||
-httpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
+                    httpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     nugetFeeds[nugetFeed] = true;
                 }
@@ -103,58 +150,6 @@ httpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
             {
                 _logger.Verbose(ex, "Could not get {Uri}", nugetFeed);
             }
-        }
-
-        public int TimeoutInSeconds { get; } = 7;
-
-        public string Description { get; } = "NuGet feed check";
-
-        public async Task<HealthCheckResult> CheckHealthAsync(CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(_nuGetConfiguration.NugetExePath) ||
-                !File.Exists(_nuGetConfiguration.NugetExePath))
-            {
-                _logger.Warning("Could not perform health checks of NuGet feeds, nuget.exe is missing");
-                return new HealthCheckResult(false);
-            }
-
-            var args = new List<string>
-            {
-                "Sources",
-                "-Format",
-                "Short"
-            };
-
-            var lines = new List<string>();
-
-            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
-                args,
-                (message, _) =>
-                {
-                    lines.Add(message);
-                    _logger.Verbose("{Message}", message);
-                },
-                (message, category) => _logger.Verbose("{Category}{Message}", category, message),
-                (message, category) => _logger.Verbose("{Category}{Message}", category, message),
-                debugAction: (message, category) => _logger.Verbose("{Category}{Message}", category, message),
-                cancellationToken: cancellationToken);
-
-            if (!exitCode.IsSuccess)
-            {
-                return new HealthCheckResult(false);
-            }
-
-            ConcurrentDictionary<Uri, bool?> nugetFeeds = GetFeedUrls(lines);
-
-            var tasks = nugetFeeds.Keys
-                .Select(nugetFeed => CheckFeedAsync(nugetFeed, nugetFeeds, cancellationToken))
-                .ToList();
-
-            await Task.WhenAll(tasks);
-
-            bool allSucceeded = nugetFeeds.All(pair => pair.Value == true);
-
-            return new HealthCheckResult(allSucceeded);
         }
     }
 }

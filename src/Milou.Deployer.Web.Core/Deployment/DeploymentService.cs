@@ -18,6 +18,7 @@ using Arbor.Processing;
 using DotNext.Threading;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Logging;
 using Milou.Deployer.Web.Agent;
@@ -136,7 +137,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     $"There is already a current deployment task {_current.DeploymentTaskId}");
             }
 
-            DateTime start = _customClock.UtcNow().UtcDateTime;
+            var start = _customClock.UtcNow().UtcDateTime;
             var stopwatch = Stopwatch.StartNew();
 
             ExitCode result;
@@ -195,7 +196,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 logger.Error(ex, "Error deploying");
             }
 
-            DateTime finishedAtUtc = _customClock.UtcNow().UtcDateTime;
+            var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
             await _mediator.Publish(
                 new DeploymentFinishedNotification(deploymentTask,
@@ -237,12 +238,12 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             _current = null!;
             MessageQueue.Dispose();
-            foreach (KeyValuePair<string, List<TempFile>> pair in TempFiles)
+            foreach (var pair in TempFiles)
             {
                 ClearTemporaryDirectoriesAndFiles(pair.Value, ImmutableArray<DirectoryInfo>.Empty);
             }
 
-            foreach (KeyValuePair<string, List<DirectoryInfo>> pair in TempDirectories)
+            foreach (var pair in TempDirectories)
             {
                 ClearTemporaryDirectoriesAndFiles(ImmutableArray<TempFile>.Empty, pair.Value);
             }
@@ -505,7 +506,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             jobLogger.Information("Using manifest file for job {JobId}", jobId);
 
-            FileInfo? publishSettingsFile = !string.IsNullOrWhiteSpace(deploymentTarget.PublishSettingFile)
+            var publishSettingsFile = !string.IsNullOrWhiteSpace(deploymentTarget.PublishSettingFile)
                 ? new FileInfo(deploymentTarget.PublishSettingFile)
                 : null;
 
@@ -668,7 +669,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             arguments.Add(LoggingConstants.PlainOutputFormatEnabled);
             arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
             arguments.Add($"{LoggingConstants.LoggingCategoryFormatEnabled}");
-            arguments.Add(Deployer.Core.Cli.ConsoleConfigurationKeys.NonInteractiveArgument);
+            arguments.Add(ConsoleConfigurationKeys.NonInteractiveArgument);
 
             string exePath = _configuration["deployer-exe"];
 

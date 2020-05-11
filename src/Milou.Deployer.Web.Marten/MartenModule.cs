@@ -28,23 +28,9 @@ namespace Milou.Deployer.Web.Marten
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
 
-        private void ConfigureMarten(StoreOptions options, string connectionString)
-        {
-            options.Connection(connectionString);
-
-            var jsonNetSerializer = new JsonNetSerializer();
-
-            jsonNetSerializer.Customize(serializer => serializer.UseCustomConverters());
-
-            options.Serializer(jsonNetSerializer);
-
-            options.Schema.For<LogItem>().Index(x => x.TaskLogId);
-            options.Schema.For<LogItem>().Index(x => x.Level);
-        }
-
         public IServiceCollection Register(IServiceCollection builder)
         {
-            System.Collections.Immutable.ImmutableArray<MartenConfiguration> configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
+            var configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
 
             if (configurations.IsDefaultOrEmpty)
             {
@@ -90,6 +76,20 @@ namespace Milou.Deployer.Web.Marten
             builder.AddSingleton<IEnvironmentTypeService, EnvironmentTypeService>();
 
             return builder;
+        }
+
+        private void ConfigureMarten(StoreOptions options, string connectionString)
+        {
+            options.Connection(connectionString);
+
+            var jsonNetSerializer = new JsonNetSerializer();
+
+            jsonNetSerializer.Customize(serializer => serializer.UseCustomConverters());
+
+            options.Serializer(jsonNetSerializer);
+
+            options.Schema.For<LogItem>().Index(x => x.TaskLogId);
+            options.Schema.For<LogItem>().Index(x => x.Level);
         }
     }
 }

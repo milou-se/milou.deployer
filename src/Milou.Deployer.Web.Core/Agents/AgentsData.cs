@@ -23,7 +23,8 @@ namespace Milou.Deployer.Web.Core.Agents
             _logger = logger;
         }
 
-        public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key, agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId)).ToImmutableArray();
+        public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key,
+            agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId)).ToImmutableArray();
 
         public void AgentConnected(AgentConnected agentConnected)
         {
@@ -34,7 +35,8 @@ namespace Milou.Deployer.Web.Core.Agents
                 _agents.TryAdd(agentId,
                     new AgentState(agentId)
                     {
-                        ConnectedAt = _customClock.UtcNow(), IsConnected = true,
+                        ConnectedAt = _customClock.UtcNow(),
+                        IsConnected = true,
                         ConnectionId = agentConnected.ConnectionId
                     });
             }
@@ -57,7 +59,7 @@ namespace Milou.Deployer.Web.Core.Agents
         {
             if (!_agents.TryGetValue(agentId, out var state))
             {
-               throw new InvalidOperationException($"The agent {agentId} could not be found");
+                throw new InvalidOperationException($"The agent {agentId} could not be found");
             }
 
             state.CurrentDeploymentTaskId = deploymentTaskId;

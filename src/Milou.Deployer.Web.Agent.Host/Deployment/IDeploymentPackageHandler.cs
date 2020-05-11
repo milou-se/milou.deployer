@@ -6,7 +6,7 @@ using Serilog;
 namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     /// <summary>
-    /// Runs deploy for all given data defined in deployment task package
+    ///     Runs deploy for all given data defined in deployment task package
     /// </summary>
     public interface IDeploymentPackageHandler
     {

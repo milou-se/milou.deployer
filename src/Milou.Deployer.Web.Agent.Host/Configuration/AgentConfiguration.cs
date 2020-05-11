@@ -14,7 +14,10 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
     {
         public const string Urn = "urn:milou:deployer:web:agent:agent-config";
 
-        public AgentConfiguration(string accessToken, string serverBaseUri, TimeSpan? startupDelay = default, bool? checkCertificateEnabled = true)
+        public AgentConfiguration(string accessToken,
+            string serverBaseUri,
+            TimeSpan? startupDelay = default,
+            bool? checkCertificateEnabled = true)
         {
             AccessToken = accessToken;
             ServerBaseUri = serverBaseUri;

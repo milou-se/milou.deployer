@@ -32,22 +32,11 @@ namespace Milou.Deployer.Web.Core.Logging
             _logger = logger;
         }
 
-        private static bool TryParse(string attemptedValue, out LogEventLevel logEventLevel)
-        {
-            if (string.IsNullOrWhiteSpace(attemptedValue))
-            {
-                logEventLevel = default;
-                return false;
-            }
-
-            return Levels.TryGetValue(attemptedValue, out logEventLevel);
-        }
-
         public Task<Unit> Handle(ChangeLogLevelRequest request, CancellationToken cancellationToken)
         {
-            if (TryParse(request.ChangeLogLevel.NewLevel, out LogEventLevel newLevel))
+            if (TryParse(request.ChangeLogLevel.NewLevel, out var newLevel))
             {
-                LogEventLevel oldLevel = _levelSwitch.MinimumLevel;
+                var oldLevel = _levelSwitch.MinimumLevel;
 
                 if (oldLevel != newLevel)
                 {
@@ -64,6 +53,17 @@ namespace Milou.Deployer.Web.Core.Logging
             }
 
             return Unit.Task;
+        }
+
+        private static bool TryParse(string attemptedValue, out LogEventLevel logEventLevel)
+        {
+            if (string.IsNullOrWhiteSpace(attemptedValue))
+            {
+                logEventLevel = default;
+                return false;
+            }
+
+            return Levels.TryGetValue(attemptedValue, out logEventLevel);
         }
     }
 }

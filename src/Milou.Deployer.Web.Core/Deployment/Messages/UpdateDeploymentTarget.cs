@@ -34,12 +34,12 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
-            Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
+            Uri.TryCreate(url, UriKind.Absolute, out var uri);
             Url = uri;
             PackageId = packageId?.Trim();
             ExcludedFilePatterns = excludedFilePatterns;
-            PublishType.TryParseOrDefault(publishType, out PublishType? foundPublishType);
-            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
+            PublishType.TryParseOrDefault(publishType, out var foundPublishType);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
             PublishType = foundPublishType ?? PublishType.Default;
             FtpPath = path;
             IisSiteName = iisSiteName;
@@ -53,12 +53,13 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             EnvironmentTypeId = environmentTypeId?.Trim();
             PackageListPrefix = packageListPrefix;
 
-            if (TimeSpan.TryParse(packageListTimeout, out TimeSpan timeout) && timeout.TotalSeconds > 0.5D)
+            if (TimeSpan.TryParse(packageListTimeout, out var timeout) && timeout.TotalSeconds > 0.5D)
             {
                 PackageListTimeout = timeout;
             }
 
-            if (TimeSpan.TryParse(metadataTimeout, out TimeSpan parsedMetadataTimeout) && parsedMetadataTimeout.TotalSeconds > 0.5D)
+            if (TimeSpan.TryParse(metadataTimeout, out var parsedMetadataTimeout) &&
+                parsedMetadataTimeout.TotalSeconds > 0.5D)
             {
                 MetadataTimeout = parsedMetadataTimeout;
             }
@@ -100,21 +101,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public FtpPath? FtpPath { get; }
 
-        public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (Url is null)
-            {
-                yield return new ValidationResult("URL must be defined", new []{nameof(Url)});
-            }
-
-            if (RequireEnvironmentConfig == true && string.IsNullOrWhiteSpace(EnvironmentConfiguration))
-            {
-                yield return new ValidationResult($"{nameof(RequireEnvironmentConfig)} can only be true when environment configuration is set", new []{nameof(RequireEnvironmentConfig)});
-            }
-        }
-
         public bool IsValid { get; }
 
         public TimeSpan? PackageListTimeout { get; }
@@ -126,5 +112,23 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public bool PackageListPrefixEnabled { get; }
 
         public string? PackageListPrefix { get; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Url is null)
+            {
+                yield return new ValidationResult("URL must be defined", new[] {nameof(Url)});
+            }
+
+            if (RequireEnvironmentConfig == true && string.IsNullOrWhiteSpace(EnvironmentConfiguration))
+            {
+                yield return new ValidationResult(
+                    $"{nameof(RequireEnvironmentConfig)} can only be true when environment configuration is set",
+                    new[] {nameof(RequireEnvironmentConfig)});
+            }
+        }
+
+        public override string ToString() =>
+            $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
     }
 }

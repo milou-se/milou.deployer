@@ -61,10 +61,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            PublishType.TryParseOrDefault(publishType, out PublishType? type);
+            PublishType.TryParseOrDefault(publishType, out var type);
             PublishType = type ?? PublishType.Default;
 
-            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
             FtpPath = path;
 
             Url = url;
@@ -117,8 +117,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public bool AllowPreRelease =>
             (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value) ||
-            (EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow)
-        ;
+            EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
         public string EnvironmentTypeId { get; }
 

@@ -1,4 +1,5 @@
-﻿using Arbor.App.Extensions;
+﻿using System;
+using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.DependencyInjection;
 using JetBrains.Annotations;
@@ -11,7 +12,7 @@ namespace Milou.Deployer.Web.Core.Health
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            foreach (System.Type type in ApplicationAssemblies.FilteredAssemblies()
+            foreach (Type type in ApplicationAssemblies.FilteredAssemblies()
                 .GetLoadablePublicConcreteTypesImplementing<IHealthCheck>())
             {
                 builder.AddSingleton(type, this);
