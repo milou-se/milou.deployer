@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Assert.NotNull(type);
 
-            MethodInfo[] actionMethod = type.GetMethods()
+            MethodInfo[] actionMethod = type!.GetMethods()
                 .Where(method => method.Name.Equals(action, StringComparison.OrdinalIgnoreCase)).ToArray();
 
             Type[] httpMethodAttributes =
