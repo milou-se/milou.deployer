@@ -11,7 +11,7 @@ namespace Milou.Deployer.Core.IO
     public static class RecursiveIO
     {
         private static readonly ImmutableHashSet<string> DeniedExtensions =
-            new HashSet<string> { ".user", ".ncrunchproject", ".dotsettings", ".csproj" }
+            new HashSet<string> {".user", ".ncrunchproject", ".dotsettings", ".csproj"}
                 .ToImmutableHashSet();
 
         public static void RecursiveCopy(

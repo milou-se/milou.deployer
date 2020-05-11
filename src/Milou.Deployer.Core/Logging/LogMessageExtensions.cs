@@ -26,7 +26,7 @@ namespace Milou.Deployer.Core.Logging
                 return;
             }
 
-            (string? parsedMessage, LogEventLevel level) = Parse(message!);
+            (string? parsedMessage, var level) = Parse(message!);
 
             switch (level)
             {

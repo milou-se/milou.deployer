@@ -12,6 +12,5 @@ namespace Milou.Deployer.Core.Cli
         public const string DebugArgument = "--debug";
 
         public const string NonInteractiveArgument = "--non-interactive";
-
     }
 }

@@ -30,7 +30,9 @@ namespace Milou.Deployer.DeployerApp
 {
     public static class AppBuilder
     {
-        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] inputArgs, ILogger? logger = null, CancellationToken cancellationToken = default)
+        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] inputArgs,
+            ILogger? logger = null,
+            CancellationToken cancellationToken = default)
         {
             if (inputArgs is null)
             {
@@ -55,7 +57,8 @@ namespace Milou.Deployer.DeployerApp
             try
             {
                 string? machineSettings =
-                    GetMachineSettingsFile(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "tools", "Milou.Deployer")));
+                    GetMachineSettingsFile(new DirectoryInfo(Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "tools", "Milou.Deployer")));
 
                 AppSettingsBuilder appSettingsBuilder;
 
@@ -108,7 +111,7 @@ namespace Milou.Deployer.DeployerApp
 
                 string configurationLogLevel = configuration[ConfigurationKeys.LogLevel];
 
-                LogEventLevel logLevel = environmentLogLevel.WithDefault(configurationLogLevel)
+                var logLevel = environmentLogLevel.WithDefault(configurationLogLevel)
                     .TryParseOrDefault(LogEventLevel.Information);
 
                 levelSwitch.MinimumLevel = logLevel;
@@ -196,18 +199,20 @@ namespace Milou.Deployer.DeployerApp
                 };
 
                 var nuGetCliSettings = new NuGetCliSettings(
-                    nugetSourceName: deployerConfiguration.NuGetSource,
+                    deployerConfiguration.NuGetSource,
                     nuGetExePath: deployerConfiguration.NuGetExePath,
                     nugetConfigFile: deployerConfiguration.NuGetConfig);
 
-                var nuGetPackageInstaller = new NuGetPackageInstaller(logger: logger, nugetCliSettings: nuGetCliSettings);
+                var nuGetPackageInstaller =
+                    new NuGetPackageInstaller(logger: logger, nugetCliSettings: nuGetCliSettings);
 
                 var deploymentService = new DeploymentService(
                     deployerConfiguration,
                     logger,
                     configuration,
                     new WebDeployHelper(logger),
-                    deploymentExecutionDefinition => IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition),
+                    deploymentExecutionDefinition =>
+                        IisManager.Create(deployerConfiguration, logger, deploymentExecutionDefinition),
                     nuGetPackageInstaller,
                     new FtpHandlerFactory());
 

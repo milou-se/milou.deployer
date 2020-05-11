@@ -6,5 +6,4 @@ namespace Milou.Deployer.Core.Deployment
     {
         bool StopSiteIfApplicable();
     }
-
 }

@@ -18,7 +18,7 @@ namespace Milou.Deployer.Core.Extensions
                 .GetFields()
                 .Where(field =>
                     field.FieldType == type && field.IsInitOnly && field.IsStatic && field.IsPublic)
-                .Select(field => (T) field.GetValue(null)!)
+                .Select(field => (T)field.GetValue(null)!)
                 .ToImmutableArray();
         }
     }

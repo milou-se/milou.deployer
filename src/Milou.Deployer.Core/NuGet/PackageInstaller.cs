@@ -52,7 +52,8 @@ namespace Milou.Deployer.Core.NuGet
                 throw new ArgumentNullException(nameof(tempDirectory));
             }
 
-            string executePath = deploymentExecutionDefinition.NuGetExePath.WithDefault(_deployerConfiguration.NuGetExePath);
+            string executePath =
+                deploymentExecutionDefinition.NuGetExePath.WithDefault(_deployerConfiguration.NuGetExePath);
 
             if (string.IsNullOrWhiteSpace(executePath))
             {
@@ -64,7 +65,7 @@ namespace Milou.Deployer.Core.NuGet
                 throw new InvalidOperationException($"The NuGet executable file '{executePath}' does not exist");
             }
 
-            var arguments = new List<string> { "install", deploymentExecutionDefinition.PackageId };
+            var arguments = new List<string> {"install", deploymentExecutionDefinition.PackageId};
 
             void AddVersion(string value)
             {
@@ -180,17 +181,17 @@ namespace Milou.Deployer.Core.NuGet
                 try
                 {
                     exitCode = await ProcessRunner.ExecuteProcessAsync(
-                                   executePath,
-                                   arguments,
-                                   (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                                   (message, category) => _logger.Error("{Category} {Message}", category, message),
-                                   (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                                   (message, category) => _logger.Verbose("{Category} {Message}", category, message),
-                                   debugAction: (message, category) => _logger.Debug(
-                                       "{Category} {Message}",
-                                       category,
-                                       message),
-                                   cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
+                        executePath,
+                        arguments,
+                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                        (message, category) => _logger.Error("{Category} {Message}", category, message),
+                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                        (message, category) => _logger.Verbose("{Category} {Message}", category, message),
+                        debugAction: (message, category) => _logger.Debug(
+                            "{Category} {Message}",
+                            category,
+                            message),
+                        cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
                 }
                 catch (TaskCanceledException ex)
                 {

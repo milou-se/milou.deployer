@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -21,14 +20,11 @@ namespace Milou.Deployer.DeployerApp
 {
     public sealed class DeployerApp : IDisposable
     {
-        public LoggingLevelSwitch LevelSwitch { get; }
         private readonly AppExit _appExit;
         private readonly DeploymentService _deploymentService;
+        private bool _allowInteractive = Environment.UserInteractive;
         private IKeyValueConfiguration _appSettings;
         private CancellationTokenSource _cancellationTokenSource;
-        private bool _allowInteractive = Environment.UserInteractive;
-
-        public ILogger Logger { get; private set; }
 
         public DeployerApp(
             [NotNull] ILogger logger,
@@ -45,6 +41,10 @@ namespace Milou.Deployer.DeployerApp
                                        throw new ArgumentNullException(nameof(cancellationTokenSource));
             _appExit = new AppExit(Logger);
         }
+
+        public LoggingLevelSwitch LevelSwitch { get; }
+
+        public ILogger Logger { get; private set; }
 
         public void Dispose()
         {
@@ -75,7 +75,8 @@ namespace Milou.Deployer.DeployerApp
                 cancellationToken = _cancellationTokenSource.Token;
             }
 
-            if (args.Any(arg => arg.Equals(ConsoleConfigurationKeys.NonInteractiveArgument, StringComparison.OrdinalIgnoreCase)))
+            if (args.Any(arg =>
+                arg.Equals(ConsoleConfigurationKeys.NonInteractiveArgument, StringComparison.OrdinalIgnoreCase)))
             {
                 _allowInteractive = false;
             }
@@ -141,7 +142,8 @@ namespace Milou.Deployer.DeployerApp
                                 fallbackManifestPath);
                         }
 
-                        exitCode = await ExecuteAsync(manifestFile, semanticVersion, cancellationToken).ConfigureAwait(false);
+                        exitCode = await ExecuteAsync(manifestFile, semanticVersion, cancellationToken)
+                            .ConfigureAwait(false);
                     }
                 }
                 else
@@ -176,14 +178,17 @@ namespace Milou.Deployer.DeployerApp
 
             Type type = typeof(DeployerApp);
 
-            Logger.Information("{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
+            Logger.Information(
+                "{Namespace} assembly version {AssemblyVersion}, file version {FileVersion} at {Location}",
                 type.Namespace,
                 assemblyVersion,
                 fileVersion,
                 executingAssembly.Location);
         }
 
-        private async Task<ExitCode> ExecuteAsync(string file, SemanticVersion version, CancellationToken cancellationToken = default)
+        private async Task<ExitCode> ExecuteAsync(string file,
+            SemanticVersion version,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -198,7 +203,7 @@ namespace Milou.Deployer.DeployerApp
 
             string data = DeploymentExecutionDefinitionFileReader.ReadAllData(file);
 
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions =
+            var deploymentExecutionDefinitions =
                 DeploymentExecutionDefinitionParser.Deserialize(data);
 
             if (deploymentExecutionDefinitions.Length == 0)
@@ -225,7 +230,8 @@ namespace Milou.Deployer.DeployerApp
                 && _allowInteractive)
             {
                 Logger.Debug("Found one definition without version and no version has been explicitly set");
-                Console.WriteLine("Version is missing in manifest and no version has been set in command line args. Enter a semantic version, eg. 1.2.3");
+                Console.WriteLine(
+                    "Version is missing in manifest and no version has been set in command line args. Enter a semantic version, eg. 1.2.3");
 
                 string inputVersion = Console.ReadLine();
 
@@ -233,11 +239,13 @@ namespace Milou.Deployer.DeployerApp
                     SemanticVersion.TryParse(inputVersion, out SemanticVersion semanticInputVersion))
                 {
                     version = semanticInputVersion;
-                    Logger.Debug("Using interactive version from user: {Version}", semanticInputVersion.ToNormalizedString());
+                    Logger.Debug("Using interactive version from user: {Version}",
+                        semanticInputVersion.ToNormalizedString());
                 }
             }
 
-            ExitCode exitCode = await _deploymentService.DeployAsync(deploymentExecutionDefinitions, version, cancellationToken).ConfigureAwait(false);
+            var exitCode = await _deploymentService
+                .DeployAsync(deploymentExecutionDefinitions, version, cancellationToken).ConfigureAwait(false);
 
             if (exitCode.IsSuccess)
             {
@@ -260,7 +268,7 @@ namespace Milou.Deployer.DeployerApp
             {
                 Logger.Debug("Used variables:");
 
-                foreach (StringPair variable in _appSettings.AllValues
+                foreach (var variable in _appSettings.AllValues
                     .OrderBy(entry => entry.Key))
                 {
                     Logger.Debug("ENV '{Key}': '{Value}'", variable.Key, variable.Value);

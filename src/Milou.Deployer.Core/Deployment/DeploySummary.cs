@@ -93,7 +93,8 @@ namespace Milou.Deployer.Core.Deployment
             builder.AppendLine("Updated files: " + UpdatedFiles.Count);
             builder.AppendLine("Deleted files: " + DeletedFiles.Count);
 
-            builder.AppendLine($"Total time: {TotalTime.TotalSeconds.ToString("F1", CultureInfo.InvariantCulture)} seconds");
+            builder.AppendLine(
+                $"Total time: {TotalTime.TotalSeconds.ToString("F1", CultureInfo.InvariantCulture)} seconds");
 
             return builder.ToString();
         }

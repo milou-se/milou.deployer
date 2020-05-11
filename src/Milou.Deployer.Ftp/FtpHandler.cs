@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
@@ -38,6 +39,168 @@ namespace Milou.Deployer.Ftp
             _ftpClient = ftpClient ?? throw new ArgumentNullException(nameof(ftpClient));
             _ftpClient.OnLogEvent += FtpClientOnLogEvent;
         }
+
+        public Task<bool> DirectoryExistsAsync(FtpPath dir, CancellationToken cancellationToken)
+        {
+            if (dir is null)
+            {
+                throw new ArgumentNullException(nameof(dir));
+            }
+
+            if (dir.Type != FileSystemType.Directory)
+            {
+                throw new ArgumentException(
+                    string.Format(CultureInfo.InvariantCulture, Resources.FtpFtpPathMustBeADirectoryPath, dir.Path),
+                    nameof(dir));
+            }
+
+            return DirectoryExistsInternalAsync(dir, cancellationToken);
+        }
+
+        public Task UploadFileAsync(
+            FtpPath filePath,
+            FileInfo sourceFile,
+            CancellationToken cancellationToken = default)
+        {
+            if (filePath is null)
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
+
+            if (sourceFile is null)
+            {
+                throw new ArgumentNullException(nameof(sourceFile));
+            }
+
+            if (filePath.Type != FileSystemType.File)
+            {
+                throw new ArgumentException($"The ftp upload path '{filePath.Path}' is not a file");
+            }
+
+            if (!sourceFile.Exists)
+            {
+                throw new FtpException($"Source file '{sourceFile.FullName}' does not exist");
+            }
+
+            return UploadFileInternalAsync(filePath, sourceFile, cancellationToken);
+        }
+
+        public Task DeleteFileAsync(FtpPath filePath, CancellationToken cancellationToken)
+        {
+            if (filePath is null)
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
+
+            if (filePath.Type != FileSystemType.File)
+            {
+                throw new ArgumentException($"The ftp delete path '{filePath.Path}' is not a file");
+            }
+
+            return DeleteFileInternalAsync(filePath, cancellationToken);
+        }
+
+        public Task DeleteDirectoryAsync(FtpPath path, CancellationToken cancellationToken)
+        {
+            if (path is null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            if (path.Type != FileSystemType.Directory)
+            {
+                throw new ArgumentException($"The ftp delete path {path.Path} is not a directory");
+            }
+
+            return DeleteDirectoryInternalAsync(path, cancellationToken);
+        }
+
+        public Task<bool> FileExistsAsync(FtpPath filePath, CancellationToken cancellationToken)
+        {
+            if (filePath is null)
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
+
+            return FileExistsInternalAsync(filePath, cancellationToken);
+        }
+
+        public Task CreateDirectoryAsync(FtpPath directoryPath, CancellationToken cancellationToken)
+        {
+            if (directoryPath is null)
+            {
+                throw new ArgumentNullException(nameof(directoryPath));
+            }
+
+            if (directoryPath.Type != FileSystemType.Directory)
+            {
+                throw new ArgumentException($"The ftp create path {directoryPath.Path} is not a directory");
+            }
+
+            return CreateDirectoryInternalAsync(directoryPath, cancellationToken);
+        }
+
+        public Task<ImmutableArray<FtpPath>> ListDirectoryAsync(
+            FtpPath path,
+            CancellationToken cancellationToken = default)
+        {
+            if (path is null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            return ListDirectoryInternalAsync(path, cancellationToken);
+        }
+
+        public Task<DeploySummary> UploadDirectoryAsync(
+            RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
+            DirectoryInfo baseDirectory,
+            FtpPath basePath,
+            CancellationToken cancellationToken)
+        {
+            if (ruleConfiguration is null)
+            {
+                throw new ArgumentNullException(nameof(ruleConfiguration));
+            }
+
+            if (sourceDirectory is null)
+            {
+                throw new ArgumentNullException(nameof(sourceDirectory));
+            }
+
+            if (baseDirectory is null)
+            {
+                throw new ArgumentNullException(nameof(baseDirectory));
+            }
+
+            if (basePath is null)
+            {
+                throw new ArgumentNullException(nameof(basePath));
+            }
+
+            return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
+        }
+
+        public Task<DeploySummary> PublishAsync(
+            RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
+            CancellationToken cancellationToken)
+        {
+            if (ruleConfiguration is null)
+            {
+                throw new ArgumentNullException(nameof(ruleConfiguration));
+            }
+
+            if (sourceDirectory is null)
+            {
+                throw new ArgumentNullException(nameof(sourceDirectory));
+            }
+
+            return PublishInternalAsync(ruleConfiguration, sourceDirectory, cancellationToken);
+        }
+
+        public void Dispose() => _ftpClient?.Dispose();
 
         private async Task<bool> DirectoryExistsInternalAsync(FtpPath dir, CancellationToken cancellationToken)
         {
@@ -217,7 +380,8 @@ namespace Milou.Deployer.Ftp
                 summary.CreatedDirectories.Add(dir.Path);
             }
 
-            DeploySummary uploadSummary = await UploadFilesAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
+            DeploySummary uploadSummary =
+                await UploadFilesAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
 
             summary.Add(uploadSummary);
 
@@ -316,7 +480,7 @@ namespace Milou.Deployer.Ftp
                     uploaded += files.Length;
                     string elapsed = $"{stopwatch.Elapsed.TotalSeconds:F2}";
 
-                    string percentage = $"{100.0D * uploaded / totalCount:F1}";
+                    string percentage = $"{(100.0D * uploaded) / totalCount:F1}";
 
                     string paddedPercentage = new string(' ', 5 - percentage.Length) + percentage;
 
@@ -367,7 +531,8 @@ namespace Milou.Deployer.Ftp
 
             foreach (DirectoryInfo directoryInfo in sourceDirectory.GetDirectories())
             {
-                DeploySummary subSummary = await UploadFilesAsync(directoryInfo, baseDirectory, basePath, cancellationToken);
+                DeploySummary subSummary =
+                    await UploadFilesAsync(directoryInfo, baseDirectory, basePath, cancellationToken);
 
                 summary.Add(subSummary);
             }
@@ -395,7 +560,7 @@ namespace Milou.Deployer.Ftp
 
                 _logger.Debug("Listing files in remote path '{Path}'", basePath.Path);
 
-                ImmutableArray<FtpPath> fileSystemItems =
+                var fileSystemItems =
                     await ListDirectoryAsync(basePath, cancellationToken);
 
                 FtpPath[] sourceFiles = sourceDirectory
@@ -415,7 +580,7 @@ namespace Milou.Deployer.Ftp
                     .Where(s => s.Type == FileSystemType.File)
                     .ToImmutableArray();
 
-                System.Collections.Generic.IEnumerable<FtpPath> updated = fileSystemItems.Except(filesToRemove)
+                IEnumerable<FtpPath> updated = fileSystemItems.Except(filesToRemove)
                     .Where(s => s.Type == FileSystemType.File);
 
                 if (ruleConfiguration.AppOfflineEnabled)
@@ -569,118 +734,6 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        public Task<bool> DirectoryExistsAsync(FtpPath dir, CancellationToken cancellationToken)
-        {
-            if (dir is null)
-            {
-                throw new ArgumentNullException(nameof(dir));
-            }
-
-            if (dir.Type != FileSystemType.Directory)
-            {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.FtpFtpPathMustBeADirectoryPath, dir.Path),
-                    nameof(dir));
-            }
-
-            return DirectoryExistsInternalAsync(dir, cancellationToken);
-        }
-
-        public Task UploadFileAsync(
-            FtpPath filePath,
-            FileInfo sourceFile,
-            CancellationToken cancellationToken = default)
-        {
-            if (filePath is null)
-            {
-                throw new ArgumentNullException(nameof(filePath));
-            }
-
-            if (sourceFile is null)
-            {
-                throw new ArgumentNullException(nameof(sourceFile));
-            }
-
-            if (filePath.Type != FileSystemType.File)
-            {
-                throw new ArgumentException($"The ftp upload path '{filePath.Path}' is not a file");
-            }
-
-            if (!sourceFile.Exists)
-            {
-                throw new FtpException($"Source file '{sourceFile.FullName}' does not exist");
-            }
-
-            return UploadFileInternalAsync(filePath, sourceFile, cancellationToken);
-        }
-
-        public Task DeleteFileAsync(FtpPath filePath, CancellationToken cancellationToken)
-        {
-            if (filePath is null)
-            {
-                throw new ArgumentNullException(nameof(filePath));
-            }
-
-            if (filePath.Type != FileSystemType.File)
-            {
-                throw new ArgumentException($"The ftp delete path '{filePath.Path}' is not a file");
-            }
-
-            return DeleteFileInternalAsync(filePath, cancellationToken);
-        }
-
-        public Task DeleteDirectoryAsync(FtpPath path, CancellationToken cancellationToken)
-        {
-            if (path is null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            if (path.Type != FileSystemType.Directory)
-            {
-                throw new ArgumentException($"The ftp delete path {path.Path} is not a directory");
-            }
-
-            return DeleteDirectoryInternalAsync(path, cancellationToken);
-        }
-
-        public Task<bool> FileExistsAsync(FtpPath filePath, CancellationToken cancellationToken)
-        {
-            if (filePath is null)
-            {
-                throw new ArgumentNullException(nameof(filePath));
-            }
-
-            return FileExistsInternalAsync(filePath, cancellationToken);
-        }
-
-        public Task CreateDirectoryAsync(FtpPath directoryPath, CancellationToken cancellationToken)
-        {
-            if (directoryPath is null)
-            {
-                throw new ArgumentNullException(nameof(directoryPath));
-            }
-
-            if (directoryPath.Type != FileSystemType.Directory)
-            {
-                throw new ArgumentException($"The ftp create path {directoryPath.Path} is not a directory");
-            }
-
-            return CreateDirectoryInternalAsync(directoryPath, cancellationToken);
-        }
-
-        public Task<ImmutableArray<FtpPath>> ListDirectoryAsync(
-            FtpPath path,
-            CancellationToken cancellationToken = default)
-        {
-            if (path is null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            return ListDirectoryInternalAsync(path, cancellationToken);
-        }
-
         public static async Task<FtpHandler> CreateWithPublishSettings(
             [NotNull] string publishSettingsFile,
             [NotNull] FtpSettings ftpSettings,
@@ -742,55 +795,5 @@ namespace Milou.Deployer.Ftp
 
             return new FtpHandler(ftpClient, logger, ftpSettings);
         }
-
-        public Task<DeploySummary> UploadDirectoryAsync(
-            RuleConfiguration ruleConfiguration,
-            DirectoryInfo sourceDirectory,
-            DirectoryInfo baseDirectory,
-            FtpPath basePath,
-            CancellationToken cancellationToken)
-        {
-            if (ruleConfiguration is null)
-            {
-                throw new ArgumentNullException(nameof(ruleConfiguration));
-            }
-
-            if (sourceDirectory is null)
-            {
-                throw new ArgumentNullException(nameof(sourceDirectory));
-            }
-
-            if (baseDirectory is null)
-            {
-                throw new ArgumentNullException(nameof(baseDirectory));
-            }
-
-            if (basePath is null)
-            {
-                throw new ArgumentNullException(nameof(basePath));
-            }
-
-            return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
-        }
-
-        public Task<DeploySummary> PublishAsync(
-            RuleConfiguration ruleConfiguration,
-            DirectoryInfo sourceDirectory,
-            CancellationToken cancellationToken)
-        {
-            if (ruleConfiguration is null)
-            {
-                throw new ArgumentNullException(nameof(ruleConfiguration));
-            }
-
-            if (sourceDirectory is null)
-            {
-                throw new ArgumentNullException(nameof(sourceDirectory));
-            }
-
-            return PublishInternalAsync(ruleConfiguration, sourceDirectory, cancellationToken);
-        }
-
-        public void Dispose() => _ftpClient?.Dispose();
     }
 }

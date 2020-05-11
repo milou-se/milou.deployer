@@ -4,9 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
-
 using Milou.Deployer.Core.Deployment.Ftp;
-
 using Newtonsoft.Json;
 using NuGet.Versioning;
 
@@ -59,11 +57,13 @@ namespace Milou.Deployer.Core.Deployment
                 SemanticVersion = null;
             }
 
-            ExcludedFilePatterns = excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern)).ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            ExcludedFilePatterns =
+                excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern))
+                    .ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
             SetPreRelease(isPreRelease);
 
-            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
             FtpPath = path;
@@ -85,8 +85,9 @@ namespace Milou.Deployer.Core.Deployment
                          ImmutableDictionary<string, StringValues>.Empty;
             ExcludedFilePatternsCombined = excludedFilePatterns;
 
-            PublishType = PublishType.TryParseOrDefault(publishType, out PublishType? publishTypeValue) ? publishTypeValue : PublishType.Default;
-
+            PublishType = PublishType.TryParseOrDefault(publishType, out var publishTypeValue)
+                ? publishTypeValue
+                : PublishType.Default;
         }
 
         public DeploymentExecutionDefinition(
@@ -116,7 +117,9 @@ namespace Milou.Deployer.Core.Deployment
                 throw new ArgumentNullException(nameof(packageId));
             }
 
-            ExcludedFilePatterns = excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern)).ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            ExcludedFilePatterns =
+                excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern))
+                    .ToImmutableArray() ?? ImmutableArray<string>.Empty;
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
@@ -134,8 +137,8 @@ namespace Milou.Deployer.Core.Deployment
                              .ToImmutableDictionary() ??
                          ImmutableDictionary<string, StringValues>.Empty;
 
-            PublishType.TryParseOrDefault(publishType, out PublishType? publishTypeValue);
-            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath? path);
+            PublishType.TryParseOrDefault(publishType, out var publishTypeValue);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
             FtpPath = path;
 
             PublishType = publishTypeValue ?? PublishType.Default;
@@ -171,7 +174,8 @@ namespace Milou.Deployer.Core.Deployment
 
         public ImmutableDictionary<string, StringValues> Parameters { get; }
 
-        [JsonIgnore] public SemanticVersion? SemanticVersion { get; }
+        [JsonIgnore]
+        public SemanticVersion? SemanticVersion { get; }
 
         [JsonProperty(PropertyName = nameof(SemanticVersion))]
         [CanBeNull]

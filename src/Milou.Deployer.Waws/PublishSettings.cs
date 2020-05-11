@@ -32,7 +32,8 @@ namespace Milou.Deployer.Waws
 
         public bool AllowUntrusted { get; set; }
 
-        public static async Task<PublishSettings> Load(string publishSettingsFile, CancellationToken cancellationToken = default)
+        public static async Task<PublishSettings> Load(string publishSettingsFile,
+            CancellationToken cancellationToken = default)
         {
             /*
              <publishData>

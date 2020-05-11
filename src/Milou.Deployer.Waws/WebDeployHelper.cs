@@ -209,9 +209,11 @@ namespace Milou.Deployer.Waws
 
                         if (appOfflineFile.Exists)
                         {
-                            logAction?.Invoke($"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction?.Invoke(
+                                $"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                             appOfflineFile.Delete();
-                            logAction?.Invoke($"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction?.Invoke(
+                                $"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                         }
                     }
                 }
@@ -221,7 +223,7 @@ namespace Milou.Deployer.Waws
                 publishSettings,
                 allowUntrusted);
 
-            var syncDeleteOptions = new DeploymentSyncOptions { DeleteDestination = true };
+            var syncDeleteOptions = new DeploymentSyncOptions {DeleteDestination = true};
 
             if (publishSettings?.SiteName is {})
             {
@@ -252,7 +254,7 @@ namespace Milou.Deployer.Waws
         private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
         {
             DeploymentRuleCollection rules = DeploymentSyncOptions.GetAvailableRules();
-            bool added = rules.TryGetValue(name, out DeploymentRule? newRule);
+            bool added = rules.TryGetValue(name, out var newRule);
 
             if (added)
             {

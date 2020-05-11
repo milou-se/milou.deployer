@@ -5,7 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Core.XmlTransformation;
-
 using Serilog;
 
 namespace Milou.Deployer.Core.IO

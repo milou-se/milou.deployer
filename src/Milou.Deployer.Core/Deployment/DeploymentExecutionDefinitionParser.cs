@@ -25,7 +25,8 @@ namespace Milou.Deployer.Core.Deployment
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Could not parse deployment execution definitions from data '{data}'", ex);
+                throw new InvalidOperationException(
+                    $"Could not parse deployment execution definitions from data '{data}'", ex);
             }
         }
     }

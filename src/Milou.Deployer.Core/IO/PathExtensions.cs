@@ -58,7 +58,8 @@ namespace Milou.Deployer.Core.IO
         {
             if (!fullPath.StartsWith(rootFullPath, StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("Could not find rootPath in fullPath when calculating relative path.");
+                throw new InvalidOperationException(
+                    "Could not find rootPath in fullPath when calculating relative path.");
             }
 
             return fullPath.Substring(rootFullPath.Length);

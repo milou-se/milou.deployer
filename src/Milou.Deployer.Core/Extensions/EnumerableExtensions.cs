@@ -17,7 +17,7 @@ namespace Milou.Deployer.Core.Extensions
                 throw new ArgumentNullException(nameof(action));
             }
 
-            foreach (T item in enumerable)
+            foreach (var item in enumerable)
             {
                 action(item);
                 yield return item;

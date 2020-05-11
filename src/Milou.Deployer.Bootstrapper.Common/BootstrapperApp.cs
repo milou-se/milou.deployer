@@ -8,12 +8,9 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.Processing;
 using Arbor.Tooler;
-
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Logging;
-
 using NuGet.Versioning;
-
 using Serilog;
 
 namespace Milou.Deployer.Bootstrapper.Common
@@ -25,12 +22,32 @@ namespace Milou.Deployer.Bootstrapper.Common
         private ILogger _logger;
         private NuGetPackageInstaller _packageInstaller;
 
-        private BootstrapperApp(NuGetPackageInstaller packageInstaller, ILogger logger, HttpClient httpClient, bool disposeNested)
+        private BootstrapperApp(NuGetPackageInstaller packageInstaller,
+            ILogger logger,
+            HttpClient httpClient,
+            bool disposeNested)
         {
             _packageInstaller = packageInstaller ?? throw new ArgumentNullException(nameof(packageInstaller));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _disposeNested = disposeNested;
+        }
+
+        public void Dispose()
+        {
+            if (_disposeNested)
+            {
+                _packageInstaller = null!;
+                _httpClient?.Dispose();
+                _httpClient = null!;
+
+                if (_logger is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+
+                _logger = null!;
+            }
         }
 
         public static Task<BootstrapperApp> CreateAsync(
@@ -77,28 +94,14 @@ namespace Milou.Deployer.Bootstrapper.Common
             return Task.FromResult(new BootstrapperApp(nuGetPackageInstaller, logger, httpClient, disposeNested));
         }
 
-        public void Dispose()
-        {
-            if (_disposeNested)
-            {
-                _packageInstaller = null!;
-                _httpClient?.Dispose();
-                _httpClient = null!;
-
-                if (_logger is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-
-                _logger = null!;
-            }
-        }
-
-        private async Task<(NuGetPackageInstallResult,FileInfo)> GetDeployerExePathAsync(ImmutableArray<string> appArgs, NuGetPackageId nuGetPackageId, CancellationToken cancellationToken)
+        private async Task<(NuGetPackageInstallResult, FileInfo)> GetDeployerExePathAsync(
+            ImmutableArray<string> appArgs,
+            NuGetPackageId nuGetPackageId,
+            CancellationToken cancellationToken)
         {
             NuGetPackageInstallResult nuGetPackageInstallResult;
 
-            FileInfo? deployerToolFile = GetDeployerExeFromArgs(appArgs);
+            var deployerToolFile = GetDeployerExeFromArgs(appArgs);
 
             if (deployerToolFile is { })
             {
@@ -124,9 +127,9 @@ namespace Milou.Deployer.Bootstrapper.Common
                     _logger.Debug("Downloading package {Package}", nuGetPackage);
 
                     nuGetPackageInstallResult = await _packageInstaller.InstallPackageAsync(
-                                                    nuGetPackage,
-                                                    new NugetPackageSettings(allowPreRelease, nugetSource, nugetConfig),
-                                                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                        nuGetPackage,
+                        new NugetPackageSettings(allowPreRelease, nugetSource, nugetConfig),
+                        cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
@@ -183,7 +186,8 @@ namespace Milou.Deployer.Bootstrapper.Common
             return new FileInfo(exePath);
         }
 
-        private static bool IsDownloadOnly(ImmutableArray<string> appArgs) => appArgs.Any(arg => arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase));
+        private static bool IsDownloadOnly(ImmutableArray<string> appArgs) => appArgs.Any(arg =>
+            arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase));
 
         public Task<NuGetPackageInstallResult> ExecuteAsync(
             ImmutableArray<string> appArgs,
@@ -203,7 +207,8 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
-            (NuGetPackageInstallResult nugetInstallResult, FileInfo deployerExeFileInfo) = await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
+            (NuGetPackageInstallResult nugetInstallResult, FileInfo deployerExeFileInfo) =
+                await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
 
             if (IsDownloadOnly(appArgs))
             {
@@ -217,10 +222,10 @@ namespace Milou.Deployer.Bootstrapper.Common
 
             string deployerExePath = deployerExeFileInfo.FullName;
 
-            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(deployerExePath,
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(deployerExePath,
                     appArgs,
-                    standardOutLog: (message, category) => _logger.ParseAndLog(message, category),
-                    standardErrorAction: (message, category) =>
+                    (message, category) => _logger.ParseAndLog(message, category),
+                    (message, category) =>
                         _logger.Error("{Category} {Message}", category, message),
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);

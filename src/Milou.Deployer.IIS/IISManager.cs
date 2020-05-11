@@ -31,29 +31,6 @@ namespace Milou.Deployer.IIS
             _deploymentExecutionDefinition = deploymentExecutionDefinition;
         }
 
-        public static IisManager Create(
-            [NotNull] DeployerConfiguration configuration,
-            [NotNull] ILogger logger,
-            [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
-        {
-            if (configuration is null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            if (logger is null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            if (deploymentExecutionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return new IisManager(new ServerManager(), configuration, logger, deploymentExecutionDefinition);
-        }
-
         public void Dispose()
         {
             bool restored = RestoreState();
@@ -142,7 +119,7 @@ namespace Milou.Deployer.IIS
                         _logger.Debug("Running stop IIS site '{IISSiteName}'", _site.Name);
                     }
 
-                    ObjectState objectState = _site.Stop();
+                    var objectState = _site.Stop();
                     if (objectState == ObjectState.Stopped && _logger.IsEnabled(LogEventLevel.Debug))
                     {
                         _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
@@ -161,6 +138,29 @@ namespace Milou.Deployer.IIS
             }
 
             return true;
+        }
+
+        public static IisManager Create(
+            [NotNull] DeployerConfiguration configuration,
+            [NotNull] ILogger logger,
+            [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
+        {
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (logger is null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
+            if (deploymentExecutionDefinition is null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return new IisManager(new ServerManager(), configuration, logger, deploymentExecutionDefinition);
         }
 
         private bool RestoreState()
@@ -185,7 +185,7 @@ namespace Milou.Deployer.IIS
                         _logger.Debug("Running start IIS site '{IISSiteName}'", _site.Name);
                     }
 
-                    ObjectState objectState = _site.Start();
+                    var objectState = _site.Start();
 
                     if (objectState == ObjectState.Started && _logger.IsEnabled(LogEventLevel.Debug))
                     {

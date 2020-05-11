@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using Arbor.Tooler;
-
 using JetBrains.Annotations;
 using Milou.Deployer.Core.ApplicationMetadata;
 using Milou.Deployer.Core.Configuration;
@@ -34,16 +33,16 @@ namespace Milou.Deployer.Core.Deployment
         private readonly DirectoryCleaner _directoryCleaner;
 
         private readonly FileMatcher _fileMatcher;
+        private readonly IFtpHandlerFactory _ftpHandlerFactory;
         private readonly Func<DeploymentExecutionDefinition, IIisManager> _iisManager;
 
         private readonly ILogger _logger;
+        private readonly NuGetPackageInstaller _nugetPackageInstaller;
 
         private readonly PackageInstaller _packageInstaller;
         private readonly IWebDeployHelper _webDeployHelper;
 
         private readonly XmlTransformer _xmlTransformer;
-        private readonly NuGetPackageInstaller _nugetPackageInstaller;
-        private readonly IFtpHandlerFactory _ftpHandlerFactory;
 
         public DeploymentService(
             DeployerConfiguration deployerConfiguration,
@@ -102,7 +101,7 @@ namespace Milou.Deployer.Core.Deployment
             string json = File.ReadAllText(fileListFile, Encoding.UTF8);
 
             var fileList = JsonConvert.DeserializeAnonymousType(json,
-                new { files = new[] { new { file = "", sha512Base64Encoded = "" } } });
+                new {files = new[] {new {file = "", sha512Base64Encoded = ""}}});
 
             _logger.Debug("Verifying file list containing {FileCount} files", fileList.files.Length);
 
@@ -168,13 +167,13 @@ namespace Milou.Deployer.Core.Deployment
             SemanticVersion fallback)
         {
             SemanticVersion version = deploymentExecutionDefinition.SemanticVersion
-                ?? ( SemanticVersion.TryParse(
-                    packageDirectory.Name.Replace(
-                        deploymentExecutionDefinition.PackageId,
-                        "", StringComparison.Ordinal).TrimStart('.'),
-                    out SemanticVersion semanticVersion)
-                    ? semanticVersion
-                    : fallback);
+                                      ?? (SemanticVersion.TryParse(
+                                          packageDirectory.Name.Replace(
+                                              deploymentExecutionDefinition.PackageId,
+                                              "", StringComparison.Ordinal).TrimStart('.'),
+                                          out SemanticVersion semanticVersion)
+                                          ? semanticVersion
+                                          : fallback);
 
             return version;
         }
@@ -217,15 +216,18 @@ namespace Milou.Deployer.Core.Deployment
             string expectedPackageId =
                 $"{deploymentExecutionDefinition.PackageId}.{DeploymentConstants.EnvironmentLiteral}.{deploymentExecutionDefinition.EnvironmentConfig}";
 
-            ImmutableArray<SemanticVersion> allVersions = await _nugetPackageInstaller.GetAllVersionsAsync(
-                                       new NuGetPackageId(expectedPackageId),
-                                       allowPreRelease: expectedVersion.IsPrerelease,
-                                       nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
-                                       nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
-                                       nugetExePath: deploymentExecutionDefinition.NuGetExePath,
-                                       timeoutInSeconds: 35,
-                                       adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
-                                       prefix: deploymentExecutionDefinition.PackageListPrefixEnabled.HasValue && deploymentExecutionDefinition.PackageListPrefixEnabled.Value ? deploymentExecutionDefinition.PackageListPrefix : ""
+            var allVersions = await _nugetPackageInstaller.GetAllVersionsAsync(
+                new NuGetPackageId(expectedPackageId),
+                allowPreRelease: expectedVersion.IsPrerelease,
+                nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
+                nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
+                nugetExePath: deploymentExecutionDefinition.NuGetExePath,
+                timeoutInSeconds: 35,
+                adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
+                prefix: deploymentExecutionDefinition.PackageListPrefixEnabled.HasValue &&
+                        deploymentExecutionDefinition.PackageListPrefixEnabled.Value
+                    ? deploymentExecutionDefinition.PackageListPrefix
+                    : ""
             );
 
             var matchingFoundEnvironmentPackage = allVersions
@@ -236,7 +238,9 @@ namespace Milou.Deployer.Core.Deployment
             {
                 _logger.Error("Found multiple environment packages matching '{ExpectedMatch}', {Found}",
                     expectedVersion.ToNormalizedString(),
-                    string.Join(", ", matchingFoundEnvironmentPackage.Select(currentVersion => $"'{currentVersion.ToNormalizedString()}'")));
+                    string.Join(", ",
+                        matchingFoundEnvironmentPackage.Select(currentVersion =>
+                            $"'{currentVersion.ToNormalizedString()}'")));
                 return new EnvironmentPackageResult(false);
             }
 
@@ -267,7 +271,7 @@ namespace Milou.Deployer.Core.Deployment
                             $"{environmentConfigPrefix}out",
                             deploymentExecutionDefinition.EnvironmentConfig));
 
-                InstalledPackage? installedEnvironmentPackage =
+                var installedEnvironmentPackage =
                     await
                         _packageInstaller.InstallPackageAsync(
                             deploymentDefinition,
@@ -295,7 +299,7 @@ namespace Milou.Deployer.Core.Deployment
                 }
                 else
                 {
-                    ImmutableArray<EnvironmentFile> environmentFiles = GetEnvironmentFiles(
+                    var environmentFiles = GetEnvironmentFiles(
                         configContentDirectory,
                         deploymentExecutionDefinition);
 
@@ -352,7 +356,7 @@ namespace Milou.Deployer.Core.Deployment
         {
             var replacedFiles = new List<string>();
 
-            ImmutableArray<FileInfo> matchingFiles = _fileMatcher.Matches(replacement, contentDirectory);
+            var matchingFiles = _fileMatcher.Matches(replacement, contentDirectory);
 
             if (matchingFiles.Length > 1)
             {
@@ -365,7 +369,7 @@ namespace Milou.Deployer.Core.Deployment
             {
                 FileInfo targetFileInfo = matchingFiles.Single();
 
-                ExitCode replaceExitCode = ReplaceFile(
+                var replaceExitCode = ReplaceFile(
                     targetFileInfo,
                     replacement.ActionFile,
                     contentDirectory,
@@ -485,7 +489,8 @@ namespace Milou.Deployer.Core.Deployment
                     if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.TargetDirectoryPath)
                         && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
                     {
-                        throw new InvalidOperationException($"{nameof(deploymentExecutionDefinition.TargetDirectoryPath)} and {nameof(deploymentExecutionDefinition.PublishSettingsFile)} are both not set");
+                        throw new InvalidOperationException(
+                            $"{nameof(deploymentExecutionDefinition.TargetDirectoryPath)} and {nameof(deploymentExecutionDefinition.PublishSettingsFile)} are both not set");
                     }
 
                     string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
@@ -505,7 +510,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     tempDirectoriesToClean.Add(packageInstallTempDirectory);
 
-                    InstalledPackage? installedMainPackage =
+                    var installedMainPackage =
                         await _packageInstaller.InstallPackageAsync(
                             deploymentExecutionDefinition,
                             packageInstallTempDirectory,
@@ -562,7 +567,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (contentFilesJson?.Exists == true)
                     {
-                        ExitCode exitCode = VerifyFiles(contentFilesJson.FullName, contentDirectory);
+                        var exitCode = VerifyFiles(contentFilesJson.FullName, contentDirectory);
 
                         if (!exitCode.IsSuccess)
                         {
@@ -822,7 +827,8 @@ namespace Milou.Deployer.Core.Deployment
                                         : deploymentExecutionDefinition.TargetDirectoryPath
                                 ).ConfigureAwait(false);
                             }
-                            else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType && deploymentExecutionDefinition.FtpPath is {})
+                            else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType &&
+                                     deploymentExecutionDefinition.FtpPath is {})
                             {
                                 FtpPath basePath = deploymentExecutionDefinition.FtpPath;
 

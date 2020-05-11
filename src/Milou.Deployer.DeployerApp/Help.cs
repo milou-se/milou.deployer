@@ -14,7 +14,8 @@ namespace Milou.Deployer.DeployerApp
             {
                 [ConsoleConfigurationKeys.HelpArgument] = "shows help",
                 [ConsoleConfigurationKeys.DebugArgument] = "enables debugging",
-                [ConsoleConfigurationKeys.NonInteractiveArgument] = "disables interactive user prompts, default is interactive if the user session is interactive",
+                [ConsoleConfigurationKeys.NonInteractiveArgument] =
+                    "disables interactive user prompts, default is interactive if the user session is interactive",
                 [LoggingConstants.PlainOutputFormatEnabled] =
                     $"uses format '{LoggingConstants.PlainOutputFormatEnabled}' otherwise '{LoggingConstants.DefaultFormat}'"
             };

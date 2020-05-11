@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment.Ftp

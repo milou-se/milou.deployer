@@ -3,8 +3,10 @@
 // Project-level suppressions either have no target or are given
 // a specific target and scoped to a namespace, type, member, etc.
 
+using System.Diagnostics.CodeAnalysis;
+
 [assembly:
-    System.Diagnostics.CodeAnalysis.SuppressMessage("Design",
+    SuppressMessage("Design",
         "CC0021:Use nameof",
         Justification = "<Pending>",
         Scope = "member",

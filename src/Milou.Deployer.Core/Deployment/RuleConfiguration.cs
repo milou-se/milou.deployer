@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Deployment.Configuration;
-
 using Serilog;
 
 namespace Milou.Deployer.Core.Deployment
@@ -11,10 +10,7 @@ namespace Milou.Deployer.Core.Deployment
     {
         private static readonly List<string> DefaultExcludes = new List<string>
         {
-            "/locks",
-            "/deployments",
-            "/site/locks/",
-            "/site/deployments/",
+            "/locks", "/deployments", "/site/locks/", "/site/deployments/"
         };
 
         public List<string> Excludes { get; private set; } = DefaultExcludes;

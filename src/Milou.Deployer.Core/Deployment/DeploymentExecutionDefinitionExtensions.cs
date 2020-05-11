@@ -1,6 +1,5 @@
 using System;
 using JetBrains.Annotations;
-using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Deployment.Configuration;
 
 namespace Milou.Deployer.Core.Deployment
@@ -97,7 +96,7 @@ namespace Milou.Deployer.Core.Deployment
             string configurationKey)
         {
             deploymentExecutionDefinition.Parameters.TryGetValue(configurationKey,
-                out StringValues values);
+                out var values);
 
             if (values.Count == 1 && bool.TryParse(values[0], out bool flag))
             {

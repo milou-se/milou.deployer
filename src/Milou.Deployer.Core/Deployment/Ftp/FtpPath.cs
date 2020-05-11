@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment.Ftp
@@ -21,15 +20,15 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             }
 
             Path = path.Equals(RootPath, StringComparison.OrdinalIgnoreCase)
-                       ? RootPath
-                       : $"/{path.TrimStart('/').Replace("//", "/", StringComparison.Ordinal)}";
+                ? RootPath
+                : $"/{path.TrimStart('/').Replace("//", "/", StringComparison.Ordinal)}";
 
             Type = type;
         }
 
         public bool IsAppDataDirectoryOrFile =>
             Path.Split(
-                    new[] { '/' },
+                    new[] {'/'},
                     StringSplitOptions.RemoveEmptyEntries)
                 .Any(
                     path => path.Equals("App_Data", StringComparison.OrdinalIgnoreCase));
@@ -45,7 +44,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                     return default;
                 }
 
-                string[] parts = Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = Path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
 
                 if (parts.Length == 0)
                 {
@@ -68,6 +67,21 @@ namespace Milou.Deployer.Core.Deployment.Ftp
         public string Path { get; }
 
         public FileSystemType Type { get; }
+
+        public bool Equals(FtpPath other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
+        }
 
         public static bool operator ==(FtpPath left, FtpPath right) => Equals(left, right);
 
@@ -115,8 +129,8 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 throw new ArgumentNullException(nameof(excluded));
             }
 
-            string[] otherSegments = excluded.Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-            string[] segments = Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] otherSegments = excluded.Path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] segments = Path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
 
             if (otherSegments.Length > segments.Length)
             {
@@ -134,22 +148,8 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return true;
         }
 
-        public bool Equals(FtpPath other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
-        }
-
-        public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is FtpPath other && Equals(other));
+        public override bool Equals(object? obj) =>
+            ReferenceEquals(this, obj) || (obj is FtpPath other && Equals(other));
 
         public override int GetHashCode()
         {

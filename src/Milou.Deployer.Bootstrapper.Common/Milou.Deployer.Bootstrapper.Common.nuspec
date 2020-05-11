@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<package >
+
+<package>
   <metadata>
     <id>Milou.Deployer.Bootstrapper.Common</id>
     <version>0.0.1</version>
@@ -31,6 +32,7 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin\$configuration$\netcoreapp3.1\**\*.*" target="lib\netcoreapp3.1" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
+    <file src="bin\$configuration$\netcoreapp3.1\**\*.*" target="lib\netcoreapp3.1"
+          exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
   </files>
 </package>

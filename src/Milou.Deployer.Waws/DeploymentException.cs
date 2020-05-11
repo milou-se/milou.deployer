@@ -4,9 +4,8 @@ namespace Milou.Deployer.Waws
 {
     public sealed class DeploymentException : Exception
     {
-        public DeploymentException(string message): base(message)
+        public DeploymentException(string message) : base(message)
         {
-
         }
     }
 }

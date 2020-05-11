@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment.Ftp
@@ -32,7 +32,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             using var fileStream = new FileStream(publishSettingsFile, FileMode.Open);
             var document = XDocument.Load(fileStream);
 
-            System.Collections.Generic.IEnumerable<XElement> descendantNodes =
+            IEnumerable<XElement> descendantNodes =
                 document.Element("publishData")?
                     .Descendants("publishProfile") ??
                 throw new InvalidOperationException("Missing publishData and publishProfiles");
@@ -78,7 +78,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 throw new InvalidOperationException($"Missing {PublishUrlAttribute} in publish settings");
             }
 
-            if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out Uri? uri))
+            if (!Uri.TryCreate(ftpBaseUri, UriKind.Absolute, out var uri))
             {
                 throw new InvalidOperationException($"The ftp uri '{ftpBaseUri}' is not valid");
             }

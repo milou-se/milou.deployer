@@ -8,7 +8,7 @@ namespace Milou.Deployer.Waws
     {
         public bool TryGetValue(string name, out DeploymentRule? deploymentRule)
         {
-            DeploymentRule? found = this.SingleOrDefault(rule => rule.Name.Equals(name, StringComparison.Ordinal));
+            var found = this.SingleOrDefault(rule => rule.Name.Equals(name, StringComparison.Ordinal));
 
             if (found is {})
             {

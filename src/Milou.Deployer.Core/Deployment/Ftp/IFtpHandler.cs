@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment.Ftp
 {
-    public interface IFtpHandler: IDisposable
+    public interface IFtpHandler : IDisposable
     {
         Task<bool> DirectoryExistsAsync([NotNull] FtpPath dir, CancellationToken cancellationToken);
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Arbor.Processing;
@@ -130,7 +129,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 
         public TransformationResult TransformMatch(FileMatch possibleXmlTransformation, DirectoryInfo contentDirectory)
         {
-            ImmutableArray<FileInfo> matchingFiles = _fileMatcher.Matches(
+            var matchingFiles = _fileMatcher.Matches(
                 possibleXmlTransformation,
                 contentDirectory);
 
@@ -148,7 +147,7 @@ namespace Milou.Deployer.Core.XmlTransformation
             {
                 FileInfo originalFile = matchingFiles.Single();
 
-                ExitCode transformExitCode = TransformFile(
+                var transformExitCode = TransformFile(
                     originalFile,
                     possibleXmlTransformation.ActionFile,
                     contentDirectory,

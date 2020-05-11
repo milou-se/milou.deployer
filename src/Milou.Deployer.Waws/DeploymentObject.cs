@@ -97,9 +97,10 @@ namespace Milou.Deployer.Waws
             {
                 dest += "contentPath";
 
-                string url = !deploymentBaseOptions.ComputerName.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-                    ? $"https://{deploymentBaseOptions.ComputerName}"
-                    : deploymentBaseOptions.ComputerName;
+                string url =
+                    !deploymentBaseOptions.ComputerName.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                        ? $"https://{deploymentBaseOptions.ComputerName}"
+                        : deploymentBaseOptions.ComputerName;
 
                 if (!string.IsNullOrWhiteSpace(deploymentBaseOptions.SiteName))
                 {
@@ -243,7 +244,7 @@ namespace Milou.Deployer.Waws
                 _logger.Error("{Message}", message);
             }
 
-            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(
                 exePath,
                 arguments,
                 Log,

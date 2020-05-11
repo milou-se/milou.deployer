@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Extensions;
-
 using Serilog;
 
 namespace Milou.Deployer.Core.ApplicationMetadata
@@ -123,7 +122,8 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 keys.Add(environmentConfiguration);
             }
 
-            string serialized = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys.ToImmutableArray()));
+            string serialized =
+                JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys.ToImmutableArray()));
 
             File.WriteAllText(applicationMetadataJsonFilePath, serialized, Encoding.UTF8);
 
@@ -144,13 +144,13 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
                 return fileVersion;
             }
-            catch (Exception ex) when(!ex.IsFatal())
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 try
                 {
                     return currentAssembly.ImageRuntimeVersion;
                 }
-                catch (Exception innerEx) when(!innerEx.IsFatal())
+                catch (Exception innerEx) when (!innerEx.IsFatal())
                 {
                     // ignored
                 }

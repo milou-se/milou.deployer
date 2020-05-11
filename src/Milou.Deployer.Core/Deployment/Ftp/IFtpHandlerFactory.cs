@@ -8,6 +8,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
     {
         Task<IFtpHandler> CreateWithPublishSettings(string publishSettingsFile,
             FtpSettings ftpSettings,
-            ILogger logger, CancellationToken cancellationToken = default);
+            ILogger logger,
+            CancellationToken cancellationToken = default);
     }
 }

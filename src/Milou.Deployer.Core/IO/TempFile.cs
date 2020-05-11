@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-
 using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Core.IO
@@ -16,6 +15,37 @@ namespace Milou.Deployer.Core.IO
         }
 
         public FileInfo File { get; private set; }
+
+        public void Dispose()
+        {
+            try
+            {
+                if (File is {})
+                {
+                    File.Refresh();
+
+                    if (File.Exists)
+                    {
+                        File.Delete();
+                    }
+                }
+
+                if (_customTempDir is {})
+                {
+                    _customTempDir.Refresh();
+                    if (_customTempDir.Exists)
+                    {
+                        _customTempDir.Delete(true);
+                    }
+                }
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                // ignore
+            }
+
+            File = null!;
+        }
 
         public static TempFile CreateTempFile(string? name = null, string? extension = null)
         {
@@ -43,37 +73,6 @@ namespace Milou.Deployer.Core.IO
             var fileInfo = new FileInfo(fileFullPath);
 
             return new TempFile(fileInfo, customTempDir);
-        }
-
-        public void Dispose()
-        {
-            try
-            {
-                if (File is {})
-                {
-                    File.Refresh();
-
-                    if (File.Exists)
-                    {
-                        File.Delete();
-                    }
-                }
-
-                if (_customTempDir is {})
-                {
-                    _customTempDir.Refresh();
-                    if (_customTempDir.Exists)
-                    {
-                        _customTempDir.Delete(true);
-                    }
-                }
-            }
-            catch (Exception ex) when(!ex.IsFatal())
-            {
-                // ignore
-            }
-
-            File = null!;
         }
     }
 }
