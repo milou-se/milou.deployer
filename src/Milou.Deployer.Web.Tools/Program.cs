@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.Tools
                 {
                     new Claim(ClaimTypes.NameIdentifier, agentId),
                     new Claim(ClaimTypes.Name, agentId),
-                    new Claim("milou_agent", agentId),
+                    new Claim("milou_agent", agentId)
                 };
 
                 JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
@@ -57,7 +57,7 @@ namespace Milou.Deployer.Web.Tools
                 SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
-                    Expires = new DateTime(DateTime.Today.Year+2, 12,31,0,0,0,0),
+                    Expires = new DateTime(DateTime.Today.Year + 2, 12, 31, 0, 0, 0, 0),
                     SigningCredentials = new SigningCredentials(securityKey,
                         SecurityAlgorithms.HmacSha256Signature)
                     //SigningCredentials =  new SigningCredentials(, )
@@ -84,13 +84,7 @@ namespace Milou.Deployer.Web.Tools
 
         private static void RunFile(string file)
         {
-            using var p = new Process
-            {
-                StartInfo = new ProcessStartInfo(file)
-                {
-                    UseShellExecute = true
-                }
-            };
+            using var p = new Process {StartInfo = new ProcessStartInfo(file) {UseShellExecute = true}};
 
             p.Start();
         }
