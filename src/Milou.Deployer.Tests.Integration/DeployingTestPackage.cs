@@ -10,6 +10,7 @@ using Milou.Deployer.Core.IO;
 using Milou.Deployer.DeployerApp;
 using Newtonsoft.Json;
 using Serilog;
+using Serilog.Core;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -80,7 +81,7 @@ namespace Milou.Deployer.Tests.Integration
                             _output.WriteLine(json);
 
                             var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json,
-                                new { definitions = Array.Empty<DeploymentExecutionDefinition>() });
+                                new {definitions = Array.Empty<DeploymentExecutionDefinition>()});
 
                             Assert.NotNull(deploymentExecutionDefinition);
                             Assert.NotNull(deploymentExecutionDefinition.definitions);
@@ -94,9 +95,9 @@ namespace Milou.Deployer.Tests.Integration
                                 "Config",
                                 "NuGet.Config");
 
-                            string[] args = { tempFile.File.FullName, "-nuget-config=" + nugetConfig };
+                            string[] args = {tempFile.File.FullName, "-nuget-config=" + nugetConfig};
 
-                            Serilog.Core.Logger logger = new LoggerConfiguration()
+                            Logger logger = new LoggerConfiguration()
                                 .WriteTo.TestSink(_output)
                                 .MinimumLevel.Verbose()
                                 .CreateLogger();
@@ -117,19 +118,22 @@ namespace Milou.Deployer.Tests.Integration
                         FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
                         Assert.NotNull(indexHtml);
 
-                        DirectoryInfo wwwrootDirectory = testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
+                        DirectoryInfo wwwrootDirectory =
+                            testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
 
                         Assert.NotNull(wwwrootDirectory);
-                        FileInfo applicationmetadata = wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
+                        FileInfo applicationmetadata =
+                            wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
                         Assert.NotNull(applicationmetadata);
 
                         string text = File.ReadAllText(applicationmetadata.FullName);
 
                         var metadata = JsonConvert.DeserializeAnonymousType(
                             text,
-                            new { keys = new List<KeyValuePair<string, string>>() });
+                            new {keys = new List<KeyValuePair<string, string>>()});
 
-                        Assert.NotNull(metadata.keys.SingleOrDefault(key => key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
+                        Assert.NotNull(metadata.keys.SingleOrDefault(key =>
+                            key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
                     }
 
                     Assert.Equal(0, exitCode);

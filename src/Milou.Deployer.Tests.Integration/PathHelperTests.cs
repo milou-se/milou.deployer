@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Milou.Deployer.Core.Deployment.Ftp;
-
 using Xunit;
 
 namespace Milou.Deployer.Tests.Integration

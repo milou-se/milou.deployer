@@ -9,9 +9,9 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 {
     internal static class TestDataHelper
     {
-        public static (string source, DirectoryInfo deployTargetDirectory, TempDirectory tempTargetDir) CopyTestData(ILogger logger)
+        public static (string source, DirectoryInfo deployTargetDirectory, TempDirectory tempTargetDir) CopyTestData(
+            ILogger logger)
         {
-
             string testDataPath = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
                 "Milou.Deployer.Tests.Integration", "TestData", "AppDataTest");
             string source = Path.Combine(testDataPath, "Source");
@@ -39,7 +39,7 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 
             Assert.Contains(filesBefore, file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase));
 
-            return (source,deployTargetDirectory,tempTargetDir);
+            return (source, deployTargetDirectory, tempTargetDir);
         }
     }
 }

@@ -10,9 +10,8 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 {
     public class AppDataSkipTest
     {
-        private readonly ITestOutputHelper _output;
-
         public AppDataSkipTest(ITestOutputHelper output) => _output = output;
+        private readonly ITestOutputHelper _output;
 
         [Fact]
         public async Task ShouldSkipAppData()
@@ -41,7 +40,8 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
                 logger.Debug("Existing file after deploy: {File}", fileInfo.Name);
             }
 
-            Assert.DoesNotContain(filesAfter, file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase));
+            Assert.DoesNotContain(filesAfter,
+                file => file.Name.Equals("DeleteMe.txt", StringComparison.OrdinalIgnoreCase));
 
             Assert.Contains("AddMe.txt", result.CreatedFiles.Select(f => new FileInfo(f).Name));
             Assert.Contains("UpdateMe.txt", result.UpdatedFiles.Select(f => new FileInfo(f).Name));

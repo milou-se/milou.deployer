@@ -1,7 +1,5 @@
 ﻿using System.IO;
-
 using Arbor.Aesculus.Core;
-
 using NCrunch.Framework;
 
 namespace Milou.Deployer.Tests.Integration

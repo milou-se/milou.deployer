@@ -6,17 +6,10 @@ namespace Milou.Deployer.Tests.Integration
 {
     internal sealed class TempDirectory : IDisposable
     {
-        private TempDirectory(DirectoryInfo directory) => Directory = directory ?? throw new ArgumentNullException(nameof(directory));
+        private TempDirectory(DirectoryInfo directory) =>
+            Directory = directory ?? throw new ArgumentNullException(nameof(directory));
 
         public DirectoryInfo Directory { get; private set; }
-
-        public static TempDirectory CreateTempDirectory(string? name = null)
-        {
-            var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(),
-                $"{name.WithDefault("MD-tmp")}-{DateTime.UtcNow.Ticks}"));
-
-            return new TempDirectory(directory.EnsureExists());
-        }
 
         public void Dispose()
         {
@@ -38,6 +31,14 @@ namespace Milou.Deployer.Tests.Integration
 
                 Directory = null!;
             }
+        }
+
+        public static TempDirectory CreateTempDirectory(string? name = null)
+        {
+            var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(),
+                $"{name.WithDefault("MD-tmp")}-{DateTime.UtcNow.Ticks}"));
+
+            return new TempDirectory(directory.EnsureExists());
         }
     }
 }

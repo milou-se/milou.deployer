@@ -7,10 +7,10 @@ namespace Milou.Deployer.Tests.Integration
     {
         public static string GetTestFile(string path, params string[] paths)
         {
-            var allPaths = new List<string> {VcsTestPathHelper.FindVcsRootPath(),
-                "src",
-                "Milou.Deployer.Tests.Integration",
-                path};
+            var allPaths = new List<string>
+            {
+                VcsTestPathHelper.FindVcsRootPath(), "src", "Milou.Deployer.Tests.Integration", path
+            };
             allPaths.AddRange(paths);
             return Path.Combine(allPaths.ToArray());
         }

@@ -14,7 +14,7 @@ namespace Milou.Deployer.Bootstrapper.Tests.Integration
         [Fact(Skip = "Issue with all packages list by NuGet")]
         public async Task DownloadAsync()
         {
-            string[] args = { Constants.AllowPreRelease, Constants.DownloadOnly };
+            string[] args = {Constants.AllowPreRelease, Constants.DownloadOnly};
 
             using Logger logger = new LoggerConfiguration()
                 .WriteTo.Debug()
@@ -22,7 +22,7 @@ namespace Milou.Deployer.Bootstrapper.Tests.Integration
                 .CreateLogger();
             using BootstrapperApp bootstrapperApp = await BootstrapperApp.CreateAsync(args, logger);
             NuGetPackageInstallResult nuGetPackageInstallResult =
-await bootstrapperApp.ExecuteAsync(args.ToImmutableArray());
+                await bootstrapperApp.ExecuteAsync(args.ToImmutableArray());
 
             Assert.NotNull(nuGetPackageInstallResult);
             Assert.NotNull(nuGetPackageInstallResult.NuGetPackageId);

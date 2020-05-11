@@ -37,7 +37,7 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public async Task LogLevelShouldBeSetWhenArgIsUsed()
         {
-            string[] args = { $"{ConfigurationKeys.LogLevel}=error" };
+            string[] args = {$"{ConfigurationKeys.LogLevel}=error"};
 
             CancellationToken cancellationToken = default;
 
@@ -62,7 +62,7 @@ namespace Milou.Deployer.Tests.Integration
             try
             {
                 oldTemp = Path.GetTempPath();
-                string[] args = { $"-{TempKey}=C:\\temp\\" };
+                string[] args = {$"-{TempKey}=C:\\temp\\"};
 
                 CancellationToken cancellationToken = default;
 
