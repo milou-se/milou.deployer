@@ -15,8 +15,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public int Port { get; }
 
-        public override string ToString() => Port.ToString(CultureInfo.InvariantCulture);
-
         public void Dispose()
         {
             if (_disposeAction is null)
@@ -28,5 +26,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _disposeAction = null!;
         }
+
+        public override string ToString() => Port.ToString(CultureInfo.InvariantCulture);
     }
 }

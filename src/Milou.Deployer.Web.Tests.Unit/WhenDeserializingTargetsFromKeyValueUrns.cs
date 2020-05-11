@@ -10,7 +10,8 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class WhenDeserializingTargetsFromKeyValueUrns
     {
-        public WhenDeserializingTargetsFromKeyValueUrns(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+        public WhenDeserializingTargetsFromKeyValueUrns(ITestOutputHelper testOutputHelper) =>
+            _testOutputHelper = testOutputHelper;
 
         private readonly ITestOutputHelper _testOutputHelper;
 
@@ -19,22 +20,22 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             var nameValueCollection = new NameValueCollection
             {
-                { "urn:milou-deployer:target", "instance1" },
-                { "urn:milou-deployer:target:instance1:id", "myId1" },
-                { "urn:milou-deployer:target:instance1:name", "myName1" },
-                { "urn:milou-deployer:target:instance1:packageId", "myAllowedPackageId1.1" },
-                { "urn:milou-deployer:target:instance1:allow-Prerelease", "true" },
-                { "urn:milou-deployer:target:instance1:allowed-Package-Names", "myAllowedPackageId1.1" },
-                { "urn:milou-deployer:target:instance1:uri", "http://www.google.se" },
-                { "urn:milou-deployer:target:instance2:id", "myId2" },
-                { "urn:milou-deployer:target:instance2:name", "myName2" },
-                { "urn:milou-deployer:target:instance2:packageId", "myAllowedPackageId2.1" },
-                { "urn:milou-deployer:target:instance2:allow-Prerelease", "false" }
+                {"urn:milou-deployer:target", "instance1"},
+                {"urn:milou-deployer:target:instance1:id", "myId1"},
+                {"urn:milou-deployer:target:instance1:name", "myName1"},
+                {"urn:milou-deployer:target:instance1:packageId", "myAllowedPackageId1.1"},
+                {"urn:milou-deployer:target:instance1:allow-Prerelease", "true"},
+                {"urn:milou-deployer:target:instance1:allowed-Package-Names", "myAllowedPackageId1.1"},
+                {"urn:milou-deployer:target:instance1:uri", "http://www.google.se"},
+                {"urn:milou-deployer:target:instance2:id", "myId2"},
+                {"urn:milou-deployer:target:instance2:name", "myName2"},
+                {"urn:milou-deployer:target:instance2:packageId", "myAllowedPackageId2.1"},
+                {"urn:milou-deployer:target:instance2:allow-Prerelease", "false"}
             };
 
             var keyValueConfiguration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            System.Collections.Immutable.ImmutableArray<DeploymentTarget> targets = keyValueConfiguration.GetInstances<DeploymentTarget>();
+            var targets = keyValueConfiguration.GetInstances<DeploymentTarget>();
 
             _testOutputHelper.WriteLine(JsonConvert.SerializeObject(targets, Formatting.Indented));
 

@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ExcludedAutoRegistrationTypeHasOptionalAttribute()
         {
-            OptionalAttribute? optionalAttribute = typeof(ExcludedAutoRegistrationType).GetCustomAttribute<OptionalAttribute>();
+            var optionalAttribute = typeof(ExcludedAutoRegistrationType).GetCustomAttribute<OptionalAttribute>();
 
             Assert.NotNull(optionalAttribute);
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Arbor.AspNetCore.Host.Configuration;
+using Arbor.KVConfiguration.Core;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Integration
@@ -9,8 +10,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void WhenInitializedWithCommandLineArg()
         {
-            string[] args = new[] { "urn:abc:123=hello world" };
-            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
+            string[] args = {"urn:abc:123=hello world"};
+            MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(args: args);
 
             Assert.NotNull(multiSourceKeyValueConfiguration);
@@ -20,8 +21,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void WhenInitializedWithEnvironmentVariable()
         {
-            var args = new Dictionary<string, string> { ["urn:abc:123"] = "hello world" };
-            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
+            var args = new Dictionary<string, string> {["urn:abc:123"] = "hello world"};
+            MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(environmentVariables: args);
 
             Assert.NotNull(multiSourceKeyValueConfiguration);
@@ -31,9 +32,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void WhenInitializedWithEnvironmentVariableAndCommandLineArgs()
         {
-            string[] args = new[] { "urn:abc:123=hello arg world" };
-            var environmentVariables = new Dictionary<string, string> { ["urn:abc:123"] = "hello environment world" };
-            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
+            string[] args = {"urn:abc:123=hello arg world"};
+            var environmentVariables = new Dictionary<string, string> {["urn:abc:123"] = "hello environment world"};
+            MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(environmentVariables: environmentVariables,
                     args: args);
 
@@ -44,7 +45,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void WhenInitializedWithNoParameters()
         {
-            Arbor.KVConfiguration.Core.MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
+            MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration();
 
             Assert.NotNull(multiSourceKeyValueConfiguration);

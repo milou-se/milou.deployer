@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using JetBrains.Annotations;
@@ -23,8 +22,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             get
             {
-                string[] assemblyNameStartsWith = new[] {"Milou"};
-                System.Collections.Immutable.ImmutableArray<Assembly> filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+                string[] assemblyNameStartsWith = {"Milou"};
+                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false,
+                    assemblyNameStartsWith: assemblyNameStartsWith);
 
                 return filteredAssemblies
                     .SelectMany(assembly => assembly.GetLoadableTypes())
@@ -42,11 +42,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Assert.NotNull(controllerType);
 
-            Type[] httpMethodAttributes =
-            {
-                typeof(AuthorizeAttribute),
-                typeof(AllowAnonymousAttribute)
-            };
+            Type[] httpMethodAttributes = {typeof(AuthorizeAttribute), typeof(AllowAnonymousAttribute)};
 
             object[] attributes = controllerType!.GetCustomAttributes(true).Where(attribute =>
                     httpMethodAttributes.Any(authenticationAttribute => authenticationAttribute == attribute.GetType()))

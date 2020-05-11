@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact(Skip = "Full app test")]
         public async Task RunApplicationWithExitCode0()
         {
-            var envArgs = new Dictionary<string, string> { [ConfigurationConstants.RestartTimeInSeconds] = "20" }
+            var envArgs = new Dictionary<string, string> {[ConfigurationConstants.RestartTimeInSeconds] = "20"}
                 .ToImmutableDictionary();
 
             int exitCode = await AppStarter.StartAsync(Array.Empty<string>(), envArgs, _output);

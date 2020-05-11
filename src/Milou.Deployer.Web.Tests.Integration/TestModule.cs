@@ -16,6 +16,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                         new InMemoryDeploymentTargetReadService(context.GetService<ILogger>(),
                             TestDataCreator.CreateData),
                     this)
-                .AddSingleton(new TimeoutConfiguration { CancellationEnabled = false });
+                .AddSingleton(new TimeoutConfiguration {CancellationEnabled = false});
     }
 }

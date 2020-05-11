@@ -38,20 +38,11 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly DirectoryInfo _globalTempDir;
         private readonly string _oldTemp;
 
-        public TestHttpPort TestSiteHttpPort { get; protected set; }
-
-
-        [PublicAPI]
-        public List<DirectoryInfo> DirectoriesToClean { get; } = new List<DirectoryInfo>();
-
         private bool _addLocalUserAccessPermission;
 
         private CancellationTokenSource _cancellationTokenSource;
 
         private PgServer _pgServer;
-
-        [PublicAPI]
-        public TestConfiguration TestConfiguration { get; protected set; }
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
@@ -62,6 +53,15 @@ namespace Milou.Deployer.Web.Tests.Integration
             Environment.SetEnvironmentVariable("TEMP", _globalTempDir.FullName);
             _diagnosticMessageSink = diagnosticMessageSink;
         }
+
+        public TestHttpPort TestSiteHttpPort { get; protected set; }
+
+
+        [PublicAPI]
+        public List<DirectoryInfo> DirectoriesToClean { get; } = new List<DirectoryInfo>();
+
+        [PublicAPI]
+        public TestConfiguration TestConfiguration { get; protected set; }
 
         [PublicAPI]
         public List<FileInfo> FilesToClean { get; } = new List<FileInfo>();
@@ -74,77 +74,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         public int? HttpPort => GetHttpPort();
 
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
-
-        private int? GetHttpPort()
-        {
-            EnvironmentConfiguration environmentConfiguration = App.Host.Services.GetService<EnvironmentConfiguration>();
-
-            if (environmentConfiguration is null)
-            {
-                return null;
-            }
-
-            return environmentConfiguration.HttpPort;
-        }
-
-        private async Task DeleteDirectoryAsync(DirectoryInfo directoryInfo, int attempt = 0)
-        {
-            if (attempt == 5)
-            {
-                return;
-            }
-
-            try
-            {
-                directoryInfo.Refresh();
-
-                if (directoryInfo.Exists)
-                {
-                    directoryInfo.Delete(true);
-                }
-
-                directoryInfo.Refresh();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"could not delete directory {directoryInfo.FullName}", ex);
-                // ignore
-
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
-            }
-
-            if (directoryInfo.Exists)
-            {
-                await DeleteDirectoryAsync(directoryInfo, attempt + 1);
-            }
-        }
-
-        private async Task StartAsync(IReadOnlyCollection<string> args)
-        {
-            App.Logger.Information("Starting app");
-
-            await App.RunAsync(args.ToArray());
-
-            App.Logger.Information("Started app, waiting for web host shutdown");
-        }
-
-        private async Task<IReadOnlyCollection<string>> RunSetupAsync()
-        {
-            string rootDirectory = VcsTestPathHelper.GetRootDirectory();
-
-            string appRootDirectory = Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost");
-
-            string[] args = { $"{ConfigurationConstants.ContentBasePath}={appRootDirectory}" };
-
-            _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
-
-            App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration, TestSiteHttpPort);
-
-            App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
-                CancellationTimeoutInSeconds);
-
-            return args;
-        }
 
         public async Task InitializeAsync()
         {
@@ -203,7 +132,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                         new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
                 }
 
-                string connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
+                string connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat, _pgServer.PgPort,
+                    PostgresqlUser);
 
                 Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:connection-string",
                     connStr);
@@ -302,6 +232,79 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         public virtual void Dispose() => GC.SuppressFinalize(this);
+
+        private int? GetHttpPort()
+        {
+            EnvironmentConfiguration environmentConfiguration =
+                App.Host.Services.GetService<EnvironmentConfiguration>();
+
+            if (environmentConfiguration is null)
+            {
+                return null;
+            }
+
+            return environmentConfiguration.HttpPort;
+        }
+
+        private async Task DeleteDirectoryAsync(DirectoryInfo directoryInfo, int attempt = 0)
+        {
+            if (attempt == 5)
+            {
+                return;
+            }
+
+            try
+            {
+                directoryInfo.Refresh();
+
+                if (directoryInfo.Exists)
+                {
+                    directoryInfo.Delete(true);
+                }
+
+                directoryInfo.Refresh();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"could not delete directory {directoryInfo.FullName}", ex);
+                // ignore
+
+                await Task.Delay(TimeSpan.FromMilliseconds(200));
+            }
+
+            if (directoryInfo.Exists)
+            {
+                await DeleteDirectoryAsync(directoryInfo, attempt + 1);
+            }
+        }
+
+        private async Task StartAsync(IReadOnlyCollection<string> args)
+        {
+            App.Logger.Information("Starting app");
+
+            await App.RunAsync(args.ToArray());
+
+            App.Logger.Information("Started app, waiting for web host shutdown");
+        }
+
+        private async Task<IReadOnlyCollection<string>> RunSetupAsync()
+        {
+            string rootDirectory = VcsTestPathHelper.GetRootDirectory();
+
+            string appRootDirectory = Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost");
+
+            string[] args = {$"{ConfigurationConstants.ContentBasePath}={appRootDirectory}"};
+
+            _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
+
+            App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args,
+                EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration, TestSiteHttpPort);
+
+            App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
+                CancellationTimeoutInSeconds);
+
+            return args;
+        }
 
         protected virtual void OnException(Exception exception)
         {

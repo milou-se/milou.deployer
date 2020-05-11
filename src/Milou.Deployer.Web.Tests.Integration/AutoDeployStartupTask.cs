@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Startup;
@@ -28,8 +29,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
         private readonly TestConfiguration _testConfiguration;
-        private IWebHost _webHost;
         private readonly TestHttpPort _testSiteHttpPort;
+        private IWebHost _webHost;
 
         public AutoDeployStartupTask(
             IDeploymentService deploymentService,
@@ -57,7 +58,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return;
             }
 
-            System.Collections.Immutable.ImmutableArray<DeploymentTarget> targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
+            var targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
 
             if (targets.Length != 1)
             {
@@ -68,9 +69,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var deploymentTaskId = Guid.NewGuid();
             const string deploymentTargetId = TestDataCreator.Testtarget;
-            var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId, nameof(AutoDeployStartupTask));
+            var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId,
+                nameof(AutoDeployStartupTask));
 
-            Core.Deployment.Messages.DeploymentTaskResult deploymentTaskResult = await _deploymentService.ExecuteDeploymentAsync(
+            DeploymentTaskResult deploymentTaskResult = await _deploymentService.ExecuteDeploymentAsync(
                 deploymentTask,
                 _logger,
                 startupCancellationToken);
@@ -107,7 +109,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Could not get successful http get response in integration test, {Status}", response?.StatusCode);
+                    _logger.Error(ex, "Could not get successful http get response in integration test, {Status}",
+                        response?.StatusCode);
                 }
             }
 

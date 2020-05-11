@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             var holder = new ConfigurationInstanceHolder();
 
-            holder.AddInstance(new EnvironmentConfiguration { ApplicationBasePath = @"C:\app" });
+            holder.AddInstance(new EnvironmentConfiguration {ApplicationBasePath = @"C:\app"});
 
             EnvironmentConsumer environmentConsumer = holder.Create<EnvironmentConsumer>();
 

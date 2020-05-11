@@ -19,8 +19,10 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ItShouldFindAllKnownAssemblies()
         {
-            string[] assemblyNameStartsWith = { "Milou" };
-            ImmutableArray<System.Reflection.Assembly> filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+            string[] assemblyNameStartsWith = {"Milou"};
+            var filteredAssemblies =
+                ApplicationAssemblies.FilteredAssemblies(useCache: false,
+                    assemblyNameStartsWith: assemblyNameStartsWith);
             var assemblies = filteredAssemblies
                 .Where(assembly => !assembly.GetName().Name.EndsWith(".Views", StringComparison.OrdinalIgnoreCase))
                 .ToImmutableArray();

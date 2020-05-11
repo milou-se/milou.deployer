@@ -70,7 +70,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                         await Task.Delay(TimeSpan.FromMilliseconds(50));
                     }
 
-                    var url = new Uri($"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
+                    var url = new Uri(
+                        $"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
 
                     string contents;
                     try

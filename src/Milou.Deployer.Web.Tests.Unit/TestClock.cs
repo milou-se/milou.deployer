@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
         public DateTime ToLocalTime(DateTime dateTimeUtc)
         {
-            DateTime localTime = dateTimeUtc.AddHours(-1);
+            var localTime = dateTimeUtc.AddHours(-1);
 
             return new DateTime(localTime.Ticks, DateTimeKind.Local);
         }

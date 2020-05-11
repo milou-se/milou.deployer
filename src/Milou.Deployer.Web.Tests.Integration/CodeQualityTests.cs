@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Theory]
         public void ShouldNotContainImplementations(Assembly assembly, Type checkForType)
         {
-            System.Collections.Immutable.ImmutableArray<Type> currentTypes = assembly.GetLoadableTypes();
+            var currentTypes = assembly.GetLoadableTypes();
             var types = currentTypes.ToDictionary(type => type, _ => true);
 
             foreach (Type currentType in currentTypes)
@@ -34,13 +34,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 if (currentTypeIsClass)
                 {
-                    _testOutputHelper.WriteLine($"Assembly {assembly.GetName().Name} and type {currentType.FullName} is implementing {checkForType.FullName}");
+                    _testOutputHelper.WriteLine(
+                        $"Assembly {assembly.GetName().Name} and type {currentType.FullName} is implementing {checkForType.FullName}");
                 }
 
                 types[currentType] = currentTypeIsClass;
             }
 
-            System.Collections.Immutable.ImmutableArray<Type> errors = types.Where(pair => pair.Value).Select(pair => pair.Key).SafeToImmutableArray();
+            var errors = types.Where(pair => pair.Value).Select(pair => pair.Key).SafeToImmutableArray();
 
             Assert.Empty(errors);
         }
@@ -49,7 +50,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Theory]
         public void ShouldNotContainMartenData(Assembly assembly, Type checkForType)
         {
-            System.Collections.Immutable.ImmutableArray<Type> types = assembly.GetLoadableTypes();
+            var types = assembly.GetLoadableTypes();
 
             foreach (Type currentType in types)
             {

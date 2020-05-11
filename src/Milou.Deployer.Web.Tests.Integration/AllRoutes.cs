@@ -20,8 +20,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             get
             {
-                string[] assemblyNameStartsWith = { "Milou" };
-                System.Collections.Immutable.ImmutableArray<System.Reflection.Assembly> filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+                string[] assemblyNameStartsWith = {"Milou"};
+                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false,
+                    assemblyNameStartsWith: assemblyNameStartsWith);
                 return RouteList.GetConstantRoutes(filteredAssemblies)
                     .Select(item => new object[] {item.Name, item.Value})
                     .ToArray();

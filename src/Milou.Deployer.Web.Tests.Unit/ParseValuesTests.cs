@@ -1,4 +1,6 @@
-﻿using Arbor.App.Extensions;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using Arbor.App.Extensions;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit
@@ -18,7 +20,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         public void ShouldParseValues()
         {
             const string connectionString = "a=123;b=234;c=345;";
-            System.Collections.Immutable.ImmutableArray<System.Collections.Generic.KeyValuePair<string, string>> keyValuePairs = connectionString.ParseValues(';', '=');
+            ImmutableArray<KeyValuePair<string, string>> keyValuePairs = connectionString.ParseValues(';', '=');
 
             Assert.Equal(3, keyValuePairs.Length);
             Assert.Equal("123", keyValuePairs[0].Value);

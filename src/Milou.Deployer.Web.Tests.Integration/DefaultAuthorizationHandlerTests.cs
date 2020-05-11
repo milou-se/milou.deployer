@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Security;
 using Milou.Deployer.Web.IisHost.Areas.Security;
+using Serilog;
 using Serilog.Core;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimInRangeForAllowedNetworkShouldMarkContextSucceeded()
         {
-            Serilog.ILogger logger = Logger.None;
+            ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
@@ -31,10 +32,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                     ImmutableArray<AllowedEmail>.Empty,
                     ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.0.2") };
+            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.0.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(
-                new IAuthorizationRequirement[] { new DefaultAuthorizationRequirement() },
+                new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
                 null);
 
@@ -46,7 +47,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimInRangeForMultipleAllowedNetworksShouldMarkContextSucceeded()
         {
-            Serilog.ILogger logger = Logger.None;
+            ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24",
@@ -61,10 +62,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                     ImmutableArray<AllowedEmail>.Empty,
                     ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.0.2") };
+            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.0.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(
-                new IAuthorizationRequirement[] { new DefaultAuthorizationRequirement() },
+                new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
                 null);
 
@@ -76,7 +77,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimMissingShouldMarkContextSucceeded()
         {
-            Serilog.ILogger logger = Logger.None;
+            ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
@@ -92,7 +93,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             IEnumerable<Claim> claims = ImmutableArray<Claim>.Empty;
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(
-                new IAuthorizationRequirement[] { new DefaultAuthorizationRequirement() },
+                new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
                 null);
 
@@ -104,7 +105,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimOutOfRangeForAllowedNetworkShouldMarkContextNotSucceeded()
         {
-            Serilog.ILogger logger = Logger.None;
+            ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
@@ -118,10 +119,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                     ImmutableArray<AllowedEmail>.Empty,
                     ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.1.2") };
+            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.1.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(
-                new IAuthorizationRequirement[] { new DefaultAuthorizationRequirement() },
+                new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
                 null);
 
@@ -133,7 +134,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public async Task IpClaimWithoutNetworksShouldMarkContextNotSucceeded()
         {
-            Serilog.ILogger logger = Logger.None;
+            ILogger logger = Logger.None;
 
             var handler =
                 new DefaultAuthorizationHandler(NoConfiguration.Empty,
@@ -141,10 +142,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                     ImmutableArray<AllowedEmail>.Empty,
                     ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.1.2") };
+            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.1.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(
-                new IAuthorizationRequirement[] { new DefaultAuthorizationRequirement() },
+                new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
                 null);
 

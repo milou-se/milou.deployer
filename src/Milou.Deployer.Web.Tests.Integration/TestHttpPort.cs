@@ -10,7 +10,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public PortPoolRental Port { get; }
 
-        public void Configure(EnvironmentConfiguration environmentConfiguration) => environmentConfiguration.HttpPort = Port.Port;
+        public void Configure(EnvironmentConfiguration environmentConfiguration) =>
+            environmentConfiguration.HttpPort = Port.Port;
 
         public void Dispose() => Port?.Dispose();
     }

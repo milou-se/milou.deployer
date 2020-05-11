@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [InlineData("abc==", "abc", "=")]
         public void ValidArgShouldBeParsed(string parameter, string name, string expected)
         {
-            string[] strings = { parameter };
+            string[] strings = {parameter};
 
             string? actual = strings.ParseParameter(name);
 

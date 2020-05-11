@@ -9,7 +9,8 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class WhenSerializingADeploymentTarget
     {
-        public WhenSerializingADeploymentTarget(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+        public WhenSerializingADeploymentTarget(ITestOutputHelper testOutputHelper) =>
+            _testOutputHelper = testOutputHelper;
 
         private readonly ITestOutputHelper _testOutputHelper;
 

@@ -8,9 +8,8 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class HexTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         public HexTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+        private readonly ITestOutputHelper _testOutputHelper;
 
         [Fact]
         public void CanReadAndWriteHex()
