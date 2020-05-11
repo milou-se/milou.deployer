@@ -4,7 +4,7 @@ using NCrunch.Framework;
 
 namespace Milou.Deployer.Tests.Integration
 {
-    public class VcsTestPathHelper
+    public static class VcsTestPathHelper
     {
         public static string FindVcsRootPath()
         {

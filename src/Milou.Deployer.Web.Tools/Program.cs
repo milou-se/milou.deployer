@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Milou.Deployer.Web.Tools
 {
-    internal class Program
+    internal static class Program
     {
         private static async Task Main(string[] args)
         {

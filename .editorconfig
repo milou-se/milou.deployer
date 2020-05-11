@@ -346,9 +346,11 @@ dotnet_diagnostic.CA2000.severity = none
 
 # IDE0001: Simplify Names
 dotnet_diagnostic.IDE0001.severity = none
+dotnet_diagnostic.IDE0047.severity = none
 
 # CA2007: Configure await
 dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1031.severity = none
 
 # S1854:
 dotnet_diagnostic.S1854.severity = none

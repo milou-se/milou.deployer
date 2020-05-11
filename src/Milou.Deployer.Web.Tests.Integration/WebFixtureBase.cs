@@ -235,15 +235,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private int? GetHttpPort()
         {
-            EnvironmentConfiguration environmentConfiguration =
-                App.Host.Services.GetService<EnvironmentConfiguration>();
+            EnvironmentConfiguration? environmentConfiguration =
+                App.Host!.Services.GetService<EnvironmentConfiguration>();
 
-            if (environmentConfiguration is null)
-            {
-                return null;
-            }
-
-            return environmentConfiguration.HttpPort;
+            return environmentConfiguration?.HttpPort;
         }
 
         private async Task DeleteDirectoryAsync(DirectoryInfo directoryInfo, int attempt = 0)

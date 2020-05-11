@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
+using Serilog;
 
 namespace Milou.Deployer.Web.Core.Caching
 {
@@ -11,6 +12,7 @@ namespace Milou.Deployer.Web.Core.Caching
         public static async Task Set<T>(this IDistributedCache cache,
             string key,
             T item,
+            ILogger? logger = default,
             CancellationToken cancellationToken = default) where T : class
         {
             try
@@ -23,15 +25,21 @@ namespace Milou.Deployer.Web.Core.Caching
             }
             catch (TaskCanceledException ex)
             {
+                logger?.Debug(ex, "Cache timed out");
             }
             catch (OperationCanceledException ex)
             {
+                logger?.Debug(ex, "Cache timed out");
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                logger?.Debug(ex, "Could not set cache");
+            }
         }
 
         public static async Task<T?> Get<T>(this IDistributedCache cache,
             string key,
+            ILogger? logger = default,
             CancellationToken cancellationToken = default) where T : class
         {
             try
@@ -49,14 +57,17 @@ namespace Milou.Deployer.Web.Core.Caching
             }
             catch (TaskCanceledException ex)
             {
+                logger?.Debug(ex, "Cache timed out");
                 return default;
             }
             catch (OperationCanceledException ex)
             {
+                logger?.Debug(ex, "Cache timed out");
                 return default;
             }
             catch (Exception ex)
             {
+                logger?.Debug(ex, "Could not get cache");
                 return default;
             }
         }

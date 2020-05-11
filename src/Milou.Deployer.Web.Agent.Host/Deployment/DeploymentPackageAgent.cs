@@ -14,7 +14,6 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     public class DeploymentPackageAgent : IDeploymentPackageAgent
     {
-        private readonly AgentConfiguration _agentConfiguration;
         private readonly IDeploymentPackageHandler _deploymentPackageHandler;
         private readonly DeploymentTaskPackageService _deploymentTaskPackageService;
         private readonly ILogger _logger;
@@ -34,13 +33,12 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             _logHttpClientFactory = logHttpClientFactory;
             _deploymentPackageHandler = deploymentPackageHandler;
             _deploymentTaskPackageService = deploymentTaskPackageService;
-            _agentConfiguration = agentConfiguration;
-            AgentId = _agentConfiguration.AgentId();
+            AgentId = agentConfiguration.AgentId();
         }
 
         public async Task<ExitCode> RunAsync(string deploymentTaskId,
             string deploymentTargetId,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             _logger.Information("Received deployment task {DeploymentTaskId}", deploymentTaskId);
 

@@ -92,6 +92,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [HttpGet]
         public IActionResult Create() => View(new CreateTargetViewOutputModel());
 
+        [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> Index(
+            [FromRoute] string deploymentTargetId,
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
+            [FromServices] IEnvironmentTypeService environmentTypeService)
+        {
+            DeploymentTarget deploymentTarget =
+                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+
+            if (deploymentTarget is null)
+            {
+                return new NotFoundResult();
+            }
+
+            return new ObjectResult(deploymentTarget);
+        }
+
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
         [HttpGet]
         public async Task<IActionResult> Edit(
@@ -110,24 +128,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             var environmentTypes = await environmentTypeService.GetEnvironmentTypes();
 
             return View(new EditTargetViewOutputModel(deploymentTarget, environmentTypes));
-        }
-
-        [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
-        [HttpGet]
-        public async Task<IActionResult> Index(
-            [FromRoute] string deploymentTargetId,
-            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
-            [FromServices] IEnvironmentTypeService environmentTypeService)
-        {
-            DeploymentTarget deploymentTarget =
-                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
-
-            if (deploymentTarget is null)
-            {
-                return new NotFoundResult();
-            }
-
-            return new ObjectResult(deploymentTarget);
         }
 
         [Route(TargetConstants.EditTargetPostRoute, Name = TargetConstants.EditTargetPostRouteName)]

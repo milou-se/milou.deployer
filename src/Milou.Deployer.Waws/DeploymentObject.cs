@@ -31,6 +31,7 @@ namespace Milou.Deployer.Waws
 
         public void Dispose()
         {
+            // ignore
         }
 
         public async Task<DeploySummary> SyncTo(
@@ -82,13 +83,6 @@ namespace Milou.Deployer.Waws
                 cancellationToken);
         }
 
-        private static string GetDestinationParameter(string siteName, string? destinationPath)
-        {
-            string? path = string.IsNullOrWhiteSpace(destinationPath) ? null : $"/{destinationPath.TrimStart('/')}";
-            string destinationParameter = $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{siteName}{path}\"";
-            return destinationParameter;
-        }
-
         private static string CreateDestination(DeploymentBaseOptions deploymentBaseOptions)
         {
             string dest = "-dest:";
@@ -129,6 +123,13 @@ namespace Milou.Deployer.Waws
             return dest;
         }
 
+        private static string GetDestinationParameter(string siteName, string? destinationPath)
+        {
+            string? path = string.IsNullOrWhiteSpace(destinationPath) ? null : $"/{destinationPath.TrimStart('/')}";
+            string destinationParameter = $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{siteName}{path}\"";
+            return destinationParameter;
+        }
+
         public async Task<DeploySummary> SyncTo(DeploymentBaseOptions baseOptions,
             DeploymentSyncOptions syncOptions,
             CancellationToken cancellationToken = default)
@@ -158,7 +159,7 @@ namespace Milou.Deployer.Waws
             Action<List<string>> onConfigureArgs,
             CancellationToken cancellationToken = default)
         {
-            string exePath = @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe";
+            string exePath = @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"; // TODO fix hard coded path to msdeploy
 
             var arguments = new List<string>();
 
@@ -198,10 +199,6 @@ namespace Milou.Deployer.Waws
                 int start = asSpan.IndexOf('(') + 1;
                 int end = asSpan.LastIndexOf(')');
                 int length = end - start;
-
-                if (length <= 0)
-                {
-                }
 
                 return asSpan.Slice(start, length).ToString();
             }

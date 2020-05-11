@@ -2,7 +2,7 @@
 
 namespace Milou.Deployer.Waws
 {
-    internal class DeploymentManager
+    internal static class DeploymentManager
     {
         public static DeploymentObject CreateObject(DeploymentWellKnownProvider provider,
             string path,

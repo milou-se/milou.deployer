@@ -45,6 +45,9 @@ namespace Milou.Deployer.Core.Deployment
             return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
+        public override bool Equals(object? obj) =>
+            ReferenceEquals(this, obj) || (obj is PublishType other && Equals(other));
+
         public static bool TryParseOrDefault(string? value, out PublishType? publishType)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -65,8 +68,6 @@ namespace Milou.Deployer.Core.Deployment
 
         public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
 
-        public override bool Equals(object? obj) =>
-            ReferenceEquals(this, obj) || (obj is PublishType other && Equals(other));
 
         public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 

@@ -20,7 +20,10 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
             _deploymentTargetId = deploymentTargetId;
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+            // ignore
+        }
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
         {

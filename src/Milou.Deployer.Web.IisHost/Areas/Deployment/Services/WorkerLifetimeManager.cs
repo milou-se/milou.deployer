@@ -24,7 +24,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public WorkerLifetimeManager(
             ConfigurationInstanceHolder configurationInstanceHolder,
-            IDeploymentService deploymentService,
             WorkerConfiguration workerConfiguration,
             IMediator mediator,
             ILogger logger,

@@ -10,6 +10,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             public void Dispose()
             {
+                // ignore
             }
         }
 

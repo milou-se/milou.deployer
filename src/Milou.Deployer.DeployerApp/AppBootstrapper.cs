@@ -4,7 +4,7 @@ using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.DeployerApp
 {
-    public class AppBootstrapper
+    public static class AppBootstrapper
     {
         public static async Task<int> RunAsync(string[] args)
         {
