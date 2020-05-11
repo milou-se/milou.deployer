@@ -13,6 +13,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Serilog;
@@ -21,21 +22,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     public sealed class DeploymentTargetWorker : IDeploymentTargetWorker, IDisposable
     {
+        private readonly ICustomClock _clock;
         private readonly ILogger _logger;
+        private readonly AsyncManualResetEvent _loggingCompleted = new AsyncManualResetEvent(false);
         private readonly IMediator _mediator;
         private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
-        private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
-        private readonly WorkerConfiguration _workerConfiguration;
-        private readonly TimeoutHelper _timeoutHelper;
-
-        private readonly ICustomClock _clock;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ConcurrentDictionary<string, IDeploymentService> _services = new ConcurrentDictionary<string, IDeploymentService>();
         private readonly AsyncManualResetEvent _serviceAdded = new AsyncManualResetEvent(false);
-        private readonly AsyncManualResetEvent _loggingCompleted = new AsyncManualResetEvent(false);
-        private bool _isDisposed;
+        private readonly IServiceProvider _serviceProvider;
 
-        public DeploymentTask CurrentTask { get; private set; }
+        private readonly ConcurrentDictionary<string, IDeploymentService> _services =
+            new ConcurrentDictionary<string, IDeploymentService>();
+
+        private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
+        private readonly TimeoutHelper _timeoutHelper;
+        private readonly WorkerConfiguration _workerConfiguration;
+        private bool _isDisposed;
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
@@ -43,7 +44,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] IMediator mediator,
             [NotNull] WorkerConfiguration workerConfiguration,
             TimeoutHelper timeoutHelper,
-            ICustomClock clock, IServiceProvider serviceProvider)
+            ICustomClock clock,
+            IServiceProvider serviceProvider)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -59,9 +61,42 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _serviceProvider = serviceProvider;
         }
 
+        public DeploymentTask CurrentTask { get; private set; }
+
         public bool IsRunning { get; private set; }
 
         public string TargetId { get; }
+
+        public async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            CheckDisposed();
+
+            if (IsRunning)
+            {
+                return;
+            }
+
+            IsRunning = true;
+            var messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
+            await StartProcessingAsync(stoppingToken);
+            await messageTask;
+        }
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _isDisposed = true;
+            IsRunning = false;
+            ClearQueue();
+            _queue.SafeDispose();
+            _taskQueue.SafeDispose();
+            _loggingCompleted.SafeDispose();
+            _serviceAdded.SafeDispose();
+        }
 
         private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
         {
@@ -71,16 +106,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 await _serviceAdded.WaitAsync(stoppingToken);
 
-                if (!_services.TryGetValue(deploymentTask.DeploymentTaskId, out IDeploymentService? deploymentService))
+                if (!_services.TryGetValue(deploymentTask.DeploymentTaskId, out var deploymentService))
                 {
-                    throw new InvalidOperationException($"Could not get service associated to deployment task id {deploymentTask.DeploymentTaskId}");
+                    throw new InvalidOperationException(
+                        $"Could not get service associated to deployment task id {deploymentTask.DeploymentTaskId}");
                 }
 
                 while (!deploymentService.MessageQueue.IsCompleted)
                 {
                     if (!deploymentService.MessageQueue.TryTake(
-                            out (string Message, WorkTaskStatus Status) valueTuple,
-                            TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
+                        out (string Message, WorkTaskStatus Status) valueTuple,
+                        TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
                     {
                         deploymentService.MessageQueue.CompleteAdding();
                     }
@@ -121,7 +157,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                     if (!_services.TryAdd(deploymentTask.DeploymentTaskId, service))
                     {
-                        throw new InvalidOperationException($"Could not add deployment service for deployment task id {deploymentTask.DeploymentTaskId}");
+                        throw new InvalidOperationException(
+                            $"Could not add deployment service for deployment task id {deploymentTask.DeploymentTaskId}");
                     }
 
                     _serviceAdded.Set(false);
@@ -139,7 +176,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     using var combinedToken =
                         CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
 
-                    Core.Deployment.Messages.DeploymentTaskResult result =
+                    DeploymentTaskResult result =
                         await service.ExecuteDeploymentAsync(deploymentTask, _logger, combinedToken.Token);
 
                     if (result.ExitCode.IsSuccess)
@@ -220,7 +257,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                using CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10));
+                using CancellationTokenSource cts =
+                    _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10));
 
                 DeploymentTask[] tasksInQueue = _queue.ToArray();
 
@@ -248,7 +286,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         && CurrentTask.SemanticVersion == deploymentTask.SemanticVersion
                         && CurrentTask.PackageId == deploymentTask.PackageId)
                     {
-                        _logger.Warning("A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
+                        _logger.Warning(
+                            "A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}",
+                            CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
                         return;
                     }
@@ -259,7 +299,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                 nameof(AutoDeployBackgroundService),
                                 StringComparison.OrdinalIgnoreCase) == true))
                     {
-                        _logger.Warning("A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
+                        _logger.Warning(
+                            "A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}",
+                            CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
                         return;
                     }
@@ -289,37 +331,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             ClearQueue();
 
             return Task.CompletedTask;
-        }
-
-        public async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            CheckDisposed();
-
-            if (IsRunning)
-            {
-                return;
-            }
-
-            IsRunning = true;
-            var messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
-            await StartProcessingAsync(stoppingToken);
-            await messageTask;
-        }
-
-        public void Dispose()
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            _isDisposed = true;
-            IsRunning = false;
-            ClearQueue();
-            _queue.SafeDispose();
-            _taskQueue.SafeDispose();
-            _loggingCompleted.SafeDispose();
-            _serviceAdded.SafeDispose();
         }
 
         public IEnumerable<TaskInfo> QueueInfo()
@@ -364,7 +375,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out IDeploymentService? service) && !string.IsNullOrWhiteSpace(notification.Message))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out var service) &&
+                !string.IsNullOrWhiteSpace(notification.Message))
             {
                 service.Log(notification.Message);
             }
@@ -378,7 +390,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out IDeploymentService? service))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
             {
                 service.TaskDone(notification.DeploymentTaskId);
             }
@@ -392,7 +404,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out IDeploymentService? service))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
             {
                 service.TaskFailed(notification.DeploymentTaskId);
             }

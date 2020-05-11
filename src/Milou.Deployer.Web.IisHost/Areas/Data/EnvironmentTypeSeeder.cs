@@ -26,14 +26,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {
-            System.Collections.Immutable.ImmutableArray<EnvironmentType> types = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
+            var types = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
 
             if (!types.IsDefaultOrEmpty)
             {
                 return;
             }
 
-            CreateEnvironment[] commands = new[]
+            CreateEnvironment[] commands =
             {
                 new CreateEnvironment
                 {

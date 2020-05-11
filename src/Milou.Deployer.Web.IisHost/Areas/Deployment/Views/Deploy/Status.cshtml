@@ -31,7 +31,7 @@
         connection.on('@TargetHub.TargetsWithUpdates',
             (packageId, version, targets) => {
 
-                console.log("Update is available for package " + packageId + " version " + version + " for target " + targets.join(', '));
+                console.log(`Update is available for package ${packageId} version ${version} for target ${targets.join(', ')}`);
             });
 
         function htmlEscape(str) {

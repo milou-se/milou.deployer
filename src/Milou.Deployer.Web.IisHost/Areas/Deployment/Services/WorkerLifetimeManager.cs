@@ -14,14 +14,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     [UsedImplicitly]
     public class WorkerLifetimeManager : INotificationHandler<TargetCreated>
     {
+        private readonly ICustomClock _clock;
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly WorkerConfiguration _workerConfiguration;
-        private readonly TimeoutHelper _timeoutHelper;
-
-        private readonly ICustomClock _clock;
         private readonly IServiceProvider _serviceProvider;
+        private readonly TimeoutHelper _timeoutHelper;
+        private readonly WorkerConfiguration _workerConfiguration;
 
         public WorkerLifetimeManager(
             ConfigurationInstanceHolder configurationInstanceHolder,

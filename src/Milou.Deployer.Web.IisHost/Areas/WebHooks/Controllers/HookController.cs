@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +29,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
 
             if (!result.Handled)
             {
-                return BadRequest(new { Error = "Invalid web hook" });
+                return BadRequest(new {Error = "Invalid web hook"});
             }
 
             return Ok();

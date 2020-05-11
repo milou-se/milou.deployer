@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Host.Hosting;
@@ -7,6 +8,7 @@ using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -60,7 +62,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             ILogger logger,
             EnvironmentConfiguration environmentConfiguration)
         {
-            Microsoft.AspNetCore.Authentication.AuthenticationBuilder authenticationBuilder = serviceCollection
+            AuthenticationBuilder authenticationBuilder = serviceCollection
                 .AddAuthentication(
                     option =>
                     {
@@ -192,7 +194,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
 
-            foreach (System.Reflection.Assembly filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
+            foreach (Assembly filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
             {
                 logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
                 mvcBuilder.AddApplicationPart(filteredAssembly);

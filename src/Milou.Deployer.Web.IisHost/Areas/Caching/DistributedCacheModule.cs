@@ -10,10 +10,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
     {
         private readonly CacheSettings _cacheSettings;
 
-        public DistributedCacheModule(CacheSettings cacheSettings)
-        {
-            _cacheSettings = cacheSettings;
-        }
+        public DistributedCacheModule(CacheSettings cacheSettings) => _cacheSettings = cacheSettings;
 
         public IServiceCollection Register(IServiceCollection builder)
         {

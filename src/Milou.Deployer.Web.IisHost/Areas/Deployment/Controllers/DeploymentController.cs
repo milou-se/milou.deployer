@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Time;
@@ -50,11 +51,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             IReadOnlyCollection<DeploymentTarget> targets;
             try
             {
-                using System.Threading.CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30));
+                using CancellationTokenSource cts =
+                    _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30));
                 targets =
-(await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(
-organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-.SafeToReadOnlyCollection();
+                    (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(
+                        organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
+                    .SafeToReadOnlyCollection();
             }
             catch (Exception ex)
             {

@@ -66,17 +66,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             {
                 _deploymentService.Enqueue(deploymentTask);
 
-                return RedirectToAction(nameof(Status), new { deploymentTask.DeploymentTargetId });
+                return RedirectToAction(nameof(Status), new {deploymentTask.DeploymentTargetId});
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Could not finish deploy of task {DeploymentTask}", deploymentTask);
 
-                return new ContentResult
-                {
-                    Content = ex.ToString(),
-                    StatusCode = 500
-                };
+                return new ContentResult {Content = ex.ToString(), StatusCode = 500};
             }
         }
 

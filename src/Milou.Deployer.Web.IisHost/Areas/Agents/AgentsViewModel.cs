@@ -5,12 +5,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class AgentsViewModel
     {
+        public AgentsViewModel(ImmutableArray<AgentInfo> agents) => Agents = agents;
+
         public ImmutableArray<AgentInfo> Agents { get; }
-
-        public AgentsViewModel(ImmutableArray<AgentInfo> agents)
-        {
-            Agents = agents;
-        }
-
     }
 }

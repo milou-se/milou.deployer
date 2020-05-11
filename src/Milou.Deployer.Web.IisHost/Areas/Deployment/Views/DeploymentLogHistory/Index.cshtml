@@ -1,5 +1,4 @@
 ﻿@using Arbor.App.Extensions.Time
-@using Milou.Deployer.Web.Core.Deployment.WorkTasks
 @using Milou.Deployer.Web.Core.Extensions
 @using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentHistoryViewOutputModel
@@ -20,11 +19,11 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (DeploymentTaskInfo item in Model.DeploymentTasks)
+    @foreach (var item in Model.DeploymentTasks)
     {
         <tr>
             <td>
-                <a href="@Url.RouteUrl(DeploymentConstants.HistoryLogRouteName, new { deploymentTaskId = item.DeploymentTaskId })">
+                <a href="@Url.RouteUrl(DeploymentConstants.HistoryLogRouteName, new {deploymentTaskId = item.DeploymentTaskId})">
                     <span class="text-nowrap">@item.FinishedAtUtc.ToLocalTimeFormatted(Time)</span>
                 </a>
             </td>

@@ -64,13 +64,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         private ContainerArgs CreateRedis()
         {
-            var portMappings = new[] { PortMapping.MapSinglePort(26379, 6379) };
+            var portMappings = new[] {PortMapping.MapSinglePort(26379, 6379)};
             var redis = new ContainerArgs(
                 "redis",
                 "redistest",
                 portMappings,
                 args: new[] {"-v", "cachedata:/data"},
-                entryPoint: new[] { "redis-server", "--appendonly yes" }
+                entryPoint: new[] {"redis-server", "--appendonly yes"}
             );
 
             return redis;
@@ -78,11 +78,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         private static ContainerArgs CreateFtp()
         {
-            var ftpVariables = new Dictionary<string, string>
-            {
-                ["FTP_USER"] = "testuser",
-                ["FTP_PASS"] = "testpw",
-            };
+            var ftpVariables = new Dictionary<string, string> {["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw"};
 
             var passivePorts = new PortRange(21100, 21110);
 
@@ -111,10 +107,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var postgres = new ContainerArgs(
                 "postgres",
                 "postgres-deploy",
-                new List<PortMapping>
-                {
-                    PortMapping.MapSinglePort(5433, 5432)
-                },
+                new List<PortMapping> {PortMapping.MapSinglePort(5433, 5432)},
                 postgresVariables,
                 postgresArgs
             );
@@ -126,11 +119,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var smtp4Dev = new ContainerArgs(
                 "rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
-                new List<PortMapping>
-                {
-                    PortMapping.MapSinglePort(3125, 80),
-                    PortMapping.MapSinglePort(2526, 25)
-                },
+                new List<PortMapping> {PortMapping.MapSinglePort(3125, 80), PortMapping.MapSinglePort(2526, 25)},
                 new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
             );
             return smtp4Dev;

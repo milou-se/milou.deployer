@@ -8,6 +8,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
     [UsedImplicitly]
     public class EmailModule : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder) => builder.AddSingleton<ISmtpService, SmtpService>(this);
+        public IServiceCollection Register(IServiceCollection builder) =>
+            builder.AddSingleton<ISmtpService, SmtpService>(this);
     }
 }

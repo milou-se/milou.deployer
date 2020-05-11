@@ -37,7 +37,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         {
             await Task.Yield();
 
-            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+            ApplicationSettings applicationSettings =
+                await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
 
             if (!applicationSettings.HostAgentEnabled)
             {
@@ -50,7 +51,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             {
                 _logger.Debug("No agent exe has been specified");
 
-                SemanticVersion? currentVersion = await GetCurrentVersionAsync();
+                var currentVersion = await GetCurrentVersionAsync();
                 NuGetPackageVersion nuGetPackageVersion = currentVersion is {}
                     ? new NuGetPackageVersion(currentVersion)
                     : NuGetPackageVersion.LatestAvailable;
@@ -72,7 +73,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 }
 
                 DirectoryInfo targetDirectory = fileInfo.Directory.CreateSubdirectory("agent");
-                NuGetPackageInstallResult result = await _packageInstaller.InstallPackageAsync(nugetPackage, nugetPackageSettings,
+                NuGetPackageInstallResult result = await _packageInstaller.InstallPackageAsync(nugetPackage,
+                    nugetPackageSettings,
                     installBaseDirectory: targetDirectory, cancellationToken: stoppingToken);
 
                 if (result?.SemanticVersion is {})
@@ -88,7 +90,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
 
             _logger.Information("Starting agent as sub-process {Path}", applicationSettings.AgentExe);
-            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(
                 applicationSettings.AgentExe,
                 workingDirectory: new FileInfo(applicationSettings.AgentExe).Directory,
                 cancellationToken: stoppingToken);
@@ -122,7 +124,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                     key.Key.Equals(DeployerAppConstants.SemanticVersionNormalized, StringComparison.Ordinal))?.Value;
 
                 if (string.IsNullOrWhiteSpace(version) ||
-                    !SemanticVersion.TryParse(version, out SemanticVersion? semanticVersion))
+                    !SemanticVersion.TryParse(version, out var semanticVersion))
                 {
                     return default;
                 }

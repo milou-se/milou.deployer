@@ -57,7 +57,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
             }
 
 
-            TimeSpan cacheEntryAbsoluteExpirationRelativeToNow =
+            var cacheEntryAbsoluteExpirationRelativeToNow =
                 cacheTime?.TotalSeconds > 0
                     ? cacheTime.Value
                     : TimeSpan.FromSeconds(900);

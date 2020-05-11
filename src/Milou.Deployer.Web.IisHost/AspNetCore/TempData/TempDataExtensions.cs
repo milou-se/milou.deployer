@@ -40,7 +40,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
         {
             try
             {
-
                 if (tempData is null)
                 {
                     return default;
@@ -53,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                     return default;
                 }
 
-                tempData.TryGetValue(key, out object? o);
+                tempData.TryGetValue(key, out var o);
 
                 switch (o)
                 {

@@ -26,11 +26,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         INotificationHandler<AgentDeploymentDoneNotification>,
         INotificationHandler<AgentDeploymentFailedNotification>
     {
+        private readonly AgentsData _agents;
         private readonly Dictionary<string, CancellationTokenSource> _cancellations;
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly AgentsData _agents;
         private readonly Dictionary<string, Task> _tasks;
 
         public DeploymentWorkerService(
@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(AgentDeploymentDoneNotification notification, CancellationToken cancellationToken)
         {
-            DeploymentTargetWorker? workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
+            var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             workerByTargetId?.NotifyDeploymentDone(notification);
 
@@ -60,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(AgentDeploymentFailedNotification notification, CancellationToken cancellationToken)
         {
-            DeploymentTargetWorker? workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
+            var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             workerByTargetId?.NotifyDeploymentFailed(notification);
 
@@ -71,7 +71,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(AgentLogNotification notification, CancellationToken cancellationToken)
         {
-            DeploymentTargetWorker? workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
+            var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             workerByTargetId?.LogProgress(notification);
 
@@ -148,7 +148,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
         {
-            DeploymentTargetWorker? foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
+            var foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
 
             Task.Run<Task>(() => _mediator.Publish(new DeploymentTaskCreatedNotification(deploymentTask)));
 
@@ -169,7 +169,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
                 .ToImmutableArray();
 
-            foreach (DeploymentTargetWorker? deploymentTargetWorker in deploymentTargetWorkers)
+            foreach (var deploymentTargetWorker in deploymentTargetWorkers)
             {
                 StartWorker(deploymentTargetWorker, stoppingToken);
             }

@@ -45,14 +45,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
             IPNetwork[] ipNetworksFromConfig = keyValueConfiguration[DeployerAppConstants.AllowedIpNetworks]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(network => (HasValue: IpNetworkParser.TryParse(network, out IPNetwork? ipNetwork), ipNetwork))
+                .Select(network => (HasValue: IpNetworkParser.TryParse(network, out var ipNetwork), ipNetwork))
                 .Where(network => network.HasValue)
                 .Select(network => network.ipNetwork)
                 .ToArray();
 
             _allowedNetworks = ipNetworksFromConfig.ToImmutableHashSet();
 
-            _allowed = new HashSet<IPAddress> { IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1") };
+            _allowed = new HashSet<IPAddress> {IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1")};
 
             foreach (IPAddress address in ipAddressesFromConfig)
             {
@@ -79,7 +79,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 {
                     EmailAddress?[] matches = emailClaims.Select(claim =>
                         {
-                            bool parsed = EmailAddress.TryParse(claim.Value, out EmailAddress? parsedAddress);
+                            bool parsed = EmailAddress.TryParse(claim.Value, out var parsedAddress);
 
                             if (!parsed)
                             {
@@ -165,7 +165,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 return Task.CompletedTask;
             }
 
-            ImmutableArray<IPAddress> dynamicIpAddresses = AllowedIpAddressHandler.IpAddresses;
+            var dynamicIpAddresses = AllowedIpAddressHandler.IpAddresses;
 
             var allAddresses = _allowed
                 .Concat(dynamicIpAddresses)

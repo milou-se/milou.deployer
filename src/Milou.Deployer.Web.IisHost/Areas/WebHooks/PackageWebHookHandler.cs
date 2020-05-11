@@ -5,18 +5,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using MediatR;
-
 using Microsoft.AspNetCore.Http;
+using Milou.Deployer.Web.Core.NuGet;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
-    public class PackageWebHookHandler {
+    public class PackageWebHookHandler
+    {
         private readonly ILogger _logger;
 
-        private readonly ImmutableArray<IPackageWebHook> _packageWebHooks;
-
         private readonly IMediator _mediator;
+
+        private readonly ImmutableArray<IPackageWebHook> _packageWebHooks;
 
         public PackageWebHookHandler(
             IEnumerable<IPackageWebHook> packageWebHooks,
@@ -53,7 +54,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                 try
                 {
-                    Core.NuGet.PackageEventNotification webHookNotification =
+                    PackageEventNotification webHookNotification =
                         await packageWebHook.TryGetWebHookNotification(request, content, cancellationToken);
 
                     if (webHookNotification is null)
@@ -63,7 +64,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                     handled = true;
 
-                    _logger.Information("Web hook successfully handled by {Handler}", packageWebHook.GetType().FullName);
+                    _logger.Information("Web hook successfully handled by {Handler}",
+                        packageWebHook.GetType().FullName);
 
                     await Task.Run(() => _mediator.Publish(webHookNotification, cancellationToken), cancellationToken);
 

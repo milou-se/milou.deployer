@@ -19,9 +19,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
         [HttpGet]
         public async Task<IActionResult> Index([FromServices] IDeploymentTargetReadService deploymentTargetReadService)
         {
-            System.Collections.Immutable.ImmutableArray<Core.Deployment.Targets.OrganizationInfo> organizations = await deploymentTargetReadService.GetOrganizationsAsync();
+            var organizations = await deploymentTargetReadService.GetOrganizationsAsync();
 
-            CreateOrganizationResult? createOrganizationResult = TempData.Get<CreateOrganizationResult>();
+            var createOrganizationResult = TempData.Get<CreateOrganizationResult>();
 
             return View(new OrganizationsViewOutputModel(organizations, createOrganizationResult));
         }

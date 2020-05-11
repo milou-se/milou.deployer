@@ -23,7 +23,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Views.Settings
             Order = order;
         }
 
-        public static ImmutableArray<SettingsViewModule> All => EnumerableOf<SettingsViewModule>.All.OrderBy(module => module.Order).ToImmutableArray();
+        public static ImmutableArray<SettingsViewModule> All => EnumerableOf<SettingsViewModule>.All
+            .OrderBy(module => module.Order).ToImmutableArray();
 
         public string InvariantName { get; }
 

@@ -1,10 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-
 using JetBrains.Annotations;
-
 using MediatR;
-
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
 
@@ -15,7 +12,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
     {
         private readonly IApplicationSettingsStore _settingsStore;
 
-        public UpdateSettingsHandler(IApplicationSettingsStore martenSettingsStore) => _settingsStore = martenSettingsStore;
+        public UpdateSettingsHandler(IApplicationSettingsStore martenSettingsStore) =>
+            _settingsStore = martenSettingsStore;
 
         public async Task<Unit> Handle(UpdateSettings request, CancellationToken cancellationToken)
         {
@@ -39,7 +37,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.AutoDeploy.PollingEnabled = request.AutoDeploy.PollingEnabled;
             }
 
-            if (request.ApplicationSettingsCacheTimeout.HasValue && request.ApplicationSettingsCacheTimeout.Value.TotalSeconds >= 0.5D)
+            if (request.ApplicationSettingsCacheTimeout.HasValue &&
+                request.ApplicationSettingsCacheTimeout.Value.TotalSeconds >= 0.5D)
             {
                 applicationSettings.ApplicationSettingsCacheTimeout = request.ApplicationSettingsCacheTimeout.Value;
             }

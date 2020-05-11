@@ -24,7 +24,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         [PublicAPI]
         public async Task Invoke(HttpContext httpContext)
         {
-            if (_context.IsCompleted || httpContext.Request.Path.StartsWithSegments(_startupSegment, StringComparison.OrdinalIgnoreCase))
+            if (_context.IsCompleted ||
+                httpContext.Request.Path.StartsWithSegments(_startupSegment, StringComparison.OrdinalIgnoreCase))
             {
                 await _next(httpContext);
             }

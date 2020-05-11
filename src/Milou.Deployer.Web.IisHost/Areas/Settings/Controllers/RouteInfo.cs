@@ -19,6 +19,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         public string RouteName => Name + "Name";
 
-        public bool IsLinkable() => !Value.Contains("{", StringComparison.InvariantCulture) && !Name.Contains("Post", StringComparison.Ordinal);
+        public bool IsLinkable() => !Value.Contains("{", StringComparison.InvariantCulture) &&
+                                    !Name.Contains("Post", StringComparison.Ordinal);
     }
 }

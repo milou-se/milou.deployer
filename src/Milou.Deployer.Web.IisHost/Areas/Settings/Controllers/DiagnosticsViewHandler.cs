@@ -30,17 +30,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
     {
         private readonly IConfiguration _aspNetConfiguration;
         private readonly MultiSourceKeyValueConfiguration _configuration;
+        private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
 
         [NotNull]
         private readonly EnvironmentConfiguration _environmentConfiguration;
 
+        private readonly ILogger _logger;
+
         private readonly LoggingLevelSwitch _loggingLevelSwitch;
         private readonly ServiceDiagnostics _serviceDiagnostics;
 
         private readonly IServiceProvider _serviceProvider;
-        private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
-        private readonly ILogger _logger;
 
         private readonly IApplicationSettingsStore _settingsStore;
 
@@ -68,6 +69,115 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _configurationInstanceHolder = configurationInstanceHolder;
             _logger = logger;
             _settingsStore = settingsStore;
+        }
+
+        public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
+        {
+            var routesWithController =
+                RouteList.GetRoutesWithController(ApplicationAssemblies.FilteredAssemblies());
+
+            var configurationValues = new ConfigurationInfo(_configuration.SourceChain,
+                _configuration.AllKeys
+                    .OrderBy(key => key)
+                    .Select(key =>
+                        new ConfigurationKeyInfo(key,
+                            _configuration[key].MakeAnonymous(key,
+                                ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()),
+                            _configuration.ConfiguratorFor(key).GetType().Name))
+                    .ToImmutableArray());
+
+
+            IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues = _aspNetConfiguration
+                .AsEnumerable()
+                .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
+                .Select(pair =>
+                    new KeyValuePair<string, string>(pair.Key,
+                        pair.Value.MakeAnonymous(pair.Key,
+                            ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())));
+
+            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
+
+            var serviceDiagnosticsRegistrations = _serviceDiagnostics.Registrations;
+
+            IKeyValueConfiguration applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
+
+            ServiceInstance? GetInstance(ServiceRegistrationInfo serviceRegistrationInfo)
+            {
+                Type registrationType = serviceRegistrationInfo.ServiceDescriptorServiceType;
+
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationInstance is {})
+                {
+                    return new ServiceInstance(registrationType,
+                        serviceRegistrationInfo.ServiceDescriptorImplementationInstance,
+                        serviceRegistrationInfo.Module);
+                }
+
+                if (serviceRegistrationInfo.Factory is {})
+                {
+                    try
+                    {
+                        return new ServiceInstance(
+                            registrationType,
+                            serviceRegistrationInfo.Factory(_serviceProvider),
+                            serviceRegistrationInfo.Module);
+                    }
+                    catch (Exception ex)
+                    {
+                        return new ServiceInstance(registrationType, ex, serviceRegistrationInfo.Module);
+                    }
+                }
+
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationType.IsGenericType)
+                {
+                    return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
+                }
+
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationType?.Namespace?.StartsWith(
+                    "Microsoft.AspNetCore.Mvc.ViewFeatures.RazorComponents") == true)
+                {
+                    return new ServiceInstance(registrationType, "Razor", serviceRegistrationInfo.Module);
+                }
+
+                try
+                {
+                    object instance =
+                        _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
+
+                    return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    _logger.Error(ex,
+                        "Could not get instance form registration type {Type}",
+                        serviceRegistrationInfo.ServiceDescriptorImplementationType.FullName);
+                    return default;
+                }
+            }
+
+            ImmutableArray<DeploymentTargetWorker> deploymentTargetWorkers = _configurationInstanceHolder
+                .GetInstances<DeploymentTargetWorker>().Values
+                .Where(item => item is {})
+                .SafeToImmutableArray()!;
+
+            ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
+
+            var settingsViewModel = new SettingsViewModel(
+                _deploymentTargetReadService.GetType().Name,
+                routesWithController,
+                configurationValues,
+                serviceDiagnosticsRegistrations,
+                aspNetConfigurationValues,
+                serviceDiagnosticsRegistrations
+                    .Select(GetInstance)
+                    .Where(item => item is {})
+                    .ToImmutableArray(),
+                _loggingLevelSwitch.MinimumLevel,
+                applicationVersionInfo,
+                applicationMetadata,
+                deploymentTargetWorkers,
+                applicationSettings);
+
+            return settingsViewModel;
         }
 
         private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
@@ -114,112 +224,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             }
 
             return new InMemoryKeyValueConfiguration(values);
-        }
-
-        public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
-        {
-            ImmutableArray<ControllerRouteInfo> routesWithController =
-                RouteList.GetRoutesWithController(ApplicationAssemblies.FilteredAssemblies());
-
-            var configurationValues = new ConfigurationInfo(_configuration.SourceChain,
-                _configuration.AllKeys
-                    .OrderBy(key => key)
-                    .Select(key =>
-                        new ConfigurationKeyInfo(key,
-                            _configuration[key].MakeAnonymous(key, ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()),
-                            _configuration.ConfiguratorFor(key).GetType().Name))
-                    .ToImmutableArray());
-
-
-            IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues = _aspNetConfiguration
-                .AsEnumerable()
-                .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
-                .Select(pair =>
-                    new KeyValuePair<string, string>(pair.Key,
-                        pair.Value.MakeAnonymous(pair.Key, ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())));
-
-            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
-
-            ImmutableArray<ServiceRegistrationInfo> serviceDiagnosticsRegistrations = _serviceDiagnostics.Registrations;
-
-            IKeyValueConfiguration applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
-
-            ServiceInstance? GetInstance(ServiceRegistrationInfo serviceRegistrationInfo)
-            {
-                Type registrationType = serviceRegistrationInfo.ServiceDescriptorServiceType;
-
-                if (serviceRegistrationInfo.ServiceDescriptorImplementationInstance is {})
-                {
-                    return new ServiceInstance(registrationType,
-                        serviceRegistrationInfo.ServiceDescriptorImplementationInstance,
-                        serviceRegistrationInfo.Module);
-                }
-
-                if (serviceRegistrationInfo.Factory is {})
-                {
-                    try
-                    {
-                        return new ServiceInstance(
-                            registrationType,
-                            serviceRegistrationInfo.Factory(_serviceProvider),
-                            serviceRegistrationInfo.Module);
-                    }
-                    catch (Exception ex)
-                    {
-                        return new ServiceInstance(registrationType, ex, serviceRegistrationInfo.Module);
-                    }
-                }
-
-                if (serviceRegistrationInfo.ServiceDescriptorImplementationType.IsGenericType)
-                {
-                    return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
-                }
-
-                if (serviceRegistrationInfo.ServiceDescriptorImplementationType?.Namespace?.StartsWith(
-                        "Microsoft.AspNetCore.Mvc.ViewFeatures.RazorComponents") == true)
-                {
-                    return new ServiceInstance(registrationType, "Razor", serviceRegistrationInfo.Module);
-                }
-
-                try
-                {
-                    object instance =
-                        _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
-
-                    return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    _logger.Error(ex,
-                        "Could not get instance form registration type {Type}",
-                        serviceRegistrationInfo.ServiceDescriptorImplementationType.FullName);
-                    return default;
-                }
-            }
-
-            ImmutableArray<DeploymentTargetWorker> deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
-                .Where(item => item is {})
-                .SafeToImmutableArray()!;
-
-            ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
-
-            var settingsViewModel = new SettingsViewModel(
-                _deploymentTargetReadService.GetType().Name,
-                routesWithController,
-                configurationValues,
-                serviceDiagnosticsRegistrations,
-                aspNetConfigurationValues,
-                serviceDiagnosticsRegistrations
-                    .Select(GetInstance)
-                    .Where(item => item is {})
-                    .ToImmutableArray(),
-                _loggingLevelSwitch.MinimumLevel,
-                applicationVersionInfo,
-                applicationMetadata,
-                deploymentTargetWorkers,
-                applicationSettings);
-
-            return settingsViewModel;
         }
     }
 }

@@ -6,18 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using JetBrains.Annotations;
-
 using Microsoft.AspNetCore.Http;
-
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Integration.Nexus;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Settings;
-
 using Newtonsoft.Json;
-
 using NuGet.Versioning;
-
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
@@ -53,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            if (!request.Headers.TryGetValue(NexusSignatureHeader, out Microsoft.Extensions.Primitives.StringValues signature))
+            if (!request.Headers.TryGetValue(NexusSignatureHeader, out var signature))
             {
                 _logger.Debug("Web hook request does not contain nexus signature header");
                 return null;
@@ -77,7 +72,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             if (string.IsNullOrWhiteSpace(nexusConfig.HmacKey))
             {
-                _logger.Warning("HMAC Key for {Config} is empty, cannot process Nexus web hook request", nameof(NexusConfig));
+                _logger.Warning("HMAC Key for {Config} is empty, cannot process Nexus web hook request",
+                    nameof(NexusConfig));
                 return null;
             }
 
@@ -91,7 +87,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            NexusWebHookNotification webHookNotification = JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
+            NexusWebHookNotification webHookNotification =
+                JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
 
             if (string.IsNullOrWhiteSpace(webHookNotification?.Audit?.Attributes?.Name))
             {
@@ -99,11 +96,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            string[] split = webHookNotification.Audit.Attributes.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string[] split =
+                webHookNotification.Audit.Attributes.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             if (split.Length != 2)
             {
-                _logger.Debug("Unexpected attribute name value '{Name}' in Nexus JSON {Json}", webHookNotification.Audit.Attributes.Name, content);
+                _logger.Debug("Unexpected attribute name value '{Name}' in Nexus JSON {Json}",
+                    webHookNotification.Audit.Attributes.Name, content);
                 return null;
             }
 
@@ -112,19 +111,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             if (!SemanticVersion.TryParse(version, out SemanticVersion semanticVersion))
             {
-                _logger.Debug("Could not parse semantic version from Nexus web hook notification, '{Version}'", version);
+                _logger.Debug("Could not parse semantic version from Nexus web hook notification, '{Version}'",
+                    version);
                 return null;
             }
 
             var packageVersion = new PackageVersion(name, semanticVersion);
-            _logger.Information("Successfully received Nexus web hook notification for package {Package}", packageVersion);
+            _logger.Information("Successfully received Nexus web hook notification for package {Package}",
+                packageVersion);
 
             return new PackageEventNotification(packageVersion, nexusConfig.NuGetSource, nexusConfig.NuGetConfig);
         }
 
         private async Task<NexusConfig> GetSignatureKeyAsync(CancellationToken cancellationToken)
         {
-            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings =
+                await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
 
             NexusConfig nexusConfig = applicationSettings.NexusConfig;
 

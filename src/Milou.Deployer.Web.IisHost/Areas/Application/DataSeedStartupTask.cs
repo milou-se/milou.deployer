@@ -24,8 +24,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly IKeyValueConfiguration _configuration;
         private readonly ImmutableArray<IDataSeeder> _dataSeeders;
         private readonly ILogger _logger;
-        private readonly TimeoutHelper _timeoutHelper;
         private readonly IDocumentStore? _store;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public DataSeedStartupTask(
             IEnumerable<IDataSeeder> dataSeeders,
@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     {
                         using var session = _store.OpenSession();
 
-                        await session.Query<DeploymentTargetData>().ToListAsync(token: cancellationToken);
+                        await session.Query<DeploymentTargetData>().ToListAsync(cancellationToken);
 
                         retry = false;
                     }
@@ -107,8 +107,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     using CancellationTokenSource startupToken =
                         _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds));
                     using var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
-cancellationToken,
-startupToken.Token);
+                        cancellationToken,
+                        startupToken.Token);
                     _logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
                     await dataSeeder.SeedAsync(linkedToken.Token);
                 }

@@ -59,7 +59,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (useCache)
             {
-                var packages =await _memoryCache.Get<PackageVersions>(cacheKey, cancellationToken);
+                var packages = await _memoryCache.Get<PackageVersions>(cacheKey, cancellationToken);
                 _logger.Debug(
                     "Returning packages from cache with key {Key} for package id {PackageId}",
                     cacheKey,
@@ -67,7 +67,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                 if (packages?.Versions?.Length > 0)
                 {
-                    return packages.Versions.Select(version => new PackageVersion(packageId, SemanticVersion.Parse(version))).ToImmutableArray();
+                    return packages.Versions
+                        .Select(version => new PackageVersion(packageId, SemanticVersion.Parse(version)))
+                        .ToImmutableArray();
                 }
             }
 

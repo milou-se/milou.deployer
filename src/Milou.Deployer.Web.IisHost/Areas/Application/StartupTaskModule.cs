@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.DependencyInjection;
@@ -13,11 +15,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            System.Collections.Generic.IEnumerable<System.Type> startupTaskTypes = ApplicationAssemblies.FilteredAssemblies()
+            IEnumerable<Type> startupTaskTypes = ApplicationAssemblies.FilteredAssemblies()
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(t => t.IsPublicConcreteTypeImplementing<IStartupTask>());
 
-            foreach (System.Type startupTask in startupTaskTypes)
+            foreach (Type startupTask in startupTaskTypes)
             {
                 builder.AddSingleton<IStartupTask>(context => context.GetService(startupTask), this);
 

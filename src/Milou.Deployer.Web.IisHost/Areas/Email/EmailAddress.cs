@@ -1,5 +1,4 @@
 ﻿using System;
-
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Email
@@ -11,10 +10,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 
         public string Address { get; }
 
-
-        public override string ToString() => $"{nameof(Address)}: {Address}, {nameof(IsValid)}: {IsValid}";
-
         public bool IsValid => !string.IsNullOrWhiteSpace(Address)
                                && Address.Contains("@", StringComparison.OrdinalIgnoreCase);
+
+
+        public override string ToString() => $"{nameof(Address)}: {Address}, {nameof(IsValid)}: {IsValid}";
     }
 }

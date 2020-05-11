@@ -52,14 +52,7 @@ Version: {notification.DeploymentTask.SemanticVersion.ToNormalizedString()}
 Log: {string.Join(Environment.NewLine, notification.LogLines.Select(line => line.Message))}
 ";
 
-            var message = new MimeMessage
-            {
-                Body = new TextPart("plain")
-                {
-                    Text = body
-                },
-                Subject = subject
-            };
+            var message = new MimeMessage {Body = new TextPart("plain") {Text = body}, Subject = subject};
 
             foreach (EmailAddress email in _emailNotificationConfiguration.To)
             {

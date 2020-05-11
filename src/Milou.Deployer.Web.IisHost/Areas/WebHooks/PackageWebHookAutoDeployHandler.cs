@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using JetBrains.Annotations;
-
 using MediatR;
-
+using Milou.Deployer.Web.Core.Application.Metadata;
+using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
-
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
@@ -20,13 +21,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
     [UsedImplicitly]
     public class PackageWebHookAutoDeployHandler : INotificationHandler<PackageEventNotification>
     {
+        private readonly IApplicationSettingsStore _applicationSettingsStore;
         private readonly DeploymentWorkerService _deploymentService;
 
         private readonly ILogger _logger;
 
         private readonly MonitoringService _monitoringService;
-
-        private readonly IApplicationSettingsStore _applicationSettingsStore;
 
         private readonly IDeploymentTargetReadService _targetSource;
 
@@ -52,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return;
             }
 
-            Core.Deployment.Packages.PackageVersion packageIdentifier = notification.PackageVersion;
+            PackageVersion packageIdentifier = notification.PackageVersion;
 
             if (packageIdentifier is null)
             {
@@ -61,11 +61,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             _logger.Information("Received hook for package {Package}", packageIdentifier);
 
-            System.Collections.Generic.IReadOnlyCollection<Core.Deployment.DeploymentTarget> deploymentTargets =
+            IReadOnlyCollection<DeploymentTarget> deploymentTargets =
                 (await _targetSource.GetDeploymentTargetsAsync(stoppingToken: cancellationToken))
                 .SafeToReadOnlyCollection();
 
-            Core.Deployment.DeploymentTarget[] withAutoDeploy = deploymentTargets.Where(target => target.AutoDeployEnabled).ToArray();
+            DeploymentTarget[] withAutoDeploy = deploymentTargets.Where(target => target.AutoDeployEnabled).ToArray();
 
             if (!withAutoDeploy.Any())
             {
@@ -73,7 +73,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             }
             else
             {
-                foreach (Core.Deployment.DeploymentTarget deploymentTarget in withAutoDeploy)
+                foreach (DeploymentTarget deploymentTarget in withAutoDeploy)
                 {
                     if (deploymentTarget.PackageId.Equals(
                         packageIdentifier.PackageId,
@@ -98,9 +98,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                         if (allowDeployment)
                         {
-                            Core.Application.Metadata.AppVersion metadata = await _monitoringService.GetAppMetadataAsync(
-                                               deploymentTarget,
-                                               cancellationToken);
+                            AppVersion metadata = await _monitoringService.GetAppMetadataAsync(
+                                deploymentTarget,
+                                cancellationToken);
 
                             if (metadata.SemanticVersion is {})
                             {
@@ -111,12 +111,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                         packageIdentifier,
                                         deploymentTarget.Name);
 
-                                            _deploymentService.Enqueue(
-                                                new DeploymentTask(
-                                                    packageIdentifier,
-                                                    deploymentTarget.Id,
-                                                    Guid.NewGuid(),
-                                                    "Web hook auto deploy"));
+                                    _deploymentService.Enqueue(
+                                        new DeploymentTask(
+                                            packageIdentifier,
+                                            deploymentTarget.Id,
+                                            Guid.NewGuid(),
+                                            "Web hook auto deploy"));
 
                                     _logger.Information(
                                         "Successfully enqueued package {PackageIdentifier} to target {Name} from web hook",

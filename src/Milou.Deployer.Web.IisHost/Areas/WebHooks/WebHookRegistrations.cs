@@ -1,9 +1,7 @@
 ﻿using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.DependencyInjection;
 using JetBrains.Annotations;
-
 using Microsoft.Extensions.DependencyInjection;
-
 using Milou.Deployer.Web.Core;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
@@ -13,6 +11,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
     {
         public IServiceCollection Register(IServiceCollection builder) =>
             builder.AddSingleton<PackageWebHookHandler>()
-                .RegisterAssemblyTypes<IPackageWebHook>(ApplicationAssemblies.FilteredAssemblies(), ServiceLifetime.Singleton);
+                .RegisterAssemblyTypes<IPackageWebHook>(ApplicationAssemblies.FilteredAssemblies(),
+                    ServiceLifetime.Singleton);
     }
 }

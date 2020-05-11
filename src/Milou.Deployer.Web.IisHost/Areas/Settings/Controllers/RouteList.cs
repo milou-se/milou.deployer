@@ -43,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 .Select(GetControllerActions)
                 .ToImmutableArray();
 
-            ImmutableArray<RouteInfo> constantRoutes = GetConstantRoutes(assemblies);
+            var constantRoutes = GetConstantRoutes(assemblies);
 
             var controllerRoutes = constantRoutes.Select(route => new ControllerRouteInfo(route,
                 controllerActions.SingleOrDefault(s =>

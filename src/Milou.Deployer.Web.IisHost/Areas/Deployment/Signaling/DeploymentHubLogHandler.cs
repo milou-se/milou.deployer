@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,11 +15,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
     {
         private readonly IHubContext<TargetHub> _hubContext;
 
-        public DeploymentHubLogHandler([NotNull] IHubContext<TargetHub> hubContext) => _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+        public DeploymentHubLogHandler([NotNull] IHubContext<TargetHub> hubContext) =>
+            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
 
         public async Task Handle(DeploymentLogNotification notification, CancellationToken cancellationToken)
         {
-            System.Collections.Immutable.ImmutableHashSet<string> tryGetTargetSubscribers =
+            ImmutableHashSet<string> tryGetTargetSubscribers =
                 DeploymentLogSubscriptionHandler.TryGetTargetSubscribers(notification.DeploymentTargetId);
 
             if (tryGetTargetSubscribers.Count == 0)

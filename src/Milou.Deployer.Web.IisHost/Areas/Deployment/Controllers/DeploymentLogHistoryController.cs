@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [FromRoute] string deploymentTaskId,
             [FromQuery] string? level = null)
         {
-            Serilog.Events.LogEventLevel usedLevel = level.ParseOrDefault();
+            var usedLevel = level.ParseOrDefault();
 
             DeploymentLogResponse response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId, usedLevel));
 

@@ -40,14 +40,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
                 if (agentInfo is {})
                 {
-                    _logger.Information("Deployment task {DeploymentTaskId} was assigned to agent {Agent}", deploymentTask.DeploymentTaskId, agentInfo.Id);
+                    _logger.Information("Deployment task {DeploymentTaskId} was assigned to agent {Agent}",
+                        deploymentTask.DeploymentTaskId, agentInfo.Id);
                     string agentId = agentInfo.Id;
                     _agents.AgentAssigned(agentId, deploymentTask.DeploymentTaskId);
 
                     return new RemoteDeploymentPackageAgent(_agentHub, _agents, agentId);
                 }
 
-                _logger.Debug("Waiting for agent to be available for deployment task {DeploymentTaskId}", deploymentTask.DeploymentTaskId);
+                _logger.Debug("Waiting for agent to be available for deployment task {DeploymentTaskId}",
+                    deploymentTask.DeploymentTaskId);
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
 

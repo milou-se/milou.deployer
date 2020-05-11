@@ -3,7 +3,7 @@
 
 <h1>Settings</h1>
 
-@foreach (SettingsViewModule module in SettingsViewModule.All)
+@foreach (var module in SettingsViewModule.All)
 {
     <div class="tab" id="@module.InvariantName">
         @module.InvariantName
@@ -11,12 +11,10 @@
 }
 
 <div class="tab-contents">
-    @foreach (SettingsViewModule module in SettingsViewModule.All)
+    @foreach (var module in SettingsViewModule.All)
     {
         <div class="tab-content" id="tab-content-@module.InvariantName">
             @await Html.PartialAsync(module.InvariantName, Model)
         </div>
     }
 </div>
-
-

@@ -39,7 +39,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, request.AgentName),
-                new Claim(ClaimTypes.Name, request.AgentName),
+                new Claim(ClaimTypes.Name, request.AgentName)
             };
 
             SecurityTokenDescriptor securityTokenDescriptor = new SecurityTokenDescriptor

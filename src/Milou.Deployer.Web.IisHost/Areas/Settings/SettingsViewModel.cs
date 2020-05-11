@@ -29,8 +29,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             AspNetConfigurationValues = aspNetConfigurationValues.OrderBy(x => x.Key).ToImmutableArray();
             TargetReadService = targetReadService;
             ConfigurationInfo = configurationInfo;
-            RegistrationInstances = registrationInstances.OrderBy(serviceInstance => serviceInstance.RegistrationType.FullName).ToImmutableArray();
-            ServiceRegistrations = serviceRegistrations.OrderBy(serviceRegistrationInfo => serviceRegistrationInfo.ServiceDescriptorServiceType.FullName)
+            RegistrationInstances = registrationInstances
+                .OrderBy(serviceInstance => serviceInstance.RegistrationType.FullName).ToImmutableArray();
+            ServiceRegistrations = serviceRegistrations.OrderBy(serviceRegistrationInfo =>
+                    serviceRegistrationInfo.ServiceDescriptorServiceType.FullName)
                 .ToImmutableArray();
             LogEventLevel = logEventLevel;
             ApplicationVersionInfo = applicationVersionInfo;

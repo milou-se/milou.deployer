@@ -18,9 +18,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
     public class NuGetSeeder : IDataSeeder
     {
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
+        private readonly IEnvironmentTypeService _environmentTypeService;
 
         private readonly ILogger _logger;
-        private readonly IEnvironmentTypeService _environmentTypeService;
         private readonly IMediator _mediator;
 
         public NuGetSeeder(
@@ -39,12 +39,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
         {
             try
             {
-                System.Collections.Immutable.ImmutableArray<Core.Deployment.EnvironmentType> environmentTypes = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
+                var environmentTypes = await _environmentTypeService.GetEnvironmentTypes(cancellationToken);
 
-                System.Collections.Immutable.ImmutableArray<Core.Deployment.DeploymentTarget> targets =
+                var targets =
                     await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
 
-                foreach (Core.Deployment.DeploymentTarget deploymentTarget in targets)
+                foreach (DeploymentTarget deploymentTarget in targets)
                 {
                     await UpdateTarget(cancellationToken, deploymentTarget, environmentTypes);
                 }
@@ -54,6 +54,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                 _logger.Error(ex, "Could not run seeder task");
             }
         }
+
+        public int Order => int.MaxValue;
 
         private async Task UpdateTarget(CancellationToken cancellationToken,
             DeploymentTarget deploymentTarget,
@@ -67,7 +69,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
             {
                 string configuration = environmentConfiguration.Trim();
 
-                Core.Deployment.EnvironmentType foundType = environmentTypes.SingleOrDefault(type =>
+                EnvironmentType foundType = environmentTypes.SingleOrDefault(type =>
                     type.Name.Trim().Equals(configuration,
                         StringComparison.OrdinalIgnoreCase));
 
@@ -101,7 +103,5 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
 
             await _mediator.Send(updateDeploymentTarget, cancellationToken);
         }
-
-        public int Order => int.MaxValue;
     }
 }

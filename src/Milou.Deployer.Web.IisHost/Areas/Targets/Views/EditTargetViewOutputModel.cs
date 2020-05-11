@@ -5,7 +5,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Views
 {
     public class EditTargetViewOutputModel
     {
-        public EditTargetViewOutputModel(DeploymentTarget deploymentTarget, ImmutableArray<EnvironmentType> environmentTypes)
+        public EditTargetViewOutputModel(DeploymentTarget deploymentTarget,
+            ImmutableArray<EnvironmentType> environmentTypes)
         {
             DeploymentTarget = deploymentTarget;
             EnvironmentTypes = environmentTypes;

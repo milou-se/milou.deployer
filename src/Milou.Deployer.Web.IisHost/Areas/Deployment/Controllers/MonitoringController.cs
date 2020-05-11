@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Arbor.App.Extensions;
 using Arbor.App.Extensions.Time;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -37,12 +39,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [Route("~/status")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            System.Collections.Generic.IReadOnlyCollection<DeploymentTarget> targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
+            IReadOnlyCollection<DeploymentTarget> targets =
+                (await _targetSource.GetOrganizationsAsync(cancellationToken))
                 .SelectMany(
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
                 .SafeToReadOnlyCollection();
 
-            System.Collections.Generic.IReadOnlyCollection<Core.Application.Metadata.AppVersion> appVersions =
+            IReadOnlyCollection<AppVersion> appVersions =
                 await _monitoringService.GetAppMetadataAsync(targets, cancellationToken);
 
             return View(new MonitoringViewOutputModel(appVersions));
@@ -58,7 +61,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         public async Task<IActionResult> Targets(CancellationToken cancellationToken,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            System.Collections.Immutable.ImmutableArray<EnvironmentType> environmentTypes = await environmentTypeService.GetEnvironmentTypes(cancellationToken);
+            var environmentTypes = await environmentTypeService.GetEnvironmentTypes(cancellationToken);
 
             var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
                 .SelectMany(
@@ -66,14 +69,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 .Select(deploymentTarget =>
                 {
                     string editUrl = Url.RouteUrl(TargetConstants.EditTargetRouteName,
-                        new { deploymentTargetId = deploymentTarget.Id });
+                        new {deploymentTargetId = deploymentTarget.Id});
                     string historyUrl = Url.RouteUrl(DeploymentConstants.HistoryRouteName,
-                        new { deploymentTargetId = deploymentTarget.Id });
+                        new {deploymentTargetId = deploymentTarget.Id});
                     string statusUrl = Url.RouteUrl(TargetConstants.TargetStatusApiRouteName,
-                        new { deploymentTargetId = deploymentTarget.Id });
+                        new {deploymentTargetId = deploymentTarget.Id});
 
                     EnvironmentType environmentType =
-                        environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTarget.EnvironmentTypeId)) ?? EnvironmentType.Unknown;
+                        environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTarget.EnvironmentTypeId)) ??
+                        EnvironmentType.Unknown;
 
                     return new
                     {
@@ -92,7 +96,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         intervalAgoName = "",
                         deployedAtLocalTime = "",
                         environmentType = environmentType.Name,
-                        metadataUrl = deploymentTarget.Url is null ? null : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json",
+                        metadataUrl =
+                            deploymentTarget.Url is null
+                                ? null
+                                : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json",
                         statusMessage = "",
                         latestNewerAvailabe = "",
                         deployEnabled = deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
@@ -102,7 +109,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 })
                 .OrderBy(target => target.name);
 
-            return Json(new { targets });
+            return Json(new {targets});
         }
 
         [HttpGet]
@@ -113,7 +120,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [FromServices] MonitoringService monitoringService,
             [FromServices] ICustomClock clock)
         {
-            DeploymentTarget deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            DeploymentTarget deploymentTarget =
+                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -130,17 +138,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return Json(DeployStatus.Unavailable);
             }
 
-            Core.Application.Metadata.AppVersion appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+            AppVersion appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
 
-            DeploymentInterval deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
+            var deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
 
             int selectedPackageIndex = appVersion.AvailablePackageVersions
-                        .Select((item, index) => new
-                        {
-                            Selected = item.PackageId == deploymentTarget.PackageId &&
-                                       item.Version == appVersion.SemanticVersion,
-                            Index = index
-                        }).SingleOrDefault(t => t.Selected)?.Index ?? -1;
+                .Select((item, index) => new
+                {
+                    Selected = item.PackageId == deploymentTarget.PackageId &&
+                               item.Version == appVersion.SemanticVersion,
+                    Index = index
+                }).SingleOrDefault(t => t.Selected)?.Index ?? -1;
             return Json(new
             {
                 displayName = appVersion.Status.DisplayName,
@@ -164,7 +172,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                     combinedName = availableVersion.Key,
                     isNewer = availableVersion.Version > appVersion.SemanticVersion,
                     isCurrent = availableVersion.Version == appVersion.SemanticVersion,
-                    preReleaseWarning = availableVersion.Version.IsPrerelease && appVersion.SemanticVersion?.IsPrerelease == false
+                    preReleaseWarning = availableVersion.Version.IsPrerelease &&
+                                        appVersion.SemanticVersion?.IsPrerelease == false
                 }).ToArray(),
                 selectedPackageIndex
             });

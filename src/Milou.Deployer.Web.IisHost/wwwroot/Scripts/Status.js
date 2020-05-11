@@ -134,21 +134,22 @@ async function getTargets() {
 }
 
 async function connect() {
-    let connection = new signalR.HubConnectionBuilder()
+    const connection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrl)
         .build();
 
-        connection.on('targetsWithUpdates',
-            (packageId, version, targets) => {
+    connection.on("targetsWithUpdates",
+        (packageId, version, targets) => {
 
-                console.log("Update is available for package " + packageId + " version " + version + " for target " + targets.join(', '));
+            console.log(
+                `Update is available for package ${packageId} version ${version} for target ${targets.join(", ")}`);
 
-                app.targets.forEach(target => {
-                    if (targets.includes(target.targetId)) {
-                        target.hasNewData = true;
-                    }
-                });
+            app.targets.forEach(target => {
+                if (targets.includes(target.targetId)) {
+                    target.hasNewData = true;
+                }
             });
+        });
 
     await connection.start();
 }
@@ -163,7 +164,7 @@ async function buildApp() {
             targets: targets
         },
         methods: {
-            deployPackageVersion: function (event) {
+            deployPackageVersion: function(event) {
 
                 //let button = event.target;
 
@@ -178,7 +179,6 @@ async function buildApp() {
             connect();
         },
         computed: {
-
             reversedMessage: function() {
 
                 return "";

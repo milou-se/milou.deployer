@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using Arbor.App.Extensions.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -38,7 +39,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
                 };
 
-            foreach (System.Net.IPAddress proxyAddress in environmentConfiguration.ProxyAddresses)
+            foreach (IPAddress proxyAddress in environmentConfiguration.ProxyAddresses)
             {
                 forwardedHeadersOptions.KnownProxies.Add(proxyAddress);
             }
@@ -56,10 +57,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             EnvironmentConfiguration environmentConfiguration)
         {
             string wwwrootPath = Path.Combine(environmentConfiguration.ContentBasePath, "wwwroot");
-            var providers = new List<IFileProvider>
-                            {
-                                new PhysicalFileProvider(wwwrootPath)
-                            };
+            var providers = new List<IFileProvider> {new PhysicalFileProvider(wwwrootPath)};
 
             string contentPath = Path.Combine(wwwrootPath, "_content", "Milou.Deployer.Web.IisHost");
 
@@ -68,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                 providers.Add(new PhysicalFileProvider(contentPath));
             }
 
-            var staticFileOptions = new StaticFileOptions { FileProvider = new CompositeFileProvider(providers) };
+            var staticFileOptions = new StaticFileOptions {FileProvider = new CompositeFileProvider(providers)};
 
             return app.UseStaticFiles(staticFileOptions);
         }

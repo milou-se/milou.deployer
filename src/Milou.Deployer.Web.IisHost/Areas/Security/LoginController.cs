@@ -23,6 +23,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         [HttpGet]
         public IActionResult Me() =>
             new ObjectResult(
-                new { Claims = HttpContext.User.Claims.Select(c => c.Type + " " + c.Value).ToArray() });
+                new {Claims = HttpContext.User.Claims.Select(c => c.Type + " " + c.Value).ToArray()});
     }
 }

@@ -20,9 +20,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
     {
         private readonly IKeyValueConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly TimeoutHelper _timeoutHelper;
         private readonly ILogger _logger;
         private readonly NuGetConfiguration? _nugetConfiguration;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public NuGetDownloadStartupTask(ILogger logger,
             IKeyValueConfiguration configuration,
@@ -48,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _logger.Debug("Ensuring nuget.exe exists");
 
             if (!int.TryParse(_configuration[DeployerAppConstants.NuGetDownloadTimeoutInSeconds],
-                    out int initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
+                out int initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
             {
                 initialNuGetDownloadTimeoutInSeconds = 100;
             }

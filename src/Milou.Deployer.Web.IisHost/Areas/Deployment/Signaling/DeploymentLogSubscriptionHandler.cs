@@ -19,27 +19,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         private static readonly ConcurrentDictionary<string, HashSet<string>> TargetMapping =
             new ConcurrentDictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        public static ImmutableHashSet<string> TryGetTargetSubscribers([NotNull] string deploymentTargetId)
-        {
-            if (string.IsNullOrWhiteSpace(deploymentTargetId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
-            }
-
-            bool tryGetTargetSubscribers =
-                TargetMapping.TryGetValue(deploymentTargetId, out HashSet<string>? subscribers);
-
-            if (!tryGetTargetSubscribers)
-            {
-                return ImmutableHashSet<string>.Empty;
-            }
-
-            return subscribers.ToImmutableHashSet(StringComparer.Ordinal);
-        }
-
         public Task<Unit> Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            if (TargetMapping.TryGetValue(request.DeploymentTargetId, out HashSet<string>? subscribers))
+            if (TargetMapping.TryGetValue(request.DeploymentTargetId, out var subscribers))
             {
                 subscribers.Add(request.ConnectionId);
             }
@@ -47,7 +29,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             {
                 TargetMapping.TryAdd(
                     request.DeploymentTargetId,
-                    new HashSet<string>(StringComparer.OrdinalIgnoreCase) { request.ConnectionId });
+                    new HashSet<string>(StringComparer.OrdinalIgnoreCase) {request.ConnectionId});
             }
 
             return Task.FromResult(Unit.Value);
@@ -66,6 +48,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             }
 
             return Task.FromResult(Unit.Value);
+        }
+
+        public static ImmutableHashSet<string> TryGetTargetSubscribers([NotNull] string deploymentTargetId)
+        {
+            if (string.IsNullOrWhiteSpace(deploymentTargetId))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
+            }
+
+            bool tryGetTargetSubscribers =
+                TargetMapping.TryGetValue(deploymentTargetId, out var subscribers);
+
+            if (!tryGetTargetSubscribers)
+            {
+                return ImmutableHashSet<string>.Empty;
+            }
+
+            return subscribers.ToImmutableHashSet(StringComparer.Ordinal);
         }
     }
 }

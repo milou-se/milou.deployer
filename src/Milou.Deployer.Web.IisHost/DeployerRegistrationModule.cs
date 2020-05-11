@@ -16,17 +16,23 @@ namespace Milou.Deployer.Web.IisHost
         {
             IServiceCollection services = serviceProviderHolder.ServiceCollection;
 
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration = serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
+            CustomOpenIdConnectConfiguration openIdConnectConfiguration =
+                serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
 
-            HttpLoggingConfiguration httpLoggingConfiguration = serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
+            HttpLoggingConfiguration httpLoggingConfiguration =
+                serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
 
-            MilouAuthenticationConfiguration milouAuthenticationConfiguration = serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
+            MilouAuthenticationConfiguration milouAuthenticationConfiguration =
+                serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
 
             ILogger logger = serviceProviderHolder.ServiceProvider.GetRequiredService<ILogger>();
-            EnvironmentConfiguration environmentConfiguration = serviceProviderHolder.ServiceProvider.GetRequiredService<EnvironmentConfiguration>();
-            IKeyValueConfiguration configuration = serviceProviderHolder.ServiceProvider.GetRequiredService<IKeyValueConfiguration>();
+            EnvironmentConfiguration environmentConfiguration =
+                serviceProviderHolder.ServiceProvider.GetRequiredService<EnvironmentConfiguration>();
+            IKeyValueConfiguration configuration =
+                serviceProviderHolder.ServiceProvider.GetRequiredService<IKeyValueConfiguration>();
 
-            services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger, environmentConfiguration)
+            services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger,
+                    environmentConfiguration)
                 .AddDeploymentAuthorization(environmentConfiguration)
                 .AddDeploymentHttpClients(httpLoggingConfiguration)
                 .AddDeploymentSignalR()

@@ -1,6 +1,4 @@
-﻿@using Milou.Deployer.Web.Core.Deployment
-@using Milou.Deployer.Web.Core.Deployment.Packages
-@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
+﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentViewOutputModel
 
@@ -16,7 +14,7 @@
 
         <select name="packageVersion" id="packageVersion">
 
-            @foreach (PackageVersion item in Model.PackageVersions)
+            @foreach (var item in Model.PackageVersions)
             {
                 <option value="@item.PackageId @item.Version.ToNormalizedString()">@item.PackageId @item.Version.ToNormalizedString()</option>
             }
@@ -27,7 +25,7 @@
         <label for="target">Target</label>
         <select name="targetId" id="target">
 
-            @foreach (DeploymentTarget item in Model.Targets)
+            @foreach (var item in Model.Targets)
             {
                 <option value="@item.Id">@item.Name</option>
             }

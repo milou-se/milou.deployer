@@ -1,7 +1,5 @@
 ﻿@using Arbor.App.Extensions
 @using Arbor.App.Extensions.Time
-@using Milou.Deployer.Web.Core.Application.Metadata
-@using Milou.Deployer.Web.Core.Deployment.Packages
 @using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.MonitoringViewOutputModel
@@ -35,11 +33,11 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (AppVersion item in Model.AppVersions)
+    @foreach (var item in Model.AppVersions)
     {
         <tr>
             <td>
-                <a href="@Url.RouteUrl(TargetConstants.EditTargetRouteName, new { deploymentTargetId = item.Target.Id })">@item.Target.Name</a>
+                <a href="@Url.RouteUrl(TargetConstants.EditTargetRouteName, new {deploymentTargetId = item.Target.Id})">@item.Target.Name</a>
             </td>
             <td>
                 @if (item.Target.Url.HasValue())
@@ -51,7 +49,7 @@
                 <span class="deploy-status-@item.Status.Key">@item.Status.DisplayName</span>
             </td>
             <td>
-                <a href="@Url.RouteUrl(DeploymentConstants.HistoryRouteName, new { deploymentTargetId = item.Target.Id })">History</a>
+                <a href="@Url.RouteUrl(DeploymentConstants.HistoryRouteName, new {deploymentTargetId = item.Target.Id})">History</a>
             </td>
             <td>@item.Message</td>
             <td>
@@ -86,10 +84,10 @@
                         <span class="package-select">
                             <select name="packageVersion" id="packageVersion">
 
-                                @foreach (IGrouping<string, PackageVersion> group in item.AvailablePackageVersions.GroupBy(p => p.PackageId).OrderBy(g => g.Key))
+                                @foreach (var group in item.AvailablePackageVersions.GroupBy(p => p.PackageId).OrderBy(g => g.Key))
                                 {
                                     <optgroup label="@group.Key">
-                                        @foreach (PackageVersion allowPackageVersion in group.OrderByDescending(p => p.Version))
+                                        @foreach (var allowPackageVersion in group.OrderByDescending(p => p.Version))
                                         {
                                             <option @Html.Raw(item.SemanticVersion != null && item.SemanticVersion == allowPackageVersion.Version ? "\"selected\"=\"selected\"" : string.Empty) value="@allowPackageVersion.PackageId @allowPackageVersion.Version.ToNormalizedString()" data-version-major="@allowPackageVersion.Version.Major" data-version-minor="@allowPackageVersion.Version.Minor" data-version-patch="@allowPackageVersion.Version.Patch" data-version-isPreRelease="@(allowPackageVersion.Version.IsPrerelease ? "true" : string.Empty)">@allowPackageVersion.PackageId @allowPackageVersion.Version.ToNormalizedString()</option>
                                         }

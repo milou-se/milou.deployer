@@ -54,11 +54,11 @@ $(function() {
 
     $("div.projects").hide();
     $("div.targets").hide();
-    $("div.tab").click(function () {
-        let id = $(this).attr("id");
+    $("div.tab").click(function() {
+        const id = $(this).attr("id");
 
         if (id) {
-            let currentTab = $("#tab-content-" + id);
+            const currentTab = $(`#tab-content-${id}`);
             currentTab.show();
             currentTab.siblings().hide();
         }

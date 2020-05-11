@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -12,7 +11,6 @@ using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
-
 using MediatR;
 using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Caching;
@@ -24,20 +22,22 @@ using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Events;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     [UsedImplicitly]
-    public class MonitoringService : INotificationHandler<DeploymentMetadataLogNotification>, INotificationHandler<UpdateDeploymentTargetResult>
+    public class MonitoringService : INotificationHandler<DeploymentMetadataLogNotification>,
+        INotificationHandler<UpdateDeploymentTargetResult>
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger _logger;
-        private readonly IPackageService _packageService;
-        private readonly TimeoutHelper _timeoutHelper;
-        private readonly NuGetListConfiguration _nuGetListConfiguration;
         private readonly IApplicationSettingsStore _applicationSettingsStore;
 
         private readonly ICustomMemoryCache _customMemoryCache;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger _logger;
+        private readonly NuGetListConfiguration _nuGetListConfiguration;
+        private readonly IPackageService _packageService;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public MonitoringService(
             [NotNull] ILogger logger,
@@ -57,6 +57,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _customMemoryCache = customMemoryCache;
         }
 
+        public Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
+        {
+            InvalidateCache(notification.DeploymentTask.DeploymentTargetId);
+
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(UpdateDeploymentTargetResult notification, CancellationToken cancellationToken)
+        {
+            InvalidateCache(notification.TargetId);
+
+            return Task.CompletedTask;
+        }
+
         public async Task<AppVersion> GetAppMetadataAsync(
             [NotNull] DeploymentTarget target,
             CancellationToken cancellationToken)
@@ -73,9 +87,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return appMetadata;
             }
 
-            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings =
+                await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
 
-            TimeSpan targetMetadataTimeout = target.MetadataTimeout ?? applicationSettings.ApplicationSettingsCacheTimeout;
+            var targetMetadataTimeout = target.MetadataTimeout ?? applicationSettings.ApplicationSettingsCacheTimeout;
 
             using (CancellationTokenSource cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(
                 targetMetadataTimeout))
@@ -94,9 +109,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 using var linkedTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token);
-                Task<(HttpResponseMessage, string)> metadataTask = GetApplicationMetadataTask(target, linkedTokenSource.Token);
+                Task<(HttpResponseMessage, string)> metadataTask =
+                    GetApplicationMetadataTask(target, linkedTokenSource.Token);
 
-                Task<IReadOnlyCollection<PackageVersion>> allowedPackagesTask = GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+                Task<IReadOnlyCollection<PackageVersion>> allowedPackagesTask =
+                    GetAllowedPackagesAsync(target, linkedTokenSource.Token);
 
                 await Task.WhenAll(metadataTask, allowedPackagesTask);
 
@@ -117,7 +134,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     return new AppVersion(
                         target,
-                        message ?? $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
+                        message ??
+                        $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
                         packages);
                 }
 
@@ -141,7 +159,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var appVersions = new List<AppVersion>();
 
-            ApplicationSettings applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+            ApplicationSettings applicationSettings =
+                await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
 
             using (CancellationTokenSource cancellationTokenSource =
                 _timeoutHelper.CreateCancellationTokenSource(applicationSettings.DefaultMetadataRequestTimeout))
@@ -177,7 +196,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 await Task.WhenAll(tasks.Values);
 
-                foreach (KeyValuePair<string, Task<(HttpResponseMessage, string)>> pair in tasks)
+                foreach (var pair in tasks)
                 {
                     DeploymentTarget target = targets.Single(deploymentTarget => deploymentTarget.Id == pair.Key);
 
@@ -196,10 +215,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             if (response.HasValue() && response.IsSuccessStatusCode)
                             {
                                 appVersion = await GetAppVersionAsync(
-                                                 response,
-                                                 target,
-                                                 allowedPackages,
-                                                 linkedTokenSource.Token);
+                                    response,
+                                    target,
+                                    allowedPackages,
+                                    linkedTokenSource.Token);
                             }
                             else
                             {
@@ -255,8 +274,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             CancellationToken cancellationToken)
         {
             if (response.Content.Headers.ContentType?.MediaType.Equals(
-                    "application/json",
-                    StringComparison.OrdinalIgnoreCase) != true)
+                "application/json",
+                StringComparison.OrdinalIgnoreCase) != true)
             {
                 return new AppVersion(target, "Response not JSON", filtered);
             }
@@ -296,9 +315,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 HttpClient client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
-                (HttpResponseMessage, string Empty) wrappedResponseAsync = (await client.GetAsync(applicationMetadataUri, cancellationToken), string.Empty);
+                (HttpResponseMessage, string Empty) wrappedResponseAsync = (
+                    await client.GetAsync(applicationMetadataUri, cancellationToken), string.Empty);
                 stopwatch.Stop();
-                _logger.Debug("Metadata call to {Url} took {Elapsed} milliseconds", applicationMetadataUri, stopwatch.ElapsedMilliseconds);
+                _logger.Debug("Metadata call to {Url} took {Elapsed} milliseconds", applicationMetadataUri,
+                    stopwatch.ElapsedMilliseconds);
 
                 return wrappedResponseAsync;
             }
@@ -333,9 +354,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             else
             {
-                cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(_nuGetListConfiguration.ListTimeOutInSeconds));
+                cancellationTokenSource =
+                    new CancellationTokenSource(TimeSpan.FromSeconds(_nuGetListConfiguration.ListTimeOutInSeconds));
 
-                linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, cancellationToken);
+                linkedCancellationTokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, cancellationToken);
                 cancellationToken = linkedCancellationTokenSource.Token;
             }
 
@@ -388,10 +411,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTarget deploymentTarget,
             CancellationToken cancellationToken)
         {
-            var uriBuilder = new UriBuilder(deploymentTarget.Url)
-            {
-                Path = "applicationmetadata.json"
-            };
+            var uriBuilder = new UriBuilder(deploymentTarget.Url) {Path = "applicationmetadata.json"};
 
             Uri applicationMetadataUri = uriBuilder.Uri;
 
@@ -401,13 +421,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return getApplicationMetadataTask;
         }
 
-        public Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
-        {
-            InvalidateCache(notification.DeploymentTask.DeploymentTargetId);
-
-            return Task.CompletedTask;
-        }
-
         private void InvalidateCache(string targetId)
         {
             string cacheKey = GetCacheKey(targetId);
@@ -415,13 +428,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _logger.Debug("Invalidating monitored app version for target {TargetId}", targetId);
 
             _customMemoryCache.Invalidate(cacheKey);
-        }
-
-        public Task Handle(UpdateDeploymentTargetResult notification, CancellationToken cancellationToken)
-        {
-            InvalidateCache(notification.TargetId);
-
-            return Task.CompletedTask;
         }
     }
 }

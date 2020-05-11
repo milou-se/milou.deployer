@@ -9,7 +9,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     [Optional]
     public class MilouAuthenticationConfiguration : IConfigurationValues
     {
-        [PublicAPI] public const string UrnKey = "urn:milou:deployer:web:milou-authentication";
+        [PublicAPI]
+        public const string UrnKey = "urn:milou:deployer:web:milou-authentication";
 
         public MilouAuthenticationConfiguration(bool enabled, bool bearerTokenEnabled, string? bearerTokenIssuerKey)
         {

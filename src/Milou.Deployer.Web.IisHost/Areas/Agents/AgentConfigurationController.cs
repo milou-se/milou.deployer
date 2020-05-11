@@ -11,7 +11,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         [AllowAnonymous]
         [HttpPost]
         [Route("~/agent/install-configuration/")]
-        public async Task<IActionResult> Index([FromBody]CreateAgentInstallConfiguration createAgentInstallConfiguration,
+        public async Task<IActionResult> Index(
+            [FromBody] CreateAgentInstallConfiguration createAgentInstallConfiguration,
             [FromServices] IMediator mediator)
         {
             AgentInstallConfiguration agentInstallConfiguration = await mediator.Send(createAgentInstallConfiguration);

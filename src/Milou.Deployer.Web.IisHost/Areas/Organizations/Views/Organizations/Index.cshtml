@@ -1,6 +1,4 @@
 ﻿@using Arbor.App.Extensions
-@using Arbor.KVConfiguration.Core
-@using Milou.Deployer.Web.Core.Deployment.Targets
 @using Milou.Deployer.Web.IisHost.Areas.Organizations
 @model Milou.Deployer.Web.IisHost.Areas.Organizations.OrganizationsViewOutputModel
 
@@ -13,7 +11,7 @@
     else if (Model.CreateOrganizationResult.ValidationErrors.Length > 0)
     {
         <ul>
-            @foreach (ValidationError item in Model.CreateOrganizationResult.ValidationErrors)
+            @foreach (var item in Model.CreateOrganizationResult.ValidationErrors)
             {
                 <li>@item.ErrorMessage</li>
             }
@@ -33,7 +31,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (OrganizationInfo item in Model.Organizations)
+    @foreach (var item in Model.Organizations)
     {
         <tr>
             <td>@item.Organization</td>

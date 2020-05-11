@@ -1,26 +1,23 @@
 ﻿@using Arbor.App.Extensions
-@using Arbor.KVConfiguration.Core
-@using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
-@using Milou.Deployer.Web.IisHost.Areas.Targets
 @model Milou.Deployer.Web.IisHost.Areas.Targets.OrganizationsViewModel
 
 <h1>Targets</h1>
 
 <div class="organizations">
 
-    @foreach (OrganizationViewModel organizationViewModel in Model.Organizations)
+    @foreach (var organizationViewModel in Model.Organizations)
     {
         <h2 class="organization-toggler">Organization: @organizationViewModel.Organization</h2>
 
         <div class="projects">
 
-            @foreach (ProjectViewModel project in organizationViewModel.Projects)
+            @foreach (var project in organizationViewModel.Projects)
             {
                 <h3 class="project-toggler">Project: @project.ProjectName</h3>
 
                 <div class="targets">
 
-                    @foreach (DeploymentTargetViewOutputModel item in project.Targets)
+                    @foreach (var item in project.Targets)
                     {
                         <div class="target">
                             <h4>@item.Target.Name</h4>
@@ -73,7 +70,7 @@
                             </p>
 
                             <ul>
-                                @foreach (StringPair configPair in item.ConfigurationPairs)
+                                @foreach (var configPair in item.ConfigurationPairs)
                                 {
                                     <li>@configPair.Key.Wrap("\""): <strong>@configPair.Value.Wrap("\"")</strong></li>
                                 }
@@ -82,7 +79,7 @@
                             <p>Parameters</p>
 
                             <ul>
-                                @foreach (KeyValuePair<string, string[]> parametersPair in item.Target.Parameters)
+                                @foreach (var parametersPair in item.Target.Parameters)
                                 {
                                     <li>@parametersPair.Key.Wrap("\""): <strong>@string.Join(", ", parametersPair.Value.Select(value => value.Wrap("\""))))</strong></li>
                                 }

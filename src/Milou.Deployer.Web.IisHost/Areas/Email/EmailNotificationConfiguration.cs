@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Configuration;
-
 using Arbor.KVConfiguration.Core.Metadata;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
@@ -39,11 +38,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 
         public EmailAddress From { get; }
 
-        public override string ToString() => $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {string.Join("; ", To.Select(email => email.Address))}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";
-
         public bool IsValid => !Enabled
-                               || !To.IsDefaultOrEmpty
-                               && To.All(s => s.IsValid)
-                               && From?.IsValid == true;
+                               || (!To.IsDefaultOrEmpty
+                                   && To.All(s => s.IsValid)
+                                   && From?.IsValid == true);
+
+        public override string ToString() =>
+            $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {string.Join("; ", To.Select(email => email.Address))}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";
     }
 }

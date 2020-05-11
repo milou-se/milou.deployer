@@ -21,17 +21,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     [UsedImplicitly]
     public class WorkerSetupStartupTask : BackgroundService, IStartupTask
     {
+        private readonly ICustomClock _clock;
         private readonly IKeyValueConfiguration _configuration;
         private readonly IServiceProvider _deploymentService;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly ConfigurationInstanceHolder _holder;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly WorkerConfiguration _workerConfiguration;
-        private readonly TimeoutHelper _timeoutHelper;
-
-        private readonly ICustomClock _clock;
         private readonly IServiceProvider _serviceProvider;
+        private readonly TimeoutHelper _timeoutHelper;
+        private readonly WorkerConfiguration _workerConfiguration;
 
         public WorkerSetupStartupTask(
             IKeyValueConfiguration configuration,
@@ -75,14 +74,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     startupTimeoutInSeconds = 30;
                 }
 
-                using CancellationTokenSource startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds));
+                using CancellationTokenSource startupToken =
+                    _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds));
                 using var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
-stoppingToken,
-startupToken.Token);
+                    stoppingToken,
+                    startupToken.Token);
                 targetIds =
-(await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linkedToken.Token))
-.Select(deploymentTarget => deploymentTarget.Id)
-.ToArray();
+                    (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linkedToken.Token))
+                    .Select(deploymentTarget => deploymentTarget.Id)
+                    .ToArray();
 
                 _logger.Debug("Found deployment target IDs {IDs}", targetIds);
             }
@@ -95,7 +95,8 @@ startupToken.Token);
 
             foreach (string targetId in targetIds)
             {
-                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _logger, _mediator, _workerConfiguration, _timeoutHelper, _clock, _serviceProvider);
+                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _logger, _mediator,
+                    _workerConfiguration, _timeoutHelper, _clock, _serviceProvider);
 
                 _holder.Add(new NamedInstance<DeploymentTargetWorker>(
                     deploymentTargetWorker,

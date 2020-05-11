@@ -1,6 +1,4 @@
 ﻿@using Arbor.App.Extensions
-@using Arbor.KVConfiguration.Core
-@using Milou.Deployer.Web.Core.Deployment.Targets
 @using Milou.Deployer.Web.IisHost.Areas.Projects
 @model Milou.Deployer.Web.IisHost.Areas.Projects.ProjectsViewOutputModel
 
@@ -13,7 +11,7 @@
     else if (Model.CreateProjectResult.ValidationErrors.Length > 0)
     {
         <ul>
-            @foreach (ValidationError item in Model.CreateProjectResult.ValidationErrors)
+            @foreach (var item in Model.CreateProjectResult.ValidationErrors)
             {
                 <li>@item.ErrorMessage</li>
             }
@@ -32,7 +30,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (ProjectInfo item in Model.Projects)
+    @foreach (var item in Model.Projects)
     {
         <tr>
             <td>@item.ProjectFullName</td>

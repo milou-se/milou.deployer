@@ -40,7 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("An error was encountered while handling the remote login.", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("An error was encountered while handling the remote login.",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     await context.SignOutAsync();
                     context.Response.Redirect("/");
@@ -52,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
 
             if (context.Response.StatusCode == 302)
             {
-                if (context.Response.Headers.TryGetValue(LocationHeader, out Microsoft.Extensions.Primitives.StringValues values))
+                if (context.Response.Headers.TryGetValue(LocationHeader, out var values))
                 {
                     if (values.Count == 1 && values[0].StartsWith("/"))
                     {
@@ -76,10 +77,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
                         return;
                     }
 
-                    var builder = new UriBuilder(uri)
-                    {
-                        Host = _environmentConfiguration.PublicHostname
-                    };
+                    var builder = new UriBuilder(uri) {Host = _environmentConfiguration.PublicHostname};
 
                     if (_environmentConfiguration.PublicPort.HasValue)
                     {
