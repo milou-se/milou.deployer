@@ -80,6 +80,10 @@
     {
       "key": "urn:milou:deployer:web:email:notifications:default:from:address",
       "value": "sender@localhost.local"
+    },
+    {
+      "key": "urn:arbor:app:caching:redis:default:host",
+      "value": "localhost:26379"
     }
   ]
 }

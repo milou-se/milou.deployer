@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
-        private readonly PackageService _packageService;
+        private readonly IPackageService _packageService;
         private readonly TimeoutHelper _timeoutHelper;
         private readonly NuGetListConfiguration _nuGetListConfiguration;
         private readonly IApplicationSettingsStore _applicationSettingsStore;
@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public MonitoringService(
             [NotNull] ILogger logger,
             [NotNull] IHttpClientFactory httpClientFactory,
-            [NotNull] PackageService packageService,
+            [NotNull] IPackageService packageService,
             TimeoutHelper timeoutHelper,
             NuGetListConfiguration nuGetListConfiguration,
             IApplicationSettingsStore applicationSettingsStore,

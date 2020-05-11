@@ -27,7 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly DeploymentWorkerService _deploymentWorkerService;
         private readonly ILogger _logger;
         private readonly MonitoringService _monitoringService;
-        private readonly PackageService _packageService;
+        private readonly IPackageService _packageService;
         private readonly TimeoutHelper _timeoutHelper;
 
         private readonly IApplicationSettingsStore _applicationSettingsStore;
@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             [NotNull] DeploymentWorkerService deploymentWorkerService,
             [NotNull] AutoDeployConfiguration autoDeployConfiguration,
             [NotNull] ILogger logger,
-            [NotNull] PackageService packageService,
+            [NotNull] IPackageService packageService,
             TimeoutHelper timeoutHelper,
             IApplicationSettingsStore applicationSettingsStore)
         {

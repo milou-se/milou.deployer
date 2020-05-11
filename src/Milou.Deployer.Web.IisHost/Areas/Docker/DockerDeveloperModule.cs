@@ -42,32 +42,42 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
         {
             var dockerArgs = new List<ContainerArgs>();
 
-            var smtp4Dev = new ContainerArgs(
-                "rnwood/smtp4dev:linux-amd64-v3",
-                "smtp4devtest",
-                 new List<PortMapping>
-                 {
-                     PortMapping.MapSinglePort(3125, 80),
-                     PortMapping.MapSinglePort(2526, 25)
-                 },
-                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
+            var smtp4Dev = CreateSmtp4Dev();
+            dockerArgs.Add(smtp4Dev);
+
+            var postgres = CreatePostgres();
+            dockerArgs.Add(postgres);
+
+            var ftp = CreateFtp();
+            dockerArgs.Add(ftp);
+
+            var redis = CreateRedis();
+            dockerArgs.Add(redis);
+
+            _dockerContext = await DockerContext.CreateContextAsync(dockerArgs, _logger);
+
+            await _dockerContext.ContainerTask;
+
+            _logger.Debug("Started containers {Containers}",
+                string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
+        }
+
+        private ContainerArgs CreateRedis()
+        {
+            var portMappings = new[] { PortMapping.MapSinglePort(26379, 6379) };
+            var redis = new ContainerArgs(
+                "redis",
+                "redistest",
+                portMappings,
+                args: new[] {"-v", "cachedata:/data"},
+                entryPoint: new[] { "redis-server", "--appendonly yes" }
             );
 
-            var postgresVariables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
+            return redis;
+        }
 
-            string[] postgresArgs = {"-v", "deploydata:/var/lib/postgresql/data"};
-
-            var postgres = new ContainerArgs(
-                "postgres",
-                "postgres-deploy",
-                new List<PortMapping>
-                {
-                    PortMapping.MapSinglePort(5433, 5432)
-                },
-                postgresVariables,
-                postgresArgs
-            );
-
+        private static ContainerArgs CreateFtp()
+        {
             var ftpVariables = new Dictionary<string, string>
             {
                 ["FTP_USER"] = "testuser",
@@ -89,17 +99,41 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 ftpPorts,
                 ftpVariables
             );
+            return ftp;
+        }
 
-            dockerArgs.Add(smtp4Dev);
-            dockerArgs.Add(postgres);
-            dockerArgs.Add(ftp);
+        private static ContainerArgs CreatePostgres()
+        {
+            var postgresVariables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
 
-            _dockerContext = await DockerContext.CreateContextAsync(dockerArgs, _logger);
+            string[] postgresArgs = {"-v", "deploydata:/var/lib/postgresql/data"};
 
-            await _dockerContext.ContainerTask;
+            var postgres = new ContainerArgs(
+                "postgres",
+                "postgres-deploy",
+                new List<PortMapping>
+                {
+                    PortMapping.MapSinglePort(5433, 5432)
+                },
+                postgresVariables,
+                postgresArgs
+            );
+            return postgres;
+        }
 
-            _logger.Debug("Started containers {Containers}",
-                string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
+        private static ContainerArgs CreateSmtp4Dev()
+        {
+            var smtp4Dev = new ContainerArgs(
+                "rnwood/smtp4dev:linux-amd64-v3",
+                "smtp4devtest",
+                new List<PortMapping>
+                {
+                    PortMapping.MapSinglePort(3125, 80),
+                    PortMapping.MapSinglePort(2526, 25)
+                },
+                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
+            );
+            return smtp4Dev;
         }
     }
 }

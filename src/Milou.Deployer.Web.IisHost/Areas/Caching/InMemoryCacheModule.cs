@@ -7,7 +7,7 @@ using Milou.Deployer.Web.Core.Caching;
 namespace Milou.Deployer.Web.IisHost.Areas.Caching
 {
     [UsedImplicitly]
-    public class CacheModule : IModule
+    public class InMemoryCacheModule : IModule
     {
         public IServiceCollection Register(IServiceCollection builder) =>
             builder

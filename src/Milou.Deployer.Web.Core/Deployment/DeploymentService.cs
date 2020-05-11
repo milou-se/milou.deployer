@@ -55,7 +55,6 @@ namespace Milou.Deployer.Web.Core.Deployment
         private readonly IDeploymentTargetService _targetSource;
         private DeploymentTask _current;
         private DeploymentTaskTempData? _tempData;
-        private readonly AgentsData _agentsData;
 
         public DeploymentService(
             [NotNull] ILogger logger,
@@ -79,7 +78,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             _deploymentTargetService = deploymentTargetService;
             _agentService = agentService;
             _configuration = configuration;
-            _agentsData = agentsData;
         }
 
         private Dictionary<string, List<DirectoryInfo>> TempDirectories { get; } =
@@ -162,11 +160,9 @@ namespace Milou.Deployer.Web.Core.Deployment
                     cancellationToken);
 
                 ExitCode deployExitCode;
-                IDeploymentPackageAgent? agent = default;
                 try
                 {
-                    agent =
-                        await _agentService.GetAgentForDeploymentTask(deploymentTask, cancellationToken);
+                    var agent = await _agentService.GetAgentForDeploymentTask(deploymentTask, cancellationToken);
 
                     _tempData.TempLogger.Debug("Using deployment agent {Agent}", agent.ToString());
 
@@ -178,9 +174,6 @@ namespace Milou.Deployer.Web.Core.Deployment
                     _logger.Error(ex, "Could not get deploy agent");
                     deployExitCode = ExitCode.Failure;
                     deploymentTask.Status = WorkTaskStatus.Failed;
-                }
-                finally
-                {
                 }
 
                 if (deployExitCode.IsSuccess)
@@ -596,7 +589,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     TempFile tempPublishFile = CreateTempPublishFile(deploymentTarget,
                         username,
                         password,
-                        publishUrl);
+                        publishUrl!);
 
                     TempFiles[deploymentTask.DeploymentTaskId].Add(tempPublishFile);
 
@@ -647,7 +640,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             if (publishSettingsFile?.Exists ?? false)
             {
                 publishSettingsXml = await
-                    File.ReadAllTextAsync(publishSettingsFile.FullName, Encoding.UTF8, cancellationToken);
+                    File.ReadAllTextAsync(publishSettingsFile!.FullName, Encoding.UTF8, cancellationToken);
             }
 
             if (string.IsNullOrWhiteSpace(targetDirectoryPath) && string.IsNullOrWhiteSpace(publishSettingsXml))
@@ -704,8 +697,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         private static TempFile CreateTempPublishFile(
             DeploymentTarget deploymentTarget,
-            string username,
-            string password,
+            string? username,
+            string? password,
             string publishUrl)
         {
             var doc = new XDocument();
