@@ -253,7 +253,7 @@ namespace Milou.Deployer.Core.Deployment
                         Path.Combine(
                             tempDirectoryInfo.FullName,
                             $"{environmentConfigPrefix}tmp",
-                            deploymentExecutionDefinition.EnvironmentConfig));
+                            deploymentExecutionDefinition.EnvironmentConfig!));
 
                 var deploymentDefinition =
                     new DeploymentExecutionDefinition(
@@ -269,7 +269,7 @@ namespace Milou.Deployer.Core.Deployment
                         Path.Combine(
                             tempDirectoryInfo.FullName,
                             $"{environmentConfigPrefix}out",
-                            deploymentExecutionDefinition.EnvironmentConfig));
+                            deploymentExecutionDefinition.EnvironmentConfig!));
 
                 var installedEnvironmentPackage =
                     await

@@ -40,7 +40,6 @@ namespace Milou.Deployer.Tests.Integration
                 ftpVariables
             );
 
-
             yield return ftp;
         }
 

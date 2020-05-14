@@ -41,7 +41,6 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
             string baseFullName = baseDirectory.FullName;
 
-
             return GetRelative(fullName, baseFullName);
         }
 

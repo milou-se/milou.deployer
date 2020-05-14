@@ -105,7 +105,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                     }
                 }
 
-
                 Claim[] allowedEmails = emailClaims.Where(emailClaim =>
                         _allowedEmails.Any(allowed => emailClaim.Value.Equals(allowed.Email, StringComparison.Ordinal)))
                     .ToArray();

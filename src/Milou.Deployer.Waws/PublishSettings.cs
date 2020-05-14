@@ -42,7 +42,6 @@ namespace Milou.Deployer.Waws
     </publishProfile>
              */
 
-
             XDocument document =
                 await XDocument.LoadAsync(File.OpenRead(publishSettingsFile), LoadOptions.None, cancellationToken);
 
@@ -61,7 +60,7 @@ namespace Milou.Deployer.Waws
             {
                 profile =
                     profiles.FirstOrDefault(
-                        current => current.Attribute(PublishMethod)?.Value.Equals(MSDeploy) ?? false) ?? profiles[0];
+                        current => current.Attribute(PublishMethod)?.Value.Equals(MSDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
             }
             else
             {

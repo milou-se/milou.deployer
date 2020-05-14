@@ -35,7 +35,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             Assert.Contains("<html", body, StringComparison.Ordinal);
         }
 
-
         [Fact(Skip = "Issues with postgresql permissions")]
         public void ThenItShouldReturnHttpStatusCodeOk200()
         {

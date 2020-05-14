@@ -181,7 +181,6 @@ namespace Milou.Deployer.Waws
             var syncToInternal = new DeploySummary();
             onConfigureArgs(arguments);
 
-
             if (syncOptions.DoNotDelete)
             {
                 arguments.Add($"-enableRule:{DeploymentRule.DoNotDeleteRule.Name}");
@@ -203,7 +202,7 @@ namespace Milou.Deployer.Waws
                 return asSpan.Slice(start, length).ToString();
             }
 
-            void Log(string message, string category)
+            void Log(string message, string _)
             {
                 if (message.StartsWith("Verbose: ", StringComparison.Ordinal))
                 {
@@ -236,7 +235,7 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            void LogError(string message, string category)
+            void LogError(string message, string _)
             {
                 _logger.Error("{Message}", message);
             }

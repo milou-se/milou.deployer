@@ -71,7 +71,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public async Task<AppVersion> GetAppMetadataAsync(
+        public async Task<AppVersion?> GetAppMetadataAsync(
             [NotNull] DeploymentTarget target,
             CancellationToken cancellationToken)
         {
@@ -82,7 +82,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             string cacheKey = GetCacheKey(target.Id);
 
-            if (_customMemoryCache.TryGetValue(cacheKey, out AppVersion appMetadata))
+            if (_customMemoryCache.TryGetValue(cacheKey, out AppVersion? appMetadata))
             {
                 return appMetadata;
             }
@@ -109,7 +109,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 using var linkedTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token);
-                Task<(HttpResponseMessage, string)> metadataTask =
+                Task<(HttpResponseMessage?, string)> metadataTask =
                     GetApplicationMetadataTask(target, linkedTokenSource.Token);
 
                 Task<IReadOnlyCollection<PackageVersion>> allowedPackagesTask =
@@ -167,7 +167,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 using var linkedTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token);
-                var tasks = new Dictionary<string, Task<(HttpResponseMessage, string)>>();
+                var tasks = new Dictionary<string, Task<(HttpResponseMessage?, string)>>();
 
                 foreach (DeploymentTarget deploymentTarget in targets)
                 {
@@ -180,7 +180,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
                     else if (deploymentTarget.Url is { })
                     {
-                        Task<(HttpResponseMessage, string)> getApplicationMetadataTask =
+                        Task<(HttpResponseMessage?, string)> getApplicationMetadataTask =
                             GetApplicationMetadataTask(deploymentTarget, linkedTokenSource.Token);
 
                         tasks.Add(deploymentTarget.Id, getApplicationMetadataTask);
@@ -205,13 +205,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                     try
                     {
-                        (HttpResponseMessage Response, string Message) result = await pair.Value;
+                        (var response, string message) = await pair.Value;
 
                         AppVersion appVersion;
-                        using (HttpResponseMessage response = result.Response)
+                        using (response)
                         {
-                            string message = result.Message;
-
                             if (response.HasValue() && response.IsSuccessStatusCode)
                             {
                                 appVersion = await GetAppVersionAsync(
@@ -406,7 +404,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        private Task<(HttpResponseMessage, string)> GetApplicationMetadataTask(
+        private Task<(HttpResponseMessage?, string)> GetApplicationMetadataTask(
             DeploymentTarget deploymentTarget,
             CancellationToken cancellationToken)
         {
@@ -414,7 +412,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             Uri applicationMetadataUri = uriBuilder.Uri;
 
-            Task<(HttpResponseMessage, string)> getApplicationMetadataTask = GetWrappedResponseAsync(
+            Task<(HttpResponseMessage?, string)> getApplicationMetadataTask = GetWrappedResponseAsync(
                 applicationMetadataUri,
                 cancellationToken);
             return getApplicationMetadataTask;

@@ -9,6 +9,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -99,7 +100,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return Task.CompletedTask;
             }
 
-            StartWorker(worker, cancellationToken);
+            StartWorker(worker!, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -167,6 +168,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             await Task.Yield();
 
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
+                .NotNull()
                 .ToImmutableArray();
 
             foreach (var deploymentTargetWorker in deploymentTargetWorkers)

@@ -56,7 +56,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
             }
 
-
             var cacheEntryAbsoluteExpirationRelativeToNow =
                 cacheTime?.TotalSeconds > 0
                     ? cacheTime.Value

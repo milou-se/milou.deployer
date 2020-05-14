@@ -288,7 +288,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 deploymentTaskTempDirectory.Refresh();
 
-
                 if (deploymentTaskTempDirectory.Exists)
                 {
                     deploymentTaskTempDirectory.Delete(true);

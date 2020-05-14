@@ -35,7 +35,6 @@ namespace Milou.Deployer.Tests.Integration
                 "packageid:",
                 true);
 
-
             DeploymentExecutionDefinition[] deploymentExecutionDefinitions = {definition};
 
             string serialized = JsonConvert.SerializeObject(

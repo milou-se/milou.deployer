@@ -34,7 +34,7 @@ namespace Milou.Deployer.Waws
             return Name == other.Name;
         }
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             ReferenceEquals(this, obj) || (obj is AuthenticationType other && Equals(other));
 
         public override int GetHashCode() => Name.GetHashCode(StringComparison.Ordinal);

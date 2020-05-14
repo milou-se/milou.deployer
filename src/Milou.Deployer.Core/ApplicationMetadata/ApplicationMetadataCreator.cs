@@ -138,7 +138,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 
             try
             {
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(currentAssembly.Location);
+                var fvi = FileVersionInfo.GetVersionInfo(currentAssembly.Location);
 
                 string fileVersion = fvi.FileVersion;
 

@@ -49,7 +49,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _packageInstaller = packageInstaller ?? throw new ArgumentNullException(nameof(packageInstaller));
         }
 
-
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
             string packageId,
             bool useCache = true,

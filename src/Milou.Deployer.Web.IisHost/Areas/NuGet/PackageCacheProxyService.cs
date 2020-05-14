@@ -110,7 +110,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             await _memoryCache.RemoveAsync(cacheKey);
         }
 
-
         private string GetCacheKey(string? nugetConfigFile, string? nugetPackageSource, string packageId)
         {
             string cacheKey = AllPackagesCacheKey;

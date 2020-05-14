@@ -6,7 +6,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public interface IDeploymentTaskPackageStore
     {
-        Task<DeploymentTaskPackage> GetDeploymentTaskPackageAsync(string deploymentTaskId,
+        Task<DeploymentTaskPackage?> GetDeploymentTaskPackageAsync(string deploymentTaskId,
             CancellationToken cancellationToken);
     }
 }

@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 controllerActions.SingleOrDefault(s =>
                         s.RouteAttributes.Any(r =>
                             r?.Name is {} && r.Name.Equals(route.Name, StringComparison.Ordinal)))
-                    ?.ControllerType.FullName)).ToImmutableArray();
+                    ?.ControllerType.FullName!)).ToImmutableArray();
 
             return controllerRoutes;
         }

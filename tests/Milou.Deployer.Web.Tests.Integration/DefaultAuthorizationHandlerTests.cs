@@ -112,7 +112,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-
             var handler =
                 new DefaultAuthorizationHandler(configuration,
                     logger,

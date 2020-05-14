@@ -9,46 +9,46 @@ namespace Milou.Deployer.Tests.Integration
         [Fact]
         public void ParseMessageStartsWithDebug()
         {
-            (string Message, LogEventLevel Level) logItem = LogMessageExtensions.Parse("[Debug] My message");
+            (string? message, var level) = LogMessageExtensions.Parse("[Debug] My message");
 
-            Assert.Equal("My message", logItem.Message);
-            Assert.Equal(LogEventLevel.Debug, logItem.Level);
+            Assert.Equal("My message", message);
+            Assert.Equal(LogEventLevel.Debug, level);
         }
 
         [Fact]
         public void ParseMessageStartsWithError()
         {
-            (string Message, LogEventLevel Level) logItem = LogMessageExtensions.Parse("[Error] My message");
+            (string? message, var level) = LogMessageExtensions.Parse("[Error] My message");
 
-            Assert.Equal("My message", logItem.Message);
-            Assert.Equal(LogEventLevel.Error, logItem.Level);
+            Assert.Equal("My message", message);
+            Assert.Equal(LogEventLevel.Error, level);
         }
 
         [Fact]
         public void ParseMessageStartsWithFatal()
         {
-            (string Message, LogEventLevel Level) logItem = LogMessageExtensions.Parse("[Fatal] My message");
+            (string? message, var level) = LogMessageExtensions.Parse("[Fatal] My message");
 
-            Assert.Equal("My message", logItem.Message);
-            Assert.Equal(LogEventLevel.Fatal, logItem.Level);
+            Assert.Equal("My message", message);
+            Assert.Equal(LogEventLevel.Fatal, level);
         }
 
         [Fact]
         public void ParseMessageStartsWithInformation()
         {
-            (string Message, LogEventLevel Level) logItem = LogMessageExtensions.Parse("[Information] My message");
+            (string? message, var level) = LogMessageExtensions.Parse("[Information] My message");
 
-            Assert.Equal("My message", logItem.Message);
-            Assert.Equal(LogEventLevel.Information, logItem.Level);
+            Assert.Equal("My message", message);
+            Assert.Equal(LogEventLevel.Information, level);
         }
 
         [Fact]
         public void ParseMessageStartsWithVerbose()
         {
-            (string Message, LogEventLevel Level) logItem = LogMessageExtensions.Parse("[Verbose] My message");
+            (string? message, var level) = LogMessageExtensions.Parse("[Verbose] My message");
 
-            Assert.Equal("My message", logItem.Message);
-            Assert.Equal(LogEventLevel.Verbose, logItem.Level);
+            Assert.Equal("My message", message);
+            Assert.Equal(LogEventLevel.Verbose, level);
         }
     }
 }

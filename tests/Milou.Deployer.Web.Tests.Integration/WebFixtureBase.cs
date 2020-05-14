@@ -56,7 +56,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public TestHttpPort TestSiteHttpPort { get; protected set; }
 
-
         [PublicAPI]
         public List<DirectoryInfo> DirectoriesToClean { get; } = new List<DirectoryInfo>();
 

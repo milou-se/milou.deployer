@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public MilouDeployerConfiguration(
             IKeyValueConfiguration keyValueConfiguration,
             string logLevel = "") =>
-            LogLevel = logLevel.WithDefault(keyValueConfiguration[ConfigurationConstants.LogLevel] ?? LogEventLevel.Information.ToString());
+            LogLevel = logLevel.WithDefault(keyValueConfiguration[ConfigurationConstants.LogLevel] ?? nameof(LogEventLevel.Information));
 
         public string LogLevel { get; }
     }

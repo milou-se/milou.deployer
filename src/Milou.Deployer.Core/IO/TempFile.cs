@@ -6,9 +6,9 @@ namespace Milou.Deployer.Core.IO
 {
     internal sealed class TempFile : IDisposable
     {
-        private readonly DirectoryInfo _customTempDir;
+        private readonly DirectoryInfo? _customTempDir;
 
-        private TempFile(FileInfo file, DirectoryInfo customTempDir)
+        private TempFile(FileInfo file, DirectoryInfo? customTempDir)
         {
             _customTempDir = customTempDir;
             File = file ?? throw new ArgumentNullException(nameof(file));

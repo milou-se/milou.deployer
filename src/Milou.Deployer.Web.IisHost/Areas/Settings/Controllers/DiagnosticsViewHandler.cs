@@ -86,7 +86,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                             _configuration.ConfiguratorFor(key).GetType().Name))
                     .ToImmutableArray());
 
-
             IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues = _aspNetConfiguration
                 .AsEnumerable()
                 .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))

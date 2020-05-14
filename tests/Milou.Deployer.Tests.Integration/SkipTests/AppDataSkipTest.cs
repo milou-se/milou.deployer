@@ -21,7 +21,6 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 
             var (source, deployTargetDirectory, temp) = TestDataHelper.CopyTestData(logger);
 
-
             var result = await webDeployHelper.DeployContentToOneSiteAsync(
                 source, null, TimeSpan.MinValue,
                 appDataSkipDirectiveEnabled: true,

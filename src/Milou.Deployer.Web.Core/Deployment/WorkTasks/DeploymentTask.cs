@@ -60,7 +60,6 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 
         public string? StartedBy { get; }
 
-
         public SemanticVersion SemanticVersion { get; }
 
         public string DeploymentTargetId { get; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Milou.Deployer.Core.Extensions
 {
@@ -23,5 +24,10 @@ namespace Milou.Deployer.Core.Extensions
                 yield return item;
             }
         }
+
+        public static IEnumerable<T> NotNull<T>(this IEnumerable<T?> items) where T : class =>
+            items
+                .Where(item => item is {})
+                .Select(item => item!);
     }
 }

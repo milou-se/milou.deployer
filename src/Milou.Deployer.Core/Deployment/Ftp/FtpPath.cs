@@ -21,7 +21,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
             Path = path.Equals(RootPath, StringComparison.OrdinalIgnoreCase)
                 ? RootPath
-                : $"/{path.TrimStart('/').Replace("//", "/", StringComparison.Ordinal)}";
+                : $"/{path.TrimStart(trimChar: '/').Replace("//", "/", StringComparison.Ordinal)}";
 
             Type = type;
         }
@@ -68,7 +68,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public FileSystemType Type { get; }
 
-        public bool Equals(FtpPath other)
+        public bool Equals(FtpPath? other)
         {
             if (other is null)
             {
@@ -83,35 +83,6 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
         }
 
-        public static bool operator ==(FtpPath left, FtpPath right) => Equals(left, right);
-
-        public static bool operator !=(FtpPath left, FtpPath right) => !Equals(left, right);
-
-        public static bool TryParse(string? value, FileSystemType fileSystemType, out FtpPath? ftpPath)
-        {
-            CheckFileSystemTypeValue(fileSystemType);
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                ftpPath = default;
-                return false;
-            }
-
-            if (!value!.StartsWith("/", StringComparison.OrdinalIgnoreCase))
-            {
-                ftpPath = default;
-                return false;
-            }
-
-            if (value.IndexOf("\\", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                ftpPath = default;
-                return false;
-            }
-
-            ftpPath = new FtpPath(value, fileSystemType);
-            return true;
-        }
-
         public FtpPath Append([NotNull] FtpPath path)
         {
             if (path is null)
@@ -119,7 +90,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 throw new ArgumentNullException(nameof(path));
             }
 
-            return new FtpPath(Path.TrimEnd('/') + path.Path, path.Type);
+            return new FtpPath(Path.TrimEnd(trimChar: '/') + path.Path, path.Type);
         }
 
         public bool ContainsPath([NotNull] FtpPath excluded)
@@ -159,7 +130,37 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             }
         }
 
+        public static bool operator ==(FtpPath left, FtpPath right) => Equals(left, right);
+
+        public static bool operator !=(FtpPath left, FtpPath right) => !Equals(left, right);
+
         public override string ToString() => $"{nameof(Path)}: {Path}, {nameof(Type)}: {Type}";
+
+        public static bool TryParse(string? value, FileSystemType fileSystemType, out FtpPath? ftpPath)
+        {
+            CheckFileSystemTypeValue(fileSystemType);
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ftpPath = default;
+                return false;
+            }
+
+            if (!value!.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+            {
+                ftpPath = default;
+                return false;
+            }
+
+            if (value.IndexOf("\\", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                ftpPath = default;
+                return false;
+            }
+
+            ftpPath = new FtpPath(value, fileSystemType);
+            return true;
+        }
 
         private static void CheckFileSystemTypeValue(FileSystemType type)
         {

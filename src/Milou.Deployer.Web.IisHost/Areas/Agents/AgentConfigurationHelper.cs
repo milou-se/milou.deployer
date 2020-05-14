@@ -25,7 +25,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _authenticationConfiguration = authenticationConfiguration;
         }
 
-
         public async Task<AgentInstallConfiguration> Handle(CreateAgentInstallConfiguration request,
             CancellationToken cancellationToken)
         {

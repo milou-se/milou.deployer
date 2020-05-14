@@ -126,14 +126,13 @@ namespace Milou.Deployer.Web.Agent.Host
         private void CreateSignalRConnection(string connectionUrl)
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(connectionUrl, options => { options.AccessTokenProvider = GetAccessToken; })
+                .WithUrl(connectionUrl, options => options.AccessTokenProvider = GetAccessToken)
                 .Build();
 
             _hubConnection.Closed += HubConnectionOnClosed;
 
             _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
         }
-
 
         private async Task<string> GetAccessToken() => _agentConfiguration!.AccessToken;
 

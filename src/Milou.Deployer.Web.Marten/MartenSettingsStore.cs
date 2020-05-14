@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task<ApplicationSettings> GetApplicationSettings(CancellationToken cancellationToken)
         {
-            if (_memoryCache.TryGetValue(AppSettings, out ApplicationSettings applicationSettings))
+            if (_memoryCache.TryGetValue(AppSettings, out ApplicationSettings? applicationSettings))
             {
                 return applicationSettings;
             }
@@ -75,16 +75,16 @@ namespace Milou.Deployer.Web.Marten
             return applicationSettings;
         }
 
-        private AutoDeploySettings MapAutoDeploy(AutoDeployData autoDeploy) =>
+        private AutoDeploySettings MapAutoDeploy(AutoDeployData? autoDeploy) =>
             new AutoDeploySettings
             {
                 Enabled = autoDeploy?.Enabled ?? false, PollingEnabled = autoDeploy?.PollingEnabled ?? false
             };
 
-        private NexusConfig MapFromNexusData(NexusConfigData data) =>
+        private NexusConfig MapFromNexusData(NexusConfigData? data) =>
             new NexusConfig {HmacKey = data?.HmacKey, NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
 
-        private AutoDeployData MapToAutoDeployData(AutoDeploySettings autoDeploySettings) =>
+        private AutoDeployData MapToAutoDeployData(AutoDeploySettings? autoDeploySettings) =>
             new AutoDeployData
             {
                 Enabled = autoDeploySettings?.Enabled ?? false,

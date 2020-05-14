@@ -13,7 +13,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
         public bool IsValid => !string.IsNullOrWhiteSpace(Address)
                                && Address.Contains("@", StringComparison.OrdinalIgnoreCase);
 
-
         public override string ToString() => $"{nameof(Address)}: {Address}, {nameof(IsValid)}: {IsValid}";
     }
 }
