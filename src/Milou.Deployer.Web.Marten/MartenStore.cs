@@ -9,6 +9,9 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Marten;
 using MediatR;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Pools;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Environments;
@@ -37,7 +40,14 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<EnableTarget, Unit>,
         IRequestHandler<DisableTarget, Unit>,
         IRequestHandler<CreateEnvironment, CreateEnvironmentResult>,
-        IRequestHandler<CreateDeploymentTaskPackage, Unit>
+        IRequestHandler<CreateDeploymentTaskPackage, Unit>,
+        IRequestHandler<GetAgentPoolsQuery, AgentPoolListResult>,
+        IRequestHandler<CreateAgentPool, CreateAgentPoolResult>,
+        IRequestHandler<AssignTargetToPool, AssignTargetToPoolResult>,
+        IRequestHandler<GetAgentRequest, AgentInfo?>,
+        IRequestHandler<CreateAgent, CreateAgentResult>,
+        IRequestHandler<AssignAgentToPool, AssignAgentToPoolResult>,
+        IRequestHandler<GetAgentsInPoolQuery, AgentsInPoolResult>
     {
         private readonly ICustomMemoryCache _cache;
         private readonly IDocumentStore _documentStore;
@@ -57,7 +67,7 @@ namespace Milou.Deployer.Web.Marten
         }
 
         public Task<DeploymentTarget> GetDeploymentTargetAsync(
-            [NotNull] string deploymentTargetId,
+            string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(deploymentTargetId))
@@ -640,5 +650,134 @@ namespace Milou.Deployer.Web.Marten
                 NuGetConfigFile = nugetData.NuGetConfigFile
             };
         }
+
+        public async Task<AgentPoolListResult> Handle(GetAgentPoolsQuery request, CancellationToken cancellationToken)
+        {
+            using IDocumentSession session = _documentStore.OpenSession();
+            var items =
+                await session.Query<AgentPoolData>().ToListAsync(cancellationToken);
+
+            return new AgentPoolListResult(items.Select(MapAgentPool).ToImmutableArray());
+
+        }
+
+        private AgentPoolId MapAgentPool(AgentPoolData agentPoolData) => new AgentPoolId(agentPoolData.AgentPoolId);
+
+        public async Task<CreateAgentPoolResult> Handle(CreateAgentPool request, CancellationToken cancellationToken)
+        {
+            using IDocumentSession session = _documentStore.OpenSession();
+
+            session.Store(new AgentPoolData() {AgentPoolId = request.AgentPoolId.Value});
+
+            await session.SaveChangesAsync(cancellationToken);
+
+            return new CreateAgentPoolResult();
+        }
+
+        public async Task<AssignTargetToPoolResult> Handle(AssignTargetToPool request, CancellationToken cancellationToken)
+        {
+            using var documentSession = _documentStore.OpenSession();
+            string id = $"/poolAssignment/-{request.DeploymentTargetId}";
+            var assignment = await documentSession.LoadAsync<AgentPoolTargetAssignmentData>(id, cancellationToken);
+
+            assignment ??= new AgentPoolTargetAssignmentData {Id = id};
+
+            assignment.PoolId = request.AgentPoolId;
+
+            documentSession.Store(assignment);
+
+            await documentSession.SaveChangesAsync(cancellationToken);
+
+            return new AssignTargetToPoolResult();
+        }
+
+        public async Task<AgentInfo?> Handle(GetAgentRequest request, CancellationToken cancellationToken)
+        {
+            using var documentSession = _documentStore.QuerySession();
+
+            var agentData = await documentSession.LoadAsync<AgentData>(request.AgentId.Value, cancellationToken);
+
+            if (agentData is null)
+            {
+                return null;
+            }
+
+            return MapAgentData(agentData);
+        }
+
+        private AgentInfo? MapAgentData(AgentData agent) => new AgentInfo(new AgentId(agent.AgentId));
+
+        public async Task<CreateAgentResult> Handle(CreateAgent request, CancellationToken cancellationToken)
+        {
+            using var session = _documentStore.OpenSession();
+
+            var agentData = await session.LoadAsync<AgentData>(request.AgentId.Value, cancellationToken);
+
+            if (agentData is {})
+            {
+                throw new InvalidOperationException($"The agent {request.AgentId.Value} already exists");
+            }
+
+            agentData = new AgentData()
+            {
+                AgentId = request.AgentId.Value
+            };
+
+            session.Store(agentData);
+
+            await session.SaveChangesAsync(cancellationToken);
+
+            return new CreateAgentResult();
+        }
+
+        public async Task<AssignAgentToPoolResult> Handle(AssignAgentToPool request, CancellationToken cancellationToken)
+        {
+            using var session = _documentStore.OpenSession();
+
+            string id = "/agentAssignments";
+            var agentData = await session.LoadAsync<AgentPoolAssignmentData>(id, cancellationToken);
+
+            agentData ??= new AgentPoolAssignmentData {Id = id};
+
+            agentData.Agents ??= new Dictionary<string, string>();
+
+            if (!agentData.Agents.ContainsKey(request.AgentId.Value))
+            {
+                agentData.Agents.Add(request.AgentId.Value, "");
+            }
+
+            agentData.Agents[request.AgentId.Value] = request.AgentPoolId.Value;
+
+            session.Store(agentData);
+
+            await session.SaveChangesAsync(cancellationToken);
+
+            return new AssignAgentToPoolResult();
+        }
+
+        public async Task<AgentsInPoolResult> Handle(GetAgentsInPoolQuery request, CancellationToken cancellationToken)
+        {
+            using var session = _documentStore.OpenSession();
+
+            string id = "/agentAssignments";
+            var agentData = await session.LoadAsync<AgentPoolAssignmentData>(id, cancellationToken);
+
+            if (agentData is null)
+            {
+                return new AgentsInPoolResult(ImmutableArray<AgentId>.Empty);
+            }
+
+           var agentIds = agentData.Agents.Where(pair => pair.Value == request.AgentPoolId.Value)
+                .Select(pair => new AgentId(pair.Key)).ToImmutableArray();
+
+           return new AgentsInPoolResult(agentIds);
+        }
+    }
+
+    public class AgentPoolAssignmentData
+    {
+        public string Id { get; set; }
+
+        public Dictionary<string, string> Agents { get; set; }
     }
 }

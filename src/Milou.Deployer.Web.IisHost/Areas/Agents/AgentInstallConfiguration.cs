@@ -1,8 +1,10 @@
 ﻿using System;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
-    public class AgentInstallConfiguration
+    public class AgentInstallConfiguration : ICommandResult
     {
         public AgentInstallConfiguration(string name, string accessToken, Uri serverUri)
         {

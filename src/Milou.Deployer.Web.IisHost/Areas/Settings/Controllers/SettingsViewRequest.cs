@@ -1,8 +1,10 @@
 ﻿using MediatR;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {
-    public class SettingsViewRequest : IRequest<SettingsViewModel>
+    public class SettingsViewRequest : IQuery<SettingsViewModel>
     {
     }
 }

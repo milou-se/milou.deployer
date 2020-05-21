@@ -101,6 +101,6 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             return exitCode;
         }
 
-        public string AgentId { get; }
+        public AgentId AgentId { get; }
     }
 }

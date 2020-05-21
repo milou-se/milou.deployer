@@ -6,6 +6,7 @@ using Arbor.Processing;
 using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
@@ -14,19 +15,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         private readonly AgentHub _agentHub;
         private readonly AgentsData _agentsData;
 
-        public RemoteDeploymentPackageAgent(AgentHub agentHub, AgentsData agentsData, string agentId)
+        public RemoteDeploymentPackageAgent(AgentHub agentHub, AgentsData agentsData, AgentId agentId)
         {
             _agentHub = agentHub;
             _agentsData = agentsData;
             AgentId = agentId;
         }
 
+        public AgentId AgentId { get; }
+
         public async Task<ExitCode> RunAsync(string deploymentTaskId,
             string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             var agent = _agentsData.Agents.SingleOrDefault(current =>
-                current.Id.Equals(AgentId, StringComparison.Ordinal));
+                current.Id.Equals(AgentId));
 
             await _agentHub.Clients.Clients(agent.ConnectionId).SendAsync(AgentConstants.SignalRDeployCommand,
                 deploymentTaskId, deploymentTargetId, cancellationToken);
@@ -35,7 +38,5 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             return ExitCode.Success;
         }
-
-        public string AgentId { get; }
     }
 }

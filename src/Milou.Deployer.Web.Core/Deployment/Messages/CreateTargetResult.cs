@@ -2,11 +2,13 @@
 using Arbor.App.Extensions;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class CreateTargetResult : ITargetResult
+    public class CreateTargetResult : ITargetResult, ICommandResult
     {
         public CreateTargetResult(string targetId, string targetName)
         {

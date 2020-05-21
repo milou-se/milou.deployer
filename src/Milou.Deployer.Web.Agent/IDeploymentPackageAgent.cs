@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.Agent
     /// </summary>
     public interface IDeploymentPackageAgent
     {
-        string AgentId { get; }
+        AgentId AgentId { get; }
 
         Task<ExitCode> RunAsync(
             string deploymentTaskId,

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -21,6 +22,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             var agents = _agentsData.Agents;
 
             return View(new AgentsViewModel(agents));
+        }
+
+        [ModelValidatorFilter]
+        [HttpPost]
+        [Route(AgentsRoute, Name = AgentsRouteName)]
+        public async Task<IActionResult> Index(CreateAgent createAgent, [FromServices] IMediator mediator)
+        {
+            await mediator.Send(createAgent);
+
+            return Ok();
         }
     }
 }

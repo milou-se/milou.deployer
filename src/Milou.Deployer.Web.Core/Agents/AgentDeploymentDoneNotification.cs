@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.Core.Agents
 {
@@ -8,13 +10,13 @@ namespace Milou.Deployer.Web.Core.Agents
         {
             DeploymentTaskId = deploymentTaskId;
             DeploymentTargetId = deploymentTargetId;
-            AgentId = agentId;
+            AgentId = new AgentId(agentId);
         }
 
         public string DeploymentTaskId { get; }
 
         public string DeploymentTargetId { get; }
 
-        public string AgentId { get; }
+        public AgentId AgentId { get; }
     }
 }

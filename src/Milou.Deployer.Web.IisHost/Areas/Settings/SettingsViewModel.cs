@@ -4,6 +4,8 @@ using System.Linq;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
@@ -11,7 +13,7 @@ using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings
 {
-    public class SettingsViewModel
+    public class SettingsViewModel : IQueryResult
     {
         public SettingsViewModel(
             string targetReadService,

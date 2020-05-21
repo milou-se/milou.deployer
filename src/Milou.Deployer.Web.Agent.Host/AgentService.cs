@@ -72,9 +72,9 @@ namespace Milou.Deployer.Web.Agent.Host
 
             await Task.Yield();
 
-            string agentId = _agentConfiguration.AgentId();
+            AgentId agentId = _agentConfiguration.AgentId();
 
-            if (string.IsNullOrWhiteSpace(agentId))
+            if (agentId is null)
             {
                 _logger.Error("Could not find agent id, token length is {TokenLength}",
                     _agentConfiguration?.AccessToken.Length.ToString() ?? "N/A");

@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Agent.Host
 {
     public static class ConfigurationExtensions
     {
-        public static string AgentId(this AgentConfiguration configuration)
+        public static AgentId AgentId(this AgentConfiguration configuration)
         {
             if (string.IsNullOrWhiteSpace(configuration.AccessToken))
             {
@@ -27,7 +27,7 @@ namespace Milou.Deployer.Web.Agent.Host
                 throw new InvalidOperationException($"The token does not contain any claim of type {claimType}");
             }
 
-            return agentId;
+            return new AgentId(agentId);
         }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using MediatR;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class DeploymentLogRequest : IRequest<DeploymentLogResponse>
+    public class DeploymentLogRequest : IQuery<DeploymentLogResponse>
     {
         public DeploymentLogRequest(string deploymentTaskId, LogEventLevel level)
         {

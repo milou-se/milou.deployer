@@ -1,11 +1,13 @@
 ﻿using System.Collections.Immutable;
 using Arbor.App.Extensions;
 using Arbor.KVConfiguration.Core;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class CreateProjectResult
+    public class CreateProjectResult : ICommandResult
     {
         public CreateProjectResult(string projectName)
         {

@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using MediatR;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidatableObject
+    public class UpdateDeploymentTarget : ICommand<UpdateDeploymentTargetResult>, IValidatableObject
     {
         public UpdateDeploymentTarget(
             string id,

@@ -4,6 +4,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents.Pools;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Agents
@@ -11,8 +13,8 @@ namespace Milou.Deployer.Web.Core.Agents
     [UsedImplicitly]
     public class AgentsData
     {
-        private readonly ConcurrentDictionary<string, AgentState> _agents =
-            new ConcurrentDictionary<string, AgentState>();
+        private readonly ConcurrentDictionary<AgentId, AgentState> _agents =
+            new ConcurrentDictionary<AgentId, AgentState>();
 
         private readonly ICustomClock _customClock;
         private readonly ILogger _logger;
@@ -55,7 +57,7 @@ namespace Milou.Deployer.Web.Core.Agents
             }
         }
 
-        public void AgentAssigned(string agentId, string deploymentTaskId)
+        public void AgentAssigned(AgentId agentId, string deploymentTaskId)
         {
             if (!_agents.TryGetValue(agentId, out var state))
             {
@@ -65,7 +67,7 @@ namespace Milou.Deployer.Web.Core.Agents
             state.CurrentDeploymentTaskId = deploymentTaskId;
         }
 
-        public void AgentDone(string agentId)
+        public void AgentDone(AgentId agentId)
         {
             if (!_agents.TryGetValue(agentId, out var state))
             {

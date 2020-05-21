@@ -1,10 +1,13 @@
 ﻿using System;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.Core.Agents
 {
-    public class AgentInfo
+    public class AgentInfo : IQueryResult
     {
-        public AgentInfo(string id, DateTimeOffset connectedAt, string? connectionId, string? currentDeploymentTaskId)
+        public AgentInfo(AgentId id, DateTimeOffset? connectedAt = null, string? connectionId = null, string? currentDeploymentTaskId = null)
         {
             Id = id;
             ConnectedAt = connectedAt;
@@ -12,9 +15,9 @@ namespace Milou.Deployer.Web.Core.Agents
             CurrentDeploymentTaskId = currentDeploymentTaskId;
         }
 
-        public string Id { get; }
+        public AgentId Id { get; }
 
-        public DateTimeOffset ConnectedAt { get; }
+        public DateTimeOffset? ConnectedAt { get; }
 
         public string? ConnectionId { get; }
 

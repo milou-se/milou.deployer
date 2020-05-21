@@ -1,16 +1,18 @@
 ﻿using System;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentState
     {
-        public AgentState(string agentId) => AgentId = agentId;
+        public AgentState(AgentId agentId) => AgentId = agentId;
 
         public bool IsConnected { get; set; }
 
         public DateTimeOffset ConnectedAt { get; set; }
 
-        public string AgentId { get; }
+        public AgentId AgentId { get; }
 
         public string? ConnectionId { get; set; }
 

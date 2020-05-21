@@ -1,6 +1,9 @@
-﻿namespace Milou.Deployer.Web.Core.Deployment.Environments
+﻿using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
+
+namespace Milou.Deployer.Web.Core.Deployment.Environments
 {
-    public class CreateEnvironmentResult
+    public class CreateEnvironmentResult : ICommandResult
     {
         public CreateEnvironmentResult(string id, Result status)
         {

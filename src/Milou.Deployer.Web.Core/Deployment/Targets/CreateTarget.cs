@@ -2,11 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions;
 using MediatR;
+using Milou.Deployer.Core.Messaging;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
-    public class CreateTarget : IRequest<CreateTargetResult>
+    public class CreateTarget : ICommand<CreateTargetResult>
     {
         public CreateTarget(string? id, string? name)
         {

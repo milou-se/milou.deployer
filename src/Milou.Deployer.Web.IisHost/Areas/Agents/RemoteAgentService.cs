@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Pools;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Serilog;
@@ -42,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 {
                     _logger.Information("Deployment task {DeploymentTaskId} was assigned to agent {Agent}",
                         deploymentTask.DeploymentTaskId, agentInfo.Id);
-                    string agentId = agentInfo.Id;
+                    AgentId agentId = agentInfo.Id;
                     _agents.AgentAssigned(agentId, deploymentTask.DeploymentTaskId);
 
                     return new RemoteDeploymentPackageAgent(_agentHub, _agents, agentId);
