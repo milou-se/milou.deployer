@@ -57,14 +57,4 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             await _mediator.Publish(new AgentConnected(agentId, Context.ConnectionId));
         }
     }
-
-    public class AgentDisconnected : INotification
-    {
-        public AgentId AgentId { get; }
-
-        public AgentDisconnected(AgentId agentId)
-        {
-            AgentId = agentId;
-        }
-    }
 }
