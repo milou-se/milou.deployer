@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
@@ -82,7 +83,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     .Select(key =>
                         new ConfigurationKeyInfo(key,
                             _configuration[key].MakeAnonymous(key,
-                                ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()),
+                                ArborStringExtensions.DefaultAnonymousKeyWords.ToArray()),
                             _configuration.ConfiguratorFor(key).GetType().Name))
                     .ToImmutableArray());
 
@@ -92,7 +93,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 .Select(pair =>
                     new KeyValuePair<string, string>(pair.Key,
                         pair.Value.MakeAnonymous(pair.Key,
-                            ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())));
+                            ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())));
 
             ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 

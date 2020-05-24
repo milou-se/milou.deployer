@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
-using Milou.Deployer.Core.Messaging;
+using Arbor.App.Extensions.Messaging;
+
 
 namespace Milou.Deployer.Web.Core.Agents.Pools
 {

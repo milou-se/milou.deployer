@@ -12,7 +12,7 @@ using MimeKit;
 namespace Milou.Deployer.Web.IisHost.Areas.Email
 {
     [UsedImplicitly]
-    public class DeploymentFinishedEmailHandler : INotificationHandler<DeploymentFinishedNotification>
+    public class DeploymentFinishedEmailHandler : INotificationHandler<DeploymentFinished>
     {
         private readonly EmailNotificationConfiguration _emailNotificationConfiguration;
         private readonly ISmtpService _smtpService;
@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
                                               throw new ArgumentNullException(nameof(emailNotificationConfiguration));
         }
 
-        public Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
+        public Task Handle(DeploymentFinished notification, CancellationToken cancellationToken)
         {
             if (!_emailNotificationConfiguration.Enabled)
             {

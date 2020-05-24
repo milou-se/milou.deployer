@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
@@ -93,7 +94,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     continue;
                 }
 
-                var targetsWithUrl = deploymentTargets.Where(target => target.Url.HasValue()).ToImmutableArray();
+                var targetsWithUrl = deploymentTargets.Where(target => target.Url is {}).ToImmutableArray();
 
                 if (targetsWithUrl.IsDefaultOrEmpty)
                 {
@@ -115,7 +116,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     AppVersion appVersion = appVersions.SingleOrDefault(version =>
                         version.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
 
-                    if (appVersion?.SemanticVersion is null || appVersion.PackageId.IsNullOrWhiteSpace())
+                    if (appVersion?.SemanticVersion is null || string.IsNullOrWhiteSpace(appVersion.PackageId))
                     {
                         continue;
                     }

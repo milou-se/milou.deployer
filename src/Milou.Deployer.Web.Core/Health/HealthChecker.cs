@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Extensions;
+
 using Serilog;
-using EnumerableExtensions = Arbor.App.Extensions.EnumerableExtensions;
 
 namespace Milou.Deployer.Web.Core.Health
 {
@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Health
             [NotNull] ILogger logger,
             TimeoutHelper timeoutHelper)
         {
-            _healthChecks = EnumerableExtensions.SafeToImmutableArray(healthChecks);
+            _healthChecks = healthChecks.SafeToImmutableArray();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _timeoutHelper = timeoutHelper;
         }

@@ -4,13 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
-using Milou.Deployer.Core.Extensions;
+
 using NuGet.Packaging;
 using NuGet.Versioning;
 using Serilog;
@@ -147,7 +148,7 @@ namespace Milou.Deployer.Core.NuGet
             }
 
             const string sourceKey = ConfigurationKeys.NuGetSource;
-            string nugetSourceInConfiguration = _deployerConfiguration.NuGetSource;
+            string? nugetSourceInConfiguration = _deployerConfiguration.NuGetSource;
             string? nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
 
             if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))

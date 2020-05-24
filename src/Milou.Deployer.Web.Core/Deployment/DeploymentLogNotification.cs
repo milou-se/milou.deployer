@@ -1,10 +1,11 @@
 ﻿using System;
+using Arbor.App.Extensions.Messaging;
 using JetBrains.Annotations;
 using MediatR;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
-    public class DeploymentLogNotification : INotification
+    public class DeploymentLogNotification : IEvent
     {
         public DeploymentLogNotification([NotNull] string deploymentTargetId, [NotNull] string message)
         {

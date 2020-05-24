@@ -1,9 +1,10 @@
 ﻿using System;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.Web.Administration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
-using Milou.Deployer.Core.Extensions;
+
 using Serilog;
 using Serilog.Events;
 
@@ -100,7 +101,7 @@ namespace Milou.Deployer.IIS
 
                 _site = _serverManager.Sites[_deploymentExecutionDefinition.IisSiteName];
 
-                if (!_site.HasValue())
+                if (_site is null)
                 {
                     _logger.Error(
                         "Could not find IIS site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
@@ -173,8 +174,8 @@ namespace Milou.Deployer.IIS
                     return false;
                 }
 
-                if (_serverManager.HasValue()
-                    && _site.HasValue()
+                if (_serverManager is {}
+                    && _site is {}
                     && _site.State != ObjectState.Starting
                     && _site.State != ObjectState.Started
                     && (_previousSiteState == ObjectState.Starting

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.Web.XmlTransform;
 using Milou.Deployer.Core.Deployment;
-using Milou.Deployer.Core.Extensions;
+
 using Serilog;
 
 namespace Milou.Deployer.Core.XmlTransformation

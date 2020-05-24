@@ -2,7 +2,7 @@
 @using Milou.Deployer.Web.IisHost.Areas.Projects
 @model Milou.Deployer.Web.IisHost.Areas.Projects.ProjectsViewOutputModel
 
-@if (Model.CreateProjectResult.HasValue())
+@if (Model.CreateProjectResult is {})
 {
     if (Model.CreateProjectResult.ValidationErrors.Length == 1)
     {

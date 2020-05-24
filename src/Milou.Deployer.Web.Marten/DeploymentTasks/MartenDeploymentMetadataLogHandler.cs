@@ -9,14 +9,14 @@ using Milou.Deployer.Web.Core.Deployment.Messages;
 namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [UsedImplicitly]
-    public class MartenDeploymentMetadataLogHandler : INotificationHandler<DeploymentMetadataLogNotification>
+    public class MartenDeploymentMetadataLogHandler : INotificationHandler<DeploymentMetadataLog>
     {
         private readonly IDocumentStore _documentStore;
 
         public MartenDeploymentMetadataLogHandler([NotNull] IDocumentStore documentStore) => _documentStore =
             documentStore ?? throw new ArgumentNullException(nameof(documentStore));
 
-        public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(DeploymentMetadataLog notification, CancellationToken cancellationToken)
         {
             using IDocumentSession session = _documentStore.OpenSession();
             var taskMetadata = new TaskMetadata

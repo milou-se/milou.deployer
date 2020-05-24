@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
@@ -96,7 +97,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             string? configFile =
                 nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
 
-            if (configFile.HasValue() && File.Exists(configFile))
+            if (configFile is {} && File.Exists(configFile))
             {
                 _logger.Debug("Using NuGet config file {NuGetConfigFile} for package {Package}", configFile, packageId);
             }

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core.NuGet;
@@ -54,10 +55,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                 try
                 {
-                    PackageEventNotification webHookNotification =
+                    PackageUpdatedEvent webHook =
                         await packageWebHook.TryGetWebHookNotification(request, content, cancellationToken);
 
-                    if (webHookNotification is null)
+                    if (webHook is null)
                     {
                         continue;
                     }
@@ -67,7 +68,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                     _logger.Information("Web hook successfully handled by {Handler}",
                         packageWebHook.GetType().FullName);
 
-                    await Task.Run(() => _mediator.Publish(webHookNotification, cancellationToken), cancellationToken);
+                    await Task.Run(() => _mediator.Publish(webHook, cancellationToken), cancellationToken);
 
                     break;
                 }

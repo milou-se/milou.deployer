@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.Http;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Serilog;
 

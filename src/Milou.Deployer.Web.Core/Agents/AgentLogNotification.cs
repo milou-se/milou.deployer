@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Arbor.App.Extensions.Messaging;
+using MediatR;
 
 namespace Milou.Deployer.Web.Core.Agents
 {
-    public class AgentLogNotification : INotification
+    public class AgentLogNotification : IEvent
     {
         public AgentLogNotification(string deploymentTaskId, string deploymentTargetId, string message)
         {

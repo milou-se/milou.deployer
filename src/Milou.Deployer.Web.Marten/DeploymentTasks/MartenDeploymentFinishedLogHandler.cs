@@ -13,7 +13,7 @@ using Serilog;
 namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [UsedImplicitly]
-    public class MartenDeploymentFinishedLogHandler : INotificationHandler<DeploymentFinishedNotification>
+    public class MartenDeploymentFinishedLogHandler : INotificationHandler<DeploymentFinished>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
             _logger = logger;
         }
 
-        public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(DeploymentFinished notification, CancellationToken cancellationToken)
         {
             string taskLogId = $"deploymentTaskLog/{notification.DeploymentTask.DeploymentTaskId}";
 

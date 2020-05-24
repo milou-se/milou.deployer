@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Arbor.App.Extensions.Messaging;
+using MediatR;
 
 namespace Milou.Deployer.Web.Agent
 {
-    public class AgentDisconnected : INotification
+    public class AgentDisconnected : IEvent
     {
         public AgentId AgentId { get; }
 

@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Milou.Deployer.Web.Core.Caching;
@@ -82,7 +84,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
 
             IReadOnlyCollection<string> filteredKeys = keys;
 
-            if (prefix.HasValue())
+            if (prefix.HasSomeString())
             {
                 filteredKeys = keys
                     .Where(key => key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))

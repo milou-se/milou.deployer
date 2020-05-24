@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using Arbor.App.Extensions.Messaging;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -7,9 +8,9 @@ using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class DeploymentFinishedNotification : INotification
+    public class DeploymentFinished : IEvent
     {
-        public DeploymentFinishedNotification(
+        public DeploymentFinished(
             [NotNull] DeploymentTask deploymentTask,
             LogItem[] logLines,
             DateTime finishedAtUtc)

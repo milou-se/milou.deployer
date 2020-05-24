@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Extensions;
+
 
 namespace Milou.Deployer.Core.Deployment
 {
@@ -24,7 +25,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public static PublishType Default => WebDeploy;
 
-        public static ImmutableArray<PublishType> All => EnumerateOf<PublishType>.All;
+        public static ImmutableArray<PublishType> All => EnumerableOf<PublishType>.All;
 
         public bool IsAnyFtpType => Equals(Ftp) || Equals(Ftps);
 

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.Messaging;
 using MediatR;
-using Milou.Deployer.Core.Messaging;
+
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 
@@ -22,7 +23,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         [Required]
         public string Name { get; }
 
-        public bool IsValid => Id.HasValue() && Name.HasValue() &&
+        public bool IsValid => Id is {} && Name is {} &&
                                !Id.Equals(Constants.NotAvailable, StringComparison.OrdinalIgnoreCase);
 
         public override string ToString() => Id;

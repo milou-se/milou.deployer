@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Marten;
@@ -206,7 +207,7 @@ namespace Milou.Deployer.Web.Marten
 
             EnvironmentTypeData data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
 
-            if (data.Id.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(data.Id))
             {
                 return new CreateEnvironmentResult("", Result.Failed);
             }
@@ -464,7 +465,7 @@ namespace Milou.Deployer.Web.Marten
             return updateDeploymentTargetResult;
         }
 
-        public async Task Handle(DeploymentTaskCreatedNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(DeploymentTaskCreated notification, CancellationToken cancellationToken)
         {
             using IDocumentSession session = _documentStore.OpenSession();
             session.Store(new DeploymentTaskData

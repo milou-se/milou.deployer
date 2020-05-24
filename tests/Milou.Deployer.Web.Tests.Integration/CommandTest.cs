@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.Messaging;
 using MediatR;
-using Milou.Deployer.Core.Messaging;
+
 using Milou.Deployer.Web.Core.Agents;
 using Xunit;
 
@@ -32,7 +34,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [MemberData(nameof(GetTestAssemblyTypes))]
         [Theory]
-        public void Test(Type requestType)
+        public void RequestImplementationMustBeCommandOrQuery(Type requestType)
         {
             bool isQuery = requestType.Closes(typeof(IQuery<>));
 

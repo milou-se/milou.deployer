@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.IO;
 using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
@@ -199,7 +200,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
             await _mediator.Publish(
-                new DeploymentFinishedNotification(deploymentTask,
+                new DeploymentFinished(deploymentTask,
                     _tempData?.LogBuilder.ToArray() ?? Array.Empty<LogItem>(), finishedAtUtc),
                 cancellationToken);
 
@@ -221,7 +222,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 finishedAtUtc,
                 metadataContent);
 
-            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult),
+            await _mediator.Publish(new DeploymentMetadataLog(deploymentTask, deploymentTaskResult),
                 cancellationToken);
 
             ClearTemporaryDirectoriesAndFiles(TempFiles[deploymentTask.DeploymentTaskId],
@@ -584,7 +585,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 string? publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
                 string? msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
 
-                if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
+                if (ArborStringExtensions.AllHaveValue(username, password, publishUrl, msdeploySite))
                 {
                     TempFile tempPublishFile = CreateTempPublishFile(deploymentTarget,
                         username,

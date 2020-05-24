@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core.Deployment.Packages;
@@ -32,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _logger = logger;
         }
 
-        public async Task<PackageEventNotification?> TryGetWebHookNotification(
+        public async Task<PackageUpdatedEvent?> TryGetWebHookNotification(
             HttpRequest request,
             string content,
             CancellationToken cancellationToken)
@@ -120,7 +121,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _logger.Information("Successfully received Nexus web hook notification for package {Package}",
                 packageVersion);
 
-            return new PackageEventNotification(packageVersion, nexusConfig.NuGetSource, nexusConfig.NuGetConfig);
+            return new PackageUpdatedEvent(packageVersion, nexusConfig.NuGetSource, nexusConfig.NuGetConfig);
         }
 
         private async Task<NexusConfig> GetSignatureKeyAsync(CancellationToken cancellationToken)

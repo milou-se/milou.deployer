@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.CommandLine;
 using Arbor.KVConfiguration.JsonConfiguration;
@@ -17,7 +18,7 @@ using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
-using Milou.Deployer.Core.Extensions;
+
 using Milou.Deployer.Core.Logging;
 using Milou.Deployer.Ftp;
 using Milou.Deployer.IIS;
@@ -111,8 +112,10 @@ namespace Milou.Deployer.DeployerApp
 
                 string configurationLogLevel = configuration[ConfigurationKeys.LogLevel];
 
-                var logLevel = environmentLogLevel.WithDefault(configurationLogLevel)
-                    .TryParseOrDefault(LogEventLevel.Information);
+                var logLevel =
+                    Arbor.App.Extensions.Logging.LogEventLevelExtensions.ParseOrDefault(
+                        environmentLogLevel.WithDefault(configurationLogLevel));
+
 
                 levelSwitch.MinimumLevel = logLevel;
 

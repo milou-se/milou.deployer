@@ -1,11 +1,12 @@
-﻿using MediatR;
+﻿using Arbor.App.Extensions.Messaging;
+using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 
 namespace Milou.Deployer.Web.Core.NuGet
 {
-    public class PackageEventNotification : INotification
+    public class PackageUpdatedEvent : IEvent
     {
-        public PackageEventNotification(PackageVersion packageVersion, string nugetSource, string nugetConfig)
+        public PackageUpdatedEvent(PackageVersion packageVersion, string nugetSource, string nugetConfig)
         {
             PackageVersion = packageVersion;
             NugetSource = nugetSource;

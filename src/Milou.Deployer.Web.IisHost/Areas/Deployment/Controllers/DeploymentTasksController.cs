@@ -57,7 +57,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 _logger.Information("Deploy succeeded for deployment task id {DeploymentTaskId}",
                     deploymentTaskAgentResult.DeploymentTaskId);
 
-                await _mediator.Publish(new AgentDeploymentDoneNotification(deploymentTaskAgentResult.DeploymentTaskId,
+                await _mediator.Publish(new AgentDeploymentDone(deploymentTaskAgentResult.DeploymentTaskId,
                     deploymentTaskAgentResult.DeploymentTargetId, agentId));
             }
             else
@@ -65,7 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 _logger.Error("Deploy failed for deployment task id {DeploymentTaskId}",
                     deploymentTaskAgentResult.DeploymentTaskId);
 
-                await _mediator.Publish(new AgentDeploymentFailedNotification(
+                await _mediator.Publish(new AgentDeploymentFailed(
                     deploymentTaskAgentResult.DeploymentTaskId, deploymentTaskAgentResult.DeploymentTargetId, agentId));
             }
 

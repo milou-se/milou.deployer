@@ -9,6 +9,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.IO;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using Arbor.Tooler;
@@ -18,7 +20,7 @@ using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Core.Deployment.WebDeploy;
-using Milou.Deployer.Core.Extensions;
+
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Core.XmlTransformation;
@@ -778,7 +780,7 @@ namespace Milou.Deployer.Core.Deployment
                         };
                     }
 
-                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName.HasValue();
+                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName is {};
                     DeploySummary summary;
 
                     try

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Linq;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 
@@ -25,6 +25,6 @@ namespace Milou.Deployer.Web.Marten
         public bool IsValid => !Enabled || !string.IsNullOrWhiteSpace(ConnectionString);
 
         public override string ToString() =>
-            $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()}";
+            $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()}";
     }
 }

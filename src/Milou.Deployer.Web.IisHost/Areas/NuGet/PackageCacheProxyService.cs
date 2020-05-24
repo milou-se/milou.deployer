@@ -17,7 +17,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
-    public class PackageCacheProxyService : IPackageService, INotificationHandler<PackageEventNotification>
+    public class PackageCacheProxyService : IPackageService, INotificationHandler<PackageUpdatedEvent>
     {
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
 
@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _memoryCache = memoryCache;
         }
 
-        public Task Handle(PackageEventNotification notification, CancellationToken cancellationToken) =>
+        public Task Handle(PackageUpdatedEvent notification, CancellationToken cancellationToken) =>
             ClearCache(
                 notification.PackageVersion.Key,
                 notification.NugetConfig,

@@ -2,7 +2,7 @@
 @using Milou.Deployer.Web.IisHost.Areas.Organizations
 @model Milou.Deployer.Web.IisHost.Areas.Organizations.OrganizationsViewOutputModel
 
-@if (Model.CreateOrganizationResult.HasValue())
+@if (Model.CreateOrganizationResult is {})
 {
     if (Model.CreateOrganizationResult.ValidationErrors.Length == 1)
     {

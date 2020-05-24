@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;

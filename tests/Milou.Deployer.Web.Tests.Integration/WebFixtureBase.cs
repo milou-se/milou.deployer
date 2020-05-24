@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.IO;
 using Arbor.AspNetCore.Host;
@@ -94,8 +94,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             useDefaultDirectory = true;
 
-            string? version = Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:version")
-                .WithDefault("10.5.1");
+            string? version = Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:version").WithDefault("10.5.1");
 
             DirectoryInfo? postgresqlDbDir;
             if (useDefaultDirectory)

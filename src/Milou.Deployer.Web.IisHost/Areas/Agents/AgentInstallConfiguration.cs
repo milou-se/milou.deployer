@@ -1,5 +1,5 @@
 ﻿using System;
-using Milou.Deployer.Core.Messaging;
+using Arbor.App.Extensions.Messaging;
 using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents

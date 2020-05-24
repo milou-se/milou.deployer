@@ -1,5 +1,6 @@
-﻿using MediatR;
-using Milou.Deployer.Core.Messaging;
+﻿using Arbor.App.Extensions.Messaging;
+using MediatR;
+
 
 namespace Milou.Deployer.Web.Core.Agents.Pools
 {

@@ -1,12 +1,13 @@
-﻿using MediatR;
+﻿using Arbor.App.Extensions.Messaging;
+using MediatR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.Core.Agents
 {
-    public class AgentDeploymentDoneNotification : INotification
+    public class AgentDeploymentDone : IEvent
     {
-        public AgentDeploymentDoneNotification(string deploymentTaskId, string deploymentTargetId, string agentId)
+        public AgentDeploymentDone(string deploymentTaskId, string deploymentTargetId, string agentId)
         {
             DeploymentTaskId = deploymentTaskId;
             DeploymentTargetId = deploymentTargetId;

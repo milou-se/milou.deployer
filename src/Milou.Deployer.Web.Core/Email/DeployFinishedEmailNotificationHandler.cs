@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using MediatR;
@@ -15,7 +16,7 @@ using Serilog;
 namespace Milou.Deployer.Web.Core.Email
 {
     [UsedImplicitly]
-    public class DeployFinishedEmailNotificationHandler : INotificationHandler<DeploymentMetadataLogNotification>
+    public class DeployFinishedEmailNotificationHandler : INotificationHandler<DeploymentMetadataLog>
     {
         private readonly EmailConfiguration _emailConfiguration;
         private readonly ILogger _logger;
@@ -46,7 +47,7 @@ namespace Milou.Deployer.Web.Core.Email
                 false);
         }
 
-        public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(DeploymentMetadataLog notification, CancellationToken cancellationToken)
         {
             if (!_emailConfiguration.IsValid)
             {

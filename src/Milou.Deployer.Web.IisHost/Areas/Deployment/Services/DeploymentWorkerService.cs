@@ -4,12 +4,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Tasks;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
-using Milou.Deployer.Core.Extensions;
+
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -24,8 +25,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         INotificationHandler<TargetDisabled>,
         INotificationHandler<AgentLogNotification>,
         IRequestHandler<StartWorker>,
-        INotificationHandler<AgentDeploymentDoneNotification>,
-        INotificationHandler<AgentDeploymentFailedNotification>
+        INotificationHandler<AgentDeploymentDone>,
+        INotificationHandler<AgentDeploymentFailed>
     {
         private readonly AgentsData _agents;
         private readonly Dictionary<string, CancellationTokenSource> _cancellations;
@@ -48,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _cancellations = new Dictionary<string, CancellationTokenSource>();
         }
 
-        public Task Handle(AgentDeploymentDoneNotification notification, CancellationToken cancellationToken)
+        public Task Handle(AgentDeploymentDone notification, CancellationToken cancellationToken)
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
@@ -59,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public Task Handle(AgentDeploymentFailedNotification notification, CancellationToken cancellationToken)
+        public Task Handle(AgentDeploymentFailed notification, CancellationToken cancellationToken)
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
@@ -151,7 +152,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
 
-            Task.Run<Task>(() => _mediator.Publish(new DeploymentTaskCreatedNotification(deploymentTask)));
+            Task.Run<Task>(() => _mediator.Publish(new DeploymentTaskCreated(deploymentTask)));
 
             if (foundWorker is null)
             {

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.ExtensionMethods;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

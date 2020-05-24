@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Milou.Deployer.Core.Messaging;
+using Arbor.App.Extensions.Messaging;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 

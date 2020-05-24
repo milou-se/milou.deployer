@@ -9,12 +9,13 @@ using System.Net;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using FluentFTP;
 using JetBrains.Annotations;
 using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
-using Milou.Deployer.Core.Extensions;
+
 using Milou.Deployer.Core.IO;
 using Serilog;
 using Serilog.Core;

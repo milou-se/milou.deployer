@@ -1,9 +1,10 @@
-﻿using MediatR;
+﻿using Arbor.App.Extensions.Messaging;
+using MediatR;
 using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Web.Core.Agents
 {
-    public class AgentConnected : INotification
+    public class AgentConnected : IEvent
     {
         public AgentConnected(AgentId agentId, string connectionId)
         {

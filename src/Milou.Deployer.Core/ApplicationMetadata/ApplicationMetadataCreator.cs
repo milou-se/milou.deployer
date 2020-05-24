@@ -6,11 +6,12 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
-using Milou.Deployer.Core.Extensions;
+
 using Serilog;
 
 namespace Milou.Deployer.Core.ApplicationMetadata

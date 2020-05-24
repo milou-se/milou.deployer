@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Arbor.App.Extensions.Messaging;
+using MediatR;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
-    public class TargetCreated : INotification
+    public class TargetCreated : IEvent
     {
         public TargetCreated(string targetId) => TargetId = targetId;
 

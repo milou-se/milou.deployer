@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Application.Metadata;
@@ -19,7 +20,7 @@ using Serilog;
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     [UsedImplicitly]
-    public class PackageWebHookAutoDeployHandler : INotificationHandler<PackageEventNotification>
+    public class PackageWebHookAutoDeployHandler : INotificationHandler<PackageUpdatedEvent>
     {
         private readonly IApplicationSettingsStore _applicationSettingsStore;
         private readonly DeploymentWorkerService _deploymentService;
@@ -44,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _applicationSettingsStore = applicationSettingsStore;
         }
 
-        public async Task Handle(PackageEventNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(PackageUpdatedEvent notification, CancellationToken cancellationToken)
         {
             if (!(await _applicationSettingsStore.GetApplicationSettings(cancellationToken)).AutoDeploy.Enabled)
             {

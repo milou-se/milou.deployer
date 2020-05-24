@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using DotNext.Threading;
 using JetBrains.Annotations;
@@ -250,7 +251,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            if (deploymentTask.DeploymentTargetId.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(deploymentTask.DeploymentTargetId))
             {
                 throw new ArgumentNullException(nameof(deploymentTask), "Target id is missing");
             }
@@ -386,7 +387,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public void NotifyDeploymentDone(AgentDeploymentDoneNotification notification)
+        public void NotifyDeploymentDone(AgentDeploymentDone notification)
         {
             CheckDisposed();
 
@@ -400,7 +401,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public void NotifyDeploymentFailed(AgentDeploymentFailedNotification notification)
+        public void NotifyDeploymentFailed(AgentDeploymentFailed notification)
         {
             CheckDisposed();
 

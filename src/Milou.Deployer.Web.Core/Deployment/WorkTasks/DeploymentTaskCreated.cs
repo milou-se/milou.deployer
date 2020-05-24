@@ -1,24 +1,24 @@
-﻿namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
+﻿using System;
+using Arbor.App.Extensions.Messaging;
+using JetBrains.Annotations;
+using MediatR;
+
+namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 {
-    public class DeploymentTaskCreated
+    public class DeploymentTaskCreated : IEvent
     {
-        public DeploymentTaskCreated(string deploymentTaskId,
-            string packageVersion,
-            string deploymentTargetId,
-            string startedBy)
+        public DeploymentTaskCreated([NotNull] DeploymentTask deploymentTask)
         {
-            DeploymentTaskId = deploymentTaskId;
-            PackageVersion = packageVersion;
-            DeploymentTargetId = deploymentTargetId;
-            StartedBy = startedBy;
+            if (deploymentTask is null)
+            {
+                throw new ArgumentNullException(nameof(deploymentTask));
+            }
+
+            DeploymentTask =
+                new DeploymentTaskItem(deploymentTask.DeploymentTaskId, deploymentTask.PackageId,
+                    deploymentTask.DeploymentTargetId, deploymentTask.StartedBy);
         }
 
-        public string DeploymentTaskId { get; }
-
-        public string PackageVersion { get; }
-
-        public string DeploymentTargetId { get; }
-
-        public string StartedBy { get; }
+        public DeploymentTaskItem DeploymentTask { get; }
     }
 }

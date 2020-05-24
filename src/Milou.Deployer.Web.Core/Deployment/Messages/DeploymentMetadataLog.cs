@@ -1,13 +1,14 @@
 ﻿using System;
+using Arbor.App.Extensions.Messaging;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class DeploymentMetadataLogNotification : INotification
+    public class DeploymentMetadataLog : IEvent
     {
-        public DeploymentMetadataLogNotification(
+        public DeploymentMetadataLog(
             [NotNull] DeploymentTask deploymentTask,
             [NotNull] DeploymentTaskResult result)
         {

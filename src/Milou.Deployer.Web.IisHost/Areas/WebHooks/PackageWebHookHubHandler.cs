@@ -13,7 +13,7 @@ using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     [UsedImplicitly]
-    public class PackageWebHookHubHandler : INotificationHandler<PackageEventNotification>
+    public class PackageWebHookHubHandler : INotificationHandler<PackageUpdatedEvent>
     {
         private readonly IDeploymentTargetReadService _readService;
         private readonly IHubContext<TargetHub> _targetHubContext;
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _readService = readService;
         }
 
-        public async Task Handle(PackageEventNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(PackageUpdatedEvent notification, CancellationToken cancellationToken)
         {
             var deploymentTargets = await _readService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
 

@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
@@ -27,7 +28,7 @@ using Stopwatch = System.Diagnostics.Stopwatch;
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     [UsedImplicitly]
-    public class MonitoringService : INotificationHandler<DeploymentMetadataLogNotification>,
+    public class MonitoringService : INotificationHandler<DeploymentMetadataLog>,
         INotificationHandler<UpdateDeploymentTargetResult>
     {
         private readonly IApplicationSettingsStore _applicationSettingsStore;
@@ -57,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _customMemoryCache = customMemoryCache;
         }
 
-        public Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
+        public Task Handle(DeploymentMetadataLog notification, CancellationToken cancellationToken)
         {
             InvalidateCache(notification.DeploymentTask.DeploymentTargetId);
 
@@ -210,7 +211,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         AppVersion appVersion;
                         using (response)
                         {
-                            if (response.HasValue() && response.IsSuccessStatusCode)
+                            if (response is {} && response.IsSuccessStatusCode)
                             {
                                 appVersion = await GetAppVersionAsync(
                                     response,

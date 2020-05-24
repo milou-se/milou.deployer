@@ -1,6 +1,9 @@
 ﻿using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.Messaging;
 using MediatR;
-using Milou.Deployer.Core.Messaging;
+
 using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
@@ -17,6 +20,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public string OrganizationId { get; }
 
-        public bool IsValid => Id.HasValue() && OrganizationId.HasValue();
+        public bool IsValid => Id.HasSomeString() && OrganizationId.HasSomeString();
     }
 }
