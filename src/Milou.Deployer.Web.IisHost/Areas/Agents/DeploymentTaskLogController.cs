@@ -39,20 +39,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                     await mediator.Publish(new AgentLogNotification(deploymentTaskId, deploymentTargetId,
                         serilogSinkEvent.RenderedMessage));
                 }
-
-                //try
-                //{
-                //    IEnumerable<LogEventProperty> properties = serilogSinkEvent.Properties?.Select(property =>
-                //        new LogEventProperty(property.Key, new ScalarValue(property.Value.ToString()))) ;
-                //    var logEvent = new LogEvent(serilogSinkEvent.Timestamp, serilogSinkEvent.Level, null,
-                //        new MessageTemplate(serilogSinkEvent.MessageTemplate,
-                //            ImmutableArray<MessageTemplateToken>.Empty), properties?? ImmutableArray<LogEventProperty>.Empty);
-                //    //_logger.Write(logEvent);
-                //}
-                //catch (Exception ex)
-                //{
-                //    _logger.Error(ex, "Could not log event {Event}", serilogSinkEvent);
-                //}
             }
 
             return Ok();

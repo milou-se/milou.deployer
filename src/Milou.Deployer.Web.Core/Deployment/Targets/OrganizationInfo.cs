@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 

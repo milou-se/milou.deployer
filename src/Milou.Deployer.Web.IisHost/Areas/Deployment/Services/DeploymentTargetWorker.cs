@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using DotNext.Threading;
@@ -23,6 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     public sealed class DeploymentTargetWorker : IDeploymentTargetWorker, IDisposable
     {
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly ICustomClock _clock;
         private readonly ILogger _logger;
         private readonly AsyncManualResetEvent _loggingCompleted = new AsyncManualResetEvent(false);

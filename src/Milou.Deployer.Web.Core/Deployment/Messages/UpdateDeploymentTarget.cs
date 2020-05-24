@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions.Messaging;
-using MediatR;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
-
-using Milou.Deployer.Web.Core.Agents;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {

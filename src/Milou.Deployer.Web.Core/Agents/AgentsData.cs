@@ -5,7 +5,6 @@ using System.Linq;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.Core.Agents.Pools;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Agents

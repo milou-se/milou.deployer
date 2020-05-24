@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Tasks;
 using MediatR;
@@ -78,7 +78,7 @@ namespace Milou.Deployer.Web.Agent.Host
             if (agentId is null)
             {
                 _logger.Error("Could not find agent id, token length is {TokenLength}",
-                    _agentConfiguration?.AccessToken.Length.ToString() ?? "N/A");
+                    _agentConfiguration?.AccessToken.Length.ToString(CultureInfo.InvariantCulture) ?? "N/A");
                 return;
             }
 

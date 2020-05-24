@@ -30,6 +30,10 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
         [PublicAPI]
         public string Key { get; }
 
+        public static bool operator ==(PackageVersion left, PackageVersion right) => Equals(left, right);
+
+        public static bool operator !=(PackageVersion left, PackageVersion right) => !Equals(left, right);
+
         public bool Equals(PackageVersion other)
         {
             if (other is null)
@@ -44,10 +48,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
 
             return string.Equals(Key, other.Key, StringComparison.OrdinalIgnoreCase);
         }
-
-        public static bool operator ==(PackageVersion left, PackageVersion right) => Equals(left, right);
-
-        public static bool operator !=(PackageVersion left, PackageVersion right) => !Equals(left, right);
 
         public override bool Equals(object? obj)
         {

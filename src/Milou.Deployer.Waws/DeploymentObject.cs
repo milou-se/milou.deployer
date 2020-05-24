@@ -34,6 +34,29 @@ namespace Milou.Deployer.Waws
             // ignore
         }
 
+        public async Task<DeploySummary> SyncTo(DeploymentBaseOptions baseOptions,
+            DeploymentSyncOptions syncOptions,
+            CancellationToken cancellationToken = default)
+        {
+            void Configure(List<string> arguments)
+            {
+                string dest = CreateDestination(baseOptions);
+
+                arguments.AddRange(new[] { "-verb:delete", dest, "-verbose" });
+
+                if (!string.IsNullOrWhiteSpace(Path) && !string.IsNullOrWhiteSpace(DeploymentBaseOptions.SiteName))
+                {
+                    string destinationParameter = GetDestinationParameter(DeploymentBaseOptions.SiteName, Path);
+                    arguments.Add(destinationParameter);
+                }
+            }
+
+            return await SyncToInternal(baseOptions,
+                syncOptions,
+                Configure,
+                cancellationToken);
+        }
+
         public async Task<DeploySummary> SyncTo(
             DeploymentWellKnownProvider destinationProvider,
             string destinationPath,
@@ -130,28 +153,6 @@ namespace Milou.Deployer.Waws
             return destinationParameter;
         }
 
-        public async Task<DeploySummary> SyncTo(DeploymentBaseOptions baseOptions,
-            DeploymentSyncOptions syncOptions,
-            CancellationToken cancellationToken = default)
-        {
-            void Configure(List<string> arguments)
-            {
-                string dest = CreateDestination(baseOptions);
-
-                arguments.AddRange(new[] {"-verb:delete", dest, "-verbose"});
-
-                if (!string.IsNullOrWhiteSpace(Path) && !string.IsNullOrWhiteSpace(DeploymentBaseOptions.SiteName))
-                {
-                    string destinationParameter = GetDestinationParameter(DeploymentBaseOptions.SiteName, Path);
-                    arguments.Add(destinationParameter);
-                }
-            }
-
-            return await SyncToInternal(baseOptions,
-                syncOptions,
-                Configure,
-                cancellationToken);
-        }
 
         private async Task<DeploySummary> SyncToInternal(
             DeploymentBaseOptions deploymentBaseOptions,

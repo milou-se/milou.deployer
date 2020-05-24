@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Packages;
-using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {

@@ -1,7 +1,5 @@
 ﻿using Arbor.App.Extensions.Messaging;
 
-using Milou.Deployer.Web.Core.Agents;
-
 namespace Milou.Deployer.Web.Core.Deployment.Environments
 {
     public class CreateEnvironmentResult : ICommandResult

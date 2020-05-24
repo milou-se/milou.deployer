@@ -2,9 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Messaging;
-using MediatR;
-
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets

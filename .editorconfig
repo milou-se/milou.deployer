@@ -348,9 +348,10 @@ dotnet_diagnostic.CA2000.severity = none
 dotnet_diagnostic.IDE0001.severity = none
 dotnet_diagnostic.IDE0047.severity = none
 
-# CA2007: Configure await
-dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1000.severity = none
 dotnet_diagnostic.CA1031.severity = none
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA2007.severity = none
 
 # S1854:
 dotnet_diagnostic.S1854.severity = none
@@ -368,3 +369,6 @@ dotnet_diagnostic.RCS1073.severity = none
 
 # RCS1036: Remove redundant empty line.
 dotnet_diagnostic.RCS1036.severity = warning
+
+# CA1000: Do not declare static members on generic types
+dotnet_diagnostic.CA1000.severity = none

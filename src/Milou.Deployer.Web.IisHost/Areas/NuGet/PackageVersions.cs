@@ -1,7 +1,9 @@
-﻿namespace Milou.Deployer.Web.IisHost.Areas.NuGet
+﻿using System;
+
+namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
-    public class PackageVersions
+    internal class PackageVersions
     {
-        public string[] Versions { get; set; }
+        public string[] Versions { get; set; } = Array.Empty<string>();
     }
 }

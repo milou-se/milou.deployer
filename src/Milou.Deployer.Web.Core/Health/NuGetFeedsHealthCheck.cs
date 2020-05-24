@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.Processing;
 using JetBrains.Annotations;

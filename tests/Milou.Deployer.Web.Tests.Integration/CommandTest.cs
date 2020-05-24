@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Messaging;
 using MediatR;
-
-using Milou.Deployer.Web.Core.Agents;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Integration

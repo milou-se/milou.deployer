@@ -1,7 +1,4 @@
 ﻿using Arbor.App.Extensions.Messaging;
-using MediatR;
-
-using Milou.Deployer.Web.Core.Agents;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages

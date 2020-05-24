@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using MediatR;
@@ -81,14 +80,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                         StringComparison.OrdinalIgnoreCase))
                     {
                         if (deploymentTarget.NuGet.NuGetConfigFile is {}
-                            && !deploymentTarget.NuGet.NuGetConfigFile.Equals(notification.NugetConfig))
+                            && !deploymentTarget.NuGet.NuGetConfigFile.Equals(notification.NugetConfig, StringComparison.Ordinal))
                         {
                             _logger.Information("Target {Target} does not match NuGet config", deploymentTarget.Id);
                             continue;
                         }
 
                         if (deploymentTarget.NuGet.NuGetPackageSource is {}
-                            && !deploymentTarget.NuGet.NuGetPackageSource.Equals(notification.NugetSource))
+                            && !deploymentTarget.NuGet.NuGetPackageSource.Equals(notification.NugetSource, StringComparison.Ordinal))
                         {
                             _logger.Information("Target {Target} does not match NuGet source", deploymentTarget.Id);
                             continue;

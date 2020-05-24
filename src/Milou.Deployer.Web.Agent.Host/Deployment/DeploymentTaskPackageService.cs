@@ -1,7 +1,7 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.Http;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Serilog;
@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             HttpClient httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
 
             using var request = new HttpRequestMessage(HttpMethod.Get,
-                $"{AgentConstants.DeploymentTaskPackageRoute.Replace("{deploymentTaskId}", deploymentTaskId)}");
+                $"{AgentConstants.DeploymentTaskPackageRoute.Replace("{deploymentTaskId}", deploymentTaskId, StringComparison.Ordinal)}");
 
             return await httpClient.TrySendAndReadResponseJson<DeploymentTaskPackage>(request, _logger,
                 cancellationToken);

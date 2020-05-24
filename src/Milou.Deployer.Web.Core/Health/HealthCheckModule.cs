@@ -1,5 +1,4 @@
 ﻿using System;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.DependencyInjection;
 using Arbor.App.Extensions.ExtensionMethods;

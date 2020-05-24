@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using MediatR;
-using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Controllers;

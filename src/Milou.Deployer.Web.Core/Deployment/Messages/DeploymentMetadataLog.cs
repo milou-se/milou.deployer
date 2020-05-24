@@ -1,7 +1,6 @@
 ﻿using System;
 using Arbor.App.Extensions.Messaging;
 using JetBrains.Annotations;
-using MediatR;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages

@@ -4,6 +4,6 @@
     {
         public const string AreaName = "Startup";
 
-        public static string RuntimeCompilationEnabled = "urn:milou:deployer:web:runtime-compilation:enabled";
+        public const string RuntimeCompilationEnabled = "urn:milou:deployer:web:runtime-compilation:enabled";
     }
 }

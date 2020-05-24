@@ -4,9 +4,6 @@
     {
         public string Value { get; }
 
-        public AgentPoolId(string value)
-        {
-            Value = value;
-        }
+        public AgentPoolId(string value) => Value = value;
     }
 }

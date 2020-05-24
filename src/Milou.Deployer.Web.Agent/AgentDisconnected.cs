@@ -1,5 +1,4 @@
 ﻿using Arbor.App.Extensions.Messaging;
-using MediatR;
 
 namespace Milou.Deployer.Web.Agent
 {
@@ -7,9 +6,6 @@ namespace Milou.Deployer.Web.Agent
     {
         public AgentId AgentId { get; }
 
-        public AgentDisconnected(AgentId agentId)
-        {
-            AgentId = agentId;
-        }
+        public AgentDisconnected(AgentId agentId) => AgentId = agentId;
     }
 }

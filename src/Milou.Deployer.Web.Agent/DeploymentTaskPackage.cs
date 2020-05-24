@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 
 namespace Milou.Deployer.Web.Agent

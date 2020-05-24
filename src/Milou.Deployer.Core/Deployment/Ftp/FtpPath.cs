@@ -68,21 +68,6 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public FileSystemType Type { get; }
 
-        public bool Equals(FtpPath? other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
-        }
-
         public FtpPath Append([NotNull] FtpPath path)
         {
             if (path is null)
@@ -117,6 +102,21 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             }
 
             return true;
+        }
+
+        public bool Equals(FtpPath? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
         }
 
         public override bool Equals(object? obj) =>

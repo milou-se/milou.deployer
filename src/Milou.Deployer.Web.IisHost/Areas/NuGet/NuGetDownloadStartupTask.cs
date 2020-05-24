@@ -2,8 +2,6 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
-using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
@@ -45,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         {
             await Task.Yield();
 
-            string nugetExePath = "";
+            string? nugetExePath = "";
 
             _logger.Debug("Ensuring nuget.exe exists");
 
@@ -60,8 +58,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 var fromSeconds = TimeSpan.FromSeconds(initialNuGetDownloadTimeoutInSeconds);
 
                 using CancellationTokenSource cts = _timeoutHelper.CreateCancellationTokenSource(fromSeconds);
-                string? downloadDirectory = _configuration[DeployerAppConstants.NuGetExeDirectory].WithDefault(null);
-                string? exeVersion = _configuration[DeployerAppConstants.NuGetExeVersion].WithDefault(null);
+                string? downloadDirectory = _configuration[DeployerAppConstants.NuGetExeDirectory].WithDefault();
+                string? exeVersion = _configuration[DeployerAppConstants.NuGetExeVersion].WithDefault();
 
                 HttpClient httpClient = _httpClientFactory.CreateClient();
 

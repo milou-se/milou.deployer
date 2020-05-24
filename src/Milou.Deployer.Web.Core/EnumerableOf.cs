@@ -7,9 +7,9 @@ namespace Milou.Deployer.Web.Core
 {
     public static class EnumerableOf<T> where T : class
     {
-        private static readonly Lazy<ImmutableArray<T>> _all = new Lazy<ImmutableArray<T>>(GetAll);
+        private static readonly Lazy<ImmutableArray<T>> LazyValues = new Lazy<ImmutableArray<T>>(GetAll);
 
-        public static ImmutableArray<T> All => _all.Value;
+        public static ImmutableArray<T> All => LazyValues.Value;
 
         private static ImmutableArray<T> GetAll() =>
             typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField)

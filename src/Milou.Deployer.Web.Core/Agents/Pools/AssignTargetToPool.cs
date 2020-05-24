@@ -1,6 +1,4 @@
 ﻿using Arbor.App.Extensions.Messaging;
-using MediatR;
-
 using Milou.Deployer.Web.Core.Deployment;
 
 namespace Milou.Deployer.Web.Core.Agents.Pools

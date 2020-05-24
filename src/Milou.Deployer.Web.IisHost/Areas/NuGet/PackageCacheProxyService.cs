@@ -93,7 +93,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     "Cached {Packages} packages with key {CacheKey} for {Duration} seconds",
                     addedPackages.Length,
                     cacheKey,
-                    cacheTime.TotalSeconds.ToString("F0"));
+                    cacheTime.TotalSeconds.ToString("F0", CultureInfo.InvariantCulture));
             }
             else
             {

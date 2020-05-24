@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
-using Milou.Deployer.Web.Core.Agents.Pools;
 using Milou.Deployer.Web.Core.Security;
 using Serilog;
 
@@ -25,10 +24,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _logger = logger;
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception)
-        {
-            await _mediator.Publish(new AgentDisconnected(new AgentId(Context.UserIdentifier)));
-        }
+        public override async Task OnDisconnectedAsync(Exception exception) => await _mediator.Publish(new AgentDisconnected(new AgentId(Context.UserIdentifier)));
 
         public override Task OnConnectedAsync()
         {

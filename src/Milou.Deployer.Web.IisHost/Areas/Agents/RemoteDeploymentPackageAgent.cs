@@ -6,7 +6,6 @@ using Arbor.Processing;
 using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
-using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {

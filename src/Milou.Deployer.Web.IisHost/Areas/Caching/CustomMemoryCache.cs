@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Arbor.App.Extensions;
-using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
@@ -46,7 +44,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
             return false;
         }
 
-        public void SetValue<T>(string key, T item, TimeSpan? cacheTime) where T : class
+        public void SetValue<T>(string key, T item, TimeSpan? cacheTime = default) where T : class
         {
             if (item is null)
             {
