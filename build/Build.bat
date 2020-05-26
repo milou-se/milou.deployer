@@ -1,5 +1,6 @@
 @ECHO OFF
 SET Arbor.Build.Bootstrapper.AllowPrerelease=true
+SET Arbor.Build.Build.Bootstrapper.AllowPrerelease=true
 SET Arbor.Build.Tools.External.MSpec.Enabled=true
 SET Arbor.Build.NuGet.Package.Artifacts.Suffix=
 SET Arbor.Build.NuGet.Package.Artifacts.BuildNumber.Enabled=
