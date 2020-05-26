@@ -57,6 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.DeployerApp"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{D98092C6-7F29-4C35-B286-30D86C417F22}"
 	ProjectSection(SolutionItems) = preProject
+		build\docker\build-all.bat = build\docker\build-all.bat
 		build\docker\build\install-common.ps1 = build\docker\build\install-common.ps1
 		build\docker\build\install-dotnetcore.ps1 = build\docker\build\install-dotnetcore.ps1
 	EndProjectSection
