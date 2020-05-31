@@ -1,5 +1,7 @@
 @ECHO OFF
 SET Arbor.Build.Bootstrapper.AllowPrerelease=true
+SET Arbor.Build.TimeoutInSeconds=900
+SET Arbor.Build.Build.TimeoutInSeconds=900
 SET Arbor.Build.Build.Bootstrapper.AllowPrerelease=true
 SET Arbor.Build.Tools.External.MSpec.Enabled=true
 SET Arbor.Build.NuGet.Package.Artifacts.Suffix=
