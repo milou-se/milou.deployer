@@ -87,6 +87,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{15AE0BA6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper.ConsoleClient", "src\Milou.Deployer.Bootstrapper.ConsoleClient\Milou.Deployer.Bootstrapper.ConsoleClient.csproj", "{206A18B1-3164-41AC-909F-077A2D178B05}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Tools.Configurator", "Milou.Deployer.Tools.Configurator\Milou.Deployer.Tools.Configurator.csproj", "{924AA017-3636-4997-823B-2F58443B2956}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Web.Marten.Abstractions", "Milou.Deployer.Web.Marten.Abstractions\Milou.Deployer.Web.Marten.Abstractions.csproj", "{5406F051-2BF8-490C-9358-31F380C1749A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +177,14 @@ Global
 		{206A18B1-3164-41AC-909F-077A2D178B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{206A18B1-3164-41AC-909F-077A2D178B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{206A18B1-3164-41AC-909F-077A2D178B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{924AA017-3636-4997-823B-2F58443B2956}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{924AA017-3636-4997-823B-2F58443B2956}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{924AA017-3636-4997-823B-2F58443B2956}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{924AA017-3636-4997-823B-2F58443B2956}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5406F051-2BF8-490C-9358-31F380C1749A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5406F051-2BF8-490C-9358-31F380C1749A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5406F051-2BF8-490C-9358-31F380C1749A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5406F051-2BF8-490C-9358-31F380C1749A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -201,6 +213,8 @@ Global
 		{0DE3AE6C-3872-4AE8-81E7-D888782C5170} = {D98092C6-7F29-4C35-B286-30D86C417F22}
 		{6BD49A70-DE14-4F96-8DAE-01C9C68AB200} = {D98092C6-7F29-4C35-B286-30D86C417F22}
 		{206A18B1-3164-41AC-909F-077A2D178B05} = {EB1C7EF0-3F2D-4D08-912A-DD71DDF54246}
+		{924AA017-3636-4997-823B-2F58443B2956} = {15AE0BA6-6E13-4BC4-8E4B-0E34A1D3D679}
+		{5406F051-2BF8-490C-9358-31F380C1749A} = {48FBA6E2-E7DB-4A7C-8B60-6E39807B757F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA9639FD-67CA-4136-950F-DE6230267423}

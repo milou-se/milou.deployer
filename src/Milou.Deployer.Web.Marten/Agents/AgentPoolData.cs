@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.Marten
+﻿namespace Milou.Deployer.Web.Marten.Agents
 {
     public class AgentPoolData
     {

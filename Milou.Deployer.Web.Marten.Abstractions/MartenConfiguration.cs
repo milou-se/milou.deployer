@@ -5,7 +5,7 @@ using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.Abstractions
 {
     [Urn(MartenConstants.MartenConfiguration)]
     [UsedImplicitly]

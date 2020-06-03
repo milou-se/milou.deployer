@@ -18,6 +18,7 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Milou.Deployer.Web.Marten;
+using Milou.Deployer.Web.Marten.Abstractions;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 using MysticMind.PostgresEmbed;
 using Xunit;

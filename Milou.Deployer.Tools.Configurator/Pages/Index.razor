@@ -1,0 +1,33 @@
+﻿@page "/counter"
+@using Arbor.KVConfiguration.Schema.Json
+@using System.Collections.Immutable
+
+<h1>Generate deployer configuration</h1>
+
+<EditForm Model="@_configurationModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="martenConnectionString" @bind-Value="_configurationModel.MartenConnectionString" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+<textarea style="width: 1000px; height: 500px">@_serialized</textarea>
+
+@code {
+    private ConfigurationModel _configurationModel = new ConfigurationModel();
+
+    private string _serialized;
+
+    private void HandleValidSubmit()
+    {
+        ImmutableArray<KeyValue> keys = new List<KeyValue>
+        {
+            new KeyValue("urn:milou:deployer:web:marten:singleton:connection-string", _configurationModel.MartenConnectionString, null)
+        }.ToImmutableArray();
+        ConfigurationItems configurationItems = new ConfigurationItems("1.0", keys);
+      _serialized =   Arbor.KVConfiguration.Schema.Json.JsonConfigurationSerializer.Serialize(configurationItems);
+    }
+
+}

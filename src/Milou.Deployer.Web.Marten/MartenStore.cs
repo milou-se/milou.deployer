@@ -20,6 +20,7 @@ using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
+using Milou.Deployer.Web.Marten.Agents;
 using Milou.Deployer.Web.Marten.DeploymentTasks;
 using Milou.Deployer.Web.Marten.EnvironmentTypes;
 using Milou.Deployer.Web.Marten.Settings;

@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1590266949" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.4" />

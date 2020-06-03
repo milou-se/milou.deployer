@@ -1,6 +1,6 @@
 ﻿using Arbor.KVConfiguration.Core.Metadata;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.Abstractions
 {
     public static class MartenConstants
     {

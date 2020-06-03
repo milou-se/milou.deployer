@@ -1,4 +1,5 @@
 ﻿using Milou.Deployer.Web.Marten;
+using Milou.Deployer.Web.Marten.Abstractions;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Integration
