@@ -34,7 +34,7 @@ SET Arbor.Build.BuildNumber.UnixEpochSecondsEnabled=true
 SET Arbor.Build.NuGet.PackageUpload.Enabled=true
 
 SET Arbor.Build.NuGet.Package.ExcludesCommaSeparated=Arbor.Build.Bootstrapper.nuspec
-SET Arbor.Build.PostScripts=build\docker\build-all.bat
+REM SET Arbor.Build.PostScripts=build\docker\build-all.bat
 
 IF "%GITHUB_REPOSITORY%" NEQ "milou-se/milou.deployer" (
 	ECHO The current repository is a fork, skipping package upload
