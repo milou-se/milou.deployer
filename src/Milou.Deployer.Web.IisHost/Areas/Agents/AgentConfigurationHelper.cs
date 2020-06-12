@@ -8,6 +8,7 @@ using Arbor.App.Extensions.Application;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
@@ -37,8 +38,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, request.AgentName),
-                new Claim(ClaimTypes.Name, request.AgentName)
+                new Claim(ClaimTypes.NameIdentifier, request.AgentId.Value),
+                new Claim(ClaimTypes.Name, request.AgentId.Value)
             };
 
             SecurityTokenDescriptor securityTokenDescriptor = new SecurityTokenDescriptor
@@ -57,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             var serverUri = new UriBuilder(_environmentConfiguration.PublicPortIsHttps ?? false ? "https" : "http",
                 _environmentConfiguration.PublicHostname, _environmentConfiguration.PublicPort ?? 80);
 
-            return new AgentInstallConfiguration(request.AgentName, accessToken, serverUri.Uri);
+            return new AgentInstallConfiguration(request.AgentId, accessToken, serverUri.Uri);
         }
     }
 }

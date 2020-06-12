@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.IisHost.AspNetCore.Results;
 using Milou.Deployer.Web.IisHost.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
@@ -27,11 +28,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         [ModelValidatorFilter]
         [HttpPost]
         [Route(AgentsRoute, Name = AgentsRouteName)]
-        public async Task<IActionResult> Index(CreateAgent createAgent, [FromServices] IMediator mediator)
-        {
-            await mediator.Send(createAgent);
-
-            return Ok();
-        }
+        public async Task<IActionResult> Index(
+            CreateAgent createAgent,
+            [FromServices] IMediator mediator) =>
+            (await mediator.Send(createAgent)).ToActionResult();
     }
 }

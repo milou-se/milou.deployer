@@ -47,7 +47,6 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<CreateAgentPool, CreateAgentPoolResult>,
         IRequestHandler<AssignTargetToPool, AssignTargetToPoolResult>,
         IRequestHandler<GetAgentRequest, AgentInfo?>,
-        IRequestHandler<CreateAgent, CreateAgentResult>,
         IRequestHandler<AssignAgentToPool, AssignAgentToPoolResult>,
         IRequestHandler<GetAgentsInPoolQuery, AgentsInPoolResult>
     {
@@ -709,28 +708,6 @@ namespace Milou.Deployer.Web.Marten
 
         private AgentInfo? MapAgentData(AgentData agent) => new AgentInfo(new AgentId(agent.AgentId));
 
-        public async Task<CreateAgentResult> Handle(CreateAgent request, CancellationToken cancellationToken)
-        {
-            using var session = _documentStore.OpenSession();
-
-            var agentData = await session.LoadAsync<AgentData>(request.AgentId.Value, cancellationToken);
-
-            if (agentData is {})
-            {
-                throw new InvalidOperationException($"The agent {request.AgentId.Value} already exists");
-            }
-
-            agentData = new AgentData()
-            {
-                AgentId = request.AgentId.Value
-            };
-
-            session.Store(agentData);
-
-            await session.SaveChangesAsync(cancellationToken);
-
-            return new CreateAgentResult();
-        }
 
         public async Task<AssignAgentToPoolResult> Handle(AssignAgentToPool request, CancellationToken cancellationToken)
         {

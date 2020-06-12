@@ -1,18 +1,19 @@
 ﻿using System;
 using Arbor.App.Extensions.Messaging;
+using Milou.Deployer.Web.Agent;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Agents
+namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentInstallConfiguration : ICommandResult
     {
-        public AgentInstallConfiguration(string name, string accessToken, Uri serverUri)
+        public AgentInstallConfiguration(AgentId agentId, string accessToken, Uri serverUri)
         {
-            Name = name;
+            AgentId = agentId;
             AccessToken = accessToken;
             ServerUri = serverUri;
         }
 
-        public string Name { get; }
+        public AgentId AgentId { get; }
         public string AccessToken { get; }
         public Uri ServerUri { get; }
     }

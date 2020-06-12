@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions.Messaging;
+using Milou.Deployer.Web.Agent;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Agents
+namespace Milou.Deployer.Web.Core.Agents
 {
     public class CreateAgentInstallConfiguration : ICommand<AgentInstallConfiguration>
     {
-        public CreateAgentInstallConfiguration(string agentName) => AgentName = agentName;
+        public CreateAgentInstallConfiguration(AgentId agentId) => AgentId = agentId;
 
         [Required]
-        public string AgentName { get; }
+        public AgentId AgentId { get; }
     }
 }
