@@ -8,10 +8,14 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Milou.Deployer.Tests.Integration\ConditionalFactAttribute.cs" Link="ConditionalFactAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
     <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1591121616" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>

@@ -9,7 +9,6 @@ using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Ftp;
 using Milou.Deployer.Tests.Integration.SkipTests;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Milou.Deployer.Tests.Integration
@@ -43,7 +42,7 @@ namespace Milou.Deployer.Tests.Integration
             yield return ftp;
         }
 
-        [Fact(Skip = "Depending on publish settings")]
+        [ConditionalFactAttribute]
         public async Task PublishFilesShouldSyncFiles()
         {
             var logger = Context.Logger;
@@ -55,7 +54,7 @@ namespace Milou.Deployer.Tests.Integration
                 publicRootPath: new FtpPath("/", FileSystemType.Directory),
                 isSecure: false);
 
-            string publishSettingsFile = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
+            string publishSettingsFile = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "tests",
                 typeof(FtpHandlerTests).Namespace!,
                 "ftpdocker.PublishSettings");
 

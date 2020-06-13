@@ -14,6 +14,7 @@ SET Arbor.Build.Artifacts.CleanupBeforeBuildEnabled=true
 SET Arbor.Build.NetAssembly.Configuration=
 SET Arbor.Build.Tools.External.LibZ.Enabled=true
 SET Arbor.Build.MSBuild.NuGetRestore.Enabled=true
+SET DockerTestsEnabled=false
 
 SET Arbor.Build.NuGet.ReinstallArborPackageEnabled=true
 SET Arbor.Build.NuGet.VersionUpdateEnabled=false
