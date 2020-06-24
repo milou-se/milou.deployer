@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
+using Milou.Deployer.Tests.Integration;
 using Milou.Deployer.Web.IisHost;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,7 +16,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private readonly ITestOutputHelper _output;
 
-        [Fact(Skip = "Full app test")]
+        [ConditionalFact]
         public async Task RunApplicationWithExitCode0()
         {
             var envArgs = new Dictionary<string, string> {[ConfigurationConstants.RestartTimeInSeconds] = "20"}

@@ -11,6 +11,7 @@ using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.IO;
 using Arbor.AspNetCore.Host;
+using Arbor.Docker;
 using Arbor.Primitives;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,8 @@ using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Milou.Deployer.Web.Marten;
 using Milou.Deployer.Web.Marten.Abstractions;
 using Milou.Deployer.Web.Tests.Integration.TestData;
-using MysticMind.PostgresEmbed;
+using Serilog;
+using Serilog.Core;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -39,11 +41,12 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly DirectoryInfo _globalTempDir;
         private readonly string _oldTemp;
 
-        private bool _addLocalUserAccessPermission;
-
         private CancellationTokenSource _cancellationTokenSource;
-
-        private PgServer _pgServer;
+        private Smtp4DevArgs _smtp4Dev;
+        private PostgresArgs _postgres;
+        private FtpArgs _ftp;
+        private RedisArgs _redis;
+        private DockerContext _context;
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
@@ -53,6 +56,94 @@ namespace Milou.Deployer.Web.Tests.Integration
             _oldTemp = Path.GetTempPath();
             Environment.SetEnvironmentVariable("TEMP", _globalTempDir.FullName);
             _diagnosticMessageSink = diagnosticMessageSink;
+
+            var dockerArgs = new List<ContainerArgs>();
+
+            _smtp4Dev = CreateSmtp4Dev();
+            dockerArgs.Add(_smtp4Dev.ContainerArgs);
+
+            _postgres = CreatePostgres();
+            dockerArgs.Add(_postgres.ContainerArgs);
+
+            _ftp = CreateFtp();
+            dockerArgs.Add(_ftp.ContainerArgs);
+
+            _redis = CreateRedis();
+            dockerArgs.Add(_redis.ContainerArgs);
+        }
+
+        private RedisArgs CreateRedis()
+        {
+            var portRange = new PortPoolRange(10100, 100);
+            var redisPort = TcpHelper.GetAvailablePort(portRange);
+            var portMappings = new[] { PortMapping.MapSinglePort(redisPort.Port, 6379) };
+            var redis = new ContainerArgs(
+                "redis",
+                "redistest",
+                portMappings,
+                args: Array.Empty<string>(),
+                entryPoint: new[] { "redis-server" }
+            );
+
+            return new RedisArgs(redis, redisPort);
+        }
+
+        private static FtpArgs CreateFtp()
+        {
+            var portRange = new PortPoolRange(10200, 100);
+            var ftpDefault = TcpHelper.GetAvailablePort(portRange);
+            var ftpSecondary = TcpHelper.GetAvailablePort(portRange);
+            var ftpVariables = new Dictionary<string, string> { ["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw" };
+
+            var passivePorts = new PortRange(21100, 21110);
+
+            var ftpPorts = new List<PortMapping>
+            {
+                PortMapping.MapSinglePort(ftpSecondary.Port, 20),
+                PortMapping.MapSinglePort(ftpDefault.Port, 21),
+                new PortMapping(passivePorts, passivePorts)
+            };
+
+            var ftp = new ContainerArgs(
+                "fauria/vsftpd",
+                "ftp",
+                ftpPorts,
+                ftpVariables
+            );
+
+            return new FtpArgs(ftp, ftpDefault, ftpSecondary);
+        }
+
+        private static PostgresArgs CreatePostgres()
+        {
+            var portRange = new PortPoolRange(10300, 100);
+            var pgPort = TcpHelper.GetAvailablePort(portRange);
+            var postgresVariables = new Dictionary<string, string> { ["POSTGRES_PASSWORD"] = "test" };
+
+            var postgres = new ContainerArgs(
+                "postgres",
+                "postgres-deploy",
+                new List<PortMapping> { PortMapping.MapSinglePort(pgPort.Port, 5432) },
+                postgresVariables
+            );
+
+            return new PostgresArgs(postgres, pgPort);
+        }
+
+        private static Smtp4DevArgs CreateSmtp4Dev()
+        {
+           var portRange = new PortPoolRange(10000, 100);
+           var smtpPort = TcpHelper.GetAvailablePort(portRange);
+           var httpPort = TcpHelper.GetAvailablePort(portRange);
+
+            var smtp4Dev = new ContainerArgs(
+                "rnwood/smtp4dev:linux-amd64-v3",
+                "smtp4devtest",
+                new List<PortMapping> { PortMapping.MapSinglePort(httpPort.Port, 80), PortMapping.MapSinglePort(smtpPort.Port, 25) },
+                new Dictionary<string, string> { ["ServerOptions:TlsMode"] = "None" }
+            );
+
+            return new Smtp4DevArgs(smtp4Dev, smtpPort, httpPort);
         }
 
         public TestHttpPort TestSiteHttpPort { get; protected set; }
@@ -77,53 +168,20 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public async Task InitializeAsync()
         {
-            bool useDefaultDirectory = false;
-
-            if (bool.TryParse(
-                Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:AddLocalUserAccessPermission"),
-                out bool addUser))
-            {
-                _addLocalUserAccessPermission = addUser;
-            }
-
-            if (bool.TryParse(
-                Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:DefaultDirectory"),
-                out bool useDefaultDirectoryEnabled))
-            {
-                useDefaultDirectory = useDefaultDirectoryEnabled;
-            }
-
-            useDefaultDirectory = true;
-
-            string? version = Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:version").WithDefault("10.5.1");
-
-            DirectoryInfo? postgresqlDbDir;
-            if (useDefaultDirectory)
-            {
-                postgresqlDbDir = null;
-            }
-            else
-            {
-                postgresqlDbDir = new DirectoryInfo(Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                    "tools",
-                    "MysticMind.PostgresEmbed",
-                    version)).EnsureExists();
-            }
-
-            Console.WriteLine(typeof(MartenConfiguration));
-            Console.WriteLine(typeof(DeployController));
-
             try
             {
                 try
                 {
-                    _pgServer = new PgServer(
-                        version,
-                        dbDir: postgresqlDbDir?.FullName ?? "",
-                        addLocalUserAccessPermission: _addLocalUserAccessPermission,
-                        clearInstanceDirOnStop: true);
-                    _pgServer.Start();
+                    var testLogger = Logger.None;
+                    var containerArgs = new List<ContainerArgs>
+                    {
+                        _postgres.ContainerArgs,
+                        _smtp4Dev.ContainerArgs,
+                        _ftp.ContainerArgs,
+                        _redis.ContainerArgs,
+                    };
+
+                   _context = await DockerContext.CreateContextAsync(containerArgs, testLogger);
                 }
                 finally
                 {
@@ -131,7 +189,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                         new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
                 }
 
-                string connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat, _pgServer.PgPort,
+                string connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat, _postgres.PgPort.Port,
                     PostgresqlUser);
 
                 Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:connection-string",
@@ -195,7 +253,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             App?.Logger?.Information("Stopping app from {Type}", GetType().FullName);
             _cancellationTokenSource?.Dispose();
             App?.Dispose();
-            _pgServer?.Dispose();
 
             FileInfo[] files = FilesToClean.ToArray();
 
@@ -228,6 +285,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             Environment.SetEnvironmentVariable("TEMP", _oldTemp);
 
             await DeleteDirectoryAsync(_globalTempDir);
+
+            await _context.DisposeAsync();
         }
 
         public virtual void Dispose() => GC.SuppressFinalize(this);
@@ -311,5 +370,57 @@ namespace Milou.Deployer.Web.Tests.Integration
         protected virtual Task BeforeInitialize(CancellationToken cancellationToken) => Task.CompletedTask;
 
         protected abstract Task RunAsync();
+    }
+
+    internal class Smtp4DevArgs
+    {
+        public ContainerArgs ContainerArgs { get; }
+        public PortPoolRental SmtpPort { get; }
+        public PortPoolRental HttpPort { get; }
+
+        public Smtp4DevArgs(ContainerArgs containerArgs, PortPoolRental smtpPort, PortPoolRental httpPort)
+        {
+            ContainerArgs = containerArgs;
+            SmtpPort = smtpPort;
+            HttpPort = httpPort;
+        }
+    }
+
+    internal class RedisArgs
+    {
+        public ContainerArgs ContainerArgs { get; }
+        public PortPoolRental RedisPort { get; }
+
+        public RedisArgs(ContainerArgs containerArgs, PortPoolRental redisPort)
+        {
+            ContainerArgs = containerArgs;
+            RedisPort = redisPort;
+        }
+    }
+
+    internal class PostgresArgs
+    {
+        public ContainerArgs ContainerArgs { get; }
+        public PortPoolRental PgPort { get; }
+
+        public PostgresArgs(ContainerArgs containerArgs, PortPoolRental pgPort)
+        {
+            ContainerArgs = containerArgs;
+            PgPort = pgPort;
+        }
+    }
+
+    internal class FtpArgs
+    {
+        public ContainerArgs ContainerArgs { get; }
+        public PortPoolRental FtpDefault { get; }
+        public PortPoolRental FtpSecondary { get; }
+
+        public FtpArgs(ContainerArgs containerArgs, PortPoolRental ftpDefault, PortPoolRental ftpSecondary)
+        {
+            ContainerArgs = containerArgs;
+            FtpDefault = ftpDefault;
+            FtpSecondary = ftpSecondary;
+        }
     }
 }

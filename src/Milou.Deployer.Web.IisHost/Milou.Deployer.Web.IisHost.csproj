@@ -34,9 +34,9 @@
     </ItemGroup>
     <ItemGroup>
 
-      <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1591121616" />
+      <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1592996813" />
 
-      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1590266949" />
+      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1593004836" />
 
       <PackageReference Include="Arbor.Docker" Version="0.4.0-build.1589206910" Condition="'$(Configuration)' == 'Debug'" />
 
@@ -54,17 +54,17 @@
         <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
         <PackageReference Include="MediatR" Version="8.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.4" Condition="'$(Configuration)' == 'Debug'" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.5" Condition="'$(Configuration)' == 'Debug'" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="3.1.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.1.4" />
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="3.1.4" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.4" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
-        <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="3.1.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.5" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.1.5" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="3.1.5" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.5" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.5" />
+        <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.5" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="NuGet.Packaging" Version="5.6.0" />
         <PackageReference Include="NuGet.Versioning" Version="5.6.0" />

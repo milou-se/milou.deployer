@@ -52,28 +52,40 @@ namespace Milou.Deployer.Web.Tests.Integration
         public Task<TOut> QueryAsync<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query, CancellationToken token = new CancellationToken()) => throw new NotImplementedException();
 
         public IReadOnlyList<T> LoadMany<T>(params string[] ids) => throw new NotImplementedException();
+        public IReadOnlyList<T> LoadMany<T>(IEnumerable<string> ids) => throw new NotImplementedException();
 
         public IReadOnlyList<T> LoadMany<T>(params Guid[] ids) => throw new NotImplementedException();
+        public IReadOnlyList<T> LoadMany<T>(IEnumerable<Guid> ids) => throw new NotImplementedException();
 
         public IReadOnlyList<T> LoadMany<T>(params int[] ids) => throw new NotImplementedException();
+        public IReadOnlyList<T> LoadMany<T>(IEnumerable<int> ids) => throw new NotImplementedException();
 
         public IReadOnlyList<T> LoadMany<T>(params long[] ids) => throw new NotImplementedException();
+        public IReadOnlyList<T> LoadMany<T>(IEnumerable<long> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(params string[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<string> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(params Guid[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<Guid> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(params int[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<int> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(params long[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<long> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params string[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<string> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params Guid[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<Guid> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params int[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<int> ids) => throw new NotImplementedException();
 
         public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params long[] ids) => throw new NotImplementedException();
+        public async Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<long> ids) => throw new NotImplementedException();
 
         public Guid? VersionFor<TDoc>(TDoc entity) => throw new NotImplementedException();
 
@@ -127,15 +139,20 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void SaveChanges() => throw new NotImplementedException();
 
         public Task SaveChangesAsync(CancellationToken token = new CancellationToken()) => Task.CompletedTask;
+        public void Store<T>(IEnumerable<T> entities) => throw new NotImplementedException();
 
         public void Store<T>(params T[] entities)  {
         }
 
+        public void Store<T>(string tenantId, IEnumerable<T> entities) => throw new NotImplementedException();
+
         public void Store<T>(string tenantId, params T[] entities) => throw new NotImplementedException();
 
         public void Store<T>(T entity, Guid version) => throw new NotImplementedException();
+        public void Insert<T>(IEnumerable<T> entities) => throw new NotImplementedException();
 
         public void Insert<T>(params T[] entities) => throw new NotImplementedException();
+        public void Update<T>(IEnumerable<T> entities) => throw new NotImplementedException();
 
         public void Update<T>(params T[] entities) => throw new NotImplementedException();
 

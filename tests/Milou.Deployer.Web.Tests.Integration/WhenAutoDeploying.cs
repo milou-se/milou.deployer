@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Tests.Integration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Startup;
 using NuGet.Versioning;
@@ -25,7 +26,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        [Fact(Skip = "Issues with postgresql permissions")]
+        [ConditionalFact]
         public async Task ThenNewVersionShouldBeDeployed()
         {
             SemanticVersion? semanticVersion = null;

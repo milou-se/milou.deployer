@@ -4,15 +4,15 @@
     ".NETCoreApp,Version=v3.1": {
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.4.0-build.1591121616, )",
-        "resolved": "0.4.0-build.1591121616",
-        "contentHash": "Pe6+uJ/Xt0IH13vIUrXRVsVF5rbeUqjCY7QvEbZ46N1FIuaBmBkxLAfqdPoPwfq+TqVv/HMQwmYiUMxAjTMUQA==",
+        "requested": "[0.4.1-build.1592996813, )",
+        "resolved": "0.4.1-build.1592996813",
+        "contentHash": "Fv92u/1IRQrykrCune6HjbObSlsMh1h1zmCdNTbzAUErkKhb0ro7qkAvMYIrZwFeBfgy9n8r+RTPOJuZ/rHpDg==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "JetBrains.Annotations": "2020.1.0",
           "MediatR": "8.0.1",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.4",
-          "Microsoft.Extensions.DependencyModel": "3.1.4",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.5",
+          "Microsoft.Extensions.DependencyModel": "3.1.5",
           "Serilog": "2.9.0",
           "Serilog.Sinks.Console": "3.1.1",
           "Serilog.Sinks.Debug": "1.0.1",
@@ -76,15 +76,15 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Direct",
-        "requested": "[3.1.4, )",
-        "resolved": "3.1.4",
-        "contentHash": "tLR9n5ltwA56nr1t5M6q5IBfGLXtMS+XgumtqVENmtPQOWUD+m0Kgo1U6GWr06Y875WUN3sOGnmqkvW4an7fYA=="
+        "requested": "[3.1.5, )",
+        "resolved": "3.1.5",
+        "contentHash": "6bLdjSAQix82oP2tsuX9MM2yjgUFFOkSZYyRSKoUULilw2cg0Y0H+dnugwYlfj8Jd7yjd/+QSdNBqEyYhTYv0w=="
       },
       "Microsoft.Web.Xdt": {
         "type": "Direct",
-        "requested": "[3.0.0, )",
-        "resolved": "3.0.0",
-        "contentHash": "O8T930V2+8hgC3gUnp4IFA+6b7o9PsQIvCuBOigOdz7B0ZbX0clckPsCxsPAxNC3zcaYb4ShtTimeZoA1EZpoQ=="
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "4g1RMRx2VkJ1XW7HygS5hiCId9wHWEeMOvhS5+rogSAADvTsmmZaoTZZru6ul0Ou3jnLchvxvCjgsARuVZIAIQ=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
@@ -170,13 +170,13 @@
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "3.1.4",
-        "contentHash": "AceHamXNKDMDwIoZqEoApLp8s3935wSC3VXrPaRWa0wWOaEcYdDlo1nWQ1zLiezoDmpJzV7FqDm53E0Ty/hEMg=="
+        "resolved": "3.1.5",
+        "contentHash": "2VSCj2TZPMdeEi279Lawi6qJQu4+sEWizSOYrhY6hapyS1jxn1jVUZT1Ugv68bya+x8+3lD4+RqhUZql9PhISQ=="
       },
       "Microsoft.Extensions.DependencyModel": {
         "type": "Transitive",
-        "resolved": "3.1.4",
-        "contentHash": "X6R8tuo45siW+VJCmIOLcPEExS9x+eKssk8YFKZUKjKmAKoCT+oG4eTV1HVRU4hG4KLYvTCgY8BQotNxRF474w==",
+        "resolved": "3.1.5",
+        "contentHash": "u1RWQS0ym1USOoRji6MKcka/F/Br18/+1kiUvAcqWeG7v95SejSBXWRuS5eFfk6gCr3ppRxYyfnwUpmXa91ZsA==",
         "dependencies": {
           "System.Text.Json": "4.7.2"
         }

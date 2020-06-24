@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Milou.Deployer.Tests.Integration;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,7 +17,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        [Fact(Skip = "Issues with postgresql permissions")]
+        [ConditionalFact]
         public async Task Then_It_Should_Return_Html_In_Response_Body()
         {
             string headers = string.Join(Environment.NewLine,
@@ -35,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             Assert.Contains("<html", body, StringComparison.Ordinal);
         }
 
-        [Fact(Skip = "Issues with postgresql permissions")]
+        [ConditionalFact]
         public void ThenItShouldReturnHttpStatusCodeOk200()
         {
             Output.WriteLine($"Response status code {WebFixture?.ResponseMessage?.StatusCode}");
