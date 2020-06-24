@@ -24,6 +24,7 @@ using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
+using Milou.Deployer.Web.IisHost.Areas.Agents;
 using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
@@ -186,6 +187,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                     options =>
                     {
                         options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
+                        options.Filters.Add<ModelValidatorFilterAttribute>();
                     }).SetCompatibilityVersion(CompatibilityVersion.Latest)
                 .AddNewtonsoftJson(
                     options =>

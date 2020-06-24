@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.IisHost.AspNetCore.Results;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -32,5 +33,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             CreateAgent createAgent,
             [FromServices] IMediator mediator) =>
             (await mediator.Send(createAgent)).ToActionResult();
+    }
+
+    public class ValidationActionFilter : IAsyncActionFilter
+    {
+        public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            if (!context.ModelState.IsValid)
+            {
+                context.Result = new BadRequestObjectResult(context.ModelState);
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

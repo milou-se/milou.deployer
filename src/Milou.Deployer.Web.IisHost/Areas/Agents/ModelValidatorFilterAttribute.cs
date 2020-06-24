@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -14,6 +15,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
 
             return Task.CompletedTask;
+        }
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            if (context.HttpContext.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase) && context.Result is null)
+            {
+                context.Result = new NotFoundResult();
+            }
         }
     }
 }

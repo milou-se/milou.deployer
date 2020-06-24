@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
+using FluentAssertions;
 using Marten;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,18 +24,13 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             serviceCollection.AddSingleton<IDocumentStore, TestStore>();
 
-            serviceCollection.AddSingleton<IRequestHandler<CreateAgent, CreateAgentResult>, CreateAgentHandler>();
-            serviceCollection
-                .AddSingleton<IRequestHandler<CreateAgentInstallConfiguration, AgentInstallConfiguration>,
-                    AgentConfigurationHelper>();
+            serviceCollection.RegisterHandler<CreateAgentHandler, CreateAgent, CreateAgentResult>();
+            serviceCollection.RegisterHandler<AgentConfigurationHelper, CreateAgentInstallConfiguration, AgentInstallConfiguration>();
 
             serviceCollection.AddSingleton(new EnvironmentConfiguration {PublicHostname = "localhost"});
 
-            using var hmac = new HMACSHA256();
-            byte[] keyBytes = hmac.Key;
-            string key = Convert.ToBase64String(keyBytes);
-
-            serviceCollection.AddSingleton(new MilouAuthenticationConfiguration(true, true, key));
+            var milouAuthenticationConfiguration = CreateMilouAuthenticationConfiguration();
+            serviceCollection.AddSingleton(milouAuthenticationConfiguration);
 
             var types = new[] {typeof(CreateAgentHandler)};
             serviceCollection.AddMediatR(types);
@@ -44,6 +40,20 @@ namespace Milou.Deployer.Web.Tests.Integration
             var mediator = provider.GetRequiredService<IMediator>();
 
             var result = await mediator.Send(new CreateAgent(new AgentId("ExampleAgent")));
+
+            result.AgentId.Should().Be(new AgentId("ExampleAgent"));
+
+            result.AccessToken.Should().NotBeNullOrWhiteSpace();
+        }
+
+        private static MilouAuthenticationConfiguration CreateMilouAuthenticationConfiguration()
+        {
+            using var hmac = new HMACSHA256();
+            byte[] keyBytes = hmac.Key;
+            string key = Convert.ToBase64String(keyBytes);
+
+            var milouAuthenticationConfiguration = new MilouAuthenticationConfiguration(true, true, key);
+            return milouAuthenticationConfiguration;
         }
     }
 }

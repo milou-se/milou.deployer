@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.Marten
             await session.SaveChangesAsync(cancellationToken);
 
 
-            return new CreateAgentResult(request.AgentId);
+            return new CreateAgentResult(request.AgentId, result.AccessToken);
         }
     }
 }
