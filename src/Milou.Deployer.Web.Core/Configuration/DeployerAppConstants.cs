@@ -36,6 +36,8 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public const string SeedTimeoutInSeconds = "urn:milou:deployer:web:seed-timeout-in-seconds";
 
+        public const string SeedEnabled = "urn:milou:deployer:web:seed:enabled";
+
         [Metadata]
         public const string StartupTargetsTimeoutInSeconds =
             "urn:milou:deployer:web:startup:targets-timeout-in-seconds";

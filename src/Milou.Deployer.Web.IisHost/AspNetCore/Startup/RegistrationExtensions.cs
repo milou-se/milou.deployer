@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Host.Hosting;
+using Arbor.AspNetCore.Host.Mvc;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
@@ -22,10 +23,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Json;
-using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
 using Milou.Deployer.Web.IisHost.Areas.Agents;
-using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
 using Newtonsoft.Json;
@@ -37,25 +36,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {
     public static class RegistrationExtensions
     {
-        public static IServiceCollection AddDeploymentHttpClients(
-            this IServiceCollection services,
-            [NotNull] HttpLoggingConfiguration httpLoggingConfiguration)
-        {
-            if (httpLoggingConfiguration is null)
-            {
-                throw new ArgumentNullException(nameof(httpLoggingConfiguration));
-            }
-
-            services.AddHttpClient();
-
-            if (!httpLoggingConfiguration.Enabled)
-            {
-                services.Replace(ServiceDescriptor.Singleton<IHttpMessageHandlerBuilderFilter, CustomLoggingFilter>());
-            }
-
-            return services;
-        }
-
         public static IServiceCollection AddDeploymentAuthentication(
             this IServiceCollection serviceCollection,
             CustomOpenIdConnectConfiguration openIdConnectConfiguration,
@@ -196,13 +176,17 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
 
-            foreach (Assembly filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
+            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: new[]{"Arbor", "Milou"});
+
+            foreach (Assembly filteredAssembly in filteredAssemblies)
             {
                 logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
                 mvcBuilder.AddApplicationPart(filteredAssembly);
             }
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddControllersAsServices();
+
             IMvcBuilder razorPagesBuilder = services.AddRazorPages();
 
 #if DEBUG

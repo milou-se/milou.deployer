@@ -1,4 +1,5 @@
 ﻿using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Http;
 using Arbor.AspNetCore.Host;
 using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
@@ -34,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost
             services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger,
                     environmentConfiguration)
                 .AddDeploymentAuthorization(environmentConfiguration)
-                .AddDeploymentHttpClients(httpLoggingConfiguration)
+                .AddHttpClientsWithConfiguration(httpLoggingConfiguration)
                 .AddDeploymentSignalR()
                 .AddServerFeatures()
                 .AddDeploymentMvc(environmentConfiguration, configuration, logger);

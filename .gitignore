@@ -260,3 +260,4 @@ src/Milou.Deployer.Web.IisHost/config.user.json
 servertemp
 agenttemp
 temp
+tools/Milou.Deployer/*.settings.json

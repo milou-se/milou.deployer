@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Xunit;
@@ -21,6 +23,18 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             using var httpClient = new HttpClient();
             string url = $"http://localhost:{HttpPort}";
+
+            while (!CancellationToken.IsCancellationRequested)
+            {
+                var response = await httpClient.GetAsync(url, CancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.NotFound)
+                {
+                    break;
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(3000));
+            }
 
             try
             {

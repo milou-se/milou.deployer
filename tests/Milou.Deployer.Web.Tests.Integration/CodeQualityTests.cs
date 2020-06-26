@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Arbor.App.Extensions.ExtensionMethods;
 using MediatR;
-using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Milou.Deployer.Web.Marten;
@@ -66,14 +65,12 @@ namespace Milou.Deployer.Web.Tests.Integration
             Type notificationType = typeof(INotification);
 
             yield return new object[] {typeof(BaseApiController).Assembly, notificationType};
-            yield return new object[] {typeof(AgentService).Assembly, notificationType};
         }
 
         public static IEnumerable<object[]> GetMartenDataTypes()
         {
             yield return new object[] {typeof(BaseApiController).Assembly, typeof(MartenDataAttribute)};
             yield return new object[] {typeof(DeploymentTarget).Assembly, typeof(MartenDataAttribute)};
-            yield return new object[] {typeof(AgentService).Assembly, typeof(MartenDataAttribute)};
         }
     }
 }

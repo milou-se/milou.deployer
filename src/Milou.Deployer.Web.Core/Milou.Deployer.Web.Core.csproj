@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1592996813" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1593174590" />
     <PackageReference Include="DotNext.Threading" Version="2.6.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0" />
@@ -15,7 +15,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="MailKit" Version="2.7.0" />
     <PackageReference Include="Marten" Version="3.9.0" />
-    <PackageReference Include="Marten" Version="3.12.1" />
+    <PackageReference Include="Marten" Version="3.12.2" />
     <PackageReference Include="MediatR" Version="8.0.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">

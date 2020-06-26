@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -174,6 +173,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     _logger.Information("Executing deployment task {DeploymentTask}", deploymentTask);
 
                     using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromHours(1));
+
                     using var combinedToken =
                         CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
 
@@ -205,12 +205,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     if (deploymentTask is {})
                     {
                         deploymentTask.Status = WorkTaskStatus.Failed;
-                        _logger.Error(ex, "Failed when executing deployment task {TaskId}",
-                            deploymentTask.DeploymentTaskId);
+
+                        if (ex is OperationCanceledException operationCanceledException)
+                        {
+                            _logger.Error(operationCanceledException, "Deployment Target Worker cancellation was triggered with ongoing task");
+                        }
+                        else
+                        {
+                            _logger.Error(ex, "Failed when executing deployment task {TaskId}",
+                                deploymentTask.DeploymentTaskId);
+                        }
                     }
                     else
                     {
-                        _logger.Error(ex, "Failed when executing deployment");
+                        if (ex is OperationCanceledException operationCanceledException)
+                        {
+                            _logger.Debug(operationCanceledException,
+                                "Deployment Target Worker cancellation was triggered, no ongoing task");
+                        }
+                        else
+                        {
+                            _logger.Error(ex, "Failed when executing deployment");
+                        }
                     }
                 }
                 finally
@@ -334,7 +350,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public IEnumerable<TaskInfo> QueueInfo()
+        public ImmutableArray<TaskInfo> QueueInfo()
         {
             CheckDisposed();
 

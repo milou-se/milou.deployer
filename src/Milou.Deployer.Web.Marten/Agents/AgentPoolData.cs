@@ -2,6 +2,6 @@
 {
     public class AgentPoolData
     {
-        public string AgentPoolId { get; set; }
+        public string Id { get; set; }
     }
 }

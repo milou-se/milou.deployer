@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.AspNetCore.Host;
 using Arbor.Docker;
+using Arbor.KVConfiguration.Core.Metadata;
+using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -14,16 +16,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
     [UsedImplicitly]
     public class DockerDeveloperModule : IPreStartModule, IAsyncDisposable
     {
+        private readonly DeveloperConfiguration _developerConfiguration;
         private readonly ILogger _logger;
         private DockerContext _dockerContext;
         private bool _isDisposed;
         private bool _isDisposing;
 
-        public DockerDeveloperModule(ILogger logger) => _logger = logger;
+        public DockerDeveloperModule(ILogger logger, DeveloperConfiguration developerConfiguration)
+        {
+            _developerConfiguration = developerConfiguration;
+            _logger = logger;
+        }
 
         public async ValueTask DisposeAsync()
         {
-            if (_isDisposing || _isDisposed)
+            if (_isDisposing || _isDisposed || !_developerConfiguration.DockerEnabled)
             {
                 return;
             }
@@ -40,6 +47,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
+            if (!_developerConfiguration.DockerEnabled)
+            {
+                _logger.Debug("Developer Docker is disabled");
+                return;
+            }
+
             var dockerArgs = new List<ContainerArgs>();
 
             var smtp4Dev = CreateSmtp4Dev();
@@ -62,30 +75,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
         }
 
-        private ContainerArgs CreateRedis()
-        {
-            var portMappings = new[] {PortMapping.MapSinglePort(26379, 6379)};
-            var redis = new ContainerArgs(
-                "redis",
-                "redistest",
-                portMappings,
-                args: new[] {"-v", "cachedata:/data"},
-                entryPoint: new[] {"redis-server", "--appendonly yes"}
-            );
-
-            return redis;
-        }
-
         private static ContainerArgs CreateFtp()
         {
             var ftpVariables = new Dictionary<string, string> {["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw"};
 
-            var passivePorts = new PortRange(21100, 21110);
+            var passivePorts = new PortRange(start: 21100, end: 21110);
 
             var ftpPorts = new List<PortMapping>
             {
-                PortMapping.MapSinglePort(20, 20),
-                PortMapping.MapSinglePort(21, 21),
+                PortMapping.MapSinglePort(hostPort: 20, containerPort: 20),
+                PortMapping.MapSinglePort(hostPort: 21, containerPort: 21),
                 new PortMapping(passivePorts, passivePorts)
             };
 
@@ -95,6 +94,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 ftpPorts,
                 ftpVariables
             );
+
             return ftp;
         }
 
@@ -107,11 +107,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var postgres = new ContainerArgs(
                 "postgres",
                 "postgres-deploy",
-                new List<PortMapping> {PortMapping.MapSinglePort(5433, 5432)},
+                new List<PortMapping> {PortMapping.MapSinglePort(hostPort: 5433, containerPort: 5432)},
                 postgresVariables,
                 postgresArgs
             );
+
             return postgres;
+        }
+
+        private ContainerArgs CreateRedis()
+        {
+            var portMappings = new[] {PortMapping.MapSinglePort(hostPort: 26379, containerPort: 6379)};
+
+            var redis = new ContainerArgs(
+                "redis",
+                "redistest",
+                portMappings,
+                args: new[] {"-v", "cachedata:/data"},
+                entryPoint: new[] {"redis-server", "--appendonly yes"}
+            );
+
+            return redis;
         }
 
         private static ContainerArgs CreateSmtp4Dev()
@@ -119,11 +135,33 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var smtp4Dev = new ContainerArgs(
                 "rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
-                new List<PortMapping> {PortMapping.MapSinglePort(3125, 80), PortMapping.MapSinglePort(2526, 25)},
+                new List<PortMapping>
+                {
+                    PortMapping.MapSinglePort(hostPort: 3125, containerPort: 80),
+                    PortMapping.MapSinglePort(hostPort: 2526, containerPort: 25)
+                },
                 new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
             );
+
             return smtp4Dev;
         }
+    }
+
+    public static class DeveloperModuleConstants
+    {
+        [Metadata(defaultValue: "false")]
+        public const string DockerEnabledDefault = DeveloperConfiguration.Urn + ":default:docker-enabled";
+    }
+
+    [Urn(Urn)]
+    [Optional]
+    public class DeveloperConfiguration
+    {
+        public const string Urn = "urn:milou:deployer:web:development";
+
+        public DeveloperConfiguration(bool dockerEnabled) => DockerEnabled = dockerEnabled;
+
+        public bool DockerEnabled { get; }
     }
 }
 #endif

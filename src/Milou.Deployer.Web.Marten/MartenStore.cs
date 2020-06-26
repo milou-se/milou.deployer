@@ -662,13 +662,13 @@ namespace Milou.Deployer.Web.Marten
 
         }
 
-        private AgentPoolId MapAgentPool(AgentPoolData agentPoolData) => new AgentPoolId(agentPoolData.AgentPoolId);
+        private AgentPoolId MapAgentPool(AgentPoolData agentPoolData) => new AgentPoolId(agentPoolData.Id);
 
         public async Task<CreateAgentPoolResult> Handle(CreateAgentPool request, CancellationToken cancellationToken)
         {
             using IDocumentSession session = _documentStore.OpenSession();
 
-            session.Store(new AgentPoolData() {AgentPoolId = request.AgentPoolId.Value});
+            session.Store(new AgentPoolData() {Id = request.AgentPoolId.Value});
 
             await session.SaveChangesAsync(cancellationToken);
 

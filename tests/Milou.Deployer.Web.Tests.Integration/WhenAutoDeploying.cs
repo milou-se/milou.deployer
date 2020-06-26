@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Tests.Integration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Startup;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
@@ -48,22 +50,40 @@ namespace Milou.Deployer.Web.Tests.Integration
                 throw new DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
+            Console.WriteLine(typeof(StartupModule).FullName);
+
+            Assert.NotNull(WebFixture?.App?.Host?.Services);
+
             using (var httpClient = new HttpClient())
             {
                 using CancellationTokenSource cancellationTokenSource =
                     WebFixture.App.Host.Services.GetService<CancellationTokenSource>();
+
+                var lifeTime = WebFixture.App.Host.Services.GetRequiredService<IHostApplicationLifetime>();
 
                 cancellationTokenSource.Token.Register(() =>
                 {
                     Debug.WriteLine("Cancellation for app in test");
                 });
 
+                lifeTime.ApplicationStopped.Register(() =>
+                {
+                    Debug.WriteLine("Stop for app in test");
+                });
+
                 while (!cancellationTokenSource.Token.IsCancellationRequested
-                       && semanticVersion != expectedVersion)
+                       && semanticVersion != expectedVersion
+                       && !lifeTime.ApplicationStopped.IsCancellationRequested
+                       && !WebFixture.CancellationToken.IsCancellationRequested)
                 {
                     // ReSharper disable MethodSupportsCancellation
-                    StartupTaskContext startupTaskContext =
-                        WebFixture.App.Host.Services.GetRequiredService<StartupTaskContext>();
+                    StartupTaskContext? startupTaskContext =
+                        WebFixture.App.Host.Services.GetService<StartupTaskContext>();
+
+                    if (startupTaskContext is null)
+                    {
+                        return;
+                    }
 
                     while (!startupTaskContext.IsCompleted &&
                            !cancellationTokenSource.Token.IsCancellationRequested)
@@ -117,6 +137,11 @@ namespace Milou.Deployer.Web.Tests.Integration
                     await Task.Delay(TimeSpan.FromSeconds(1));
                     // ReSharper restore MethodSupportsCancellation
                 }
+            }
+
+            if (WebFixture?.Exception is { } exception)
+            {
+                throw new DeployerAppException("Fixture exception", exception);
             }
 
             Assert.Equal(expectedVersion, semanticVersion);

@@ -34,9 +34,9 @@
     </ItemGroup>
     <ItemGroup>
 
-      <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1592996813" />
+      <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1593174590" />
 
-      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1593004836" />
+      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1593175396" />
 
       <PackageReference Include="Arbor.Docker" Version="0.4.0-build.1589206910" Condition="'$(Configuration)' == 'Debug'" />
 

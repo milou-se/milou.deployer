@@ -85,6 +85,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                             await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
                             _logger.Debug("Database is not ready");
                         }
+                        else
+                        {
+                            throw;
+                        }
                     }
                 }
             }
@@ -98,7 +102,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 seedTimeoutInSeconds = 20;
             }
 
-            _logger.Debug("Found {SeederCount} data seeders", _dataSeeders.Length);
+            if (bool.TryParse(_configuration[DeployerAppConstants.SeedEnabled],
+                out bool seedEnabled) && !seedEnabled)
+            {
+                _logger.Information("Seeders disabled");
+                IsCompleted = true;
+                return;
+            }
+
+           _logger.Debug("Found {SeederCount} data seeders", _dataSeeders.Length);
 
             foreach (IDataSeeder dataSeeder in _dataSeeders.OrderBy(seeder => seeder.Order))
             {

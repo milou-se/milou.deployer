@@ -1,9 +1,9 @@
 ﻿using Arbor.App.Extensions.Application;
+using Arbor.AspNetCore.Host.Logging;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.IisHost.Areas.ErrorHandling;
-using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Routing;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
@@ -21,6 +21,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             app.AddRequestLogging(environmentConfiguration);
 
             app.AddExceptionHandling(environmentConfiguration);
+
+            app.UseMiddleware<DiagnosticsMiddleware>();
 
             app.UseMiddleware<StartupTasksMiddleware>();
 

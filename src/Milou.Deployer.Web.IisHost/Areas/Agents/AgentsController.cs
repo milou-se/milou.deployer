@@ -25,7 +25,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             return View(new AgentsViewModel(agents));
         }
 
-        [ModelValidatorFilter]
         [HttpPost]
         [Route(AgentsRoute, Name = AgentsRouteName)]
         public async Task<IActionResult> Index(

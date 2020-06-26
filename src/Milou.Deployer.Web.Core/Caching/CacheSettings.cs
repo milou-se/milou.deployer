@@ -9,8 +9,8 @@ namespace Milou.Deployer.Web.Core.Caching
     {
         public const string Urn = "urn:arbor:app:caching:redis";
 
-        public CacheSettings(string host) => Host = host;
+        public CacheSettings(string? host = null) => Host = host;
 
-        public string Host { get; }
+        public string? Host { get; }
     }
 }

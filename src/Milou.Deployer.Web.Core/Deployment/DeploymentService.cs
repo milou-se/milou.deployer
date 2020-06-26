@@ -352,14 +352,13 @@ namespace Milou.Deployer.Web.Core.Deployment
         private static void CheckPackageMatchingTarget(DeploymentTarget deploymentTarget, string packageId)
         {
             if (
-                !deploymentTarget.PackageId.Equals(packageId,
-                    StringComparison.InvariantCultureIgnoreCase))
+                !string.IsNullOrWhiteSpace(deploymentTarget.PackageId)
+                && !deploymentTarget.PackageId.Equals(packageId,
+                    StringComparison.OrdinalIgnoreCase)
+                && !deploymentTarget.PackageId.Equals(Arbor.App.Extensions.Constants.NotAvailable, StringComparison.OrdinalIgnoreCase))
             {
-                string allPackageIds = string.Join(", ",
-                    deploymentTarget.PackageId.Select(name => $"'{name}'"));
-
                 throw new DeployerAppException(
-                    $"The package id '{packageId}' is not in the list of allowed package ids: {allPackageIds}");
+                    $"The package id '{packageId}' is not matching the allowed package id: {deploymentTarget.PackageId}");
             }
         }
 
@@ -618,8 +617,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                         requireEnvironmentConfig = deploymentTarget.RequireEnvironmentConfiguration,
                         publishSettingsFile = publishSettingsFileName,
                         parameters,
-                        deploymentTarget.NuGet.NuGetConfigFile,
-                        deploymentTarget.NuGet.NuGetPackageSource,
+                        deploymentTarget.NuGet?.NuGetConfigFile,
+                        deploymentTarget.NuGet?.NuGetPackageSource,
                         semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
                         iisSiteName = deploymentTarget.IisSiteName,
                         webConfigTransform = deploymentTarget.WebConfigTransform,
