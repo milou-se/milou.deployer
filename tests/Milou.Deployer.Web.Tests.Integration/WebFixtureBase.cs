@@ -229,6 +229,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                     connStr);
                 _variables.Add("urn:milou:deployer:web:marten:singleton:enabled", "true");
 
+                _variables.Add(ApplicationConstants.DevelopmentMode.TrimStart('-'), "true");
+
                 string rootDirectory = VcsTestPathHelper.GetRootDirectory();
 
                 _appRootDirectory = new DirectoryInfo(Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost"));
@@ -429,7 +431,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             object[] instances =
             {
-                TestConfiguration, TestSiteHttpPort, new CacheSettings()
+                TestConfiguration, TestSiteHttpPort, new CacheSettings(),
+                _environmentVariables
             };
 
             App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args,

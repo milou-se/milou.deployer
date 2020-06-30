@@ -116,6 +116,10 @@
     {
       "key": "urn:milou:deployer:web:http-logging:default:enabled",
       "value": false
+    },
+    {
+      "key": "development-mode",
+      "value": true
     }
   ]
 }
