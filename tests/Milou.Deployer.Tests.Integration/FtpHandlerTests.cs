@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Docker;
@@ -54,13 +55,9 @@ namespace Milou.Deployer.Tests.Integration
                 publicRootPath: new FtpPath("/", FileSystemType.Directory),
                 isSecure: false);
 
-            string publishSettingsFile = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "tests",
-                typeof(FtpHandlerTests).Namespace!,
-                "ftpdocker.PublishSettings");
 
-            FtpHandler handler = await FtpHandler.CreateWithPublishSettings(
-                publishSettingsFile,
-                ftpSettings);
+            FtpHandler handler = await FtpHandler.Create(new Uri("ftp://localhost:30021"),
+                ftpSettings, new NetworkCredential("testuser", "testpw"), logger);
 
             var sourceDirectory = new DirectoryInfo(source);
             var ruleConfiguration = new RuleConfiguration {AppOfflineEnabled = true};
@@ -70,7 +67,6 @@ namespace Milou.Deployer.Tests.Integration
             DeploySummary initialSummary = await handler.PublishAsync(ruleConfiguration,
                 deployTargetDirectory,
                 initialCancellationTokenSource.Token);
-
             logger.Information("Initial: {Initial}", initialSummary.ToDisplayValue());
 
             using var cancellationTokenSource =
