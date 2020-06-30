@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Cli;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Logging;
 using Arbor.AspNetCore.Host;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
@@ -24,15 +25,13 @@ namespace Milou.Deployer.Web.IisHost
     {
         public static async Task<int> StartAsync(
             string[] args,
-            IReadOnlyDictionary<string, string> environmentVariables,
-            params object[] instances)
+            IReadOnlyDictionary<string, string?> environmentVariables,
+            CancellationTokenSource cancellationTokenSource = null,
+            object[] instances = null)
         {
             try
             {
-                if (args is null)
-                {
-                    args = Array.Empty<string>();
-                }
+                args ??= Array.Empty<string>();
 
                 if (args.Length > 0)
                 {
@@ -44,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost
                     }
                 }
 
-                CancellationTokenSource cancellationTokenSource;
+                bool ownsCancellationToken = cancellationTokenSource is null;
 
                 if (int.TryParse(
                     environmentVariables.GetValueOrDefault(ConfigurationConstants.RestartTimeInSeconds),
@@ -52,19 +51,15 @@ namespace Milou.Deployer.Web.IisHost
                 {
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
-                else
-                {
-                    cancellationTokenSource = new CancellationTokenSource();
-                }
 
-                using (cancellationTokenSource)
-                {
+                cancellationTokenSource ??= new CancellationTokenSource();
+
                     cancellationTokenSource.Token.Register(
                         () => TempLogger.WriteLine("App cancellation token triggered"));
 
                     using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
                         cancellationTokenSource, args,
-                        environmentVariables, instances);
+                        environmentVariables, instances ?? Array.Empty<object>());
 
                     bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
                                         && !Debugger.IsAttached;
@@ -108,9 +103,13 @@ namespace Milou.Deployer.Web.IisHost
                     app.Logger.Information(
                         "Stopping application {Application}",
                         app.AppInstance);
-                }
 
-                if (int.TryParse(
+                    if (ownsCancellationToken)
+                    {
+                        cancellationTokenSource.SafeDispose();
+                    }
+
+            if (int.TryParse(
                     environmentVariables.GetValueOrDefault(ConfigurationConstants.ShutdownTimeInSeconds),
                     out int shutDownTimeInSeconds) && shutDownTimeInSeconds > 0)
                 {

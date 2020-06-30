@@ -19,10 +19,11 @@ namespace Milou.Deployer.Web.Tests.Integration
         [ConditionalFact]
         public async Task RunApplicationWithExitCode0()
         {
-            var envArgs = new Dictionary<string, string> {[ConfigurationConstants.RestartTimeInSeconds] = "20"}
+            var envArgs = new Dictionary<string, string?> {[ConfigurationConstants.RestartTimeInSeconds] = "20"}
                 .ToImmutableDictionary();
 
-            int exitCode = await AppStarter.StartAsync(Array.Empty<string>(), envArgs, _output);
+            object[] instances = {_output};
+            int exitCode = await AppStarter.StartAsync(Array.Empty<string>(), envArgs, instances: instances);
 
             Assert.Equal(0, exitCode);
         }
