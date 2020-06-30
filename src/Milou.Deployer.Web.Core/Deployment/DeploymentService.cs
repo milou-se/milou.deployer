@@ -490,6 +490,14 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
+                jobLogger.Error(ex, "Could not get deployment target with id {Id}", deploymentTask.DeploymentTargetId);
+                return ExitCode.Failure;
+            }
+
+            if (deploymentTarget is null
+                || string.IsNullOrWhiteSpace(deploymentTarget.TargetDirectory)
+                || deploymentTarget == DeploymentTarget.None)
+            {
                 jobLogger.Error("Could not get deployment target with id {Id}", deploymentTask.DeploymentTargetId);
                 return ExitCode.Failure;
             }
