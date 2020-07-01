@@ -77,9 +77,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         private static ContainerArgs CreateFtp()
         {
-            var ftpVariables = new Dictionary<string, string> {["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw"};
+            var passivePorts = new PortRange(start: 23100, end: 23100);
 
-            var passivePorts = new PortRange(start: 21100, end: 21110);
+            var ftpVariables = new Dictionary<string, string>
+            {
+                ["FTP_USER"] = "testuser",
+                ["FTP_PASS"] = "testpw",
+                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString(),
+            };
 
             var ftpPorts = new List<PortMapping>
             {
@@ -100,7 +106,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         private static ContainerArgs CreatePostgres()
         {
-            var postgresVariables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
+            var postgresVariables = new Dictionary<string, string>
+            {
+                ["POSTGRES_PASSWORD"] = "test"
+            };
 
             string[] postgresArgs = {"-v", "deploydata:/var/lib/postgresql/data"};
 

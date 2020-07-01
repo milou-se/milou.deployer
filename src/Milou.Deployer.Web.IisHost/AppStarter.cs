@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,8 +27,9 @@ namespace Milou.Deployer.Web.IisHost
         public static async Task<int> StartAsync(
             string[] args,
             IReadOnlyDictionary<string, string?> environmentVariables,
-            CancellationTokenSource cancellationTokenSource = null,
-            object[] instances = null)
+            CancellationTokenSource? cancellationTokenSource = null,
+            IReadOnlyCollection<Assembly>? scanAssemblies = null,
+            object[]? instances = null)
         {
             try
             {
@@ -52,6 +54,8 @@ namespace Milou.Deployer.Web.IisHost
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
 
+                scanAssemblies ??= ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
+
                 cancellationTokenSource ??= new CancellationTokenSource();
 
                     cancellationTokenSource.Token.Register(
@@ -59,7 +63,7 @@ namespace Milou.Deployer.Web.IisHost
 
                     using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
                         cancellationTokenSource, args,
-                        environmentVariables, instances ?? Array.Empty<object>());
+                        environmentVariables, scanAssemblies, instances ?? Array.Empty<object>());
 
                     bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
                                         && !Debugger.IsAttached;

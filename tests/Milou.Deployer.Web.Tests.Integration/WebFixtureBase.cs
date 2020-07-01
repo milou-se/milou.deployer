@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
@@ -16,6 +17,7 @@ using Arbor.AspNetCore.Host;
 using Arbor.Docker;
 using Arbor.Primitives;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core;
@@ -57,11 +59,14 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly SeqArgs _seq;
         private ILogger _testLogger;
         private readonly List<ContainerArgs> _dockerArgs;
+        private Task<int> _agentTask;
+        private CancellationTokenSource _agentCancellationTokenSource;
+        private ImmutableArray<Assembly> _assemblies;
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
             var id  = "-it";
-            var assemblies = ApplicationAssemblies.FilteredAssemblies(new string[]{"Arbor", "Milou"});
+            _assemblies = ApplicationAssemblies.FilteredAssemblies(new string[]{"Arbor", "Milou"});
             _globalTempDir =
                 new DirectoryInfo(Path.Combine(Path.GetTempPath(), "mdst-" + Guid.NewGuid())).EnsureExists();
 
@@ -113,9 +118,15 @@ namespace Milou.Deployer.Web.Tests.Integration
             var portRange = new PortPoolRange(10200, 100);
             var ftpDefault = TcpHelper.GetAvailablePort(portRange);
             var ftpSecondary = TcpHelper.GetAvailablePort(portRange);
-            var ftpVariables = new Dictionary<string, string> { ["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw" };
 
-            var passivePorts = new PortRange(21100, 21110);
+            var passivePorts = new PortRange(start: 24100, end: 24100);
+            var ftpVariables = new Dictionary<string, string>
+            {
+                ["FTP_USER"] = "testuser",
+                ["FTP_PASS"] = "testpw",
+                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString()
+            };
 
             var ftpPorts = new List<PortMapping>
             {
@@ -238,7 +249,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 var portPoolRange = new PortPoolRange(5200, 100);
                 TestSiteHttpPort = new TestHttpPort(TcpHelper.GetAvailablePort(portPoolRange), _appRootDirectory);
 
-                _variables.Add(DeployerAppConstants.SeedEnabled, "false");
+                _variables.Add(DeployerAppConstants.SeedEnabled, "true");
 
                 await BeforeInitialize(_cancellationTokenSource.Token);
 
@@ -314,6 +325,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                     throw new DeployerAppException("The cancellation token is already cancelled, skipping run");
                 }
 
+                await StartAgents();
+
                 await RunAsync();
 
                 if (CancellationToken.IsCancellationRequested)
@@ -328,6 +341,17 @@ namespace Milou.Deployer.Web.Tests.Integration
                 Exception = ex;
                 OnException(ex);
             }
+        }
+
+        private async Task StartAgents()
+        {
+            var variables = new EnvironmentVariables(new Dictionary<string, string>()).Variables;
+
+            _agentCancellationTokenSource = new CancellationTokenSource();
+
+            _agentCancellationTokenSource.Token.Register(() => Console.WriteLine("Agent is cancelled"));
+
+           //_agentTask = Task.Run(() => AppStarter<AgentStartup>.StartAsync(Array.Empty<string>(), variables));
         }
 
         public virtual async Task DisposeAsync()
@@ -367,6 +391,24 @@ namespace Milou.Deployer.Web.Tests.Integration
             Environment.SetEnvironmentVariable("TEMP", _oldTemp);
 
             await DeleteDirectoryAsync(_globalTempDir);
+
+            try
+            {
+                //_agentCancellationTokenSource.Cancel();
+                //await _agentTask;
+            }
+            catch (TaskCanceledException)
+            {
+                // ignored
+            }
+            catch (OperationCanceledException)
+            {
+                // ignored
+            }
+            finally
+            {
+                _agentCancellationTokenSource.SafeDispose();
+            }
 
             await _context.DisposeAsync();
             _testLogger.SafeDispose();
@@ -431,12 +473,17 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             object[] instances =
             {
-                TestConfiguration, TestSiteHttpPort, new CacheSettings(),
-                _environmentVariables
+                TestConfiguration, TestSiteHttpPort,
+                new CacheSettings(),
+                _environmentVariables,
+                new ApplicationPartManager()
             };
 
+            var assemblies = _assemblies
+                .Where(a => a.FullName is string fullName && !fullName.Contains("Agent.Host")).ToImmutableArray();
+
             App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args,
-                _environmentVariables.Variables, instances);
+                _environmentVariables.Variables, assemblies, instances);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);

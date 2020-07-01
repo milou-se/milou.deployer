@@ -31,7 +31,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
             using (IDocumentSession session = _documentStore.OpenSession())
             {
                 IReadOnlyList<TaskLog> existing =
-                    await session.Query<TaskLog>().Where(taskLog => taskLog.Id == taskLogId).ToListAsync();
+                    await session.Query<TaskLog>().Where(taskLog => taskLog.Id == taskLogId).ToListAsync(token: cancellationToken);
 
                 if (existing.Any())
                 {
@@ -52,20 +52,23 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                 await session.SaveChangesAsync(cancellationToken);
             }
 
-            foreach ((LogItem item, int index) notificationLogLine in notification.LogLines.Select((item, index) =>
-                (item, index)))
+            if (!notification.LogLines.IsDefaultOrEmpty)
             {
-                notificationLogLine.item.TaskLogId = taskLogId;
-                notificationLogLine.item.Id = $"{taskLogId}/{notificationLogLine.index + 1}";
-            }
+                foreach ((LogItem item, int index) notificationLogLine in notification.LogLines.Select((item, index) =>
+                    (item, index)))
+                {
+                    notificationLogLine.item.TaskLogId = taskLogId;
+                    notificationLogLine.item.Id = $"{taskLogId}/{notificationLogLine.index + 1}";
+                }
 
-            try
-            {
-                _documentStore.BulkInsert(notification.LogLines);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Could not bulk insert log lines");
+                try
+                {
+                    _documentStore.BulkInsert(notification.LogLines);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Could not bulk insert log lines");
+                }
             }
         }
     }

@@ -2,8 +2,6 @@
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Deployment.Sources;
-using Serilog;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
@@ -12,10 +10,6 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public IServiceCollection Register(IServiceCollection builder) =>
             builder
-                .AddSingleton<IDeploymentTargetReadService>(context =>
-                        new InMemoryDeploymentTargetReadService(context.GetService<ILogger>(),
-                            TestDataCreator.CreateData),
-                    this)
                 .AddSingleton(new TimeoutConfiguration {CancellationEnabled = false});
     }
 }

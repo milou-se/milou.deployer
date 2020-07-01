@@ -161,7 +161,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
             EnvironmentConfiguration environmentConfiguration,
             IKeyValueConfiguration configuration,
-            ILogger logger)
+            ILogger logger,
+            IApplicationAssemblyResolver applicationAssemblyResolver)
         {
             IMvcBuilder mvcBuilder = services.AddMvc(
                     options =>
@@ -176,7 +177,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
 
-            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: new[]{"Arbor", "Milou"});
+            var filteredAssemblies = applicationAssemblyResolver.GetAssemblies();
 
             foreach (Assembly filteredAssembly in filteredAssemblies)
             {

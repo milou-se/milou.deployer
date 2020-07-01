@@ -44,6 +44,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly IServiceProvider _serviceProvider;
 
         private readonly IApplicationSettingsStore _settingsStore;
+        private IApplicationAssemblyResolver _applicationAssemblyResolver;
 
         public DiagnosticsViewHandler(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -55,7 +56,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             ServiceDiagnostics serviceDiagnostics,
             ConfigurationInstanceHolder configurationInstanceHolder,
             ILogger logger,
-            IApplicationSettingsStore settingsStore)
+            IApplicationSettingsStore settingsStore,
+            IApplicationAssemblyResolver applicationAssemblyResolver)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -69,12 +71,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _configurationInstanceHolder = configurationInstanceHolder;
             _logger = logger;
             _settingsStore = settingsStore;
+            _applicationAssemblyResolver = applicationAssemblyResolver;
         }
 
         public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
         {
             var routesWithController =
-                RouteList.GetRoutesWithController(ApplicationAssemblies.FilteredAssemblies());
+                RouteList.GetRoutesWithController(_applicationAssemblyResolver.GetAssemblies());
 
             var configurationValues = new ConfigurationInfo(_configuration.SourceChain,
                 _configuration.AllKeys

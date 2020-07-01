@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var updateDeploymentTarget = new UpdateDeploymentTarget(
                 testTarget.Id,
                 testTarget.AllowPreRelease,
-                testTarget.Url.ToString(),
+                testTarget.Url?.ToString(),
                 testTarget.PackageId,
                 autoDeployEnabled: testTarget.AutoDeployEnabled,
                 targetDirectory: testTarget.TargetDirectory);

@@ -22,9 +22,15 @@ namespace Milou.Deployer.Tests.Integration
 
         protected override async IAsyncEnumerable<ContainerArgs> AddContainersAsync()
         {
-            var ftpVariables = new Dictionary<string, string> {["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw"};
-
             var passivePorts = new PortRange(21100, 21110);
+
+            var ftpVariables = new Dictionary<string, string>
+            {
+                ["FTP_USER"] = "testuser",
+                ["FTP_PASS"] = "testpw",
+                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString()
+            };
 
             var ftpPorts = new List<PortMapping>
             {
