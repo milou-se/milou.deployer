@@ -74,14 +74,14 @@
       },
       "Arbor.Docker": {
         "type": "Direct",
-        "requested": "[0.4.0-build.1589206910, )",
-        "resolved": "0.4.0-build.1589206910",
-        "contentHash": "mvJvpf0CykGtJaglfuz905ilHzYhxfXRhvGTH/BdHYI5kCm5rbfton6Xn1oKb3aTAWh8CNwuLY9JqBmn/wc4nw==",
+        "requested": "[0.4.0-build.1594409010, )",
+        "resolved": "0.4.0-build.1594409010",
+        "contentHash": "bU96qCMlnHQ+gugcxVEV1SixCqMG/lZeQZRyAIDjgS7qCTwS1Nkm24gEEyt0uCDbUoxzyBHT3XQypH/8vIYnFA==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.1.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.0"
+          "System.Collections.Immutable": "1.7.1"
         }
       },
       "Arbor.KVConfiguration.Core": {

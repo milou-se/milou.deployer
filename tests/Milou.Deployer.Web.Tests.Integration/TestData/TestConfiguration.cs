@@ -25,6 +25,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
         public DirectoryInfo NugetPackageDirectory { get; }
 
         public DirectoryInfo SiteAppRoot { get; }
+        public string AgentToken { get; set; }
 
         public void Dispose()
         {

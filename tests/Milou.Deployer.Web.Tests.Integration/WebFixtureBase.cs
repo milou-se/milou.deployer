@@ -17,10 +17,14 @@ using Arbor.AspNetCore.Host;
 using Arbor.Docker;
 using Arbor.Primitives;
 using JetBrains.Annotations;
+using MediatR;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
@@ -343,15 +347,33 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
         }
 
+
         private async Task StartAgents()
         {
+            var mediator=  App.Host.Services.GetRequiredService<IMediator>();
+            var createAgentResult = await mediator.Send(new CreateAgent(new AgentId("TestAgent")));
+
+            var instances = new List<object>() {TestConfiguration, TestSiteHttpPort }.ToArray();
+
+            TestConfiguration.AgentToken = createAgentResult.AccessToken;
+
             var variables = new EnvironmentVariables(new Dictionary<string, string>()).Variables;
 
             _agentCancellationTokenSource = new CancellationTokenSource();
 
             _agentCancellationTokenSource.Token.Register(() => Console.WriteLine("Agent is cancelled"));
 
-           //_agentTask = Task.Run(() => AppStarter<AgentStartup>.StartAsync(Array.Empty<string>(), variables));
+            bool IsAgentAssembly(Assembly assembly)
+            {
+                return assembly.FullName is {} fullName &&
+                       (fullName.Contains("Web.Agent", StringComparison.Ordinal)||
+                        fullName.Contains("Tests"));
+            }
+
+            var assemblies = ApplicationAssemblies.FilteredAssemblies()
+                .Where(IsAgentAssembly).ToArray();
+
+            _agentTask = Task.Run(() => AppStarter<AgentStartup>.StartAsync(Array.Empty<string>(), variables, assemblies: assemblies, instances: instances));
         }
 
         public virtual async Task DisposeAsync()
