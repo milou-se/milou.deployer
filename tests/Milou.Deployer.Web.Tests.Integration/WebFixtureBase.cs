@@ -28,6 +28,7 @@ using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
+using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Milou.Deployer.Web.Marten;
 using Milou.Deployer.Web.Marten.Abstractions;
@@ -495,10 +496,12 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             object[] instances =
             {
-                TestConfiguration, TestSiteHttpPort,
+                TestConfiguration,
+                TestSiteHttpPort,
                 new CacheSettings(),
                 _environmentVariables,
-                new ApplicationPartManager()
+                new ApplicationPartManager(),
+                new MilouAuthenticationConfiguration(true, true, "+LZwHMY/0pifza3BAmrxwzt8F+G+KdMmBfe6nUhqqI9cIZXOLHaYRa0TRldq5ocrBkRELPSCqpEkEKtQvM9FSw==")
             };
 
             var assemblies = _assemblies
