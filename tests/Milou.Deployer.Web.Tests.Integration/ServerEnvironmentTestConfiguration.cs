@@ -5,9 +5,9 @@ using Arbor.App.Extensions.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    public sealed class TestHttpPort : IConfigureEnvironment, IDisposable
+    public sealed class ServerEnvironmentTestConfiguration : IConfigureEnvironment, IDisposable
     {
-        public TestHttpPort(PortPoolRental portPoolRental, DirectoryInfo tempDir)
+        public ServerEnvironmentTestConfiguration(PortPoolRental portPoolRental, DirectoryInfo tempDir)
         {
             Port = portPoolRental;
             TempDir = tempDir;
@@ -22,6 +22,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             environmentConfiguration.HttpEnabled = true;
             environmentConfiguration.ApplicationBasePath = TempDir.FullName;
             environmentConfiguration.ContentBasePath = TempDir.FullName;
+            environmentConfiguration.PublicHostname = "localhost";
         }
 
         public void Dispose() => Port?.Dispose();

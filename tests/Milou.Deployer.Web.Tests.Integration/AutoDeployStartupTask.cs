@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,7 +30,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
         private readonly TestConfiguration? _testConfiguration;
-        private readonly TestHttpPort _testSiteHttpPort;
+        private readonly ServerEnvironmentTestConfiguration _serverEnvironmentTestSiteConfiguration;
         private IWebHost _webHost;
 
         public AutoDeployStartupTask(
@@ -41,8 +42,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             _deploymentService = deploymentService;
             _testConfiguration = testConfiguration;
-            var testHttpPorts = configurationInstanceHolder.GetInstances<TestHttpPort>().Values;
-            _testSiteHttpPort = testHttpPorts.FirstOrDefault() ?? throw new InvalidOperationException("Missing test http port");
+            var testHttpPorts = configurationInstanceHolder.GetInstances<ServerEnvironmentTestConfiguration>().Values;
+            _serverEnvironmentTestSiteConfiguration = testHttpPorts.FirstOrDefault() ?? throw new InvalidOperationException("Missing test http port");
             _logger = logger;
             _readService = readService;
         }
@@ -59,11 +60,22 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return;
             }
 
-            var targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
+            ImmutableArray<DeploymentTarget> targets = ImmutableArray<DeploymentTarget>.Empty;
 
-            if (targets.Length != 1)
+            while (targets.IsDefaultOrEmpty && !startupCancellationToken.IsCancellationRequested)
             {
-                throw new DeployerAppException("The test target has not been created");
+                targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
+
+                if (targets.Length == 0)
+                {
+                    //_logger.Debug("The test target has not yet been created");
+                    await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                }
+                else
+                {
+                    _logger.Debug("The test target has now yet been created");
+                    break;
+                }
             }
 
             const string packageVersion = "MilouDeployerWebTest 1.2.4";
@@ -84,17 +96,28 @@ namespace Milou.Deployer.Web.Tests.Integration
                     $"Initial deployment failed, metadata: {deploymentTaskResult.Metadata}; test configuration: {_testConfiguration}");
             }
 
-            _webHost = WebHost.CreateDefaultBuilder()
-                .ConfigureServices(services => services.AddSingleton(_testConfiguration))
-                .UseKestrel(options =>
-                {
-                    options.Listen(IPAddress.Loopback,
-                        _testSiteHttpPort.Port.Port + 1);
-                })
-                .UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
-                .UseStartup<TestStartup>().Build();
+            int testSitePort = _serverEnvironmentTestSiteConfiguration.Port.Port + 1;
 
-            await _webHost.StartAsync(startupCancellationToken);
+            try
+            {
+                _webHost = WebHost.CreateDefaultBuilder()
+                    .ConfigureServices(services => services.AddSingleton(_testConfiguration))
+                    .UseKestrel(options =>
+                    {
+                        options.Listen(IPAddress.Loopback,
+                            testSitePort);
+                    })
+                    .UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
+                    .UseStartup<TestStartup>().Build();
+
+                await _webHost.StartAsync(startupCancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.Fatal(ex, "Could not start test site");
+
+                throw new DeployerAppException("Could not start test site", ex);
+            }
 
             startupCancellationToken.Register(() => _webHost.StopAsync(startupCancellationToken));
             HttpResponseMessage response = default;
@@ -103,7 +126,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 try
                 {
-                    var uri = new Uri($"http://localhost:{_testSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
+                    var uri = new Uri($"http://localhost:{testSitePort}/applicationmetadata.json");
                     response = await httpClient.GetAsync(uri, startupCancellationToken);
 
                     _logger.Information("Successfully made get request to test site {Status}", response.StatusCode);
@@ -123,7 +146,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             GC.SuppressFinalize(this);
             base.Dispose();
             _webHost.SafeDispose();
-            _testSiteHttpPort.SafeDispose();
+            _serverEnvironmentTestSiteConfiguration.SafeDispose();
         }
     }
 }

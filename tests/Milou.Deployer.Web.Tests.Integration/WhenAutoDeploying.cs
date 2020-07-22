@@ -40,9 +40,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                 throw new DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
-            if (WebFixture.TestSiteHttpPort is null)
+            if (WebFixture.ServerEnvironmentTestSiteConfiguration is null)
             {
-                throw new DeployerAppException($"{nameof(WebFixture.TestSiteHttpPort)} is null");
+                throw new DeployerAppException($"{nameof(WebFixture.ServerEnvironmentTestSiteConfiguration)} is null");
             }
 
             if (WebFixture is null)
@@ -92,7 +92,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     }
 
                     var url = new Uri(
-                        $"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
+                        $"http://localhost:{WebFixture.ServerEnvironmentTestSiteConfiguration.Port.Port + 1}/applicationmetadata.json");
 
                     string contents;
                     try

@@ -656,7 +656,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 return ExitCode.Failure;
             }
 
-            if (!string.IsNullOrWhiteSpace(deploymentTarget.NuGet.NuGetConfigFile) &&
+            if (!string.IsNullOrWhiteSpace(deploymentTarget.NuGet?.NuGetConfigFile) &&
                 File.Exists(deploymentTarget.NuGet.NuGetConfigFile))
             {
                 nugetXml = await

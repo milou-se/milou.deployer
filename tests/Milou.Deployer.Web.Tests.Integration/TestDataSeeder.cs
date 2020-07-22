@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AspNetCore.Host;
+using Arbor.Primitives;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Primitives;
@@ -12,11 +14,16 @@ using Milou.Deployer.Web.Core.Deployment.Targets;
 namespace Milou.Deployer.Web.Tests.Integration
 {
     [UsedImplicitly]
-    public class TestDataSeeder : IDataSeeder
+    public class TestDataSeeder : IPreStartModule
     {
         private readonly IMediator _mediator;
+        private readonly EnvironmentVariables _environmentVariables;
 
-        public TestDataSeeder(IMediator mediator) => _mediator = mediator;
+        public TestDataSeeder(IMediator mediator, EnvironmentVariables environmentVariables)
+        {
+            _mediator = mediator;
+            _environmentVariables = environmentVariables;
+        }
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {
@@ -26,8 +33,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                 "MilouDeployerWebTest",
                 allowExplicitPreRelease: false,
                 autoDeployEnabled: true,
-                targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
-                url: Environment.GetEnvironmentVariable("TestDeploymentUri").ParseUriOrDefault(),
+                targetDirectory: _environmentVariables.Variables["TestDeploymentTargetPath"],
+                url: _environmentVariables.Variables["TestDeploymentUri"].ParseUriOrDefault(),
                 emailNotificationAddresses: new StringValues("noreply@localhost.local"),
                 enabled: true);
 
@@ -50,5 +57,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         public int Order => int.MaxValue;
+
+        public Task RunAsync(CancellationToken cancellationToken) => SeedAsync(cancellationToken);
     }
 }

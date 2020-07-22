@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _variables.Add("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
             _variables.Add("TestDeploymentUri",
-                $"http://localhost:{TestSiteHttpPort.Port.Port + 1}");
+                $"http://localhost:{ServerEnvironmentTestSiteConfiguration.Port.Port + 1}");
 
             string deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 

@@ -55,8 +55,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             string accessToken =
                 handler.WriteToken(jwtSecurityToken);
 
+            if (string.IsNullOrWhiteSpace(_environmentConfiguration.PublicHostname))
+            {
+                //throw new InvalidOperationException("Environment public host name is not set");
+                _environmentConfiguration.PublicHostname = "localhost";
+            }
+
             var serverUri = new UriBuilder(_environmentConfiguration.PublicPortIsHttps ?? false ? "https" : "http",
-                _environmentConfiguration.PublicHostname, _environmentConfiguration.PublicPort ?? 80);
+                _environmentConfiguration.PublicHostname, _environmentConfiguration.PublicPort ?? _environmentConfiguration.HttpPort ?? 80);
 
             return new AgentInstallConfiguration(request.AgentId, accessToken, serverUri.Uri);
         }

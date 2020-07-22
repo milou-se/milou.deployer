@@ -200,6 +200,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                     await _loggingCompleted.WaitAsync(stoppingToken);
                 }
+                catch (OperationCanceledException operationCanceledException)
+                {
+                    _logger.Information(operationCanceledException, "Taking next deployment task failed due to cancellation");
+                }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
                     if (deploymentTask is {})

@@ -196,7 +196,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             return new SeqArgs(args, httpPort);
         }
 
-        public TestHttpPort TestSiteHttpPort { get; protected set; }
+        public ServerEnvironmentTestConfiguration ServerEnvironmentTestSiteConfiguration { get; protected set; }
 
         [PublicAPI]
         public List<DirectoryInfo> DirectoriesToClean { get; } = new List<DirectoryInfo>();
@@ -251,8 +251,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 _appRootDirectory = new DirectoryInfo(Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost"));
 
-                var portPoolRange = new PortPoolRange(5200, 100);
-                TestSiteHttpPort = new TestHttpPort(TcpHelper.GetAvailablePort(portPoolRange), _appRootDirectory);
+                var portPoolRange = new PortPoolRange(6200, 100);
+                ServerEnvironmentTestSiteConfiguration = new ServerEnvironmentTestConfiguration(TcpHelper.GetAvailablePort(portPoolRange), _appRootDirectory);
 
                 _variables.Add(DeployerAppConstants.SeedEnabled, "true");
 
@@ -354,7 +354,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             var mediator=  App.Host.Services.GetRequiredService<IMediator>();
             var createAgentResult = await mediator.Send(new CreateAgent(new AgentId("TestAgent")));
 
-            var instances = new List<object>() {TestConfiguration, TestSiteHttpPort }.ToArray();
+            var serilogConfiguration = new SerilogConfiguration(seqUrl: "http://localhost:"+ _seq.HttpPort, rollingLogFilePath: null, seqEnabled: true);
+            var instances = new List<object>() {TestConfiguration, ServerEnvironmentTestSiteConfiguration, serilogConfiguration }.ToArray();
 
             TestConfiguration.AgentToken = createAgentResult.AccessToken;
 
@@ -497,7 +498,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             object[] instances =
             {
                 TestConfiguration,
-                TestSiteHttpPort,
+                ServerEnvironmentTestSiteConfiguration,
                 new CacheSettings(),
                 _environmentVariables,
                 new ApplicationPartManager(),
@@ -527,69 +528,5 @@ namespace Milou.Deployer.Web.Tests.Integration
         protected virtual Task BeforeInitialize(CancellationToken cancellationToken) => Task.CompletedTask;
 
         protected abstract Task RunAsync();
-    }
-
-    internal class SeqArgs
-    {
-        public SeqArgs(ContainerArgs containerArgs, PortPoolRental httpPort)
-        {
-            ContainerArgs = containerArgs;
-            HttpPort = httpPort;
-        }
-
-        public ContainerArgs ContainerArgs { get; }
-        public PortPoolRental HttpPort { get; }
-    }
-
-    internal class Smtp4DevArgs
-    {
-        public ContainerArgs ContainerArgs { get; }
-        public PortPoolRental SmtpPort { get; }
-        public PortPoolRental HttpPort { get; }
-
-        public Smtp4DevArgs(ContainerArgs containerArgs, PortPoolRental smtpPort, PortPoolRental httpPort)
-        {
-            ContainerArgs = containerArgs;
-            SmtpPort = smtpPort;
-            HttpPort = httpPort;
-        }
-    }
-
-    internal class RedisArgs
-    {
-        public ContainerArgs ContainerArgs { get; }
-        public PortPoolRental RedisPort { get; }
-
-        public RedisArgs(ContainerArgs containerArgs, PortPoolRental redisPort)
-        {
-            ContainerArgs = containerArgs;
-            RedisPort = redisPort;
-        }
-    }
-
-    internal class PostgresArgs
-    {
-        public ContainerArgs ContainerArgs { get; }
-        public PortPoolRental PgPort { get; }
-
-        public PostgresArgs(ContainerArgs containerArgs, PortPoolRental pgPort)
-        {
-            ContainerArgs = containerArgs;
-            PgPort = pgPort;
-        }
-    }
-
-    internal class FtpArgs
-    {
-        public ContainerArgs ContainerArgs { get; }
-        public PortPoolRental FtpDefault { get; }
-        public PortPoolRental FtpSecondary { get; }
-
-        public FtpArgs(ContainerArgs containerArgs, PortPoolRental ftpDefault, PortPoolRental ftpSecondary)
-        {
-            ContainerArgs = containerArgs;
-            FtpDefault = ftpDefault;
-            FtpSecondary = ftpSecondary;
-        }
     }
 }
