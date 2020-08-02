@@ -14,13 +14,13 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
         public IServiceCollection Register(IServiceCollection builder)
         {
             builder.AddSingleton(
-                new TimeoutHelper(new TimeoutConfiguration {CancellationEnabled = false}));
+                new TimeoutHelper(new TimeoutConfiguration {CancellationEnabled = false}), this);
 
-            builder.AddSingleton<DeploymentTaskPackageService>();
-            builder.AddSingleton<LogHttpClientFactory>();
-            builder.AddSingleton<IDeploymentPackageAgent, DeploymentPackageAgent>();
-            builder.AddSingleton<IDeploymentPackageHandler, DeploymentPackageHandler>();
-            builder.AddSingleton<IConfigureEnvironment, AgentConfigureEnvironment>();
+            builder.AddSingleton<DeploymentTaskPackageService>(this);
+            builder.AddSingleton<LogHttpClientFactory>(this);
+            builder.AddSingleton<IDeploymentPackageAgent, DeploymentPackageAgent>(this);
+            builder.AddSingleton<IDeploymentPackageHandler, DeploymentPackageHandler>(this);
+            builder.AddSingleton<IConfigureEnvironment, AgentConfigureEnvironment>(this);
 
             return builder;
         }

@@ -10,9 +10,9 @@
       },
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.4.1-build.1594929306, )",
-        "resolved": "0.4.1-build.1594929306",
-        "contentHash": "+EzJUUR9TrQgEtAZ3pDiNuvlCAgMf/weKFWuQD/OPIzBqt2FJVscfKiI696XLA4G22InXZcMcFLK4jxKnFCp3Q==",
+        "requested": "[0.4.1-build.1595703670, )",
+        "resolved": "0.4.1-build.1595703670",
+        "contentHash": "DGPF4GEma34zszW1UQQba7GnD+41uopBypx5ASxzozQGIOrTLK88hypd48Gbvj0e+0Ea29dF/WGJPziCvITOsQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "JetBrains.Annotations": "2020.1.0",
@@ -232,10 +232,10 @@
       },
       "Arbor.AspNetCore.Host": {
         "type": "Transitive",
-        "resolved": "0.7.0-build.1594929673",
-        "contentHash": "nChUlzcUBJBcWrMxA8JwGDkakWe7y0lVIAXUTibG81RkI/lcltaejZX6bTffOJUUssTIPgAam5Ekonsc+08zQA==",
+        "resolved": "0.7.0-build.1595710419",
+        "contentHash": "vnyVvR3tudZ8FPuSnbWsh7HpP+kBboQUpZCosyonNx3BIZx5Xv/W1v/WgeXAgv7C96pi9y61Aom6WaqkOiQ5eQ==",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build.1594929306",
+          "Arbor.App.Extensions": "0.4.1-build.1595703670",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
           "Arbor.KVConfiguration.Core": "0.20.0",
           "Arbor.KVConfiguration.DependencyInjection": "0.20.0",
@@ -415,6 +415,21 @@
         "dependencies": {
           "DotNext": "[2.7.0, 3.0.0)",
           "System.Threading.Channels": "4.7.1"
+        }
+      },
+      "FluentFTP": {
+        "type": "Transitive",
+        "resolved": "32.4.3",
+        "contentHash": "2Haoxl4tWITU9mcbTAH17JAAjUY8ZPwoN9qW/Z/XRv2aAneajcNZJIhTkuhBu+PsOPG93yizeM5hxW0vguy6Xg==",
+        "dependencies": {
+          "System.Console": "4.3.0",
+          "System.IO": "4.3.0",
+          "System.Net.NameResolution": "4.3.0",
+          "System.Net.Security": "4.3.0",
+          "System.Net.Sockets": "4.3.0",
+          "System.Runtime": "4.3.0",
+          "System.Threading.Tasks": "4.3.0",
+          "System.Threading.Thread": "4.3.0"
         }
       },
       "MailKit": {
@@ -1021,6 +1036,19 @@
         "dependencies": {
           "Microsoft.TestPlatform.ObjectModel": "16.6.1",
           "Newtonsoft.Json": "9.0.1"
+        }
+      },
+      "Microsoft.Web.Administration": {
+        "type": "Transitive",
+        "resolved": "11.1.0",
+        "contentHash": "aVdukBSBsbUJKHvSpfgTnmm6HEOKKJ5l8HXh0F05t7bYMRUzViYD8knqcs55xjnVzyO0epHd+r4TgWt/sSyuQg==",
+        "dependencies": {
+          "Microsoft.Win32.Registry": "4.0.0",
+          "NETStandard.Library": "1.6.0",
+          "System.Diagnostics.TraceSource": "4.0.0",
+          "System.Reflection.TypeExtensions": "4.4.0",
+          "System.Security.Principal.Windows": "4.0.0",
+          "System.ServiceProcess.ServiceController": "4.1.0"
         }
       },
       "Microsoft.Web.Xdt": {
@@ -1657,6 +1685,22 @@
           "Microsoft.NETCore.Platforms": "1.1.0",
           "Microsoft.NETCore.Targets": "1.1.0",
           "System.Runtime": "4.3.0"
+        }
+      },
+      "System.Diagnostics.TraceSource": {
+        "type": "Transitive",
+        "resolved": "4.0.0",
+        "contentHash": "6WVCczFZKXwpWpzd/iJkYnsmWTSFFiU24Xx/YdHXBcu+nFI/ehTgeqdJQFbtRPzbrO3KtRNjvkhtj4t5/WwWsA==",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "1.0.1",
+          "System.Collections": "4.0.11",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Globalization": "4.0.11",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Threading": "4.0.11",
+          "runtime.native.System": "4.0.0"
         }
       },
       "System.Diagnostics.Tracing": {
@@ -2527,7 +2571,7 @@
       "milou.deployer.bootstrapper.common": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build.1594929306",
+          "Arbor.App.Extensions": "0.4.1-build.1595703670",
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "Arbor.Tooler": "0.9.1",
           "JetBrains.Annotations": "2020.1.0",
@@ -2543,7 +2587,7 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build.1594929306",
+          "Arbor.App.Extensions": "0.4.1-build.1595703670",
           "Arbor.KVConfiguration.Schema.Json": "0.20.0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.9.1",
@@ -2558,10 +2602,58 @@
           "System.Collections.Immutable": "1.7.1"
         }
       },
+      "milou.deployer.deployerapp": {
+        "type": "Project",
+        "dependencies": {
+          "Arbor.KVConfiguration.Core": "0.20.0",
+          "Arbor.KVConfiguration.JsonConfiguration": "0.20.0",
+          "Arbor.KVConfiguration.UserConfiguration": "0.20.0",
+          "Arbor.Processing": "0.6.0",
+          "JetBrains.Annotations": "2020.1.0",
+          "Milou.Deployer.Core": "1.0.0",
+          "Milou.Deployer.Ftp": "1.0.0",
+          "Milou.Deployer.IIS": "1.0.0",
+          "Milou.Deployer.Waws": "1.0.0",
+          "Serilog": "2.9.0",
+          "Serilog.Sinks.Console": "3.1.1",
+          "Serilog.Sinks.File": "4.1.0"
+        }
+      },
+      "milou.deployer.ftp": {
+        "type": "Project",
+        "dependencies": {
+          "FluentFTP": "32.4.3",
+          "JetBrains.Annotations": "2020.1.0",
+          "Milou.Deployer.Core": "1.0.0",
+          "Serilog": "2.9.0"
+        }
+      },
+      "milou.deployer.iis": {
+        "type": "Project",
+        "dependencies": {
+          "JetBrains.Annotations": "2020.1.0",
+          "Microsoft.Extensions.Primitives": "3.1.6",
+          "Microsoft.Web.Administration": "11.1.0",
+          "Microsoft.Win32.Registry": "4.7.0",
+          "Milou.Deployer.Core": "1.0.0",
+          "Serilog": "2.9.0",
+          "System.Collections.Immutable": "1.7.1"
+        }
+      },
+      "milou.deployer.waws": {
+        "type": "Project",
+        "dependencies": {
+          "JetBrains.Annotations": "2020.1.0",
+          "Microsoft.Extensions.Primitives": "3.1.6",
+          "Milou.Deployer.Core": "1.0.0",
+          "Serilog": "2.9.0",
+          "System.Collections.Immutable": "1.7.1"
+        }
+      },
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build.1594929306",
+          "Arbor.App.Extensions": "0.4.1-build.1595703670",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.9.1",
           "JetBrains.Annotations": "2020.1.0",
@@ -2576,7 +2668,7 @@
       "milou.deployer.web.agent.host": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AspNetCore.Host": "0.7.0-build.1594929673",
+          "Arbor.AspNetCore.Host": "0.7.0-build.1595710419",
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.1.0",
           "Microsoft.AspNet.WebApi.Client": "5.2.7",
@@ -2586,6 +2678,7 @@
           "Microsoft.Extensions.Logging.Abstractions": "3.1.6",
           "Microsoft.Extensions.Primitives": "3.1.6",
           "Milou.Deployer.Bootstrapper.Common": "1.0.0",
+          "Milou.Deployer.DeployerApp": "1.0.0",
           "Milou.Deployer.Web.Agent": "1.0.0",
           "Serilog": "2.9.0",
           "Serilog.Sinks.Http": "6.0.0",
@@ -2595,7 +2688,7 @@
       "milou.deployer.web.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build.1594929306",
+          "Arbor.App.Extensions": "0.4.1-build.1595703670",
           "Arbor.KVConfiguration.Core": "0.20.0",
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "Arbor.KVConfiguration.UserConfiguration": "0.20.0",
@@ -2635,8 +2728,8 @@
       "milou.deployer.web.iishost": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build.1594929306",
-          "Arbor.AspNetCore.Host": "0.7.0-build.1594929673",
+          "Arbor.App.Extensions": "0.4.1-build.1595703670",
+          "Arbor.AspNetCore.Host": "0.7.0-build.1595710419",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
           "Arbor.Docker": "0.4.0-build.1594409010",
           "Arbor.KVConfiguration.Core": "0.20.0",
@@ -2697,7 +2790,7 @@
       "milou.deployer.web.marten.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build.1594929306",
+          "Arbor.App.Extensions": "0.4.1-build.1595703670",
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "JetBrains.Annotations": "2020.1.0",
           "Microsoft.Extensions.Primitives": "3.1.6"

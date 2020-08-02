@@ -9,8 +9,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.IO;
 using Arbor.App.Extensions.Logging;
 using Arbor.AspNetCore.Host;
@@ -27,14 +27,10 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
-using Milou.Deployer.Web.Marten;
-using Milou.Deployer.Web.Marten.Abstractions;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 using Serilog;
-using Serilog.Core;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -47,31 +43,32 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private const string ConnectionStringFormat =
             "Server=localhost;Port={0};User Id=postgres;Password=test;Database=postgres;Pooling=false";
+
         private readonly IMessageSink _diagnosticMessageSink;
+        private readonly List<ContainerArgs> _dockerArgs;
+        private readonly FtpArgs _ftp;
         private readonly DirectoryInfo _globalTempDir;
         private readonly string _oldTemp;
+        private readonly PostgresArgs _postgres;
+        private readonly RedisArgs _redis;
+        private readonly SeqArgs _seq;
+        private readonly Smtp4DevArgs _smtp4Dev;
+        protected readonly IDictionary<string, string> _variables = new Dictionary<string, string>();
+        private CancellationTokenSource _agentCancellationTokenSource;
+        private Task<int> _agentTask;
+        private DirectoryInfo _appRootDirectory;
+        private readonly ImmutableArray<Assembly> _assemblies;
 
         private CancellationTokenSource _cancellationTokenSource;
-        private readonly Smtp4DevArgs _smtp4Dev;
-        private readonly PostgresArgs _postgres;
-        private readonly FtpArgs _ftp;
-        private readonly RedisArgs _redis;
         private DockerContext _context;
 
         private EnvironmentVariables _environmentVariables;
-        protected readonly IDictionary<string, string> _variables = new Dictionary<string, string>();
-        private DirectoryInfo _appRootDirectory;
-        private readonly SeqArgs _seq;
         private ILogger _testLogger;
-        private readonly List<ContainerArgs> _dockerArgs;
-        private Task<int> _agentTask;
-        private CancellationTokenSource _agentCancellationTokenSource;
-        private ImmutableArray<Assembly> _assemblies;
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
-            var id  = "-it";
-            _assemblies = ApplicationAssemblies.FilteredAssemblies(new string[]{"Arbor", "Milou"});
+            var id = "-it";
+            _assemblies = ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
             _globalTempDir =
                 new DirectoryInfo(Path.Combine(Path.GetTempPath(), "mdst-" + Guid.NewGuid())).EnsureExists();
 
@@ -100,100 +97,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             string seqUrl = $"http://localhost:{_seq.HttpPort}";
             _variables.Add("urn:arbor:app:web:logging:serilog:default:seqUrl", seqUrl);
             Console.WriteLine($"Using seq url {seqUrl}");
-        }
-
-        private RedisArgs CreateRedis(string id)
-        {
-            var portRange = new PortPoolRange(10100, 100);
-            var redisPort = TcpHelper.GetAvailablePort(portRange);
-            var portMappings = new[] { PortMapping.MapSinglePort(redisPort.Port, 6379) };
-            var redis = new ContainerArgs(
-                "redis",
-                "redistest"+ id,
-                portMappings,
-                args: Array.Empty<string>(),
-                entryPoint: new[] { "redis-server" }
-            );
-
-            return new RedisArgs(redis, redisPort);
-        }
-
-        private static FtpArgs CreateFtp(string id)
-        {
-            var portRange = new PortPoolRange(10200, 100);
-            var ftpDefault = TcpHelper.GetAvailablePort(portRange);
-            var ftpSecondary = TcpHelper.GetAvailablePort(portRange);
-
-            var passivePorts = new PortRange(start: 24100, end: 24100);
-            var ftpVariables = new Dictionary<string, string>
-            {
-                ["FTP_USER"] = "testuser",
-                ["FTP_PASS"] = "testpw",
-                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
-                ["PASV_MAX_PORT"] = passivePorts.End.ToString()
-            };
-
-            var ftpPorts = new List<PortMapping>
-            {
-                PortMapping.MapSinglePort(ftpSecondary.Port, 20),
-                PortMapping.MapSinglePort(ftpDefault.Port, 21),
-                new PortMapping(passivePorts, passivePorts)
-            };
-
-            var ftp = new ContainerArgs(
-                "fauria/vsftpd",
-                "ftp" + id,
-                ftpPorts,
-                ftpVariables
-            );
-
-            return new FtpArgs(ftp, ftpDefault, ftpSecondary);
-        }
-
-        private static PostgresArgs CreatePostgres(string id)
-        {
-            var portRange = new PortPoolRange(10300, 100);
-            var pgPort = TcpHelper.GetAvailablePort(portRange);
-            var postgresVariables = new Dictionary<string, string> { ["POSTGRES_PASSWORD"] = "test" };
-
-            var postgres = new ContainerArgs(
-                "postgres",
-                "postgres-deploy" + id,
-                new List<PortMapping> { PortMapping.MapSinglePort(pgPort.Port, 5432) },
-                postgresVariables
-            );
-
-            return new PostgresArgs(postgres, pgPort);
-        }
-
-        private static Smtp4DevArgs CreateSmtp4Dev(string id)
-        {
-           var portRange = new PortPoolRange(10000, 100);
-           var smtpPort = TcpHelper.GetAvailablePort(portRange);
-           var httpPort = TcpHelper.GetAvailablePort(portRange);
-
-            var smtp4Dev = new ContainerArgs(
-                "rnwood/smtp4dev:linux-amd64-v3",
-                "smtp4devtest" + id,
-                new List<PortMapping> { PortMapping.MapSinglePort(httpPort.Port, 80), PortMapping.MapSinglePort(smtpPort.Port, 25) },
-                new Dictionary<string, string> { ["ServerOptions:TlsMode"] = "None" }
-            );
-
-            return new Smtp4DevArgs(smtp4Dev, smtpPort, httpPort);
-        }
-        private static SeqArgs CreateSeq(string id)
-        {
-           var portRange = new PortPoolRange(10400, 100);
-           var httpPort = TcpHelper.GetAvailablePort(portRange);
-
-            var args = new ContainerArgs(
-                "datalust/seq:latest",
-                "test-seq-"+id,
-                new List<PortMapping> { PortMapping.MapSinglePort(httpPort.Port, 80) },
-                new Dictionary<string, string> { ["ACCEPT_EULA"] = "Y" }
-            );
-
-            return new SeqArgs(args, httpPort);
         }
 
         public ServerEnvironmentTestConfiguration ServerEnvironmentTestSiteConfiguration { get; protected set; }
@@ -228,9 +131,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                         .MinimumLevel.Verbose()
                         .CreateLogger();
 
-                   _context = await DockerContext.CreateContextAsync(_dockerArgs, _testLogger);
+                    _context = await DockerContext.CreateContextAsync(_dockerArgs, _testLogger);
 
-                   await _context.ContainerTask;
+                    await _context.ContainerTask;
                 }
                 finally
                 {
@@ -252,9 +155,14 @@ namespace Milou.Deployer.Web.Tests.Integration
                 _appRootDirectory = new DirectoryInfo(Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost"));
 
                 var portPoolRange = new PortPoolRange(6200, 100);
-                ServerEnvironmentTestSiteConfiguration = new ServerEnvironmentTestConfiguration(TcpHelper.GetAvailablePort(portPoolRange), _appRootDirectory);
+                ServerEnvironmentTestSiteConfiguration =
+                    new ServerEnvironmentTestConfiguration(TcpHelper.GetAvailablePort(portPoolRange),
+                        _appRootDirectory);
 
                 _variables.Add(DeployerAppConstants.SeedEnabled, "true");
+
+
+                TestConfiguration = await TestPathHelper.CreateTestConfigurationAsync(CancellationToken.None);
 
                 await BeforeInitialize(_cancellationTokenSource.Token);
 
@@ -285,6 +193,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     throw new DeployerAppException("The cancellation token is already cancelled, skipping start");
                 }
+
+                //await StartAgents();
 
                 try
                 {
@@ -320,7 +230,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                     throw new InvalidOperationException("Lifetime is null");
                 }
 
-                while (!appLifeTime.ApplicationStarted.IsCancellationRequested && !CancellationToken.IsCancellationRequested)
+                while (!appLifeTime.ApplicationStarted.IsCancellationRequested &&
+                       !CancellationToken.IsCancellationRequested)
                 {
                     await Task.Delay(TimeSpan.FromMilliseconds(50), CancellationToken);
                 }
@@ -330,7 +241,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                     throw new DeployerAppException("The cancellation token is already cancelled, skipping run");
                 }
 
-                await StartAgents();
 
                 await RunAsync();
 
@@ -346,36 +256,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                 Exception = ex;
                 OnException(ex);
             }
-        }
-
-
-        private async Task StartAgents()
-        {
-            var mediator=  App.Host.Services.GetRequiredService<IMediator>();
-            var createAgentResult = await mediator.Send(new CreateAgent(new AgentId("TestAgent")));
-
-            var serilogConfiguration = new SerilogConfiguration(seqUrl: "http://localhost:"+ _seq.HttpPort, rollingLogFilePath: null, seqEnabled: true);
-            var instances = new List<object>() {TestConfiguration, ServerEnvironmentTestSiteConfiguration, serilogConfiguration }.ToArray();
-
-            TestConfiguration.AgentToken = createAgentResult.AccessToken;
-
-            var variables = new EnvironmentVariables(new Dictionary<string, string>()).Variables;
-
-            _agentCancellationTokenSource = new CancellationTokenSource();
-
-            _agentCancellationTokenSource.Token.Register(() => Console.WriteLine("Agent is cancelled"));
-
-            bool IsAgentAssembly(Assembly assembly)
-            {
-                return assembly.FullName is {} fullName &&
-                       (fullName.Contains("Web.Agent", StringComparison.Ordinal)||
-                        fullName.Contains("Tests"));
-            }
-
-            var assemblies = ApplicationAssemblies.FilteredAssemblies()
-                .Where(IsAgentAssembly).ToArray();
-
-            _agentTask = Task.Run(() => AppStarter<AgentStartup>.StartAsync(Array.Empty<string>(), variables, assemblies: assemblies, instances: instances));
         }
 
         public virtual async Task DisposeAsync()
@@ -418,8 +298,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             try
             {
-                //_agentCancellationTokenSource.Cancel();
-                //await _agentTask;
+                _agentCancellationTokenSource?.Cancel();
+                if (_agentTask is {})
+                {
+                    await _agentTask;
+                }
             }
             catch (TaskCanceledException)
             {
@@ -440,12 +323,108 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public virtual void Dispose() => GC.SuppressFinalize(this);
 
-        private int? GetHttpPort()
-        {
-            EnvironmentConfiguration? environmentConfiguration =
-                App.Host!.Services.GetService<EnvironmentConfiguration>();
+        protected virtual Task AfterRunAsync() => Task.CompletedTask;
 
-            return environmentConfiguration?.HttpPort;
+        protected virtual Task BeforeInitialize(CancellationToken cancellationToken) => Task.CompletedTask;
+
+        protected virtual Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
+
+        private static FtpArgs CreateFtp(string id)
+        {
+            var portRange = new PortPoolRange(10200, 100);
+            var ftpDefault = TcpHelper.GetAvailablePort(portRange);
+            var ftpSecondary = TcpHelper.GetAvailablePort(portRange);
+
+            var passivePorts = new PortRange(24100, 24100);
+            var ftpVariables = new Dictionary<string, string>
+            {
+                ["FTP_USER"] = "testuser",
+                ["FTP_PASS"] = "testpw",
+                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString()
+            };
+
+            var ftpPorts = new List<PortMapping>
+            {
+                PortMapping.MapSinglePort(ftpSecondary.Port, 20),
+                PortMapping.MapSinglePort(ftpDefault.Port, 21),
+                new PortMapping(passivePorts, passivePorts)
+            };
+
+            var ftp = new ContainerArgs(
+                "fauria/vsftpd",
+                "ftp" + id,
+                ftpPorts,
+                ftpVariables
+            );
+
+            return new FtpArgs(ftp, ftpDefault, ftpSecondary);
+        }
+
+        private static PostgresArgs CreatePostgres(string id)
+        {
+            var portRange = new PortPoolRange(10300, 100);
+            var pgPort = TcpHelper.GetAvailablePort(portRange);
+            var postgresVariables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
+
+            var postgres = new ContainerArgs(
+                "postgres",
+                "postgres-deploy" + id,
+                new List<PortMapping> {PortMapping.MapSinglePort(pgPort.Port, 5432)},
+                postgresVariables
+            );
+
+            return new PostgresArgs(postgres, pgPort);
+        }
+
+        private RedisArgs CreateRedis(string id)
+        {
+            var portRange = new PortPoolRange(10100, 100);
+            var redisPort = TcpHelper.GetAvailablePort(portRange);
+            var portMappings = new[] {PortMapping.MapSinglePort(redisPort.Port, 6379)};
+            var redis = new ContainerArgs(
+                "redis",
+                "redistest" + id,
+                portMappings,
+                args: Array.Empty<string>(),
+                entryPoint: new[] {"redis-server"}
+            );
+
+            return new RedisArgs(redis, redisPort);
+        }
+
+        private static SeqArgs CreateSeq(string id)
+        {
+            var portRange = new PortPoolRange(10400, 100);
+            var httpPort = TcpHelper.GetAvailablePort(portRange);
+
+            var args = new ContainerArgs(
+                "datalust/seq:latest",
+                $"test-seq-{id}",
+                new List<PortMapping> {PortMapping.MapSinglePort(httpPort.Port, 80)},
+                new Dictionary<string, string> {["ACCEPT_EULA"] = "Y"}
+            );
+
+            return new SeqArgs(args, httpPort);
+        }
+
+        private static Smtp4DevArgs CreateSmtp4Dev(string id)
+        {
+            var portRange = new PortPoolRange(10000, 100);
+            var smtpPort = TcpHelper.GetAvailablePort(portRange);
+            var httpPort = TcpHelper.GetAvailablePort(portRange);
+
+            var smtp4Dev = new ContainerArgs(
+                "rnwood/smtp4dev:linux-amd64-v3",
+                "smtp4devtest" + id,
+                new List<PortMapping>
+                {
+                    PortMapping.MapSinglePort(httpPort.Port, 80), PortMapping.MapSinglePort(smtpPort.Port, 25)
+                },
+                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
+            );
+
+            return new Smtp4DevArgs(smtp4Dev, smtpPort, httpPort);
         }
 
         private async Task DeleteDirectoryAsync(DirectoryInfo directoryInfo, int attempt = 0)
@@ -480,20 +459,26 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
         }
 
-        private async Task StartAsync(IReadOnlyCollection<string> args)
+        private int? GetHttpPort()
         {
-            App.Logger.Information("Starting app");
+            var environmentConfiguration =
+                App.Host!.Services.GetService<EnvironmentConfiguration>();
 
-            await App.RunAsync(args.ToArray());
-
-            App.Logger.Information("Started app, waiting for web host shutdown");
+            return environmentConfiguration?.HttpPort;
         }
+
+        protected virtual void OnException(Exception exception)
+        {
+        }
+
+        protected abstract Task RunAsync();
 
         private async Task<IReadOnlyCollection<string>> RunSetupAsync()
         {
             string[] args = {$"{ConfigurationConstants.ContentBasePath}={_appRootDirectory}"};
 
-            _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered in test"));
+            _cancellationTokenSource.Token.Register(() =>
+                Console.WriteLine("App cancellation token triggered in test"));
 
             object[] instances =
             {
@@ -502,7 +487,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                 new CacheSettings(),
                 _environmentVariables,
                 new ApplicationPartManager(),
-                new MilouAuthenticationConfiguration(true, true, "+LZwHMY/0pifza3BAmrxwzt8F+G+KdMmBfe6nUhqqI9cIZXOLHaYRa0TRldq5ocrBkRELPSCqpEkEKtQvM9FSw==")
+                new MilouAuthenticationConfiguration(true, true,
+                    "+LZwHMY/0pifza3BAmrxwzt8F+G+KdMmBfe6nUhqqI9cIZXOLHaYRa0TRldq5ocrBkRELPSCqpEkEKtQvM9FSw=="),
+                _seq
             };
 
             var assemblies = _assemblies
@@ -517,16 +504,14 @@ namespace Milou.Deployer.Web.Tests.Integration
             return args;
         }
 
-        protected virtual void OnException(Exception exception)
+
+        private async Task StartAsync(IReadOnlyCollection<string> args)
         {
+            App.Logger.Information("Starting app");
+
+            await App.RunAsync(args.ToArray());
+
+            App.Logger.Information("Started app, waiting for web host shutdown");
         }
-
-        protected virtual Task AfterRunAsync() => Task.CompletedTask;
-
-        protected virtual Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
-
-        protected virtual Task BeforeInitialize(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        protected abstract Task RunAsync();
     }
 }

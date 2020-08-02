@@ -156,13 +156,13 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 VerifyAllowedPackageIsAllowed(deploymentTarget, deploymentTask.PackageId, logger);
 
-                _tempData = await PrepareDeploymentAsync(deploymentTask,
-                    logger,
-                    cancellationToken);
-
                 ExitCode deployExitCode;
                 try
                 {
+                    _tempData = await PrepareDeploymentAsync(deploymentTask,
+                        logger,
+                        cancellationToken);
+
                     var agent = await _agentService.GetAgentForDeploymentTask(deploymentTask, cancellationToken);
 
                     _tempData.TempLogger.Debug("Using deployment agent {Agent}", agent.ToString());
@@ -179,7 +179,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 if (deployExitCode.IsSuccess)
                 {
-                    _tempData.TempLogger.Debug("Waiting for task to complete");
+                    _tempData?.TempLogger?.Debug("Waiting for task to complete");
 
                     while (!(deploymentTask.Status == WorkTaskStatus.Done ||
                              deploymentTask.Status == WorkTaskStatus.Failed))

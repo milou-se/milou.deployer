@@ -12,11 +12,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.DeployerApp\Milou.Deployer.DeployerApp.csproj" />
     <ProjectReference Include="..\Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1594929673" />
+    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1595710419" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />

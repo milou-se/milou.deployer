@@ -21,7 +21,8 @@ namespace Milou.Deployer.Web.Agent.Host
 
         private HubConnection? _hubConnection;
 
-        public AgentService(IDeploymentPackageAgent deploymentPackageAgent,
+        public AgentService(
+            IDeploymentPackageAgent deploymentPackageAgent,
             ILogger logger,
             IMediator mediator,
             AgentConfiguration? agentConfiguration = default)
@@ -38,7 +39,7 @@ namespace Milou.Deployer.Web.Agent.Host
             {
                 await _hubConnection.StopAsync();
 
-                _logger.Debug("Stopped SignalR");
+                _logger.Debug("Stopped SignalR in Agent");
 
                 await _hubConnection.DisposeAsync();
             }
@@ -96,7 +97,7 @@ namespace Milou.Deployer.Web.Agent.Host
                 {
                     try
                     {
-                        _logger.Debug("Connecting to server");
+                        _logger.Debug("Connecting to server via SignalR {Url}", connectionUrl);
                         await _hubConnection.StartAsync(stoppingToken);
                         await _hubConnection.SendAsync("AgentConnect", stoppingToken);
                         connected = true;
@@ -104,7 +105,7 @@ namespace Milou.Deployer.Web.Agent.Host
                     }
                     catch (Exception ex) when (!ex.IsFatal())
                     {
-                        _logger.Error(ex, "Could not connect to server from agent {Agent}", agentId);
+                        _logger.Error(ex, "Could not connect to server {Url} from agent {Agent}", connectionUrl, agentId);
 
                         if (_agentConfiguration.StartupDelay >= TimeSpan.FromMilliseconds(20))
                         {
@@ -115,7 +116,7 @@ namespace Milou.Deployer.Web.Agent.Host
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error(ex, "Could not connect to server from agent {Agent}", agentId);
+                _logger.Error(ex, "Could not connect to server {Url} from agent {Agent}", connectionUrl, agentId);
             }
 
             _logger.Debug("Agent background service waiting for cancellation");

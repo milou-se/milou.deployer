@@ -894,6 +894,11 @@ namespace Milou.Deployer.Core.Deployment
                     _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Deployed failed");
+                return ExitCode.Failure;
+            }
             finally
             {
                 string[] targetPaths = deploymentExecutionDefinitions

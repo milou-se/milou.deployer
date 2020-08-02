@@ -88,7 +88,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     while (!startupTaskContext.IsCompleted &&
                            !cancellationTokenSource.Token.IsCancellationRequested)
                     {
-                        await Task.Delay(TimeSpan.FromMilliseconds(50));
+                        await Task.Delay(TimeSpan.FromMilliseconds(500));
                     }
 
                     var url = new Uri(

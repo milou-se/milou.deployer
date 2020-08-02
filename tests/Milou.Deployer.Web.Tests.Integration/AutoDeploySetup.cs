@@ -6,12 +6,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Tests.Integration.TestData;
 using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Integration
@@ -38,8 +39,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
-            TestConfiguration = await TestPathHelper.CreateTestConfigurationAsync(CancellationToken.None);
-
             _variables.Add("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
             _variables.Add("TestDeploymentUri",
                 $"http://localhost:{ServerEnvironmentTestSiteConfiguration.Port.Port + 1}");
@@ -69,7 +68,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "tests",
-                milouDeployerWebTestsIntegration));
+                milouDeployerWebTestsIntegration, "TestData", "Packages"));
 
             FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
 
@@ -115,6 +114,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        protected override Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
+        protected override async Task BeforeStartAsync(IReadOnlyCollection<string> args)
+        {
+        }
     }
 }

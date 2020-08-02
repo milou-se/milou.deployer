@@ -27,9 +27,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             DeploymentTask deploymentTask,
             CancellationToken cancellationToken)
         {
-            if (_agents.Agents.Length == 0)
+            while (_agents.Agents.Length == 0 && ! cancellationToken.IsCancellationRequested)
             {
-                throw new InvalidOperationException("No agent available");
+                _logger.Debug("Waiting for agents to connect");
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
 
             while (!cancellationToken.IsCancellationRequested)

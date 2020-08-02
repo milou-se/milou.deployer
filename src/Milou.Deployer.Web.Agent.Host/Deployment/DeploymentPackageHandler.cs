@@ -1,24 +1,17 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.IO;
 using Arbor.Processing;
-using Arbor.Tooler;
-using Milou.Deployer.Bootstrapper.Common;
+using Milou.Deployer.DeployerApp;
 using Serilog;
 
 namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     public class DeploymentPackageHandler : IDeploymentPackageHandler
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public DeploymentPackageHandler(IHttpClientFactory httpClientFactory) => _httpClientFactory = httpClientFactory;
-
         public async Task<ExitCode> RunAsync(
             DeploymentTaskPackage deploymentTaskPackage,
             ILogger jobLogger,
@@ -48,25 +41,23 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 publishSettings.File.CopyTo(Path.Combine(currentDir.FullName, publishSettings.File.Name));
             }
 
-            HttpClient httpClient = _httpClientFactory.CreateClient("Bootstrapper");
-
             Directory.SetCurrentDirectory(currentDir.FullName);
 
-            using (BootstrapperApp deployerBootstrapperApp =
-                await BootstrapperApp.CreateAsync(deploymentTaskPackage.DeployerProcessArgs.ToArray(),
+            var inputArgs = Array.Empty<string>();
+
+            using DeployerApp.DeployerApp deployerApp =
+                await AppBuilder.BuildAppAsync(inputArgs,
                     jobLogger,
-                    httpClient,
-                    false))
-            {
-                NuGetPackageInstallResult result = await deployerBootstrapperApp.ExecuteAsync(
-                    deploymentTaskPackage.DeployerProcessArgs,
                     cancellationToken);
 
-                if (result.PackageDirectory is null || result.SemanticVersion is null)
-                {
-                    jobLogger.Warning("Milou.Deployer failed");
-                    return ExitCode.Failure;
-                }
+            int result = await deployerApp.ExecuteAsync(
+                inputArgs,
+                cancellationToken);
+
+            if (result != 0)
+            {
+                jobLogger.Warning("Milou.Deployer failed");
+                return ExitCode.Failure;
             }
 
             return ExitCode.Success;

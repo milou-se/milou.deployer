@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.AspNetCore.Host;
 using Arbor.Primitives;
@@ -13,6 +15,7 @@ using Milou.Deployer.Web.Core.Deployment.Targets;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
+    [RegistrationOrder(100)]
     [UsedImplicitly]
     public class TestDataSeeder : IPreStartModule
     {
@@ -27,6 +30,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {
+            if (!_environmentVariables.Variables.ContainsKey("TestDeploymentTargetPath"))
+            {
+                return;
+            }
+
             var testTarget = new DeploymentTarget(
                 "TestTarget",
                 "Test target",
@@ -41,13 +49,16 @@ namespace Milou.Deployer.Web.Tests.Integration
             var createTarget = new CreateTarget(testTarget.Id, testTarget.Name);
             await _mediator.Send(createTarget, cancellationToken);
 
+            string nugetConfigFile = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests", "Milou.Deployer.Web.Tests.Integration", "TestData", "nuget.config");
+
             var updateDeploymentTarget = new UpdateDeploymentTarget(
                 testTarget.Id,
                 testTarget.AllowPreRelease,
                 testTarget.Url?.ToString(),
                 testTarget.PackageId,
                 autoDeployEnabled: testTarget.AutoDeployEnabled,
-                targetDirectory: testTarget.TargetDirectory);
+                targetDirectory: testTarget.TargetDirectory,
+                nugetConfigFile: nugetConfigFile);
 
             await _mediator.Send(updateDeploymentTarget, cancellationToken);
 
@@ -56,7 +67,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             await _mediator.Send(enableTarget, cancellationToken);
         }
 
-        public int Order => int.MaxValue;
+        public int Order => 100;
 
         public Task RunAsync(CancellationToken cancellationToken) => SeedAsync(cancellationToken);
     }

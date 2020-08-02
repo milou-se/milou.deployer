@@ -2,7 +2,7 @@
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    internal class SeqArgs
+    public class SeqArgs
     {
         public SeqArgs(ContainerArgs containerArgs, PortPoolRental httpPort)
         {

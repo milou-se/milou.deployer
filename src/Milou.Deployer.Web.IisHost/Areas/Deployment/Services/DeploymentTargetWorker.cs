@@ -202,7 +202,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 catch (OperationCanceledException operationCanceledException)
                 {
-                    _logger.Information(operationCanceledException, "Taking next deployment task failed due to cancellation");
+                    _logger.Debug(operationCanceledException, "Taking next deployment task failed due to cancellation");
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {

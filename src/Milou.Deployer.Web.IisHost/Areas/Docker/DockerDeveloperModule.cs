@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Configuration;
 using Arbor.AspNetCore.Host;
 using Arbor.Docker;
 using Arbor.KVConfiguration.Core.Metadata;
@@ -13,6 +14,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Docker
 {
+    [RegistrationOrder(0)]
     [UsedImplicitly]
     public class DockerDeveloperModule : IPreStartModule, IAsyncDisposable
     {
@@ -74,6 +76,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             _logger.Debug("Started containers {Containers}",
                 string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
         }
+
+        public int Order { get; } = 0;
 
         private static ContainerArgs CreateFtp()
         {
