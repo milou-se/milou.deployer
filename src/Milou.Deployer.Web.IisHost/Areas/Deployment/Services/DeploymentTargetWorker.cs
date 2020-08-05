@@ -172,7 +172,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                     _logger.Information("Executing deployment task {DeploymentTask}", deploymentTask);
 
-                    using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromHours(1));
+                    using var cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromHours(1));
 
                     using var combinedToken =
                         CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);

@@ -31,7 +31,6 @@ namespace Milou.Deployer.Web.Tests.Integration
     public class AutoDeployStartupTask : BackgroundService, IStartupTask, INotificationHandler<DeploymentFinished>
     {
         private readonly EnvironmentConfiguration _environmentConfiguration;
-        //private readonly IDeploymentService _deploymentService;
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
         private readonly TestConfiguration? _testConfiguration;
@@ -48,7 +47,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             if (environmentConfiguration.HttpEnabled)
             {
                 _worker = serviceProvider.GetRequiredService<DeploymentWorkerService>();
-                //_deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
+
                 _testConfiguration = serviceProvider.GetRequiredService<TestConfiguration>();
                 var testHttpPorts = serviceProvider.GetRequiredService<ConfigurationInstanceHolder>()
                     .GetInstances<ServerEnvironmentTestConfiguration>().Values;
@@ -79,7 +78,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 if (targets.Length == 0)
                 {
-                    //_logger.Debug("The test target has not yet been created");
                     await Task.Delay(TimeSpan.FromMilliseconds(1000));
                 }
                 else
@@ -96,20 +94,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId,
                 nameof(AutoDeployStartupTask));
 
-            //DeploymentTaskResult deploymentTaskResult = await _deploymentService.ExecuteDeploymentAsync(
-            //    deploymentTask,
-            //    _logger,
-            //    startupCancellationToken);
-
             _worker.Enqueue(deploymentTask);
 
             await _handle.WaitAsync(startupCancellationToken);
-
-            //if (!deploymentTaskResult.ExitCode.IsSuccess)
-            //{
-            //    throw new DeployerAppException(
-            //        $"Initial deployment failed, metadata: {deploymentTaskResult.Metadata}; test configuration: {_testConfiguration}");
-            //}
 
             int testSitePort = _serverEnvironmentTestSiteConfiguration.Port.Port + 1;
 

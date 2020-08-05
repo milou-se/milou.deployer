@@ -21,14 +21,16 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
             DirectoryInfo nugetBaseDirectory = baseDirectory.CreateSubdirectory("nuget");
             DirectoryInfo nugetPackageDirectory = nugetBaseDirectory.CreateSubdirectory("packages");
 
-            var nugetConfigFile =
-                new FileInfo(Path.Combine(nugetBaseDirectory.FullName, $"{projectName}.nuget.config"));
+            var nugetConfigFile = new FileInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests",
+                "Milou.Deployer.Web.Tests.Integration", "TestData", "nuget.config"));
 
-            await NuGetConfigCreator.CreateNuGetConfig(nugetConfigFile, nugetPackageDirectory, cancellationToken);
+            //var nugetConfigFile =
+            //    new FileInfo(Path.Combine(nugetBaseDirectory.FullName, $"{projectName}.nuget.config"));
+
+            //await NuGetConfigCreator.CreateNuGetConfig(nugetConfigFile, nugetPackageDirectory, cancellationToken);
 
             var testConfiguration = new TestConfiguration(baseDirectory,
                 nugetConfigFile,
-                nugetPackageDirectory,
                 targetAppRoot);
 
             string nugetConfigContent = await File.ReadAllTextAsync(nugetConfigFile.FullName, cancellationToken);

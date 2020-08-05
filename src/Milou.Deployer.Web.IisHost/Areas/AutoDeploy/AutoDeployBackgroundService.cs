@@ -115,6 +115,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     AppVersion appVersion = appVersions.SingleOrDefault(version =>
                         version.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
 
+                    if (appVersion?.SemanticVersion is null)
+                    {
+                        _logger.Verbose("No semantic version was found for target {Target}, {Url}", deploymentTarget.Id, deploymentTarget.Url);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(appVersion?.PackageId))
+                    {
+                        _logger.Verbose("No package id was found for target {Target}, {Url}", deploymentTarget.Id, deploymentTarget.Url);
+                    }
+
                     if (appVersion?.SemanticVersion is null || string.IsNullOrWhiteSpace(appVersion.PackageId))
                     {
                         continue;

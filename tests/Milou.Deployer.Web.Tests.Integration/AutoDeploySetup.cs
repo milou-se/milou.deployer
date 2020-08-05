@@ -49,7 +49,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var keys = new List<KeyValue>
             {
-                new KeyValue(ConfigurationKeys.NuGetSource, milouDeployerWebTestsIntegration, null),
                 new KeyValue(ConfigurationConstants.NugetConfigFile,
                     TestConfiguration.NugetConfigFile.FullName,
                     null),
@@ -76,11 +75,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 throw new DeployerAppException(
                     $"Could not find nuget test packages located in {integrationTestProjectDirectory.FullName}");
-            }
-
-            foreach (FileInfo nugetPackage in nugetPackages)
-            {
-                nugetPackage.CopyTo(Path.Combine(TestConfiguration.NugetPackageDirectory.FullName, nugetPackage.Name));
             }
 
             _variables.Add(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);

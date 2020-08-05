@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Tasks;
+using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
@@ -34,17 +35,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly Dictionary<string, Task> _tasks;
+        private TimeoutHelper _timeoutHelper;
 
         public DeploymentWorkerService(
             ConfigurationInstanceHolder configurationInstanceHolder,
             ILogger logger,
             IMediator mediator,
-            AgentsData agents)
+            AgentsData agents,
+            TimeoutHelper timeoutHelper)
         {
             _configurationInstanceHolder = configurationInstanceHolder;
             _logger = logger;
             _mediator = mediator;
             _agents = agents;
+            _timeoutHelper = timeoutHelper;
             _tasks = new Dictionary<string, Task>();
             _cancellations = new Dictionary<string, CancellationTokenSource>();
         }
@@ -257,7 +261,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTargetWorker.TargetId);
             }
 
-            var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.MaxValue);
 
             var linked = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationTokenSource.Token);
 

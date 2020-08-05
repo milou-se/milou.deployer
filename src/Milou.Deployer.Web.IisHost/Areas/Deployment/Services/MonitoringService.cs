@@ -85,6 +85,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (_customMemoryCache.TryGetValue(cacheKey, out AppVersion? appMetadata))
             {
+                _logger.Verbose("App metadata fetched from cache {CacheKey}", cacheKey);
                 return appMetadata;
             }
 
@@ -118,12 +119,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 await Task.WhenAll(metadataTask, allowedPackagesTask);
 
-                (HttpResponseMessage response, string message) = await metadataTask;
+                (HttpResponseMessage? response, string message) = await metadataTask;
 
                 IReadOnlyCollection<PackageVersion> packages = await allowedPackagesTask;
 
-                using HttpResponseMessage httpResponseMessage = response;
-                if (httpResponseMessage is null)
+                if (response is null)
                 {
                     return new AppVersion(
                         target,
@@ -131,23 +131,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         packages);
                 }
 
-                if (!httpResponseMessage.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
                     return new AppVersion(
                         target,
                         message ??
-                        $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
+                        $"Could not get application metadata from target {target.Url}, status code not successful {response.StatusCode}",
                         packages);
                 }
 
                 appMetadata =
-                    await GetAppVersionAsync(httpResponseMessage, target, packages, linkedTokenSource.Token);
+                    await GetAppVersionAsync(response, target, packages, linkedTokenSource.Token);
+
+                response?.Dispose();
             }
 
             if (appMetadata.SemanticVersion is {})
             {
                 _customMemoryCache.SetValue(cacheKey, appMetadata, applicationSettings.MetadataCacheTimeout);
             }
+
 
             return appMetadata;
         }
@@ -305,10 +308,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         }
 
         private async Task<(HttpResponseMessage?, string)> GetWrappedResponseAsync(
+            DeploymentTarget deploymentTarget,
             Uri applicationMetadataUri,
             CancellationToken cancellationToken)
         {
-            _logger.Debug("Making metadata request to {RequestUri}", applicationMetadataUri);
+            _logger.Debug("Making metadata request to {RequestUri} for target {Target}", applicationMetadataUri, deploymentTarget.Id);
 
             try
             {
@@ -317,8 +321,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 (HttpResponseMessage, string Empty) wrappedResponseAsync = (
                     await client.GetAsync(applicationMetadataUri, cancellationToken), string.Empty);
                 stopwatch.Stop();
-                _logger.Debug("Metadata call to {Url} took {Elapsed} milliseconds", applicationMetadataUri,
-                    stopwatch.ElapsedMilliseconds);
+                _logger.Debug("Metadata call to {Url} took {Elapsed} milliseconds for target {Target}", applicationMetadataUri,
+                    stopwatch.ElapsedMilliseconds, deploymentTarget.Id);
 
                 return wrappedResponseAsync;
             }
@@ -326,16 +330,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 _logger.Error(
                     ex,
-                    "Could not get application metadata for {ApplicationMetadataUri}",
-                    applicationMetadataUri);
+                    "Could not get application metadata for {ApplicationMetadataUri} target {Target}",
+                    applicationMetadataUri,
+                    deploymentTarget.Id);
                 return ((HttpResponseMessage?)null, "Timeout");
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(
                     ex,
-                    "Could not get application metadata for {ApplicationMetadataUri}",
-                    applicationMetadataUri);
+                    "Could not get application metadata for {ApplicationMetadataUri} target {Target}",
+                    applicationMetadataUri,
+                    deploymentTarget.Id);
                 return ((HttpResponseMessage?)null, ex.Message);
             }
         }
@@ -348,13 +354,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             CancellationTokenSource? linkedCancellationTokenSource = null;
             if (target.NuGet.PackageListTimeout.HasValue)
             {
-                cancellationTokenSource = new CancellationTokenSource(target.NuGet.PackageListTimeout.Value);
+                cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(target.NuGet.PackageListTimeout.Value);
                 cancellationToken = cancellationTokenSource.Token;
             }
             else
             {
                 cancellationTokenSource =
-                    new CancellationTokenSource(TimeSpan.FromSeconds(_nuGetListConfiguration.ListTimeOutInSeconds));
+                    _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_nuGetListConfiguration.ListTimeOutInSeconds));
 
                 linkedCancellationTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, cancellationToken);
@@ -409,11 +415,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTarget deploymentTarget,
             CancellationToken cancellationToken)
         {
-            var uriBuilder = new UriBuilder(deploymentTarget.Url) {Path = "applicationmetadata.json"};
+            var uriBuilder = new UriBuilder(deploymentTarget.Url!) {Path = "applicationmetadata.json"};
 
             Uri applicationMetadataUri = uriBuilder.Uri;
 
             Task<(HttpResponseMessage?, string)> getApplicationMetadataTask = GetWrappedResponseAsync(
+                deploymentTarget,
                 applicationMetadataUri,
                 cancellationToken);
             return getApplicationMetadataTask;

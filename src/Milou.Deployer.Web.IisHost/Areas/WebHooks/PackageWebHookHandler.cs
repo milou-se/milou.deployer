@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.Time;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core.NuGet;
@@ -18,14 +19,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
         private readonly IMediator _mediator;
 
         private readonly ImmutableArray<IPackageWebHook> _packageWebHooks;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public PackageWebHookHandler(
             IEnumerable<IPackageWebHook> packageWebHooks,
             ILogger logger,
-            IMediator mediator)
+            IMediator mediator,
+            TimeoutHelper timeoutHelper)
         {
             _logger = logger;
             _mediator = mediator;
+            _timeoutHelper = timeoutHelper;
             _packageWebHooks = packageWebHooks.SafeToImmutableArray();
         }
 
@@ -48,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                 if (cancellationToken == CancellationToken.None)
                 {
-                    cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                    cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10));
                     cancellationToken = cancellationTokenSource.Token;
                 }
 
