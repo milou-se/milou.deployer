@@ -146,7 +146,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     if (filteredPackages.IsEmpty)
                     {
                         _logger.Debug(
-                            "Found no auto deploy versions for target {TargetId} allowing pre-release {AllowPreRelease}",
+                            "Found no auto deploy versions of package {Package} for target {TargetId} allowing pre-release {AllowPreRelease}",
+                            deploymentTarget.PackageId,
                             deploymentTarget.Id, deploymentTarget.AllowPreRelease);
                         continue;
                     }

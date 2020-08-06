@@ -110,7 +110,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 return;
             }
 
-           _logger.Debug("Found {SeederCount} data seeders", _dataSeeders.Length);
+            _logger.Debug("Found {SeederCount} data seeders", _dataSeeders.Length);
 
             foreach (IDataSeeder dataSeeder in _dataSeeders.OrderBy(seeder => seeder.Order))
             {

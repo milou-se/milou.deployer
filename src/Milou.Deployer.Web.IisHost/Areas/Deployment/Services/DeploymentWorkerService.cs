@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +34,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly Dictionary<string, Task> _tasks;
-        private TimeoutHelper _timeoutHelper;
+        private readonly TimeoutHelper _timeoutHelper;
+        private List<DeploymentTargetWorker> _workers;
 
         public DeploymentWorkerService(
             ConfigurationInstanceHolder configurationInstanceHolder,
@@ -172,11 +172,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             await Task.Yield();
 
-            var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
+            _workers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
                 .NotNull()
-                .ToImmutableArray();
+                .ToList();
 
-            foreach (var deploymentTargetWorker in deploymentTargetWorkers)
+            foreach (var deploymentTargetWorker in _workers)
             {
                 StartWorker(deploymentTargetWorker, stoppingToken);
             }
@@ -271,10 +271,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 Task.Run(() => deploymentTargetWorker.ExecuteAsync(linked.Token), linked.Token));
         }
 
-        private async Task StopWorkerAsync(DeploymentTargetWorker worker, CancellationToken cancellationToken)
+        private async Task StopWorkerAsync(DeploymentTargetWorker? worker, CancellationToken cancellationToken)
         {
-            _logger.Debug("Stopping worker for target id {TargetId}", worker.TargetId);
-            await worker.StopAsync(cancellationToken);
+            if (worker is {})
+            {
+                _logger.Debug("Stopping worker for target id {TargetId}", worker.TargetId);
+                await worker.StopAsync(cancellationToken);
+            }
         }
 
         public override void Dispose()
@@ -291,6 +294,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     // ignore
                 }
+            }
+
+            foreach (var worker in _workers)
+            {
+                worker.SafeDispose();
             }
         }
     }

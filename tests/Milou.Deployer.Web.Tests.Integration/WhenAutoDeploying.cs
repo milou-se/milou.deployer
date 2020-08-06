@@ -57,9 +57,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             using (var httpClient = new HttpClient())
             {
                 using CancellationTokenSource cancellationTokenSource =
-                    WebFixture.App.Host.Services.GetService<CancellationTokenSource>();
+                    WebFixture!.App!.Host!.Services.GetService<CancellationTokenSource>();
 
-                var lifeTime = WebFixture.App.Host.Services.GetRequiredService<IHostApplicationLifetime>();
+                var lifeTime = WebFixture!.App!.Host!.Services.GetRequiredService<IHostApplicationLifetime>();
 
                 cancellationTokenSource.Token.Register(() =>
                 {

@@ -116,13 +116,13 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
             catch (Exception ex)
             {
-                _logger.Fatal(ex, "Could not start test site");
+                _logger.Fatal(ex, "Could not start test site on port {Port}", testSitePort);
 
-                throw new DeployerAppException("Could not start test site", ex);
+                throw new DeployerAppException($"Could not start test site on port {testSitePort}", ex);
             }
 
             startupCancellationToken.Register(() => _webHost.StopAsync(startupCancellationToken));
-            HttpResponseMessage response = default;
+            HttpResponseMessage? response = default;
 
             using (var httpClient = new HttpClient())
             {

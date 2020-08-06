@@ -58,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                 try
                 {
-                    PackageUpdatedEvent webHook =
+                    PackageUpdatedEvent? webHook =
                         await packageWebHook.TryGetWebHookNotification(request, content, cancellationToken);
 
                     if (webHook is null)

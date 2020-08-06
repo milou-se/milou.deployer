@@ -14,6 +14,7 @@ namespace Milou.Deployer.Core.Deployment
     {
         [JsonConstructor]
         [UsedImplicitly]
+        [PublicAPI]
         private DeploymentExecutionDefinition(
             string packageId,
             string semanticVersion,
@@ -170,7 +171,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public string PackageId { get; }
 
-        public string NuGetExePath { get; }
+        public string? NuGetExePath { get; }
 
         public ImmutableDictionary<string, StringValues> Parameters { get; }
 

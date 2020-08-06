@@ -58,62 +58,62 @@ namespace Milou.Deployer.Web.IisHost
 
                 cancellationTokenSource ??= new CancellationTokenSource();
 
-                    cancellationTokenSource.Token.Register(
-                        () => TempLogger.WriteLine("App cancellation token triggered"));
+                cancellationTokenSource.Token.Register(
+                    () => TempLogger.WriteLine("App cancellation token triggered"));
 
-                    using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
-                        cancellationTokenSource, args,
-                        environmentVariables, scanAssemblies, instances ?? Array.Empty<object>());
+                using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
+                    cancellationTokenSource, args,
+                    environmentVariables, scanAssemblies, instances ?? Array.Empty<object>());
 
-                    bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
-                                        && !Debugger.IsAttached;
+                bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
+                                    && !Debugger.IsAttached;
 
-                    app.Logger.Information("Starting application {Application}", app.AppInstance);
+                app.Logger.Information("Starting application {Application}", app.AppInstance);
 
-                    if (intervalInSeconds > 0)
-                    {
-                        app.Logger.Debug(
-                            "Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
-                            intervalInSeconds,
-                            app.AppInstance);
-                    }
-                    else if (app.Logger.IsEnabled(LogEventLevel.Verbose))
-                    {
-                        app.Logger.Verbose("Restart time is disabled");
-                    }
-
-                    string[] runArgs;
-
-                    if (!args.Contains(ApplicationConstants.RunAsService) && runAsService)
-                    {
-                        runArgs = args
-                            .Concat(new[] {ApplicationConstants.RunAsService})
-                            .ToArray();
-                    }
-                    else
-                    {
-                        runArgs = args;
-                    }
-
-                    await app.RunAsync(runArgs);
-
-                    if (!runAsService)
-                    {
-                        app.Logger.Debug("Started {App}, waiting for web host shutdown", app.AppInstance);
-
-                        await app.Host.WaitForShutdownAsync(cancellationTokenSource.Token);
-                    }
-
-                    app.Logger.Information(
-                        "Stopping application {Application}",
+                if (intervalInSeconds > 0)
+                {
+                    app.Logger.Debug(
+                        "Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
+                        intervalInSeconds,
                         app.AppInstance);
+                }
+                else if (app.Logger.IsEnabled(LogEventLevel.Verbose))
+                {
+                    app.Logger.Verbose("Restart time is disabled");
+                }
 
-                    if (ownsCancellationToken)
-                    {
-                        cancellationTokenSource.SafeDispose();
-                    }
+                string[] runArgs;
 
-            if (int.TryParse(
+                if (!args.Contains(ApplicationConstants.RunAsService) && runAsService)
+                {
+                    runArgs = args
+                        .Concat(new[] {ApplicationConstants.RunAsService})
+                        .ToArray();
+                }
+                else
+                {
+                    runArgs = args;
+                }
+
+                await app.RunAsync(runArgs);
+
+                if (!runAsService)
+                {
+                    app.Logger.Debug("Started {App}, waiting for web host shutdown", app.AppInstance);
+
+                    await app.Host.WaitForShutdownAsync(cancellationTokenSource.Token);
+                }
+
+                app.Logger.Information(
+                    "Stopping application {Application}",
+                    app.AppInstance);
+
+                if (ownsCancellationToken)
+                {
+                    cancellationTokenSource.SafeDispose();
+                }
+
+                if (int.TryParse(
                     environmentVariables.GetValueOrDefault(ConfigurationConstants.ShutdownTimeInSeconds),
                     out int shutDownTimeInSeconds) && shutDownTimeInSeconds > 0)
                 {

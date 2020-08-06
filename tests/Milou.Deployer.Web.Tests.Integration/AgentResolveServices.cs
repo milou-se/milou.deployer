@@ -7,9 +7,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Agent.Host.Configuration;
-using Milou.Deployer.Web.Agent.Host.Deployment;
 using Serilog;
 
 namespace Milou.Deployer.Web.Tests.Integration

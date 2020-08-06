@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Agent
     {
         public bool Equals(AgentId? other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }
