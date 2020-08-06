@@ -204,6 +204,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     packageVersions =
                         (await _packageService.GetPackageVersionsAsync(
                             deploymentTarget.PackageId,
+                            nugetConfigFile: deploymentTarget.NuGet.NuGetConfigFile,
+                            nugetPackageSource: deploymentTarget.NuGet.NuGetPackageSource,
                             cancellationToken: linked.Token))
                         .ToImmutableHashSet();
                 }
