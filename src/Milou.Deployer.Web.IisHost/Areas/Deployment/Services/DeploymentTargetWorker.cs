@@ -27,7 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly AsyncManualResetEvent _loggingCompleted = new AsyncManualResetEvent(false);
         private readonly IMediator _mediator;
         private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
-        private readonly AsyncManualResetEvent _serviceAdded = new AsyncManualResetEvent(false);
+        private readonly AsyncManualResetEvent _serviceAddedEvent = new AsyncManualResetEvent(false);
         private readonly IServiceProvider _serviceProvider;
 
         private readonly ConcurrentDictionary<string, IDeploymentService> _services =
@@ -95,7 +95,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _queue.SafeDispose();
             _taskQueue.SafeDispose();
             _loggingCompleted.SafeDispose();
-            _serviceAdded.SafeDispose();
+            _serviceAddedEvent.SafeDispose();
         }
 
         private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
@@ -104,7 +104,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 DeploymentTask deploymentTask = _taskQueue.Take(stoppingToken);
 
-                await _serviceAdded.WaitAsync(stoppingToken);
+                await _serviceAddedEvent.WaitAsync(stoppingToken);
 
                 if (!_services.TryGetValue(deploymentTask.DeploymentTaskId, out var deploymentService))
                 {
@@ -161,7 +161,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             $"Could not add deployment service for deployment task id {deploymentTask.DeploymentTaskId}");
                     }
 
-                    _serviceAdded.Set(false);
+                    _serviceAddedEvent.Set(false);
 
                     deploymentTask.Status = WorkTaskStatus.Started;
                     _taskQueue.Add(deploymentTask, stoppingToken);
@@ -236,7 +236,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 finally
                 {
                     CurrentTask = null!;
-                    _serviceAdded.Reset();
+                    _serviceAddedEvent.Reset();
                     _loggingCompleted.Reset();
                     service.SafeDispose();
                 }

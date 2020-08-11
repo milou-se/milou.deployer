@@ -93,13 +93,12 @@ namespace Milou.Deployer.Web.Tests.Integration
             _holder.AddInstance(agentApp);
 
             var agentTask = agentApp.RunAsync(Array.Empty<string>());
-            var result = await agentTask;
+            int result = await agentTask;
 
             if (result != 0)
             {
                 throw new InvalidOperationException("Agent start failed");
             }
-
         }
 
         public int Order { get; } = 200;

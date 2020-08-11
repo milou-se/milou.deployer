@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.Marten
                 throw new InvalidOperationException($"The agent '{agentIdValue}' already exists");
             }
 
-            var result = await _mediator.Send(new CreateAgentInstallConfiguration(request.AgentId));
+            var result = await _mediator.Send(new CreateAgentInstallConfiguration(request.AgentId), cancellationToken);
 
             agentData = new AgentData
             {
@@ -43,7 +43,6 @@ namespace Milou.Deployer.Web.Marten
             session.Store(agentData);
 
             await session.SaveChangesAsync(cancellationToken);
-
 
             return new CreateAgentResult(request.AgentId, result.AccessToken);
         }
