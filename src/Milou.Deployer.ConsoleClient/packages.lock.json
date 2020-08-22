@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    ".NETCoreApp,Version=v3.1": {
+    ".NETCoreApp,Version=v5.0": {
       "JetBrains.Annotations": {
         "type": "Direct",
         "requested": "[2020.1.0, )",
@@ -10,9 +10,9 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Direct",
-        "requested": "[3.1.6, )",
-        "resolved": "3.1.6",
-        "contentHash": "X+h3tO383iMbtFxYp6Al4pgBzbfQKJY8/gd4U7+sZy90XeSfnw5SwHyCiRrAePG6kee4zCGsvQHPCqaTZ876hw=="
+        "requested": "[5.0.0-preview.7.*, )",
+        "resolved": "5.0.0-preview.7.20364.11",
+        "contentHash": "ddBYIH2AlflSH7wMT8XKpWpfA08lAn+fU/pVCvY3kt5TRRMXpBgzUDZ39S8MRNXFlqBsJDuapkxKjsv193we6g=="
       },
       "Serilog.Sinks.Console": {
         "type": "Direct",
@@ -37,6 +37,12 @@
           "System.Text.Encoding.Extensions": "4.0.11",
           "System.Threading.Timer": "4.0.1"
         }
+      },
+      "System.Collections.Immutable": {
+        "type": "Direct",
+        "requested": "[5.0.0-preview.7.*, )",
+        "resolved": "5.0.0-preview.7.20364.11",
+        "contentHash": "MNZ/H3osa/kC2viO6Oj1HWLQlICct/uhQnNEGbnpO2rUmv75ERTgN63zY/72zZ3Ri78VMGMrIHdNak6F+0hLbA=="
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
@@ -590,11 +596,6 @@
           "System.Threading": "4.3.0",
           "System.Threading.Tasks": "4.3.0"
         }
-      },
-      "System.Collections.Immutable": {
-        "type": "Transitive",
-        "resolved": "1.7.1",
-        "contentHash": "B43Zsz5EfMwyEbnObwRxW5u85fzJma3lrDeGcSAV1qkhSRTNY5uXAByTn9h9ddNdhM+4/YoLc/CI43umjwIl9Q=="
       },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
@@ -1490,13 +1491,13 @@
           "Arbor.Tooler": "0.9.1",
           "JetBrains.Annotations": "2020.1.0",
           "MediatR": "8.0.2",
-          "Microsoft.Extensions.Primitives": "3.1.6",
+          "Microsoft.Extensions.Primitives": "5.0.0-preview.7",
           "Microsoft.Web.Xdt": "3.1.0",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Packaging": "5.6.0",
           "NuGet.Versioning": "5.6.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.1"
+          "System.Collections.Immutable": "5.0.0-preview.7"
         }
       },
       "milou.deployer.deployerapp": {
@@ -1513,7 +1514,8 @@
           "Milou.Deployer.Waws": "1.0.0",
           "Serilog": "2.9.0",
           "Serilog.Sinks.Console": "3.1.1",
-          "Serilog.Sinks.File": "4.1.0"
+          "Serilog.Sinks.File": "4.1.0",
+          "System.Collections.Immutable": "5.0.0-preview.7"
         }
       },
       "milou.deployer.ftp": {
@@ -1529,22 +1531,22 @@
         "type": "Project",
         "dependencies": {
           "JetBrains.Annotations": "2020.1.0",
-          "Microsoft.Extensions.Primitives": "3.1.6",
+          "Microsoft.Extensions.Primitives": "5.0.0-preview.7",
           "Microsoft.Web.Administration": "11.1.0",
           "Microsoft.Win32.Registry": "4.7.0",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.1"
+          "System.Collections.Immutable": "5.0.0-preview.7"
         }
       },
       "milou.deployer.waws": {
         "type": "Project",
         "dependencies": {
           "JetBrains.Annotations": "2020.1.0",
-          "Microsoft.Extensions.Primitives": "3.1.6",
+          "Microsoft.Extensions.Primitives": "5.0.0-preview.7",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.1"
+          "System.Collections.Immutable": "5.0.0-preview.7"
         }
       }
     }

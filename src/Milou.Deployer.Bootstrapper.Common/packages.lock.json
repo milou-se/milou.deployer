@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    ".NETCoreApp,Version=v3.1": {
+    ".NETCoreApp,Version=v5.0": {
       "Arbor.App.Extensions": {
         "type": "Direct",
         "requested": "[0.4.1-build.1595703670, )",
@@ -67,9 +67,9 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Direct",
-        "requested": "[3.1.6, )",
-        "resolved": "3.1.6",
-        "contentHash": "X+h3tO383iMbtFxYp6Al4pgBzbfQKJY8/gd4U7+sZy90XeSfnw5SwHyCiRrAePG6kee4zCGsvQHPCqaTZ876hw=="
+        "requested": "[5.0.0-preview.7.*, )",
+        "resolved": "5.0.0-preview.7.20364.11",
+        "contentHash": "ddBYIH2AlflSH7wMT8XKpWpfA08lAn+fU/pVCvY3kt5TRRMXpBgzUDZ39S8MRNXFlqBsJDuapkxKjsv193we6g=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
@@ -103,9 +103,9 @@
       },
       "System.Collections.Immutable": {
         "type": "Direct",
-        "requested": "[1.7.1, )",
-        "resolved": "1.7.1",
-        "contentHash": "B43Zsz5EfMwyEbnObwRxW5u85fzJma3lrDeGcSAV1qkhSRTNY5uXAByTn9h9ddNdhM+4/YoLc/CI43umjwIl9Q=="
+        "requested": "[5.0.0-preview.7.*, )",
+        "resolved": "5.0.0-preview.7.20364.11",
+        "contentHash": "MNZ/H3osa/kC2viO6Oj1HWLQlICct/uhQnNEGbnpO2rUmv75ERTgN63zY/72zZ3Ri78VMGMrIHdNak6F+0hLbA=="
       },
       "Arbor.KVConfiguration.Core": {
         "type": "Transitive",
@@ -1357,13 +1357,13 @@
           "Arbor.Tooler": "0.9.1",
           "JetBrains.Annotations": "2020.1.0",
           "MediatR": "8.0.2",
-          "Microsoft.Extensions.Primitives": "3.1.6",
+          "Microsoft.Extensions.Primitives": "5.0.0-preview.7",
           "Microsoft.Web.Xdt": "3.1.0",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Packaging": "5.6.0",
           "NuGet.Versioning": "5.6.0",
           "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.1"
+          "System.Collections.Immutable": "5.0.0-preview.7"
         }
       }
     }
