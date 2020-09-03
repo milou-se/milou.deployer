@@ -43,12 +43,12 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Direct",
-        "requested": "[5.0.0-preview.7.*, )",
-        "resolved": "5.0.0-preview.7.20364.11",
-        "contentHash": "ddBYIH2AlflSH7wMT8XKpWpfA08lAn+fU/pVCvY3kt5TRRMXpBgzUDZ39S8MRNXFlqBsJDuapkxKjsv193we6g==",
+        "requested": "[5.0.0-preview.8.*, )",
+        "resolved": "5.0.0-preview.8.20407.11",
+        "contentHash": "jHhNLjKTRugsRoOqI/dnh+dKr+xxlKjYDHKulTpcvJqq0cOlUGhhGxnyCMJ2C2jLKFdORa0zF8lUb4Y4wh13Pg==",
         "dependencies": {
-          "System.Memory": "4.5.3",
-          "System.Runtime.CompilerServices.Unsafe": "5.0.0-preview.7.20364.11"
+          "System.Memory": "4.5.4",
+          "System.Runtime.CompilerServices.Unsafe": "5.0.0-preview.8.20407.11"
         }
       },
       "System.Collections.Immutable": {
@@ -851,8 +851,8 @@
       },
       "System.Runtime.CompilerServices.Unsafe": {
         "type": "Transitive",
-        "resolved": "5.0.0-preview.7.20364.11",
-        "contentHash": "6oEx3elihyJmDIcofF5g5AB2hSk0P+lc9WIyDEEVxi6BlBk1xkoOik/r16YlLT/rq/a7rUdyXzbRtabH9N+Dxg=="
+        "resolved": "5.0.0-preview.8.20407.11",
+        "contentHash": "8aAEu1T6IQnzwcDwdPaaTha5lBBI2yefJqaThcmMl74829S+ZB3eFkEX7dTeZKZ/k3Lftr8AdprqI34gHPTm2w=="
       },
       "System.Runtime.Extensions": {
         "type": "Transitive",
