@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
 
         public static bool operator !=(PackageVersion left, PackageVersion right) => !Equals(left, right);
 
-        public bool Equals(PackageVersion other)
+        public bool Equals(PackageVersion? other)
         {
             if (other is null)
             {
@@ -69,7 +69,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
             return Equals((PackageVersion)obj);
         }
 
-        public override int GetHashCode() => Key?.GetHashCode(StringComparison.InvariantCulture) ?? 0;
+        public override int GetHashCode() => Key.GetHashCode(StringComparison.InvariantCulture);
 
         public override string ToString() => Key;
     }

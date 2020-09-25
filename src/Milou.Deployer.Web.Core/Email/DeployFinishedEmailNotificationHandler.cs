@@ -85,7 +85,7 @@ namespace Milou.Deployer.Web.Core.Email
             {
                 try
                 {
-                    mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
+                    mimeMessage.To.Add(new MailboxAddress("", targetEmailNotificationAddress));
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {

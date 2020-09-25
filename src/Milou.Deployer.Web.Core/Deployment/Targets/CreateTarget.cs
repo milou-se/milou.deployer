@@ -15,14 +15,14 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         }
 
         [Required]
-        public string Id { get; }
+        public string? Id { get; }
 
         [Required]
-        public string Name { get; }
+        public string? Name { get; }
 
         public bool IsValid => Id is {} && Name is {} &&
                                !Id.Equals(Constants.NotAvailable, StringComparison.OrdinalIgnoreCase);
 
-        public override string ToString() => Id;
+        public override string ToString() => Id ?? "[Missing Id]";
     }
 }

@@ -27,9 +27,14 @@ namespace Milou.Deployer.Web.Core.Agents
         public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key,
             agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId)).ToImmutableArray();
 
-        public void AgentConnected(AgentConnected agentConnected)
+        public void AgentConnected(AgentConnected? agentConnected)
         {
-            var agentId = agentConnected.AgentId;
+            var agentId = agentConnected?.AgentId;
+
+            if (agentId is null)
+            {
+                throw new InvalidOperationException("Agent connected without agent id");
+            }
 
             if (!_agents.ContainsKey(agentId))
             {

@@ -81,7 +81,7 @@ namespace Milou.Deployer.Waws
                 publishSettings,
                 allowUntrusted);
 
-            string destinationPath = destBaseOptions.SiteName;
+            string? destinationPath = destBaseOptions.SiteName;
 
             destBaseOptions.TraceLevel = traceLevel;
             destBaseOptions.Trace += DestBaseOptions_Trace;
@@ -172,6 +172,7 @@ namespace Milou.Deployer.Waws
                 FileInfo? appOfflineFile = null;
 
                 if (targetProvider == DeploymentWellKnownProvider.DirPath
+                    && !string.IsNullOrWhiteSpace(destinationPath)
                     && Directory.Exists(destinationPath)
                     && string.IsNullOrWhiteSpace(publishSettingsFile))
                 {

@@ -15,7 +15,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
     [UsedImplicitly]
     public class InMemoryDeploymentTargetReadService : IDeploymentTargetReadService
     {
-        private readonly Func<Task<IReadOnlyCollection<OrganizationInfo>>> _dataCreator;
+        private readonly Func<Task<IReadOnlyCollection<OrganizationInfo>>>? _dataCreator;
         private readonly ILogger _logger;
 
         public InMemoryDeploymentTargetReadService(
@@ -26,13 +26,13 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
             _dataCreator = dataCreator;
         }
 
-        public async Task<DeploymentTarget> GetDeploymentTargetAsync(
+        public async Task<DeploymentTarget?> GetDeploymentTargetAsync(
             string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             var organizations = await GetOrganizationsAsync(cancellationToken);
 
-            DeploymentTarget foundDeploymentTarget = organizations
+            DeploymentTarget? foundDeploymentTarget = organizations
                 .SelectMany(organizationInfo => organizationInfo.Projects)
                 .SelectMany(projectInfo => projectInfo.DeploymentTargets)
                 .SingleOrDefault(deploymentTarget => deploymentTarget.Id == deploymentTargetId);

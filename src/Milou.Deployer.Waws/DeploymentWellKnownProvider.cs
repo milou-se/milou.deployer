@@ -15,7 +15,7 @@ namespace Milou.Deployer.Waws
 
         public string Name { get; }
 
-        public bool Equals(DeploymentWellKnownProvider other)
+        public bool Equals(DeploymentWellKnownProvider? other)
         {
             if (other is null)
             {

@@ -54,7 +54,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         private readonly AsyncManualResetEvent _statusChangedEvent = new AsyncManualResetEvent(false);
 
         private readonly IDeploymentTargetService _targetSource;
-        private DeploymentTask _current;
+        private DeploymentTask? _current;
         private DeploymentTaskTempData? _tempData;
 
         public DeploymentService(
@@ -179,7 +179,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 if (deployExitCode.IsSuccess)
                 {
-                    _tempData?.TempLogger?.Debug("Waiting for task to complete");
+                    _tempData?.TempLogger.Debug("Waiting for task to complete");
 
                     while (!(deploymentTask.Status == WorkTaskStatus.Done ||
                              deploymentTask.Status == WorkTaskStatus.Failed))
@@ -470,18 +470,28 @@ namespace Milou.Deployer.Web.Core.Deployment
             Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
 
         public async Task<ExitCode> CreateDeploymentPackageAsync(
-            DeploymentTask deploymentTask,
+            [NotNull] DeploymentTask deploymentTask,
             ILogger jobLogger,
-            LoggingLevelSwitch loggingLevelSwitch,
+            [NotNull] LoggingLevelSwitch loggingLevelSwitch,
             CancellationToken cancellationToken = default)
         {
+            if (deploymentTask == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentTask));
+            }
+
+            if (loggingLevelSwitch == null)
+            {
+                throw new ArgumentNullException(nameof(loggingLevelSwitch));
+            }
+
             TempFiles.TryAdd(deploymentTask.DeploymentTaskId, new List<TempFile>());
             TempDirectories.TryAdd(deploymentTask.DeploymentTaskId, new List<DirectoryInfo>());
             string jobId = "MDep_" + Guid.NewGuid();
 
             jobLogger.Information("Starting job {JobId}", jobId);
 
-            DeploymentTarget deploymentTarget;
+            DeploymentTarget? deploymentTarget;
 
             try
             {
@@ -518,7 +528,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             string? publishSettingsXml = null;
 
-            string deploymentTargetParametersFile = deploymentTarget.ParameterFile;
+            string? deploymentTargetParametersFile = deploymentTarget.ParameterFile;
 
             var tempManifestFile = TempFile.CreateTempFile(jobId, ".manifest");
 
@@ -625,8 +635,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                         requireEnvironmentConfig = deploymentTarget.RequireEnvironmentConfiguration,
                         publishSettingsFile = publishSettingsFileName,
                         parameters,
-                        deploymentTarget.NuGet?.NuGetConfigFile,
-                        deploymentTarget.NuGet?.NuGetPackageSource,
+                        deploymentTarget.NuGet.NuGetConfigFile,
+                        deploymentTarget.NuGet.NuGetPackageSource,
                         semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
                         iisSiteName = deploymentTarget.IisSiteName,
                         webConfigTransform = deploymentTarget.WebConfigTransform,
@@ -710,16 +720,16 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             var doc = new XDocument();
 
-            var profileNameAttribute = new XAttribute("profileName", deploymentTarget.Name);
-            var publishMethodAttribute = new XAttribute("publishMethod", "MSDeploy");
-            var publishUrlAttribute = new XAttribute("publishUrl", publishUrl);
-            var userNameAttribute = new XAttribute("userName", username);
-            var userPwdAttribute = new XAttribute("userPWD", password);
-            var webSystemAttribute = new XAttribute("webSystem", "WebSites");
-            var msdeploySiteAttribute = new XAttribute("msdeploySite", "WebSites");
+            var profileNameAttribute = new XAttribute("profileName"!, deploymentTarget.Name);
+            var publishMethodAttribute = new XAttribute("publishMethod"!, "MSDeploy");
+            var publishUrlAttribute = new XAttribute("publishUrl"!, publishUrl);
+            var userNameAttribute = new XAttribute("userName"!, username ??"");
+            var userPwdAttribute = new XAttribute("userPWD"!, password ??"");
+            var webSystemAttribute = new XAttribute("webSystem"!, "WebSites");
+            var msdeploySiteAttribute = new XAttribute("msdeploySite"!, "WebSites");
 
             var publishProfile = new XElement(
-                "publishProfile",
+                "publishProfile"!,
                 profileNameAttribute,
                 publishMethodAttribute,
                 publishUrlAttribute,
@@ -728,7 +738,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 webSystemAttribute,
                 msdeploySiteAttribute);
 
-            var root = new XElement("publishData", publishProfile);
+            var root = new XElement("publishData"!, publishProfile);
 
             doc.Add(root);
 
@@ -742,7 +752,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             return tempFile;
         }
 
-        private async Task<DeploymentTarget> GetDeploymentTarget(
+        private async Task<DeploymentTarget?> GetDeploymentTarget(
             [NotNull] string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {

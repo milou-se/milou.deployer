@@ -228,7 +228,7 @@ namespace Milou.Deployer.Core.Deployment
                 adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
                 prefix: deploymentExecutionDefinition.PackageListPrefixEnabled.HasValue &&
                         deploymentExecutionDefinition.PackageListPrefixEnabled.Value
-                    ? deploymentExecutionDefinition.PackageListPrefix
+                    ? deploymentExecutionDefinition.PackageListPrefix ?? ""
                     : ""
             );
 
@@ -349,7 +349,7 @@ namespace Milou.Deployer.Core.Deployment
                     expectedVersion.ToNormalizedString());
             }
 
-            SemanticVersion foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
+            SemanticVersion? foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
 
             return new EnvironmentPackageResult(true, foundPackage);
         }
@@ -565,7 +565,7 @@ namespace Milou.Deployer.Core.Deployment
                         return ExitCode.Failure;
                     }
 
-                    FileInfo contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
+                    FileInfo? contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
 
                     if (contentFilesJson?.Exists == true)
                     {

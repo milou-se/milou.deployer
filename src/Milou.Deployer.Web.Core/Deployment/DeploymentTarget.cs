@@ -85,13 +85,13 @@ namespace Milou.Deployer.Web.Core.Deployment
             Name = name;
             Id = id;
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
-            PackageId = packageId.WithDefault(Constants.NotAvailable);
+            PackageId = packageId.WithDefault(Constants.NotAvailable)!;
             PublishSettingsXml = publishSettingsXml;
             EnvironmentTypeId = environmentTypeId;
             EnvironmentType = environmentType;
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
-            NuGet = nuget;
+            NuGet = nuget ?? new TargetNuGetSettings();
             MetadataTimeout = metadataTimeout;
             RequireEnvironmentConfiguration = requireEnvironmentConfig;
             PackageListPrefixEnabled = packageListPrefixEnabled;
@@ -102,7 +102,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public Uri? Url { get; }
 
-        public string EnvironmentConfiguration { get; }
+        public string? EnvironmentConfiguration { get; }
 
         public bool AutoDeployment { get; }
 
@@ -120,29 +120,29 @@ namespace Milou.Deployer.Web.Core.Deployment
             (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value) ||
             EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
-        public string EnvironmentTypeId { get; }
+        public string? EnvironmentTypeId { get; }
 
-        public EnvironmentType EnvironmentType { get; }
+        public EnvironmentType? EnvironmentType { get; }
 
         public string Id { get; }
 
         public string Name { get; }
 
-        public string TargetDirectory { get; }
+        public string? TargetDirectory { get; }
 
-        public string PublishSettingFile { get; }
+        public string? PublishSettingFile { get; }
 
-        public string PublishSettingsXml { get; }
+        public string? PublishSettingsXml { get; }
 
-        public string ParameterFile { get; }
+        public string? ParameterFile { get; }
 
         public bool IsReadOnly { get; }
 
-        public string IisSiteName { get; }
+        public string? IisSiteName { get; }
 
-        public string WebConfigTransform { get; }
+        public string? WebConfigTransform { get; }
 
-        public string ExcludedFilePatterns { get; }
+        public string? ExcludedFilePatterns { get; }
 
         public bool Enabled { get; }
 

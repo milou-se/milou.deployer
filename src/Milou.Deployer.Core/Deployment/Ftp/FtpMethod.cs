@@ -37,7 +37,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public string Command { get; }
 
-        public bool Equals(FtpMethod other)
+        public bool Equals(FtpMethod? other)
         {
             if (other is null)
             {

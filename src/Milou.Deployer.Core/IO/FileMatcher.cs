@@ -58,9 +58,15 @@ namespace Milou.Deployer.Core.IO
                                 fileMatch.TargetName);
 
                             return isMatch;
-                        }).Where(
+                        })
+                    .Where(
                         file =>
                         {
+                            if (file.Directory is null)
+                            {
+                                return false;
+                            }
+
                             string sourceRelativePath =
                                 fileMatch.ActionFile.Directory.GetRelativePath(
                                     fileMatch.ActionFileRootDirectory);
