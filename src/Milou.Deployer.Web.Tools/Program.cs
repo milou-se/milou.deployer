@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.Tools
                 {
                     Console.WriteLine("Enter arg");
 
-                    string arg = Console.ReadLine();
+                    string? arg = Console.ReadLine();
 
                     if (string.IsNullOrWhiteSpace(arg))
                     {

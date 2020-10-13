@@ -32,6 +32,11 @@ namespace Milou.Deployer.Core.XmlTransformation
 
             try
             {
+                if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
+                {
+                    return;
+                }
+
                 logger.Debug(
                     "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
                     deploymentExecutionDefinition.WebConfigTransformFile,

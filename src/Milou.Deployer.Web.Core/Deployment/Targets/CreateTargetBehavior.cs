@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Arbor.KVConfiguration.Core;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 
@@ -13,8 +14,12 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public async Task<CreateTargetResult> Handle(CreateTarget request,
             CancellationToken cancellationToken,
-            RequestHandlerDelegate<CreateTargetResult> next)
+            RequestHandlerDelegate<CreateTargetResult>? next)
         {
+            if (next is null)
+            {
+                return new CreateTargetResult(new ValidationError("Next handler is not set"));
+            }
             CreateTargetResult response = await next();
 
             if (response.ValidationErrors.IsDefaultOrEmpty)

@@ -144,7 +144,7 @@ namespace Milou.Deployer.Core.XmlTransformation
                 return new TransformationResult(false);
             }
 
-            if (matchingFiles.Any())
+            if (matchingFiles.Any() && possibleXmlTransformation?.ActionFile is {})
             {
                 FileInfo originalFile = matchingFiles.Single();
 
@@ -165,7 +165,7 @@ namespace Milou.Deployer.Core.XmlTransformation
             {
                 _logger.Debug(
                     "Could not find any matching file for transform, looked for '{TargetName}'",
-                    possibleXmlTransformation.TargetName);
+                    possibleXmlTransformation?.TargetName ?? Arbor.App.Extensions.Constants.NotAvailable);
             }
 
             return new TransformationResult(true, transformedFiles);

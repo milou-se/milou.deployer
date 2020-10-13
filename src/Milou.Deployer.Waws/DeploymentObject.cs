@@ -42,7 +42,7 @@ namespace Milou.Deployer.Waws
             {
                 string dest = CreateDestination(baseOptions);
 
-                arguments.AddRange(new[] { "-verb:delete", dest, "-verbose" });
+                arguments.AddRange(new[] {"-verb:delete", dest, "-verbose"});
 
                 if (!string.IsNullOrWhiteSpace(Path) && !string.IsNullOrWhiteSpace(DeploymentBaseOptions.SiteName))
                 {
@@ -78,7 +78,9 @@ namespace Milou.Deployer.Waws
                     if (!string.IsNullOrWhiteSpace(destinationPath) &&
                         !string.IsNullOrWhiteSpace(deploymentBaseOptions.SiteName))
                     {
-                        string destinationParameter = GetDestinationParameter(deploymentBaseOptions.SiteName, null);
+                        string destinationParameter =
+                            GetDestinationParameter(deploymentBaseOptions.SiteName, destinationPath: null);
+
                         arguments.Add(destinationParameter);
                     }
                 };
@@ -136,7 +138,10 @@ namespace Milou.Deployer.Waws
                     dest += $",password=\"{deploymentBaseOptions.Password}\"";
                 }
 
-                dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
+                if (deploymentBaseOptions.AuthenticationType is {})
+                {
+                    dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
+                }
             }
             else
             {
@@ -148,7 +153,10 @@ namespace Milou.Deployer.Waws
 
         private static string GetDestinationParameter(string siteName, string? destinationPath)
         {
-            string? path = string.IsNullOrWhiteSpace(destinationPath) ? null : $"/{destinationPath.TrimStart('/')}";
+            string? path = string.IsNullOrWhiteSpace(destinationPath)
+                ? null
+                : $"/{destinationPath.TrimStart(trimChar: '/')}";
+
             string destinationParameter = $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{siteName}{path}\"";
             return destinationParameter;
         }
@@ -160,7 +168,8 @@ namespace Milou.Deployer.Waws
             Action<List<string>> onConfigureArgs,
             CancellationToken cancellationToken = default)
         {
-            string exePath = @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"; // TODO fix hard coded path to msdeploy
+            string exePath =
+                @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"; // TODO fix hard coded path to msdeploy
 
             var arguments = new List<string>();
 
@@ -194,10 +203,10 @@ namespace Milou.Deployer.Waws
 
             static string ParseEntry(string entry)
             {
-                ReadOnlySpan<char> asSpan = entry.AsSpan();
+                var asSpan = entry.AsSpan();
 
-                int start = asSpan.IndexOf('(') + 1;
-                int end = asSpan.LastIndexOf(')');
+                int start = asSpan.IndexOf(value: '(') + 1;
+                int end = asSpan.LastIndexOf(value: ')');
                 int length = end - start;
 
                 return asSpan.Slice(start, length).ToString();
@@ -207,15 +216,15 @@ namespace Milou.Deployer.Waws
             {
                 if (message.StartsWith("Verbose: ", StringComparison.Ordinal))
                 {
-                    _logger.Verbose("{Message}", message.Substring(9));
+                    _logger.Verbose("{Message}", message.Substring(startIndex: 9));
                 }
                 else if (message.StartsWith("Debug: ", StringComparison.Ordinal))
                 {
-                    _logger.Debug("{Message}", message.Substring(7));
+                    _logger.Debug("{Message}", message.Substring(startIndex: 7));
                 }
                 else
                 {
-                    _logger.Information("{Message}", message.Substring(6));
+                    _logger.Information("{Message}", message.Substring(startIndex: 6));
                 }
 
                 if (message.Contains("deleting file (", StringComparison.OrdinalIgnoreCase))

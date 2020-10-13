@@ -33,13 +33,13 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             var document = XDocument.Load(fileStream);
 
             IEnumerable<XElement> descendantNodes =
-                document.Element("publishData")?
+                document.Element("publishData"!)?
                     .Descendants("publishProfile") ??
                 throw new InvalidOperationException("Missing publishData and publishProfiles");
 
-            XElement ftpElement = descendantNodes.SingleOrDefault(element =>
+            XElement? ftpElement = descendantNodes.SingleOrDefault(element =>
             {
-                string? ftpAttribute = element.Attribute(PublishMethodAttribute)?.Value;
+                string? ftpAttribute = element.Attribute(XName.Get(PublishMethodAttribute))?.Value;
 
                 if (ftpAttribute is null)
                 {
@@ -59,9 +59,9 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 throw new InvalidOperationException("Could not find element with publishMethod FTP");
             }
 
-            string? userName = ftpElement.Attribute(UsernameAttribute)?.Value;
-            string? password = ftpElement.Attribute(UserPasswordAttribute)?.Value;
-            string? ftpBaseUri = ftpElement.Attribute(PublishUrlAttribute)?.Value;
+            string? userName = ftpElement.Attribute(XName.Get(UsernameAttribute))?.Value;
+            string? password = ftpElement.Attribute(XName.Get(UserPasswordAttribute))?.Value;
+            string? ftpBaseUri = ftpElement.Attribute(XName.Get(PublishUrlAttribute))?.Value;
 
             if (string.IsNullOrWhiteSpace(userName))
             {

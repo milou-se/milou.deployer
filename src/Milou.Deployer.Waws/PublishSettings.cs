@@ -43,7 +43,7 @@ namespace Milou.Deployer.Waws
             XDocument document =
                 await XDocument.LoadAsync(File.OpenRead(publishSettingsFile), LoadOptions.None, cancellationToken);
 
-            XElement[] profiles = document?.Element(PublishData)
+            XElement[] profiles = document.Element(PublishData!)
                 ?.Descendants(PublishProfile).ToArray() ?? Array.Empty<XElement>();
 
             if (profiles.Length == 0)
@@ -58,7 +58,7 @@ namespace Milou.Deployer.Waws
             {
                 profile =
                     profiles.FirstOrDefault(
-                        current => current.Attribute(PublishMethod)?.Value.Equals(MsDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
+                        current => current.Attribute(PublishMethod!)?.Value.Equals(MsDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
             }
             else
             {
@@ -67,10 +67,10 @@ namespace Milou.Deployer.Waws
 
             return new PublishSettings
             {
-                ComputerName = profile.Attribute(PublishUrl)?.Value,
-                SiteName = profile.Attribute(MsDeploySite)?.Value,
-                Username = profile.Attribute(UserName)?.Value,
-                Password = profile.Attribute(UserPwd)?.Value,
+                ComputerName = profile.Attribute(PublishUrl!)?.Value,
+                SiteName = profile.Attribute(MsDeploySite!)?.Value,
+                Username = profile.Attribute(UserName!)?.Value,
+                Password = profile.Attribute(UserPwd!)?.Value,
                 AuthenticationType = AuthenticationType.Basic
             };
         }

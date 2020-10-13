@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		build\Build.bat = build\Build.bat
 		.github\workflows\ci.yml = .github\workflows\ci.yml
 		Directory.Build.props = Directory.Build.props
+		global.json = global.json
 		LICENSE.txt = LICENSE.txt
 		nuget.config = nuget.config
 		README.md = README.md
@@ -89,7 +90,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Bootstrapper
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Tools.Configurator", "Milou.Deployer.Tools.Configurator\Milou.Deployer.Tools.Configurator.csproj", "{924AA017-3636-4997-823B-2F58443B2956}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Web.Marten.Abstractions", "Milou.Deployer.Web.Marten.Abstractions\Milou.Deployer.Web.Marten.Abstractions.csproj", "{5406F051-2BF8-490C-9358-31F380C1749A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Marten.Abstractions", "Milou.Deployer.Web.Marten.Abstractions\Milou.Deployer.Web.Marten.Abstractions.csproj", "{5406F051-2BF8-490C-9358-31F380C1749A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

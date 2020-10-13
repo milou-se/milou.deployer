@@ -14,9 +14,12 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public async Task<Unit> Handle(DisableTarget request,
             CancellationToken cancellationToken,
-            RequestHandlerDelegate<Unit> next)
+            RequestHandlerDelegate<Unit>? next)
         {
-            await next();
+            if (next is { })
+            {
+                await next();
+            }
             await _mediator.Publish(new TargetDisabled(request.TargetId), cancellationToken);
             return Unit.Value;
         }

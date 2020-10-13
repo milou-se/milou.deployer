@@ -31,7 +31,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public string Name { get; }
 
-        public bool Equals(PublishType other)
+        public bool Equals(PublishType? other)
         {
             if (other is null)
             {
@@ -57,7 +57,7 @@ namespace Milou.Deployer.Core.Deployment
                 return false;
             }
 
-            PublishType found =
+            PublishType? found =
                 All.SingleOrDefault(a => a.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
 
             publishType = found ?? Default;

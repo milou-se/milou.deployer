@@ -53,7 +53,7 @@ namespace Milou.Deployer.Web.Core.Email
 
             if (!mimeMessage.From.Any())
             {
-                mimeMessage.From.Add(new MailboxAddress(_emailConfiguration.DefaultFromEmailAddress));
+                mimeMessage.From.Add(new MailboxAddress("", _emailConfiguration.DefaultFromEmailAddress));
             }
 
             using var client = new SmtpClient();

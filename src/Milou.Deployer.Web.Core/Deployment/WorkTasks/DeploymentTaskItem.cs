@@ -5,7 +5,7 @@
         public DeploymentTaskItem(string deploymentTaskId,
             string packageVersion,
             string deploymentTargetId,
-            string startedBy)
+            string? startedBy)
         {
             DeploymentTaskId = deploymentTaskId;
             PackageVersion = packageVersion;
@@ -19,6 +19,6 @@
 
         public string DeploymentTargetId { get; }
 
-        public string StartedBy { get; }
+        public string? StartedBy { get; }
     }
 }

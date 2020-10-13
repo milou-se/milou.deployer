@@ -721,16 +721,16 @@ namespace Milou.Deployer.Ftp
             switch (level)
             {
                 case FtpTraceLevel.Info:
-                    _logger?.Debug(messageTemplate, message);
+                    _logger.Debug(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Error:
-                    _logger?.Warning(messageTemplate, message);
+                    _logger.Warning(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Verbose:
-                    _logger?.Debug(messageTemplate, message);
+                    _logger.Debug(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Warn:
-                    _logger?.Warning(messageTemplate, message);
+                    _logger.Warning(messageTemplate, message);
                     break;
             }
         }
@@ -769,7 +769,7 @@ namespace Milou.Deployer.Ftp
 
         }
 
-        public static async Task<FtpHandler> Create(Uri fullUri, FtpSettings? ftpSettings = null, NetworkCredential credentials = null,
+        public static async Task<FtpHandler> Create(Uri fullUri, FtpSettings? ftpSettings = null, NetworkCredential? credentials = null,
             ILogger? logger = default)
         {
             logger ??= Logger.None;

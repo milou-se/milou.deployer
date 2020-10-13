@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Core.Json
     public class DateConverter : JsonConverter
     {
         public override object? ReadJson(
-            JsonReader reader,
+            JsonReader? reader,
             Type objectType,
             object? existingValue,
             JsonSerializer serializer)
@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.Core.Json
             {
                 return null;
             }
-            if (!DateTime.TryParse(reader?.Value?.ToString(), out DateTime dateTime))
+            if (!DateTime.TryParse(reader.Value?.ToString(), out DateTime dateTime))
             {
                 return null;
             }
@@ -24,14 +24,14 @@ namespace Milou.Deployer.Web.Core.Json
             return new Date(dateTime);
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter? writer, object? value, JsonSerializer serializer)
         {
             if (value is null)
             {
                 return;
             }
 
-            writer.WriteValue(((Date)value).ToString());
+            writer?.WriteValue(((Date)value).ToString());
         }
 
         public override bool CanConvert(Type objectType) => objectType == typeof(Date);
