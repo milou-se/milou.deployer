@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Serilog.Sinks.Http;
 
@@ -23,6 +24,10 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
         public void Dispose()
         {
             // ignore
+        }
+
+        public void Configure(IConfiguration configuration)
+        {
         }
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)

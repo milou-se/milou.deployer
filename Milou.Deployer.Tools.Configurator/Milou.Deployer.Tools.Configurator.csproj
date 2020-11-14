@@ -5,16 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1595703670" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="0.20.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="1.0.0-build.*" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.0.0-build.*" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.0-preview.9.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.0-preview.9.*" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0-rc.1.*" />
-    <PackageReference Include="System.Net.Http.Json" Version="5.0.0-rc.1.*" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0-rc.1.*" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0-rc.1.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

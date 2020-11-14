@@ -10,17 +10,17 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
-    <PackageReference Include="Arbor.Docker.Xunit" Version="0.4.0-build.1594409010" />
+    <PackageReference Include="Arbor.Docker.Xunit" Version="0.4.0-build.*" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0-rc.1.*" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0-preview-20200812-03" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
     <PackageReference Include="NCrunch.Framework" Version="4.5.0" />
-    <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
+    <PackageReference Include="NuGet.Versioning" Version="5.8.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="2.0.4" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0-rc.1.*" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="5.0.0-rc.1.*" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="5.0.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
     <PackageReference Include="xunit.analyzers" Version="0.10.0" />
