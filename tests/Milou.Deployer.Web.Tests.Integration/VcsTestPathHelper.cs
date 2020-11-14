@@ -6,7 +6,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public static class VcsTestPathHelper
     {
-        public static string GetRootDirectory()
+        public static string GetRootDirectory(string? basePath = null)
         {
             string originalSolutionPath = NCrunchEnvironment.GetOriginalSolutionPath();
 
@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return VcsPathHelper.FindVcsRootPath(fileInfo.Directory?.FullName ?? Directory.GetCurrentDirectory());
             }
 
-            return VcsPathHelper.FindVcsRootPath(Directory.GetCurrentDirectory());
+            return VcsPathHelper.FindVcsRootPath(basePath ?? new FileInfo(typeof(VcsTestPathHelper).Assembly.Location).DirectoryName ?? Directory.GetCurrentDirectory());
         }
     }
 }

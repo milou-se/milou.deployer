@@ -31,9 +31,9 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             Assert.NotNull(deserialized);
 
-            Assert.Null(deserialized.NuGet);
-            Assert.Null(deserialized.NuGet?.NuGetPackageSource);
-            Assert.Null(deserialized.NuGet?.NuGetConfigFile);
+            Assert.NotNull(deserialized.NuGet);
+            Assert.Null(deserialized.NuGet.NuGetPackageSource);
+            Assert.Null(deserialized.NuGet.NuGetConfigFile);
         }
 
         [Fact]
@@ -60,8 +60,8 @@ namespace Milou.Deployer.Web.Tests.Unit
             Assert.NotNull(deserialized);
 
             Assert.NotNull(deserialized.NuGet);
-            Assert.NotNull(deserialized.NuGet?.NuGetPackageSource);
-            Assert.NotNull(deserialized.NuGet?.NuGetConfigFile);
+            Assert.NotNull(deserialized.NuGet.NuGetPackageSource);
+            Assert.NotNull(deserialized.NuGet.NuGetConfigFile);
         }
     }
 }

@@ -11,10 +11,10 @@
       "Arbor.Docker.Xunit": {
         "type": "Direct",
         "requested": "[0.4.0-build.*, )",
-        "resolved": "0.4.0-build.1594409010",
-        "contentHash": "6MIbmUwlaafdZcDbQXZWrDz2D0uz/cwS6iT9Pk3EhXrTFeL9L9e55ir2srMj1DczSwmKAt7t3iCc7DzAOiwoTQ==",
+        "resolved": "0.4.0-build.1605372276",
+        "contentHash": "eRjaadKUzIXQFUvL0axTDatvdEe9BHyTDj8Q9ZATUHoIVOR26H0UWP5xyEv6+gHiKaOjE19Vn4roqmqKaJE4Hw==",
         "dependencies": {
-          "Arbor.Docker": "[0.4.0-build.1594409010]",
+          "Arbor.Docker": "[0.4.0-build.1605372276]",
           "Serilog": "[2.9.0, 3.0.0)",
           "Serilog.Sinks.XUnit": "[2.0.4, 3.0.0)",
           "XUnit": "[2.4.1, 3.0.0)"
@@ -159,13 +159,13 @@
       },
       "Arbor.Docker": {
         "type": "Transitive",
-        "resolved": "0.4.0-build.1594409010",
-        "contentHash": "bU96qCMlnHQ+gugcxVEV1SixCqMG/lZeQZRyAIDjgS7qCTwS1Nkm24gEEyt0uCDbUoxzyBHT3XQypH/8vIYnFA==",
+        "resolved": "0.4.0-build.1605372276",
+        "contentHash": "bkORNjGbvaMnsUHXCsE/NXSlQj/XKaJtw104h3fmaAhP2HYjmYUQRJFTy3p/Rsh0GrKXAUZL+1t4qQZhRnd2Bg==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.1.0",
-          "Serilog": "2.9.0",
-          "System.Collections.Immutable": "1.7.1"
+          "Serilog": "2.10.0",
+          "System.Collections.Immutable": "5.0.0"
         }
       },
       "Arbor.KVConfiguration.Core": {
