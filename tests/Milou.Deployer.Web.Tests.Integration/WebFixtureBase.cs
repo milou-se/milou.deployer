@@ -17,14 +17,10 @@ using Arbor.AspNetCore.Host;
 using Arbor.Docker;
 using Arbor.Primitives;
 using JetBrains.Annotations;
-using MediatR;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Security;
@@ -44,6 +40,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         private const string ConnectionStringFormat =
             "Server=localhost;Port={0};User Id=postgres;Password=test;Database=postgres;Pooling=false";
 
+        private readonly ImmutableArray<Assembly> _assemblies;
+
         private readonly IMessageSink _diagnosticMessageSink;
         private readonly List<ContainerArgs> _dockerArgs;
         private readonly FtpArgs _ftp;
@@ -57,7 +55,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         private CancellationTokenSource _agentCancellationTokenSource;
         private Task<int> _agentTask;
         private DirectoryInfo _appRootDirectory;
-        private readonly ImmutableArray<Assembly> _assemblies;
 
         private CancellationTokenSource _cancellationTokenSource;
         private DockerContext _context;
@@ -67,7 +64,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
-            var id = "-it";
+            string? id = "-it";
             _assemblies = ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
             _globalTempDir =
                 new DirectoryInfo(Path.Combine(Path.GetTempPath(), "mdst-" + Guid.NewGuid())).EnsureExists();
@@ -482,12 +479,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             object[] instances =
             {
-                TestConfiguration,
-                ServerEnvironmentTestSiteConfiguration,
-                new CacheSettings(),
-                _environmentVariables,
-                new ApplicationPartManager(),
-                new MilouAuthenticationConfiguration(true, true,
+                TestConfiguration, ServerEnvironmentTestSiteConfiguration, new CacheSettings(), _environmentVariables,
+                new ApplicationPartManager(), new MilouAuthenticationConfiguration(true, true,
                     "+LZwHMY/0pifza3BAmrxwzt8F+G+KdMmBfe6nUhqqI9cIZXOLHaYRa0TRldq5ocrBkRELPSCqpEkEKtQvM9FSw=="),
                 _seq
             };

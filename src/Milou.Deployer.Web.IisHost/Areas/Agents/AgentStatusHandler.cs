@@ -20,4 +20,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             return Task.CompletedTask;
         }
     }
+
+    [UsedImplicitly]
+    public class UnknownAgentHandler : INotificationHandler<UnknownAgentConnected>
+    {
+        private readonly AgentsData _agents;
+
+        public UnknownAgentHandler(AgentsData agents) => _agents = agents;
+
+        public Task Handle(UnknownAgentConnected notification, CancellationToken cancellationToken)
+        {
+            _agents.UnknownAgentConnected(notification);
+
+            return Task.CompletedTask;
+        }
+    }
 }

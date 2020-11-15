@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.Agent
 
         public string Value { get; }
 
-        public static bool TryParse(string value, [NotNullWhen(true)] out AgentId? agentId)
+        public static bool TryParse(string? value, [NotNullWhen(true)] out AgentId? agentId)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

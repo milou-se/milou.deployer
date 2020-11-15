@@ -261,7 +261,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTargetWorker.TargetId);
             }
 
-            var cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.MaxValue);
+            var cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource();
 
             var linked = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationTokenSource.Token);
 

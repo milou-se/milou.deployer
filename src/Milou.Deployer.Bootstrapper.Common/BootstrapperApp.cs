@@ -152,7 +152,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                 string deployerToolFilePath = Path.Combine(
                     nuGetPackageInstallResult.PackageDirectory.FullName,
                     "tools",
-                    "netcoreapp3.1",
+                    "net5.0",
                     "Milou.Deployer.ConsoleClient.exe");
 
                 deployerToolFile = new FileInfo(deployerToolFilePath);

@@ -59,6 +59,16 @@ namespace Milou.Deployer.Web.Tests.Integration
                     disposable.Dispose();
                 }
 
+                if (WebFixture is IAsyncLifetime lifeTime)
+                {
+                    lifeTime.DisposeAsync().Wait();
+                }
+
+                if (WebFixture is IAsyncDisposable asyncDisposable)
+                {
+                    asyncDisposable.DisposeAsync().GetAwaiter().GetResult();
+                }
+
                 WebFixture = null!;
             }
         }

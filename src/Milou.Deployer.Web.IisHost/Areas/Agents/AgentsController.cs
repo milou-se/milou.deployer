@@ -21,8 +21,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public async Task<IActionResult> Index()
         {
             var agents = _agentsData.Agents;
+            var unknownAgents = _agentsData.UnknownAgents;
 
-            return View(new AgentsViewModel(agents));
+            return View(new AgentsViewModel(agents, unknownAgents));
         }
 
         [HttpPost]

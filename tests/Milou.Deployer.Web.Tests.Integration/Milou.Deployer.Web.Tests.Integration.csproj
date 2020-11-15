@@ -12,7 +12,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
-    <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.*" />
+    <PackageReference Include="Arbor.Docker" Version="0.4.0-build.1605372276" />
+    <PackageReference Include="Arbor.Docker.Xunit" Version="0.4.0-build.*" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1605466462" />
     <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.0.0-build.*" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
@@ -30,7 +32,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0&#xD;&#xA;                      " />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="NCrunch.Framework" Version="4.5.0" />

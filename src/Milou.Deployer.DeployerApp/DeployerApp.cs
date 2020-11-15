@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
@@ -233,8 +234,17 @@ namespace Milou.Deployer.DeployerApp
                 Logger.Debug("Found one definition without version and no version has been explicitly set");
                 Console.WriteLine(
                     "Version is missing in manifest and no version has been set in command line args. Enter a semantic version, eg. 1.2.3");
+                string? inputVersion = null;
 
-                string inputVersion = Console.ReadLine();
+                if (Environment.UserInteractive && !Debugger.IsAttached && !UnitTestDetector.HasUnitTestInAppDomain)
+                {
+                    inputVersion = Console.ReadLine();
+                }
+
+                if (string.IsNullOrWhiteSpace(inputVersion))
+                {
+                    throw new InvalidOperationException("Missing version");
+                }
 
                 if (!string.IsNullOrWhiteSpace(inputVersion) &&
                     SemanticVersion.TryParse(inputVersion, out SemanticVersion semanticInputVersion))

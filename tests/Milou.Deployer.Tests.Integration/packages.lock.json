@@ -8,6 +8,18 @@
         "resolved": "3.0.2",
         "contentHash": "YWFdVy4MjN/pmh3FueugcOVhgQY82+hcivmXuWQBxlEPwrZ0E+3KgGsrnq/QjCntDfrSk5XB+Dw+Zlpsv0mQ9A=="
       },
+      "Arbor.Docker": {
+        "type": "Direct",
+        "requested": "[0.4.0-build.1605372276, )",
+        "resolved": "0.4.0-build.1605372276",
+        "contentHash": "bkORNjGbvaMnsUHXCsE/NXSlQj/XKaJtw104h3fmaAhP2HYjmYUQRJFTy3p/Rsh0GrKXAUZL+1t4qQZhRnd2Bg==",
+        "dependencies": {
+          "Arbor.Processing": "0.6.0",
+          "JetBrains.Annotations": "2020.1.0",
+          "Serilog": "2.10.0",
+          "System.Collections.Immutable": "5.0.0"
+        }
+      },
       "Arbor.Docker.Xunit": {
         "type": "Direct",
         "requested": "[0.4.0-build.*, )",
@@ -138,8 +150,8 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.4.1-build.1605304379",
-        "contentHash": "F3fAxMkFfkfntItbjlv3kKocjp536zzOj9tE0f2RmZ4GInipeAmHTenaMlzHAxI5XDrliZR/G8/YQ7BMaC9A2g==",
+        "resolved": "0.4.1-build.1605466462",
+        "contentHash": "NdL4JPjDb0Dr3smqk4wA+xhhblGpE6sV/pQ1s67gWIhKROfKFhDCAiZlWUKojtEJ8qqmep5eb76htfir6suKEQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "1.0.0-build.1605301003",
           "JetBrains.Annotations": "2020.1.0",
@@ -155,17 +167,6 @@
           "Serilog.Sinks.Seq": "4.0.0",
           "System.Collections.Immutable": "5.0.0",
           "System.ComponentModel.Annotations": "5.0.0"
-        }
-      },
-      "Arbor.Docker": {
-        "type": "Transitive",
-        "resolved": "0.4.0-build.1605372276",
-        "contentHash": "bkORNjGbvaMnsUHXCsE/NXSlQj/XKaJtw104h3fmaAhP2HYjmYUQRJFTy3p/Rsh0GrKXAUZL+1t4qQZhRnd2Bg==",
-        "dependencies": {
-          "Arbor.Processing": "0.6.0",
-          "JetBrains.Annotations": "2020.1.0",
-          "Serilog": "2.10.0",
-          "System.Collections.Immutable": "5.0.0"
         }
       },
       "Arbor.KVConfiguration.Core": {
@@ -1630,7 +1631,7 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build",
+          "Arbor.App.Extensions": "0.4.1-build.1605466462",
           "Arbor.KVConfiguration.Core": "1.0.0-build",
           "Arbor.KVConfiguration.Schema.Json": "1.0.0-build",
           "Arbor.Processing": "0.6.0",

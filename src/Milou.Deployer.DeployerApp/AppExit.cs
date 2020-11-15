@@ -17,8 +17,6 @@ namespace Milou.Deployer.DeployerApp
         {
             _logger.Information("Application was successful, {ExitCode}", ExitCode.Success);
 
-            BreakApp();
-
             return ExitCode.Success;
         }
 
@@ -36,25 +34,7 @@ namespace Milou.Deployer.DeployerApp
         {
             _logger.Error("Application failed, {ExitCode}", exitCode);
 
-            BreakApp();
-
             return ExitCode.Failure;
-        }
-
-        private static void BreakApp()
-        {
-            if (Debugger.IsAttached)
-            {
-                if (Environment.UserInteractive)
-                {
-                    Console.WriteLine(ExitMessage);
-                    Console.ReadLine();
-                }
-                else
-                {
-                    Debugger.Break();
-                }
-            }
         }
     }
 }

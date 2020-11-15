@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Arbor.App.Extensions.Time;
@@ -15,6 +16,10 @@ namespace Milou.Deployer.Web.Core.Agents
         private readonly ConcurrentDictionary<AgentId, AgentState> _agents =
             new ConcurrentDictionary<AgentId, AgentState>();
 
+        private readonly ConcurrentDictionary<AgentId, string> _unknownAgents = new();
+
+        public ImmutableDictionary<AgentId, string> UnknownAgents => _unknownAgents.ToImmutableDictionary();
+
         private readonly ICustomClock _customClock;
         private readonly ILogger _logger;
 
@@ -27,9 +32,9 @@ namespace Milou.Deployer.Web.Core.Agents
         public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key,
             agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId)).ToImmutableArray();
 
-        public void AgentConnected(AgentConnected? agentConnected)
+        public void AgentConnected(AgentConnected agentConnected)
         {
-            var agentId = agentConnected?.AgentId;
+            var agentId = agentConnected.AgentId;
 
             if (agentId is null)
             {
@@ -79,6 +84,11 @@ namespace Milou.Deployer.Web.Core.Agents
             }
 
             state.CurrentDeploymentTaskId = default;
+        }
+
+        public void UnknownAgentConnected(UnknownAgentConnected notification)
+        {
+            _unknownAgents.TryAdd(notification.AgentId, notification.ConnectionId);
         }
     }
 }

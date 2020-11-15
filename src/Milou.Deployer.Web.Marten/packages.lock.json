@@ -119,8 +119,8 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.4.1-build.1605304379",
-        "contentHash": "F3fAxMkFfkfntItbjlv3kKocjp536zzOj9tE0f2RmZ4GInipeAmHTenaMlzHAxI5XDrliZR/G8/YQ7BMaC9A2g==",
+        "resolved": "0.4.1-build.1605466462",
+        "contentHash": "NdL4JPjDb0Dr3smqk4wA+xhhblGpE6sV/pQ1s67gWIhKROfKFhDCAiZlWUKojtEJ8qqmep5eb76htfir6suKEQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "1.0.0-build.1605301003",
           "JetBrains.Annotations": "2020.1.0",
@@ -1549,7 +1549,7 @@
       "milou.deployer.bootstrapper.common": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build",
+          "Arbor.App.Extensions": "0.4.1-build.1605466462",
           "Arbor.KVConfiguration.Urns": "1.0.0-build",
           "Arbor.Tooler": "0.9.1",
           "JetBrains.Annotations": "2020.1.0",
@@ -1566,7 +1566,7 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build",
+          "Arbor.App.Extensions": "0.4.1-build.1605466462",
           "Arbor.KVConfiguration.Core": "1.0.0-build",
           "Arbor.KVConfiguration.Schema.Json": "1.0.0-build",
           "Arbor.Processing": "0.6.0",
@@ -1586,7 +1586,7 @@
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build",
+          "Arbor.App.Extensions": "0.4.1-build.1605466462",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.9.1",
           "JetBrains.Annotations": "2020.1.0",
@@ -1603,7 +1603,7 @@
       "milou.deployer.web.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build",
+          "Arbor.App.Extensions": "0.4.1-build.1605466462",
           "Arbor.KVConfiguration.Core": "1.0.0-build",
           "Arbor.KVConfiguration.Urns": "1.0.0-build",
           "Arbor.KVConfiguration.UserConfiguration": "1.0.0-build",
@@ -1643,7 +1643,7 @@
       "milou.deployer.web.marten.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.1-build",
+          "Arbor.App.Extensions": "0.4.1-build.1605466462",
           "Arbor.KVConfiguration.Urns": "1.0.0-build",
           "JetBrains.Annotations": "2020.1.0",
           "Microsoft.CodeAnalysis.CSharp": "3.8.0",

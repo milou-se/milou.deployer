@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.*" />
+    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.7.0-build.1605466874" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />

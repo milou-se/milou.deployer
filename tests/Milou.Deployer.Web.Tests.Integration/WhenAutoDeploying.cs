@@ -28,6 +28,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
+        [NCrunch.Framework.Timeout(120_000)]
         [ConditionalFact]
         public async Task ThenNewVersionShouldBeDeployed()
         {

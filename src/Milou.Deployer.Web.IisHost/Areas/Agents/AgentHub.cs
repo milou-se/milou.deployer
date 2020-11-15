@@ -46,6 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             if (agentInfo is null)
             {
+                await _mediator.Publish(new UnknownAgentConnected(agentId, Context.ConnectionId));
                 _logger.Error("Unknown agent {AgentI} connected", agentId);
                 return;
             }

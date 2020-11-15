@@ -25,3 +25,14 @@ else
 {
     <p>No agent are currently connected</p>
 }
+
+@if (Model.UnknownAgents.Any())
+{
+    <h2>Unknown agents</h2>
+    <ul>
+    @foreach (var agent in Model.UnknownAgents)
+    {
+        <li>Unknown agent @agent.Key</li> <span>(Connection @agent.Value)</span>
+    }
+	</ul>
+}

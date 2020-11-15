@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
     {
         private readonly DeveloperConfiguration _developerConfiguration;
         private readonly ILogger _logger;
-        private DockerContext _dockerContext;
+        private DockerContext? _dockerContext;
         private bool _isDisposed;
         private bool _isDisposing;
 
@@ -32,14 +32,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         public async ValueTask DisposeAsync()
         {
-            if (_isDisposing || _isDisposed || !_developerConfiguration.DockerEnabled)
+            if (_isDisposing || _isDisposed)
             {
                 return;
             }
 
             _isDisposing = true;
 
-            await _dockerContext.DisposeAsync();
+            if (_dockerContext is {})
+            {
+                await _dockerContext.DisposeAsync();
+            }
 
             _logger.Information("Disposed DockerContext");
 
