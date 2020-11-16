@@ -14,7 +14,7 @@ CD "%~dp0"
 CD ..
 CD ..
 
-SET Artifacts=Artifacts\packages\binary\Milou.Deployer.Web.Agent.Host.5.0.0-build.1585857526\tools\netcoreapp3.1
+SET Artifacts=Artifacts\packages\binary\Milou.Deployer.Web.Agent.Host.*\tools\net5.0
 ECHO Copying files from %Artifacts% to %BuildTemp%
 xcopy "%Artifacts%" "%BuildTemp%\data\" /e /s
 

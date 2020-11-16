@@ -28,7 +28,7 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin\$configuration$\netcoreapp3.1\**\*.*" target="tools\netcoreapp3.1"
+    <file src="bin\$configuration$\net5.0\**\*.*" target="tools\net5.0"
           exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*;**\*.user;**\Microsoft.CodeAnalysis*.*;**\buffer-*.json;**\*.bookmark;**\packages.lock.json" />
   </files>
 </package>

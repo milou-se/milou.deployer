@@ -35,7 +35,7 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin\$configuration$\netcoreapp3.1\**\Milou.Deployer.Core*.*" target="lib\netcoreapp3.1"
+    <file src="bin\$configuration$\net5.0\**\Milou.Deployer.Core*.*" target="lib\net5.0"
           exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
   </files>
 </package>
