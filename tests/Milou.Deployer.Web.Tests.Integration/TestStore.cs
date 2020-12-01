@@ -12,7 +12,7 @@ using Marten.Transforms;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    public class TestStore : IDocumentStore
+    public sealed class TestStore : IDocumentStore
     {
         public void Dispose()
         {
@@ -57,17 +57,17 @@ namespace Milou.Deployer.Web.Tests.Integration
             int batchSize = 1000) =>
             throw new NotImplementedException();
 
-        public IDaemon BuildProjectionDaemon(Type[] viewTypes = null,
-            IDaemonLogger logger = null,
-            DaemonSettings settings = null,
-            IProjection[] projections = null) =>
+        public IDaemon BuildProjectionDaemon(Type[]? viewTypes = null,
+            IDaemonLogger? logger = null,
+            DaemonSettings? settings = null,
+            IProjection[]? projections = null) =>
             throw new NotImplementedException();
 
-        public IDocumentSchema Schema { get; }
-        public AdvancedOptions Advanced { get; }
-        public IDiagnostics Diagnostics { get; }
-        public IDocumentTransforms Transform { get; }
-        public EventGraph Events { get; }
-        public ITenancy Tenancy { get; }
+        public IDocumentSchema Schema { get; } = default!;
+        public AdvancedOptions Advanced { get; } = default!;
+        public IDiagnostics Diagnostics { get; } = default!;
+        public IDocumentTransforms Transform { get; } = default!;
+        public EventGraph Events { get; } = default!;
+        public ITenancy Tenancy { get; } = default!;
     }
 }

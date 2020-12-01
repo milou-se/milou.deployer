@@ -4,12 +4,17 @@
 
 <h1>Agents</h1>
 
-@if (Model.Agents.Any())
+@if (!Model.Agents.Any())
 {
-    @foreach (var agent in Model.Agents)
-    {
-        <h2>@agent.Id</h2>
+    <p>There are no registered agents</p>
+}
 
+@if (Model.ConnectedAgents.Any())
+{
+    <h2>Connected</h2>
+    @foreach (var agent in Model.ConnectedAgents)
+    {
+        <h3>@agent.Id</h3>
         <p>Connected at: @agent.ConnectedAt.ToLocalDateTimeFormat(AppTime)</p>
         @if (agent.CurrentDeploymentTaskId is { })
         {
@@ -21,18 +26,24 @@
         }
     }
 }
-else
+else if (Model.DisconnectedAgents.Any())
 {
-    <p>No agent are currently connected</p>
+    <h2>Disconnected</h2>
+    @foreach (var agent in Model.DisconnectedAgents)
+    {
+        <h3>@agent.Id</h3>
+    }
 }
 
 @if (Model.UnknownAgents.Any())
 {
     <h2>Unknown agents</h2>
+
     <ul>
-    @foreach (var agent in Model.UnknownAgents)
-    {
-        <li>Unknown agent @agent.Key</li> <span>(Connection @agent.Value)</span>
-    }
-	</ul>
+        @foreach (var agent in Model.UnknownAgents)
+        {
+            <li>Unknown agent @agent.Key</li>
+            <span>(Connection @agent.Value)</span>
+        }
+    </ul>
 }

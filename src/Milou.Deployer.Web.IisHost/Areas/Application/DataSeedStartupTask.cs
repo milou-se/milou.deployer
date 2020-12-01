@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     {
                         using var session = _store.OpenSession();
 
-                        await session.Query<DeploymentTargetData>().ToListAsync(cancellationToken);
+                        _ = await session.Query<DeploymentTargetData>().ToListAsync(cancellationToken);
 
                         retry = false;
                     }

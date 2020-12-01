@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new BadRequestResult();
             }
 
-            DeploymentTaskPackage deploymentTaskPackage =
+            DeploymentTaskPackage? deploymentTaskPackage =
                 await deploymentTaskPackageStore.GetDeploymentTaskPackageAsync(
                     deploymentTaskId, CancellationToken.None);
 
@@ -48,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         {
             //TODO check deploymentTargetId and deploymentTaskId belongs together
 
-            string? agentId = User.Identity.Name!;
+            string? agentId = User.Identity?.Name;
 
             await Task.Delay(TimeSpan.FromSeconds(2));
 

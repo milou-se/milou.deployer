@@ -112,7 +112,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 foreach (DeploymentTarget deploymentTarget in targetsWithUrl)
                 {
-                    AppVersion appVersion = appVersions.SingleOrDefault(version =>
+                    AppVersion? appVersion = appVersions.SingleOrDefault(version =>
                         version.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
 
                     if (appVersion?.SemanticVersion is null)
@@ -158,7 +158,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             && package.Version > appVersion.SemanticVersion)
                         .ToImmutableHashSet();
 
-                    PackageVersion packageToDeploy = newerPackages
+                    PackageVersion? packageToDeploy = newerPackages
                         .OrderByDescending(package => package.Version)
                         .FirstOrDefault();
 

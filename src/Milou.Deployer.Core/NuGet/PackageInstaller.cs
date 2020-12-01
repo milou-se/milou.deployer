@@ -212,9 +212,7 @@ namespace Milou.Deployer.Core.NuGet
                 tempDirectory.EnumerateFiles("*.nupkg", SearchOption.AllDirectories)
                     .Where(
                         file =>
-                            file.Name.IndexOf(
-                                deploymentExecutionDefinition.PackageId,
-                                StringComparison.InvariantCultureIgnoreCase) >= 0)
+                            file.Name.Contains(deploymentExecutionDefinition.PackageId, StringComparison.InvariantCultureIgnoreCase))
                     .ToList();
 
             if (!packageFiles.Any())

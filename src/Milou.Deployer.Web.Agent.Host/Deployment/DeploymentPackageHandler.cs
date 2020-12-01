@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 ? null
                 : TempFile.CreateTempFile(deploymentTaskPackage.DeploymentTargetId, ".publishSettings");
 
-            DirectoryInfo currentDir = manifestFile.File!.Directory;
+            DirectoryInfo? currentDir = manifestFile.File!.Directory;
 
             if (string.IsNullOrWhiteSpace(currentDir?.FullName))
             {
@@ -43,7 +43,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
             Directory.SetCurrentDirectory(currentDir.FullName);
 
-            var inputArgs = Array.Empty<string>();
+            string[] inputArgs = Array.Empty<string>();
 
             using DeployerApp.DeployerApp deployerApp =
                 await AppBuilder.BuildAppAsync(inputArgs,

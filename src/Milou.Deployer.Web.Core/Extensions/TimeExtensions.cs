@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
@@ -14,7 +15,7 @@ namespace Milou.Deployer.Web.Core.Extensions
             var localTime =
                 TimeZoneInfo.ConvertTimeFromUtc(dateTimeOffset.Value.UtcDateTime, appTime.GetAppDefaultTimeZone());
 
-            return localTime.ToString("yyyy-MM-dd HH:mm");
+            return localTime.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
         }
     }
 }

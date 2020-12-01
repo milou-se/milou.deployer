@@ -51,14 +51,14 @@ namespace Milou.Deployer.Web.Tests.Integration
                 throw new DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
-            Console.WriteLine(typeof(StartupModule).FullName);
+            Output.WriteLine(typeof(StartupModule).FullName);
 
-            Assert.NotNull(WebFixture?.App?.Host?.Services);
+            Assert.NotNull(WebFixture?.App.Host?.Services);
 
-            using (var httpClient = new HttpClient())
+            using (var httpClient = WebFixture!.App!.Host!.Services.GetRequiredService<IHttpClientFactory>().CreateClient())
             {
                 using CancellationTokenSource cancellationTokenSource =
-                    WebFixture!.App!.Host!.Services.GetService<CancellationTokenSource>();
+                    WebFixture!.App!.Host!.Services.GetRequiredService<CancellationTokenSource>();
 
                 var lifeTime = WebFixture!.App!.Host!.Services.GetRequiredService<IHostApplicationLifetime>();
 
@@ -75,11 +75,11 @@ namespace Milou.Deployer.Web.Tests.Integration
                 while (!cancellationTokenSource.Token.IsCancellationRequested
                        && semanticVersion != expectedVersion
                        && !lifeTime.ApplicationStopped.IsCancellationRequested
-                       && !WebFixture.CancellationToken.IsCancellationRequested)
+                       && !WebFixture!.CancellationToken.IsCancellationRequested)
                 {
                     // ReSharper disable MethodSupportsCancellation
                     StartupTaskContext? startupTaskContext =
-                        WebFixture.App.Host.Services.GetService<StartupTaskContext>();
+                        WebFixture!.App!.Host!.Services.GetService<StartupTaskContext>();
 
                     if (startupTaskContext is null)
                     {
@@ -93,7 +93,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     }
 
                     var url = new Uri(
-                        $"http://localhost:{WebFixture.ServerEnvironmentTestSiteConfiguration.Port.Port + 1}/applicationmetadata.json");
+                        $"http://localhost:{WebFixture!.ServerEnvironmentTestSiteConfiguration.Port.Port + 1}/applicationmetadata.json");
 
                     string contents;
                     try

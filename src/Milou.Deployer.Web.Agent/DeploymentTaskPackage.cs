@@ -1,44 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using Arbor.App.Extensions.ExtensionMethods;
+﻿using System.Collections.Immutable;
 
 namespace Milou.Deployer.Web.Agent
 {
-    public class DeploymentTaskPackage
+    public sealed record DeploymentTaskPackage(
+        string DeploymentTaskId,
+        string DeploymentTargetId,
+        string AgentId)
     {
-        public DeploymentTaskPackage(
-            string deploymentTaskId,
-            string deploymentTargetId,
-            IEnumerable<string> deployerProcessArgs,
-            string? nugetConfigXml,
-            string manifestJson,
-            string? publishSettingsXml,
-            string agentId)
-        {
-            DeploymentTaskId = deploymentTaskId;
-            DeployerProcessArgs = deployerProcessArgs.SafeToImmutableArray();
-            DeploymentTargetId = deploymentTargetId;
-            NugetConfigXml = nugetConfigXml;
-            ManifestJson = manifestJson;
-            PublishSettingsXml = publishSettingsXml;
-            AgentId = agentId;
-        }
+        public ImmutableArray<string> DeployerProcessArgs { get; init; }
 
-        public ImmutableArray<string> DeployerProcessArgs { get; }
+        public string? ManifestJson { get; init; }
 
-        [Required]
-        public string DeploymentTargetId { get; }
+        public string? PublishSettingsXml { get; init; }
 
-        public string? NugetConfigXml { get; }
-
-        public string ManifestJson { get; }
-
-        public string? PublishSettingsXml { get; }
-
-        public string AgentId { get; }
-
-        [Required]
-        public string DeploymentTaskId { get; }
+        public string? NugetConfigXml { get; init; }
     }
 }

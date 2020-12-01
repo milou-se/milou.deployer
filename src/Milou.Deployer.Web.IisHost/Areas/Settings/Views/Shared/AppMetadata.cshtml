@@ -2,7 +2,7 @@
 @model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
 <h2>Application metadata</h2>
 
-@if (Model.Applicationmetadata.AllKeys.IsDefaultOrEmpty)
+@if (Model.ApplicationMetadata.AllKeys.IsDefaultOrEmpty)
 {
     @Constants.NotAvailable
 }
@@ -16,11 +16,11 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var item in Model.Applicationmetadata.AllKeys)
+        @foreach (var item in Model.ApplicationMetadata.AllKeys)
         {
             <tr>
                 <td>@item</td>
-                <td>@Model.Applicationmetadata[item]</td>
+                <td>@Model.ApplicationMetadata[item]</td>
             </tr>
         }
         </tbody>

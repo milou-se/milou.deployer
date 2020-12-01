@@ -5,7 +5,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
 {
     public interface IDeploymentTargetService
     {
-        Task<DeploymentTarget> GetDeploymentTargetAsync(
+        Task<DeploymentTarget?> GetDeploymentTargetAsync(
             string deploymentTargetId,
             CancellationToken cancellationToken = default);
     }

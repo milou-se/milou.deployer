@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         [PublicAPI]
-        public static IEnumerable<object[]> Data =>
+        public static IEnumerable<object?[]> Data =>
             ApplicationAssemblies.FilteredAssemblies(useCache: false)
                 .Concat(new[] {typeof(DeployController).Assembly})
                 .Distinct()
@@ -60,7 +60,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     Actions: controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance |
                                                        BindingFlags.DeclaredOnly)))
                 .SelectMany(item => item.Actions.Select(action => (item.Controller, Action: action)))
-                .Select(item => new object[]
+                .Select(item => new object?[]
                 {
                     item.Controller.FullName, item.Controller.Assembly.GetName().Name, item.Action.Name
                 })

@@ -275,14 +275,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             IReadOnlyCollection<PackageVersion> filtered,
             CancellationToken cancellationToken)
         {
-            if (response.Content.Headers.ContentType?.MediaType.Equals(
+            if (response.Content.Headers.ContentType?.MediaType?.Equals(
                 "application/json",
                 StringComparison.OrdinalIgnoreCase) != true)
             {
                 return new AppVersion(target, "Response not JSON", filtered);
             }
 
-            string json = await response.Content.ReadAsStringAsync();
+            string json = await response.Content.ReadAsStringAsync(cancellationToken);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -316,7 +316,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                Stopwatch stopwatch = Stopwatch.StartNew();
+                var stopwatch = Stopwatch.StartNew();
                 HttpClient client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
                 (HttpResponseMessage, string Empty) wrappedResponseAsync = (
                     await client.GetAsync(applicationMetadataUri, cancellationToken), string.Empty);

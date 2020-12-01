@@ -61,8 +61,7 @@ namespace Milou.Deployer.Tests.Integration
                 publicRootPath: new FtpPath("/", FileSystemType.Directory),
                 isSecure: false);
 
-
-            FtpHandler handler = await FtpHandler.Create(new Uri("ftp://localhost:30021"),
+            FtpHandler handler = await FtpHandler.Create(new Uri("ftp://127.0.0.1:30021"),
                 ftpSettings, new NetworkCredential("testuser", "testpw"), logger);
 
             var sourceDirectory = new DirectoryInfo(source);

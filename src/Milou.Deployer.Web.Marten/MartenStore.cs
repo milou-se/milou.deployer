@@ -48,14 +48,16 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<AssignTargetToPool, AssignTargetToPoolResult>,
         IRequestHandler<GetAgentRequest, AgentInfo?>,
         IRequestHandler<AssignAgentToPool, AssignAgentToPoolResult>,
-        IRequestHandler<GetAgentsInPoolQuery, AgentsInPoolResult>
+        IRequestHandler<GetAgentsInPoolQuery, AgentsInPoolResult>,
+        IRequestHandler<GetAgentsQuery, AgentsQueryResult>,
+        IRequestHandler<ResetAgentToken, ResetAgentTokenResult>
     {
         private readonly ICustomMemoryCache _cache;
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
 
         private readonly IMediator _mediator;
-        private static readonly AgentsInPoolResult _emptyResult = new AgentsInPoolResult(ImmutableArray<AgentId>.Empty);
+        private static readonly AgentsInPoolResult _emptyResult = new(ImmutableArray<AgentId>.Empty);
 
         public MartenStore([NotNull] IDocumentStore documentStore,
             ILogger logger,
@@ -176,8 +178,6 @@ namespace Milou.Deployer.Web.Marten
             var agentData = await session.LoadAsync<AgentPoolAssignmentData>(id, cancellationToken);
 
             agentData ??= new AgentPoolAssignmentData {Id = id};
-
-            agentData.Agents ??= new Dictionary<string, string>();
 
             if (!agentData.Agents.ContainsKey(request.AgentId.Value))
             {
@@ -446,6 +446,19 @@ namespace Milou.Deployer.Web.Marten
 
             return MapAgentData(agentData);
         }
+        public async Task<AgentsQueryResult> Handle(GetAgentsQuery request, CancellationToken cancellationToken)
+        {
+            using var documentSession = _documentStore.QuerySession();
+
+            var agentsData = await documentSession.Query<AgentData>().ToListAsync<AgentData>(cancellationToken);
+
+            if (agentsData.Count == 0)
+            {
+                return new AgentsQueryResult(ImmutableArray<AgentInfo>.Empty);
+            }
+
+            return new AgentsQueryResult(agentsData.Select(MapAgentData).NotNull().ToImmutableArray());
+        }
 
         public async Task<AgentsInPoolResult> Handle(GetAgentsInPoolQuery request, CancellationToken cancellationToken)
         {
@@ -476,7 +489,7 @@ namespace Milou.Deployer.Web.Marten
 
             if (request.DeploymentTargetId is null)
             {
-                throw new ArgumentNullException(nameof(request.DeploymentTargetId));
+                throw new InvalidOperationException($"{nameof(request.DeploymentTargetId)} is required");
             }
 
             using (IDocumentSession session = _documentStore.OpenSession())
@@ -649,9 +662,9 @@ namespace Milou.Deployer.Web.Marten
             }
         }
 
-        private AgentInfo? MapAgentData(AgentData agent) => new AgentInfo(new AgentId(agent.AgentId));
+        private AgentInfo MapAgentData(AgentData agent) => new(new AgentId(agent.AgentId));
 
-        private AgentPoolId MapAgentPool(AgentPoolData agentPoolData) => new AgentPoolId(agentPoolData.Id);
+        private AgentPoolId MapAgentPool(AgentPoolData agentPoolData) => new(agentPoolData.Id);
 
         private ImmutableArray<OrganizationInfo> MapDataToOrganizations(
             IReadOnlyList<OrganizationData> organizations,
@@ -685,9 +698,9 @@ namespace Milou.Deployer.Web.Marten
                                 "NA",
                                 "NA",
                                 targets
-                                    .Where(target => target.ProjectId is null)
+                                    .NotNull()
                                     .Select(s => MapDataToTarget(s, environmentTypes))
-                                    .Where(t => t is {}))
+                                    .NotNull())
                         })
                 })
                 .ToImmutableArray();
@@ -754,6 +767,23 @@ namespace Milou.Deployer.Web.Marten
                 NuGetPackageSource = nugetData.NuGetPackageSource,
                 NuGetConfigFile = nugetData.NuGetConfigFile
             };
+        }
+
+        public async Task<ResetAgentTokenResult> Handle(ResetAgentToken request, CancellationToken cancellationToken)
+        {
+            using var session = _documentStore.OpenSession();
+
+            var agentData = await session.LoadAsync<AgentData>(request.AgentId.Value, cancellationToken);
+
+            if (agentData is null)
+            {
+                return new ResetAgentTokenResult("");
+            }
+
+            var agentInstallConfiguration =
+                await _mediator.Send(new CreateAgentInstallConfiguration(request.AgentId), cancellationToken);
+
+            return new ResetAgentTokenResult(agentInstallConfiguration.AccessToken);
         }
     }
 }

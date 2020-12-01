@@ -6,6 +6,6 @@ namespace Milou.Deployer.Web.Marten.Agents
     {
         public string Id { get; set; }
 
-        public Dictionary<string, string> Agents { get; set; }
+        public Dictionary<string, string> Agents { get; } = new();
     }
 }

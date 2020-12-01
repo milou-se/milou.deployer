@@ -94,7 +94,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             return Task.FromResult(new BootstrapperApp(nuGetPackageInstaller, logger, httpClient, disposeNested));
         }
 
-        private async Task<(NuGetPackageInstallResult, FileInfo)> GetDeployerExePathAsync(
+        private async Task<(NuGetPackageInstallResult, FileInfo?)> GetDeployerExePathAsync(
             ImmutableArray<string> appArgs,
             NuGetPackageId nuGetPackageId,
             CancellationToken cancellationToken)
@@ -108,7 +108,7 @@ namespace Milou.Deployer.Bootstrapper.Common
                 nuGetPackageInstallResult = new NuGetPackageInstallResult(
                     nuGetPackageId,
                     new SemanticVersion(1, 0, 0),
-                    deployerToolFile.Directory);
+                    deployerToolFile.Directory!);
             }
             else
             {
@@ -207,7 +207,7 @@ namespace Milou.Deployer.Bootstrapper.Common
         {
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
-            (NuGetPackageInstallResult nugetInstallResult, FileInfo deployerExeFileInfo) =
+            (NuGetPackageInstallResult nugetInstallResult, FileInfo? deployerExeFileInfo) =
                 await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
 
             if (IsDownloadOnly(appArgs))

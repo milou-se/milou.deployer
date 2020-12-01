@@ -78,7 +78,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 if (targets.Length == 0)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                    await Task.Delay(TimeSpan.FromMilliseconds(1000), startupCancellationToken);
                 }
                 else
                 {

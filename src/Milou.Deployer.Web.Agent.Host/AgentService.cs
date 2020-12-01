@@ -136,7 +136,7 @@ namespace Milou.Deployer.Web.Agent.Host
             _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
         }
 
-        private async Task<string> GetAccessToken() => _agentConfiguration!.AccessToken;
+        private Task<string> GetAccessToken() => Task.FromResult(_agentConfiguration!.AccessToken);
 
         private async Task HubConnectionOnClosed(Exception arg)
         {

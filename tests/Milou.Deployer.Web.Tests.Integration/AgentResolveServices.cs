@@ -14,10 +14,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class TestBackgroundService : BackgroundService
     {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-
-        }
+        protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
     }
 
     public class AgentResolveServices : BackgroundService
@@ -31,14 +28,13 @@ namespace Milou.Deployer.Web.Tests.Integration
             _environmentConfiguration = environmentConfiguration;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (_environmentConfiguration.HttpEnabled)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            //await Task.Yield();
             var environment = _serviceProvider.GetRequiredService<EnvironmentConfiguration>();
 
             var logger = _serviceProvider.GetRequiredService<ILogger>();
@@ -62,6 +58,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                     logger.Fatal(ex, "Could not get service type {Type} in configuration {@Configuration}", type.Name, environment);
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

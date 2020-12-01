@@ -134,7 +134,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 return Task.CompletedTask;
             }
 
-            if (!IPAddress.TryParse(ipClaimValue, out IPAddress address))
+            if (!IPAddress.TryParse(ipClaimValue, out IPAddress? address))
             {
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
                 {

@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.Marten
         {
             if (_memoryCache.TryGetValue(AppSettings, out ApplicationSettings? applicationSettings))
             {
-                return applicationSettings;
+                return applicationSettings!;
             }
 
             using (IQuerySession querySession = _documentStore.QuerySession())
@@ -60,7 +60,7 @@ namespace Milou.Deployer.Web.Marten
         {
             var applicationSettings = new ApplicationSettings
             {
-                CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300),
+                CacheTime = applicationSettingsData.CacheTime ?? TimeSpan.FromSeconds(300),
                 NexusConfig = MapFromNexusData(applicationSettingsData?.NexusConfig),
                 AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy),
                 DefaultMetadataRequestTimeout =
@@ -76,23 +76,23 @@ namespace Milou.Deployer.Web.Marten
         }
 
         private AutoDeploySettings MapAutoDeploy(AutoDeployData? autoDeploy) =>
-            new AutoDeploySettings
+            new()
             {
                 Enabled = autoDeploy?.Enabled ?? false, PollingEnabled = autoDeploy?.PollingEnabled ?? false
             };
 
         private NexusConfig MapFromNexusData(NexusConfigData? data) =>
-            new NexusConfig {HmacKey = data?.HmacKey, NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
+            new() {HmacKey = data?.HmacKey, NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
 
         private AutoDeployData MapToAutoDeployData(AutoDeploySettings? autoDeploySettings) =>
-            new AutoDeployData
+            new()
             {
                 Enabled = autoDeploySettings?.Enabled ?? false,
                 PollingEnabled = autoDeploySettings?.PollingEnabled ?? false
             };
 
         private ApplicationSettingsData MapToData(ApplicationSettings applicationSettings) =>
-            new ApplicationSettingsData
+            new()
             {
                 CacheTime = applicationSettings.CacheTime,
                 Id = AppSettings,
@@ -108,9 +108,9 @@ namespace Milou.Deployer.Web.Marten
         private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>
             new NexusConfigData
             {
-                HmacKey = nexusConfig?.HmacKey,
-                NuGetSource = nexusConfig?.NuGetSource,
-                NuGetConfig = nexusConfig?.NuGetConfig
+                HmacKey = nexusConfig.HmacKey,
+                NuGetSource = nexusConfig.NuGetSource,
+                NuGetConfig = nexusConfig.NuGetConfig
             };
     }
 }

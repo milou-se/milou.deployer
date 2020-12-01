@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly ConfigurationInstanceHolder _holder;
         private readonly IServiceProvider _provider;
-        private readonly SeqArgs _seq;
+        private readonly SeqArgs? _seq;
         private readonly ServerEnvironmentTestConfiguration _serverConfiguration;
         private readonly TestConfiguration _testConfiguration;
         private CancellationTokenSource _agentCancellationTokenSource;
@@ -60,7 +60,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var variables = new EnvironmentVariables(environmentVariables
             );
             var mediator = _provider.GetRequiredService<IMediator>();
-            var createAgentResult = await mediator.Send(new CreateAgent(new AgentId("TestAgent")));
+            var createAgentResult = await mediator.Send(new CreateAgent(new AgentId("TestAgent")), cancellationToken);
 
             var instances =
                 new List<object> {_testConfiguration, _serverConfiguration, variables}

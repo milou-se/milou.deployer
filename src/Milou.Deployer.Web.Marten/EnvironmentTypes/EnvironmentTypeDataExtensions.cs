@@ -22,9 +22,9 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             CancellationToken cancellationToken =
                 default)
         {
-            if (memoryCache.TryGetValue(CacheKey, out EnvironmentType[] environmentTypes))
+            if (memoryCache.TryGetValue(CacheKey, out EnvironmentType[]? environmentTypes))
             {
-                return environmentTypes.ToImmutableArray();
+                return environmentTypes.SafeToImmutableArray();
             }
 
             using IQuerySession querySession = documentStore.QuerySession();

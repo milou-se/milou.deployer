@@ -13,11 +13,11 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             Output = output ?? throw new ArgumentNullException(nameof(output));
             WebFixture = webFixture ?? throw new ArgumentNullException(nameof(webFixture));
-            webFixture.App?.ConfigurationInstanceHolder?.AddInstance(output);
+            webFixture.App?.ConfigurationInstanceHolder.AddInstance(output);
 
-            CancellationTokenSource = WebFixture?.App?.CancellationTokenSource;
+            CancellationTokenSource = WebFixture.App.CancellationTokenSource;
 
-            if (webFixture.Exception is {})
+            if (webFixture.Exception is { })
             {
                 output.WriteLine(webFixture.Exception.ToString());
             }
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             GC.SuppressFinalize(this);
             Output?.WriteLine($"Disposing {nameof(TestBase<T>)}");
 
-            if (CancellationTokenSource is {} && !CancellationTokenSource.IsCancellationRequested)
+            if (!CancellationTokenSource.IsCancellationRequested)
             {
                 try
                 {
@@ -48,29 +48,26 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
             }
 
-            if (WebFixture is {})
+            Output?.WriteLine($"Disposing {WebFixture}");
+
+            WebFixture.App.Dispose();
+
+            if (WebFixture is IDisposable disposable)
             {
-                Output?.WriteLine($"Disposing {WebFixture}");
-
-                WebFixture.App?.Dispose();
-
-                if (WebFixture is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-
-                if (WebFixture is IAsyncLifetime lifeTime)
-                {
-                    lifeTime.DisposeAsync().Wait();
-                }
-
-                if (WebFixture is IAsyncDisposable asyncDisposable)
-                {
-                    asyncDisposable.DisposeAsync().GetAwaiter().GetResult();
-                }
-
-                WebFixture = null!;
+                disposable.Dispose();
             }
+
+            if (WebFixture is IAsyncLifetime lifeTime)
+            {
+                lifeTime.DisposeAsync().Wait();
+            }
+
+            if (WebFixture is IAsyncDisposable asyncDisposable)
+            {
+                asyncDisposable.DisposeAsync().GetAwaiter().GetResult();
+            }
+
+            WebFixture = null!;
         }
     }
 }

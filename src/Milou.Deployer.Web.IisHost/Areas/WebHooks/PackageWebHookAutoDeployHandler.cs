@@ -98,11 +98,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                         if (allowDeployment)
                         {
-                            AppVersion metadata = await _monitoringService.GetAppMetadataAsync(
+                            AppVersion? metadata = await _monitoringService.GetAppMetadataAsync(
                                 deploymentTarget,
                                 cancellationToken);
 
-                            if (metadata.SemanticVersion is {})
+                            if (metadata?.SemanticVersion is {})
                             {
                                 if (packageIdentifier.Version > metadata.SemanticVersion)
                                 {

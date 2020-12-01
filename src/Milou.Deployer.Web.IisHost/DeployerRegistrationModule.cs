@@ -17,15 +17,15 @@ namespace Milou.Deployer.Web.IisHost
             IServiceCollection services = serviceProviderHolder.ServiceCollection;
 
             CustomOpenIdConnectConfiguration openIdConnectConfiguration =
-                serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
+                serviceProviderHolder.ServiceProvider.GetRequiredService<CustomOpenIdConnectConfiguration>();
 
             var applicationAssemblyResolver = serviceProviderHolder.ServiceProvider.GetRequiredService<IApplicationAssemblyResolver>();
 
             HttpLoggingConfiguration httpLoggingConfiguration =
-                serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
+                serviceProviderHolder.ServiceProvider.GetRequiredService<HttpLoggingConfiguration>();
 
             MilouAuthenticationConfiguration milouAuthenticationConfiguration =
-                serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
+                serviceProviderHolder.ServiceProvider.GetRequiredService<MilouAuthenticationConfiguration>();
 
             ILogger logger = serviceProviderHolder.ServiceProvider.GetRequiredService<ILogger>();
 

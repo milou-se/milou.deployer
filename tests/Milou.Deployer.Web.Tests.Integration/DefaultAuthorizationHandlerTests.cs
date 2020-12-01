@@ -54,6 +54,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/16"
             };
 
+            Assert.Equal(2, nameValueCollection.Count);
+
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
             var handler =

@@ -17,6 +17,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -44,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly IServiceProvider _serviceProvider;
 
         private readonly IApplicationSettingsStore _settingsStore;
-        private IApplicationAssemblyResolver _applicationAssemblyResolver;
+        private readonly IApplicationAssemblyResolver _applicationAssemblyResolver;
 
         public DiagnosticsViewHandler(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -86,7 +87,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                         new ConfigurationKeyInfo(key,
                             _configuration[key].MakeAnonymous(key,
                                 ArborStringExtensions.DefaultAnonymousKeyWords.ToArray()),
-                            _configuration.ConfiguratorFor(key).GetType().Name))
+                            _configuration.ConfiguratorFor(key)?.GetType().Name))
                     .ToImmutableArray());
 
             IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues = _aspNetConfiguration
@@ -97,7 +98,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                         pair.Value.MakeAnonymous(pair.Key,
                             ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())));
 
-            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
+            ApplicationVersionInfo? applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
             var serviceDiagnosticsRegistrations = _serviceDiagnostics.Registrations;
 
@@ -134,7 +135,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
                 }
 
-                if (serviceRegistrationInfo.ServiceDescriptorImplementationType?.Namespace?.StartsWith(
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationType.Namespace?.StartsWith(
                     "Microsoft.AspNetCore.Mvc.ViewFeatures.RazorComponents") == true)
                 {
                     return new ServiceInstance(registrationType, "Razor", serviceRegistrationInfo.Module);
@@ -143,7 +144,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 try
                 {
                     object instance =
-                        _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
+                        _serviceProvider.GetRequiredService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
 
                     return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
                 }
@@ -151,7 +152,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 {
                     _logger.Error(ex,
                         "Could not get instance form registration type {Type}",
-                        serviceRegistrationInfo.ServiceDescriptorImplementationType?.FullName);
+                        serviceRegistrationInfo.ServiceDescriptorImplementationType.FullName);
                     return default;
                 }
             }
@@ -206,7 +207,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 return NoConfiguration.Empty;
             }
 
-            ConfigurationItems configurationItems = JsonConfigurationSerializer.Deserialize(json);
+            ConfigurationItems? configurationItems = JsonConfigurationSerializer.Deserialize(json);
 
             if (configurationItems is null)
             {

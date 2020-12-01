@@ -14,9 +14,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     {
         private readonly StartupTaskContext _context;
         private readonly RequestDelegate _next;
-        private readonly PathString _startupSegment = new PathString("/startup");
-        private static readonly PathString _hubPath = new PathString(AgentConstants.HubRoute);
-        private static readonly PathString _agentTaskResultPath = new PathString(AgentConstants.DeploymentTaskResult);
+        private readonly PathString _startupSegment = new("/startup");
+        private static readonly PathString _hubPath = new(AgentConstants.HubRoute);
+        private static readonly PathString _agentTaskResultPath = new(AgentConstants.DeploymentTaskResult);
 
         public StartupTasksMiddleware(StartupTaskContext context, RequestDelegate next)
         {
@@ -31,19 +31,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                 || httpContext.Request.Path.StartsWithSegments(_startupSegment, StringComparison.OrdinalIgnoreCase)
                 || httpContext.Request.Path.StartsWithSegments(_hubPath)
                 || httpContext.Request.Path.StartsWithSegments(_agentTaskResultPath)
-                || httpContext.Request.Path.Value.StartsWith("/deployment-task"))
+                || (httpContext.Request.Path.Value is {} pathValue && pathValue.StartsWith("/deployment-task")))
             {
                 await _next(httpContext);
             }
             else
             {
                 HttpResponse response = httpContext.Response;
-
-                //if ()
-                //{
-                //    response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-                //    return;
-                //}
 
                 response.StatusCode = (int)HttpStatusCode.TemporaryRedirect;
 

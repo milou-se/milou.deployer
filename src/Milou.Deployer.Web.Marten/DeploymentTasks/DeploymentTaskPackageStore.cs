@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 using Marten;
 using Milou.Deployer.Web.Agent;
@@ -18,7 +19,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
             using IDocumentSession lightweightSession = _martenStore.LightweightSession();
 
             DeploymentTaskPackageData found = await lightweightSession.Query<DeploymentTaskPackageData>()
-                .SingleOrDefaultAsync(data => data.Id == deploymentTaskId);
+                .SingleOrDefaultAsync(data => data.Id == deploymentTaskId, cancellationToken);
 
             if (found is null)
             {
@@ -29,13 +30,21 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
         }
 
         private DeploymentTaskPackage Map(DeploymentTaskPackageData data) =>
-            new DeploymentTaskPackage(
+            new (
                 data.Id,
                 data.DeploymentTargetId,
-                data.ProcessArgs,
-                data.NuGetConfigXml,
-                data.ManifestJson,
-                data.PublishSettingsXml,
-                data.AgentId);
+                data.AgentId)
+                {
+                    ManifestJson = data.ManifestJson,
+                    NugetConfigXml = data.NuGetConfigXml,
+                    PublishSettingsXml = data.PublishSettingsXml,
+                    DeployerProcessArgs = data.ProcessArgs.ToImmutableArray()
+                };
+
+        //data.ProcessArgs,
+        //data.NuGetConfigXml,
+        //data.ManifestJson,
+        //data.PublishSettingsXml,
+        //);
     }
 }

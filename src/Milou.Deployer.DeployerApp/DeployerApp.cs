@@ -176,7 +176,7 @@ namespace Milou.Deployer.DeployerApp
 
             var fvi = FileVersionInfo.GetVersionInfo(location);
 
-            string fileVersion = fvi.FileVersion;
+            string? fileVersion = fvi.FileVersion;
 
             Type type = typeof(DeployerApp);
 

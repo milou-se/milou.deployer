@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             AgentAuthorizationRequirement requirement)
         {
-            if (!context.User.Identity.IsAuthenticated)
+            if (context.User.Identity is null || !context.User.Identity.IsAuthenticated)
             {
                 return Task.CompletedTask;
             }

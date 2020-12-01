@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                         field.Name.Contains("Route", StringComparison.Ordinal) &&
                         !field.Name.EndsWith("Name", StringComparison.Ordinal))))
                 .SelectMany(typeFields => typeFields.Fields.Select(field =>
-                    new RouteInfo(typeFields.Type.FullName, field.Name, field.GetValue(null) as string)))
+                    new RouteInfo(typeFields.Type.FullName!, field.Name, (field.GetValue(null) as string)!)))
                 .ToImmutableArray();
 
             return immutableArray;
@@ -48,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             var controllerRoutes = constantRoutes.Select(route => new ControllerRouteInfo(route,
                 controllerActions.SingleOrDefault(s =>
                         s.RouteAttributes.Any(r =>
-                            r?.Name is {} && r.Name.Equals(route.Name, StringComparison.Ordinal)))
+                            r.Name is {} && r.Name.Equals(route.Name, StringComparison.Ordinal)))
                     ?.ControllerType.FullName!)).ToImmutableArray();
 
             return controllerRoutes;

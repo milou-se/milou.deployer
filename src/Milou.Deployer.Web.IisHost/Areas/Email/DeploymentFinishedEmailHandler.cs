@@ -56,12 +56,12 @@ Log: {string.Join(Environment.NewLine, notification.LogLines.Select(line => line
 
             foreach (EmailAddress email in _emailNotificationConfiguration.To)
             {
-                message.To.Add(new MailboxAddress(email.Address));
+                message.To.Add(MailboxAddress.Parse(email.Address));
             }
 
             if (_emailNotificationConfiguration.From is {})
             {
-                message.From.Add(new MailboxAddress(_emailNotificationConfiguration.From.Address));
+                message.From.Add(MailboxAddress.Parse(_emailNotificationConfiguration.From.Address));
             }
 
             return _smtpService.SendAsync(message, cancellationToken);

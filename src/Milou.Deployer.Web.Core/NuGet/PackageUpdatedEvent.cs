@@ -5,7 +5,7 @@ namespace Milou.Deployer.Web.Core.NuGet
 {
     public class PackageUpdatedEvent : IEvent
     {
-        public PackageUpdatedEvent(PackageVersion packageVersion, string nugetSource, string nugetConfig)
+        public PackageUpdatedEvent(PackageVersion packageVersion, string? nugetSource, string? nugetConfig)
         {
             PackageVersion = packageVersion;
             NugetSource = nugetSource;
@@ -14,8 +14,8 @@ namespace Milou.Deployer.Web.Core.NuGet
 
         public PackageVersion PackageVersion { get; }
 
-        public string NugetSource { get; }
+        public string? NugetSource { get; }
 
-        public string NugetConfig { get; }
+        public string? NugetConfig { get; }
     }
 }

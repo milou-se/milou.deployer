@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Security
 
             //TODO add real email parsing
             emailAddress = new EmailAddress(email);
-            return email.IndexOf("@", StringComparison.Ordinal) >= 0;
+            return email.Contains("@");
         }
     }
 }

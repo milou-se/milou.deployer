@@ -117,18 +117,18 @@ namespace Milou.Deployer.Tests.Integration
                         logger?.Dispose();
                     }
 
-                    FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
+                    FileInfo? indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
                     Assert.NotNull(indexHtml);
 
-                    DirectoryInfo wwwrootDirectory =
-                        testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
+                    DirectoryInfo? wwwrootDirectory =
+                        testTargetDirectory.Directory?.GetDirectories("wwwroot").SingleOrDefault();
 
                     Assert.NotNull(wwwrootDirectory);
-                    FileInfo applicationMetadata =
-                        wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
+                    FileInfo? applicationMetadata =
+                        wwwrootDirectory!.GetFiles("applicationmetadata.json").SingleOrDefault();
                     Assert.NotNull(applicationMetadata);
 
-                    string text = await File.ReadAllTextAsync(applicationMetadata.FullName, cancellationTokenSource.Token);
+                    string text = await File.ReadAllTextAsync(applicationMetadata!.FullName, cancellationTokenSource.Token);
 
                     var metadata = JsonConvert.DeserializeAnonymousType(
                         text,

@@ -8,6 +8,6 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         App<ApplicationPipeline> App { get; }
 
-        Exception Exception { get; }
+        Exception? Exception { get; }
     }
 }

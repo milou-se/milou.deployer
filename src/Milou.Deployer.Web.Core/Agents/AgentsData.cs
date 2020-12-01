@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Arbor.App.Extensions.Time;
@@ -13,15 +12,12 @@ namespace Milou.Deployer.Web.Core.Agents
     [UsedImplicitly]
     public class AgentsData
     {
-        private readonly ConcurrentDictionary<AgentId, AgentState> _agents =
-            new ConcurrentDictionary<AgentId, AgentState>();
-
-        private readonly ConcurrentDictionary<AgentId, string> _unknownAgents = new();
-
-        public ImmutableDictionary<AgentId, string> UnknownAgents => _unknownAgents.ToImmutableDictionary();
+        private readonly ConcurrentDictionary<AgentId, AgentState> _agents = new();
 
         private readonly ICustomClock _customClock;
         private readonly ILogger _logger;
+
+        private readonly ConcurrentDictionary<AgentId, string> _unknownAgents = new();
 
         public AgentsData(ICustomClock customClock, ILogger logger)
         {
@@ -29,8 +25,22 @@ namespace Milou.Deployer.Web.Core.Agents
             _logger = logger;
         }
 
-        public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key,
-            agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId)).ToImmutableArray();
+        public ImmutableDictionary<AgentId, string> UnknownAgents => _unknownAgents.ToImmutableDictionary();
+
+        public ImmutableArray<AgentInfo> Agents => _agents
+            .Select(agent => new AgentInfo(agent.Key,
+                agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId))
+            .ToImmutableArray();
+
+        public void AgentAssigned(AgentId agentId, string deploymentTaskId)
+        {
+            if (!_agents.TryGetValue(agentId, out var state))
+            {
+                throw new InvalidOperationException($"The agent {agentId} could not be found");
+            }
+
+            state.CurrentDeploymentTaskId = deploymentTaskId;
+        }
 
         public void AgentConnected(AgentConnected agentConnected)
         {
@@ -66,16 +76,6 @@ namespace Milou.Deployer.Web.Core.Agents
             }
         }
 
-        public void AgentAssigned(AgentId agentId, string deploymentTaskId)
-        {
-            if (!_agents.TryGetValue(agentId, out var state))
-            {
-                throw new InvalidOperationException($"The agent {agentId} could not be found");
-            }
-
-            state.CurrentDeploymentTaskId = deploymentTaskId;
-        }
-
         public void AgentDone(AgentId agentId)
         {
             if (!_agents.TryGetValue(agentId, out var state))
@@ -86,9 +86,7 @@ namespace Milou.Deployer.Web.Core.Agents
             state.CurrentDeploymentTaskId = default;
         }
 
-        public void UnknownAgentConnected(UnknownAgentConnected notification)
-        {
+        public void UnknownAgentConnected(UnknownAgentConnected notification) =>
             _unknownAgents.TryAdd(notification.AgentId, notification.ConnectionId);
-        }
     }
 }

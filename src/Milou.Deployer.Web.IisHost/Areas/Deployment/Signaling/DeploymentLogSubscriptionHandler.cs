@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
@@ -16,8 +17,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         IRequestHandler<SubscribeToDeploymentLog>,
         IRequestHandler<UnsubscribeToDeploymentLog>
     {
-        private static readonly ConcurrentDictionary<string, HashSet<string>> TargetMapping =
-            new ConcurrentDictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        private static readonly ConcurrentDictionary<string, HashSet<string>> TargetMapping = new(StringComparer.OrdinalIgnoreCase);
 
         public Task<Unit> Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
@@ -65,7 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
                 return ImmutableHashSet<string>.Empty;
             }
 
-            return subscribers.ToImmutableHashSet(StringComparer.Ordinal);
+            return subscribers.SafeToImmutableArray().ToImmutableHashSet(StringComparer.Ordinal);
         }
     }
 }

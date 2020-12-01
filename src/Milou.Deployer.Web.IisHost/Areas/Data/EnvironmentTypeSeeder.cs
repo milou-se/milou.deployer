@@ -35,25 +35,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
 
             CreateEnvironment[] commands =
             {
-                new CreateEnvironment
+                new()
                 {
                     EnvironmentTypeId = "qa",
                     EnvironmentTypeName = "QualityAssurance",
                     PreReleaseBehavior = PreReleaseBehavior.AllowWithForceFlag.Name
                 },
-                new CreateEnvironment
+                new()
                 {
                     EnvironmentTypeId = "production",
                     EnvironmentTypeName = "Production",
                     PreReleaseBehavior = PreReleaseBehavior.Deny.Name
                 },
-                new CreateEnvironment
+                new()
                 {
                     EnvironmentTypeId = "development ",
                     EnvironmentTypeName = "Development ",
                     PreReleaseBehavior = PreReleaseBehavior.Allow.Name
                 },
-                new CreateEnvironment
+                new()
                 {
                     EnvironmentTypeId = "test",
                     EnvironmentTypeName = "Test",

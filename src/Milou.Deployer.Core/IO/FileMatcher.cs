@@ -62,7 +62,7 @@ namespace Milou.Deployer.Core.IO
                     .Where(
                         file =>
                         {
-                            if (file.Directory is null)
+                            if (file.Directory is null || fileMatch.ActionFile.Directory is null)
                             {
                                 return false;
                             }

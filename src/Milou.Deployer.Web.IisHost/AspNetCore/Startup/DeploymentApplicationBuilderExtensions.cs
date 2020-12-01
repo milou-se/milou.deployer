@@ -56,7 +56,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             this IApplicationBuilder app,
             EnvironmentConfiguration environmentConfiguration)
         {
-            string wwwrootPath = Path.Combine(environmentConfiguration.ContentBasePath, "wwwroot");
+            string wwwrootPath = Path.Combine(environmentConfiguration.ContentBasePath!, "wwwroot");
             var providers = new List<IFileProvider> {new PhysicalFileProvider(wwwrootPath)};
 
             string contentPath = Path.Combine(wwwrootPath, "_content", "Milou.Deployer.Web.IisHost");

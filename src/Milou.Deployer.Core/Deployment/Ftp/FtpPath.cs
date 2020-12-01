@@ -8,7 +8,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
     {
         public const string RootPath = "/";
 
-        public static readonly FtpPath Root = new FtpPath(RootPath, FileSystemType.Directory);
+        public static readonly FtpPath Root = new(RootPath, FileSystemType.Directory);
 
         public FtpPath([NotNull] string path, FileSystemType type)
         {
@@ -152,7 +152,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 return false;
             }
 
-            if (value.IndexOf("\\", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (value.Contains("\\", StringComparison.OrdinalIgnoreCase))
             {
                 ftpPath = default;
                 return false;

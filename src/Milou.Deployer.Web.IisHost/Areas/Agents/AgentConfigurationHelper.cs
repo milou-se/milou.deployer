@@ -26,23 +26,29 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _authenticationConfiguration = authenticationConfiguration;
         }
 
-        public async Task<AgentInstallConfiguration> Handle(CreateAgentInstallConfiguration request,
+        public Task<AgentInstallConfiguration> Handle(CreateAgentInstallConfiguration request,
             CancellationToken cancellationToken)
         {
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            var handler = new JwtSecurityTokenHandler();
+
+            if (_authenticationConfiguration.BearerTokenIssuerKey is null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(_authenticationConfiguration.BearerTokenIssuerKey)} is required");
+            }
 
             byte[] bytes = Convert.FromBase64String(_authenticationConfiguration.BearerTokenIssuerKey);
 
             var symmetricSecurityKey = new SymmetricSecurityKey(bytes);
 
-
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, request.AgentId.Value),
-                new Claim(ClaimTypes.Name, request.AgentId.Value)
+                new(ClaimTypes.NameIdentifier, request.AgentId.Value),
+                new(ClaimTypes.Name, request.AgentId.Value),
+                new("milou_agent", request.AgentId.Value),
             };
 
-            SecurityTokenDescriptor securityTokenDescriptor = new SecurityTokenDescriptor
+            var securityTokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = new DateTime(DateTime.Today.Year + 2, 12, 31, 0, 0, 0, 0),
@@ -64,7 +70,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             var serverUri = new UriBuilder(_environmentConfiguration.PublicPortIsHttps ?? false ? "https" : "http",
                 _environmentConfiguration.PublicHostname, _environmentConfiguration.PublicPort ?? _environmentConfiguration.HttpPort ?? 80);
 
-            return new AgentInstallConfiguration(request.AgentId, accessToken, serverUri.Uri);
+            return Task.FromResult(new AgentInstallConfiguration(request.AgentId, accessToken, serverUri.Uri));
         }
     }
 }

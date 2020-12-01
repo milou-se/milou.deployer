@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class XunitStartupLoggingConfiguration : IStartupLoggerConfigurationHandler
     {
-        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly ITestOutputHelper? _testOutputHelper;
 
         public XunitStartupLoggingConfiguration(LoggingLevelSwitch levelSwitch,
             ITestOutputHelper? testOutputHelper = null)

@@ -51,7 +51,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         private readonly ILogger _logger;
         private readonly LoggingLevelSwitch _loggingLevelSwitch;
         private readonly IMediator _mediator;
-        private readonly AsyncManualResetEvent _statusChangedEvent = new AsyncManualResetEvent(false);
+        private readonly AsyncManualResetEvent _statusChangedEvent = new(false);
 
         private readonly IDeploymentTargetService _targetSource;
         private DeploymentTask? _current;
@@ -81,15 +81,13 @@ namespace Milou.Deployer.Web.Core.Deployment
             _configuration = configuration;
         }
 
-        private Dictionary<string, List<DirectoryInfo>> TempDirectories { get; } =
-            new Dictionary<string, List<DirectoryInfo>>();
+        private Dictionary<string, List<DirectoryInfo>> TempDirectories { get; } = new();
 
-        private Dictionary<string, List<TempFile>> TempFiles { get; } = new Dictionary<string, List<TempFile>>();
+        private Dictionary<string, List<TempFile>> TempFiles { get; } = new();
 
-        public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } =
-            new BlockingCollection<(string, WorkTaskStatus)>();
+        public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } = new();
 
-        public void Log(string message) => _tempData?.TempLogger.Information(message);
+        public void Log(string message) => _tempData?.TempLogger.Information("{Message}", message);
 
         public void TaskDone(string deploymentTaskId)
         {
@@ -147,7 +145,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             try
             {
                 deploymentTarget = await _targetSource.GetDeploymentTargetAsync(deploymentTask.DeploymentTargetId,
-                    cancellationToken);
+                    cancellationToken) ?? throw new InvalidOperationException(
+                    $"Could not get deployment target from id {deploymentTask.DeploymentTargetId}");
 
                 VerifyPreReleaseAllowed(deploymentTask.SemanticVersion,
                     deploymentTarget,
@@ -418,7 +417,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             var logBuilder = new List<LogItem>();
 
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.DelegateSink((message, level) => LogToQueue(message), _loggingLevelSwitch.MinimumLevel)
+                .WriteTo.DelegateSink((message, _) => LogToQueue(message), _loggingLevelSwitch.MinimumLevel)
                 .WriteTo.DelegateSink((message, level) =>
                         logBuilder.Add(new LogItem
                         {
@@ -596,14 +595,14 @@ namespace Milou.Deployer.Web.Core.Deployment
                 const string publishUrlKey = secretKeyPrefix + ":publish-url";
                 const string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
 
-                string? username = _credentialReadService.GetSecret(id, usernameKey);
-                string? password = _credentialReadService.GetSecret(id, passwordKey);
-                string? publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
-                string? msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
+                string? username = _credentialReadService.GetSecret(id, usernameKey, cancellationToken);
+                string? password = _credentialReadService.GetSecret(id, passwordKey, cancellationToken);
+                string? publishUrl = _credentialReadService.GetSecret(id, publishUrlKey, cancellationToken);
+                string? msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey, cancellationToken);
 
                 if (ArborStringExtensions.AllHaveValue(username, password, publishUrl, msdeploySite))
                 {
-                    TempFile tempPublishFile = CreateTempPublishFile(deploymentTarget,
+                    TempFile tempPublishFile = await CreateTempPublishFile(deploymentTarget,
                         username,
                         password,
                         publishUrl!);
@@ -666,7 +665,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 return ExitCode.Failure;
             }
 
-            if (!string.IsNullOrWhiteSpace(deploymentTarget.NuGet?.NuGetConfigFile) &&
+            if (!string.IsNullOrWhiteSpace(deploymentTarget.NuGet.NuGetConfigFile) &&
                 File.Exists(deploymentTarget.NuGet.NuGetConfigFile))
             {
                 nugetXml = await
@@ -699,11 +698,13 @@ namespace Milou.Deployer.Web.Core.Deployment
             var deploymentTaskPackage = new DeploymentTaskPackage(
                 deploymentTask.DeploymentTaskId,
                 deploymentTask.DeploymentTargetId,
-                arguments.ToImmutableArray(),
-                nugetXml,
-                manifestJson,
-                publishSettingsXml,
-                "");
+                "")
+            {
+                DeployerProcessArgs = arguments.ToImmutableArray(),
+                NugetConfigXml = nugetXml,
+                ManifestJson = manifestJson,
+                PublishSettingsXml = publishSettingsXml
+            };
 
             _logger.Debug("Created deployment task package");
 
@@ -712,7 +713,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             return ExitCode.Success;
         }
 
-        private static TempFile CreateTempPublishFile(
+        private static async Task<TempFile> CreateTempPublishFile(
             DeploymentTarget deploymentTarget,
             string? username,
             string? password,
@@ -744,7 +745,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var tempFile = TempFile.CreateTempFile();
 
-            using (var fileStream = new FileStream(tempFile.File!.FullName!, FileMode.Open, FileAccess.Write))
+            await using (var fileStream = new FileStream(tempFile.File!.FullName!, FileMode.Open, FileAccess.Write))
             {
                 doc.Save(fileStream);
             }
@@ -752,14 +753,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             return tempFile;
         }
 
-        private async Task<DeploymentTarget?> GetDeploymentTarget(
+        private Task<DeploymentTarget?> GetDeploymentTarget(
             [NotNull] string deploymentTargetId,
-            CancellationToken cancellationToken = default)
-        {
-            DeploymentTarget deploymentTarget =
-                await _deploymentTargetService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
-
-            return deploymentTarget;
-        }
+            CancellationToken cancellationToken = default) =>
+            _deploymentTargetService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
     }
 }

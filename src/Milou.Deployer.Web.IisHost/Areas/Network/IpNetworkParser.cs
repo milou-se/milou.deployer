@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
                 return false;
             }
 
-            if (!IPAddress.TryParse(parts[0], out IPAddress address))
+            if (!IPAddress.TryParse(parts[0], out IPAddress? address))
             {
                 network = default;
                 return false;

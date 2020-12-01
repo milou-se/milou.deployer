@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
@@ -26,13 +27,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 return Ok();
             }
 
-            foreach (SerilogSinkEvent serilogSinkEvent in events.Events)
+            foreach (SerilogSinkEvent serilogSinkEvent in events.Events.NotNull())
             {
-                if (serilogSinkEvent is null)
-                {
-                    continue;
-                }
-
                 if (!string.IsNullOrWhiteSpace(deploymentTaskId) && !string.IsNullOrWhiteSpace(deploymentTargetId) &&
                     !string.IsNullOrWhiteSpace(serilogSinkEvent.RenderedMessage))
                 {

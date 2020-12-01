@@ -69,7 +69,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
             {
                 string configuration = environmentConfiguration.Trim();
 
-                EnvironmentType foundType = environmentTypes.SingleOrDefault(type =>
+                EnvironmentType? foundType = environmentTypes.SingleOrDefault(type =>
                     type.Name.Trim().Equals(configuration,
                         StringComparison.OrdinalIgnoreCase));
 

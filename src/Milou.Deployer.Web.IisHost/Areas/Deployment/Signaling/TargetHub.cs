@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         public TargetHub([NotNull] IMediator mediator) =>
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             await _mediator.Send(new UnsubscribeToDeploymentLog(Context.ConnectionId));
             await base.OnDisconnectedAsync(exception);

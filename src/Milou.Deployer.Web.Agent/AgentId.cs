@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Agent
 {
+    [JsonConverter(typeof(AgentIdConverter))]
     public class AgentId : IEquatable<AgentId>
     {
         public bool Equals(AgentId? other)

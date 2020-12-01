@@ -106,8 +106,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        protected override async Task BeforeStartAsync(IReadOnlyCollection<string> args)
-        {
-        }
+        protected override Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
     }
 }

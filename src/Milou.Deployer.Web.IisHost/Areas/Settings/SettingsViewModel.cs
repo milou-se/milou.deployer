@@ -22,8 +22,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues,
             IEnumerable<ServiceInstance> registrationInstances,
             LogEventLevel logEventLevel,
-            ApplicationVersionInfo applicationVersionInfo,
-            IKeyValueConfiguration applicationmetadata,
+            ApplicationVersionInfo? applicationVersionInfo,
+            IKeyValueConfiguration applicationMetadata,
             ImmutableArray<DeploymentTargetWorker> deploymentTargetWorkers,
             ApplicationSettings applicationSettings)
         {
@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 .ToImmutableArray();
             LogEventLevel = logEventLevel;
             ApplicationVersionInfo = applicationVersionInfo;
-            Applicationmetadata = applicationmetadata;
+            ApplicationMetadata = applicationMetadata;
             DeploymentTargetWorkers = deploymentTargetWorkers;
             ApplicationSettings = applicationSettings;
             Routes = routes.OrderBy(route => route.Route.Value).ToImmutableArray();
@@ -56,11 +56,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
 
         public LogEventLevel LogEventLevel { get; }
 
-        public ApplicationVersionInfo ApplicationVersionInfo { get; }
+        public ApplicationVersionInfo? ApplicationVersionInfo { get; }
 
         public ImmutableArray<(object, string)> ConfigurationValues { get; }
 
-        public IKeyValueConfiguration Applicationmetadata { get; }
+        public IKeyValueConfiguration ApplicationMetadata { get; }
         public ImmutableArray<DeploymentTargetWorker> DeploymentTargetWorkers { get; }
 
         public ApplicationSettings ApplicationSettings { get; }

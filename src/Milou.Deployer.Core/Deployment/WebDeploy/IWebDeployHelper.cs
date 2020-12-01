@@ -8,7 +8,7 @@ namespace Milou.Deployer.Core.Deployment.WebDeploy
     {
         Task<DeploySummary> DeployContentToOneSiteAsync(
             string sourcePath,
-            string publishSettingsFile,
+            string? publishSettingsFile,
             TimeSpan appOfflineDelay,
             string? password = null,
             bool allowUntrusted = false,

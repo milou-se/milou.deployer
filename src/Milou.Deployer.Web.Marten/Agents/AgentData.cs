@@ -6,6 +6,7 @@ namespace Milou.Deployer.Web.Marten.Agents
     {
         [Identity]
         public string AgentId { get; set; }
+
         public string AccessToken { get; set; }
     }
 }

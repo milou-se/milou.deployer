@@ -121,7 +121,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [FromServices] MonitoringService monitoringService,
             [FromServices] ICustomClock clock)
         {
-            DeploymentTarget deploymentTarget =
+            DeploymentTarget? deploymentTarget =
                 await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
@@ -139,7 +139,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return Json(DeployStatus.Unavailable);
             }
 
-            AppVersion appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+            AppVersion? appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+
+            if (appVersion is null)
+            {
+                return Json(DeployStatus.Unavailable);
+            }
 
             var deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
 
@@ -162,7 +167,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 intervalAgoName = deploymentInterval.Name,
                 deployedAtLocalTime = appVersion.DeployedAtUtc.ToLocalTimeFormatted(clock),
                 statusMessage = appVersion.Message,
-                latestNewerAvailable = appVersion.LatestNewerAvailable?.ToNormalizedString() ?? "",
+                latestNewerAvailable = appVersion.LatestNewerAvailable.ToNormalizedString() ?? "",
                 deployEnabled =
                     deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
                 packageId = deploymentTarget.PackageId,

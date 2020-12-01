@@ -24,11 +24,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _logger = logger;
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception) => await _mediator.Publish(new AgentDisconnected(new AgentId(Context.UserIdentifier)));
+        public override async Task OnDisconnectedAsync(Exception? exception) => await _mediator.Publish(new AgentDisconnected(new AgentId(Context.UserIdentifier ?? throw new InvalidOperationException("Missing user identifier on context"))));
 
         public override Task OnConnectedAsync()
         {
-            _logger.Debug("SignalR Agent client connected, user {User}", Context.User.Identity.Name);
+            _logger.Debug("SignalR Agent client connected, user {User}", Context.User?.Identity?.Name);
 
             return base.OnConnectedAsync();
         }

@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.Tools
     {
         private static async Task Main(string[] args)
         {
-            List<string> usedArgs = args.ToList();
+            var usedArgs = args.ToList();
 
             if (usedArgs.Count == 0)
             {
@@ -47,14 +47,14 @@ namespace Milou.Deployer.Web.Tools
 
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, agentId),
-                    new Claim(ClaimTypes.Name, agentId),
-                    new Claim("milou_agent", agentId)
+                    new(ClaimTypes.NameIdentifier, agentId),
+                    new(ClaimTypes.Name, agentId),
+                    new("milou_agent", agentId)
                 };
 
-                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                var handler = new JwtSecurityTokenHandler();
                 var securityKey = new SymmetricSecurityKey(keyBytes);
-                SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
                     Expires = new DateTime(DateTime.Today.Year + 2, 12, 31, 0, 0, 0, 0),
@@ -70,8 +70,8 @@ namespace Milou.Deployer.Web.Tools
                 Console.WriteLine(key);
                 Console.WriteLine(jwt);
 
-                var keyFile = await WriteFileAsync(key);
-                var valueFile = await WriteFileAsync(jwt);
+                string keyFile = await WriteFileAsync(key);
+                string valueFile = await WriteFileAsync(jwt);
 
                 RunFile(keyFile);
                 RunFile(valueFile);

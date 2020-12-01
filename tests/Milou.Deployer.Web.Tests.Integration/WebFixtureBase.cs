@@ -52,8 +52,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly SeqArgs _seq;
         private readonly Smtp4DevArgs _smtp4Dev;
         protected readonly IDictionary<string, string> _variables = new Dictionary<string, string>();
-        private CancellationTokenSource _agentCancellationTokenSource;
-        private Task<int> _agentTask;
+        private readonly CancellationTokenSource _agentCancellationTokenSource;
+        private readonly Task<int> _agentTask;
         private DirectoryInfo _appRootDirectory;
 
         private CancellationTokenSource _cancellationTokenSource;
@@ -337,8 +337,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 ["FTP_USER"] = "testuser",
                 ["FTP_PASS"] = "testpw",
-                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
-                ["PASV_MAX_PORT"] = passivePorts.End.ToString()
+                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(CultureInfo.InvariantCulture),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString(CultureInfo.InvariantCulture)
             };
 
             var ftpPorts = new List<PortMapping>
