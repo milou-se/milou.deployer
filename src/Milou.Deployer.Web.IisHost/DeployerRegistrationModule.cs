@@ -16,8 +16,8 @@ namespace Milou.Deployer.Web.IisHost
         {
             IServiceCollection services = serviceProviderHolder.ServiceCollection;
 
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration =
-                serviceProviderHolder.ServiceProvider.GetRequiredService<CustomOpenIdConnectConfiguration>();
+            CustomOpenIdConnectConfiguration? openIdConnectConfiguration =
+                serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
 
             var applicationAssemblyResolver = serviceProviderHolder.ServiceProvider.GetRequiredService<IApplicationAssemblyResolver>();
 

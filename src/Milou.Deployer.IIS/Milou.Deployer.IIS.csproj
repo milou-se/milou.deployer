@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -15,8 +15,8 @@
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.0-build.*" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="1.0.0-build.*" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.1" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

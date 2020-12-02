@@ -13,7 +13,7 @@
     <PackageReference Include="Arbor.Docker" Version="0.4.0-build.1605372276" />
     <PackageReference Include="Arbor.Docker.Xunit" Version="0.4.0-build.*" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
     <PackageReference Include="NCrunch.Framework" Version="4.5.0" />

@@ -94,7 +94,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId,
                 nameof(AutoDeployStartupTask));
 
-            _worker.Enqueue(deploymentTask);
+            await _worker.Enqueue(deploymentTask);
 
             await _handle.WaitAsync(startupCancellationToken);
 

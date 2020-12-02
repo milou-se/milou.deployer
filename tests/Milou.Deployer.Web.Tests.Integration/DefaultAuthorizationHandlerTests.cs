@@ -50,11 +50,11 @@ namespace Milou.Deployer.Web.Tests.Integration
             ILogger logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24",
-                [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/16"
+                {DeployerAppConstants.AllowedIpNetworks, "192.168.0.0/24"},
+                {DeployerAppConstants.AllowedIpNetworks, "192.168.0.0/16"}
             };
 
-            Assert.Equal(2, nameValueCollection.Count);
+            Assert.Equal(2, nameValueCollection.GetValues(DeployerAppConstants.AllowedIpNetworks)?.Length);
 
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 

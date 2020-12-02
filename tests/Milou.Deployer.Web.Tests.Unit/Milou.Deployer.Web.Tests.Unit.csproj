@@ -3,11 +3,11 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.0.0-build.*" />
-    <PackageReference Include="Arbor.ModelBinding" Version="1.0.0-build.*" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.0.1" />
+    <PackageReference Include="Arbor.ModelBinding" Version="0.7.*" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="MailKit" Version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0">
@@ -25,8 +25,8 @@
     <PackageReference Include="NuGet.Packaging" Version="5.8.0" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.0-build.*" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.0.0-build.*" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.1" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.0.1" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="2.0.4" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />

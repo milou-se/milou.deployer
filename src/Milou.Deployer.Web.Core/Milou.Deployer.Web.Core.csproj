@@ -3,16 +3,16 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.4.1-build.1605466462" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.5.0-build.*" />
     <PackageReference Include="DotNext.Threading" Version="2.11.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.0-build.*" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.0.0-build.*" />
-    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="1.0.0-build.*" />
-    <PackageReference Include="Arbor.ModelBinding" Version="1.0.0-build.*" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.1" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.0.1" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="1.0.1" />
+    <PackageReference Include="Arbor.ModelBinding" Version="0.7.*" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.9.1" />
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.10.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="MailKit" Version="2.10.0" />
     <PackageReference Include="Marten" Version="3.9.0" />
     <PackageReference Include="Marten" Version="3.13.3" />

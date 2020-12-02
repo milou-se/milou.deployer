@@ -111,7 +111,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                         packageIdentifier,
                                         deploymentTarget.Name);
 
-                                    _deploymentService.Enqueue(
+                                    await _deploymentService.Enqueue(
                                         new DeploymentTask(
                                             packageIdentifier,
                                             deploymentTarget.Id,

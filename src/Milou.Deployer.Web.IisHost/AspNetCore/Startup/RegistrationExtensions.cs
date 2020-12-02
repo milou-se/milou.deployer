@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     {
         public static IServiceCollection AddDeploymentAuthentication(
             this IServiceCollection serviceCollection,
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration,
+            CustomOpenIdConnectConfiguration? openIdConnectConfiguration,
             MilouAuthenticationConfiguration milouAuthenticationConfiguration,
             ILogger logger,
             EnvironmentConfiguration environmentConfiguration)

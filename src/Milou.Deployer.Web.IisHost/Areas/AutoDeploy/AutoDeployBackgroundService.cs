@@ -172,7 +172,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             packageToDeploy,
                             deploymentTarget.Id);
 
-                        _deploymentWorkerService.Enqueue(task);
+                        await _deploymentWorkerService.Enqueue(task);
                     }
                     else
                     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment.Packages;
@@ -28,7 +29,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [Route(DeploymentConstants.DeployRoute, Name = DeploymentConstants.DeployRouteName)]
         [HttpPost]
-        public IActionResult Index(DeploymentTaskInput deploymentTaskInput)
+        public async Task<IActionResult> Index(DeploymentTaskInput? deploymentTaskInput)
         {
             if (deploymentTaskInput is null)
             {
@@ -64,7 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             try
             {
-                _deploymentService.Enqueue(deploymentTask);
+                await _deploymentService.Enqueue(deploymentTask);
 
                 return RedirectToAction(nameof(Status), new {deploymentTask.DeploymentTargetId});
             }

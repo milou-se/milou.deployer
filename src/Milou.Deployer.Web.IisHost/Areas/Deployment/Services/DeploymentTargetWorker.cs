@@ -24,16 +24,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly ICustomClock _clock;
         private readonly ILogger _logger;
-        private readonly AsyncManualResetEvent _loggingCompleted = new AsyncManualResetEvent(false);
+        private readonly AsyncManualResetEvent _loggingCompleted = new(false);
         private readonly IMediator _mediator;
-        private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
-        private readonly AsyncManualResetEvent _serviceAddedEvent = new AsyncManualResetEvent(false);
+        private readonly BlockingCollection<DeploymentTask> _queue = new();
+        private readonly AsyncManualResetEvent _serviceAddedEvent = new(false);
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly ConcurrentDictionary<string, IDeploymentService> _services =
-            new ConcurrentDictionary<string, IDeploymentService>();
+        private readonly ConcurrentDictionary<string, IDeploymentService> _services = new();
 
-        private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
+        private readonly BlockingCollection<DeploymentTask> _taskQueue = new();
         private readonly TimeoutHelper _timeoutHelper;
         private readonly WorkerConfiguration _workerConfiguration;
         private bool _isDisposed;
@@ -61,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _serviceProvider = serviceProvider;
         }
 
-        public DeploymentTask CurrentTask { get; private set; }
+        public DeploymentTask? CurrentTask { get; private set; }
 
         public bool IsRunning { get; private set; }
 
@@ -262,7 +261,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public void Enqueue([NotNull] DeploymentTask deploymentTask)
+        public bool Enqueue([NotNull] DeploymentTask deploymentTask)
         {
             CheckDisposed();
 
@@ -295,7 +294,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         deploymentTask.SemanticVersion.ToNormalizedString(),
                         tasksInQueue.Length);
 
-                    return;
+                    return false;
                 }
 
                 if (deploymentTask.StartedBy is {}
@@ -311,12 +310,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             "A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}",
                             CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
-                        return;
+                        return false;
                     }
 
                     if (tasksInQueue.Length > 0
                         && tasksInQueue.Any(
-                            queued => queued?.StartedBy?.Equals(
+                            queued => queued.StartedBy?.Equals(
                                 nameof(AutoDeployBackgroundService),
                                 StringComparison.OrdinalIgnoreCase) == true))
                     {
@@ -324,7 +323,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             "A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}",
                             CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
-                        return;
+                        return false;
                     }
                 }
 
@@ -336,10 +335,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     "Enqueued deployment task {DeploymentTask}, current queue length {Length}",
                     deploymentTask,
                     tasksInQueue);
+
+                return true;
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
+                return false;
             }
         }
 
