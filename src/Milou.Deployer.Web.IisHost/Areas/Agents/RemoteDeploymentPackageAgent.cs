@@ -12,11 +12,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class RemoteDeploymentPackageAgent : IDeploymentPackageAgent
     {
-        private readonly AgentHub _agentHub;
+        private readonly IHubContext<AgentHub> _agentHub;
         private readonly AgentsData _agentsData;
         private readonly ILogger _logger;
 
-        public RemoteDeploymentPackageAgent(AgentHub agentHub, AgentsData agentsData, AgentId agentId, ILogger logger)
+        public RemoteDeploymentPackageAgent(IHubContext<AgentHub> agentHub, AgentsData agentsData, AgentId agentId, ILogger logger)
         {
             _agentHub = agentHub;
             _agentsData = agentsData;
@@ -35,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             if (agent is null)
             {
-                _logger.Error("Agentdes");
+                _logger.Error("Agents is not found");
                 return ExitCode.Failure;
             }
 

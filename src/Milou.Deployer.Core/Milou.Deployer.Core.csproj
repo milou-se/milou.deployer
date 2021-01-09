@@ -5,19 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.5.0-build.1606861268" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="1.0.1" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.5.0-build.1610121969" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.1.0-build.1610121442" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="1.1.0-build.1610121442" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.10.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.11.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
     <PackageReference Include="Microsoft.Web.Xdt" Version="3.1.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NuGet.Packaging" Version="5.8.0" />

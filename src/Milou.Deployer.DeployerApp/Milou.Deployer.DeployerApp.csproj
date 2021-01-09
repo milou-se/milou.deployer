@@ -9,10 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.0.1" />
-    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="1.0.1" />
-    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="1.0.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.0.1" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.1.0-*" />
+    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="1.1.0-*" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="1.1.0-*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.1.0-*" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />

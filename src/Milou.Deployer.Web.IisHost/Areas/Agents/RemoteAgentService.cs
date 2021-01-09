@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
@@ -12,11 +13,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class RemoteAgentService : IAgentService
     {
-        private readonly AgentHub _agentHub;
+        private readonly IHubContext<AgentHub> _agentHub;
         private readonly AgentsData _agents;
         private readonly ILogger _logger;
 
-        public RemoteAgentService(AgentHub agentHub, AgentsData agents, ILogger logger)
+        public RemoteAgentService(IHubContext<AgentHub> agentHub, AgentsData agents, ILogger logger)
         {
             _agentHub = agentHub;
             _agents = agents;

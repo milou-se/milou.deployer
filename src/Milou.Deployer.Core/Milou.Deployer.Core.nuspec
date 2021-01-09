@@ -5,7 +5,7 @@
     <id>Milou.Deployer.Core</id>
     <version>0.0.1</version>
     <title>Milou.Deployer.Core</title>
-    <authors>Milou Communication AB</authors>
+    <authors>Niklas Lundberg, Milou Communication AB</authors>
     <owners></owners>
     <description>
       Milou.Deployer.Core
@@ -20,7 +20,7 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <copyright>Copyright Milou Communication AB 2015-2020</copyright>
+    <copyright>Copyright Niklas Lundberg Milou Communication AB 2015-2021</copyright>
     <dependencies>
       <dependency id="Arbor.KVConfiguration.Schema.Json" version="[0.19.1,2.0.0)" />
       <dependency id="Arbor.Xdt" version="[0.2.4,2.0.0)" />

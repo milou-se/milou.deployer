@@ -7,11 +7,11 @@ namespace Milou.Deployer.Web.Agent.Host
 {
     public static class ConfigurationExtensions
     {
-        public static AgentId AgentId(this AgentConfiguration configuration)
+        public static AgentId? AgentId(this AgentConfiguration? configuration)
         {
-            if (string.IsNullOrWhiteSpace(configuration.AccessToken))
+            if (string.IsNullOrWhiteSpace(configuration?.AccessToken))
             {
-                throw new InvalidOperationException("Could not get agent id from configuration");
+                return default;
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
