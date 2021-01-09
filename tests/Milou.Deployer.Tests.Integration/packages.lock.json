@@ -10,7 +10,7 @@
       },
       "Arbor.Docker": {
         "type": "Direct",
-        "requested": "[0.4.0-build.1605372276, )",
+        "requested": "[0.4.0-*, )",
         "resolved": "0.4.0-build.1605372276",
         "contentHash": "bkORNjGbvaMnsUHXCsE/NXSlQj/XKaJtw104h3fmaAhP2HYjmYUQRJFTy3p/Rsh0GrKXAUZL+1t4qQZhRnd2Bg==",
         "dependencies": {
@@ -1632,9 +1632,9 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.5.0-build.1610121969",
-          "Arbor.KVConfiguration.Core": "1.1.0-build.1610121442",
-          "Arbor.KVConfiguration.Schema.Json": "1.1.0-build.1610121442",
+          "Arbor.App.Extensions": "0.5.0",
+          "Arbor.KVConfiguration.Core": "1.1.0",
+          "Arbor.KVConfiguration.Schema.Json": "1.1.0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.11.0",
           "JetBrains.Annotations": "2020.3.0",

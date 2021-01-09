@@ -4,7 +4,7 @@
     ".NETCoreApp,Version=v5.0": {
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.5.0-build.1610121969, )",
+        "requested": "[0.5.0-*, )",
         "resolved": "0.5.0-build.1610121969",
         "contentHash": "TxplylHbcg3ZLOzHcY1NjRBZ+3W46g9Yz2zJNnEZLjc4Of97BCV+/Av05Sj1SHNhV4nnT6s1FirA/U3NUVdy4g==",
         "dependencies": {
@@ -26,7 +26,7 @@
       },
       "Arbor.KVConfiguration.Core": {
         "type": "Direct",
-        "requested": "[1.1.0-build.1610121442, )",
+        "requested": "[1.1.0-*, )",
         "resolved": "1.1.0-build.1610121442",
         "contentHash": "avaNERtt597YoK+zfCoGPzzMDckrU7qVxyTX0AUqwdxVypCRlAFMjF67qUH/N0gG4V1a9vhns+XxIplPpV882Q==",
         "dependencies": {
@@ -36,7 +36,7 @@
       },
       "Arbor.KVConfiguration.Urns": {
         "type": "Direct",
-        "requested": "[1.1.0-build.1610121442, )",
+        "requested": "[1.1.0-*, )",
         "resolved": "1.1.0-build.1610121442",
         "contentHash": "8vaH0WK6wrQlyQJi5opm4WHDUqBUg1b7U64uJS0YR1plv+vCQFpEZB2f6ogeCvwZ8fC0meEn5Sn5EHv6V8XSQg==",
         "dependencies": {
@@ -48,7 +48,7 @@
       },
       "Arbor.KVConfiguration.UserConfiguration": {
         "type": "Direct",
-        "requested": "[1.1.0-build.1610121442, )",
+        "requested": "[1.1.0-*, )",
         "resolved": "1.1.0-build.1610121442",
         "contentHash": "HPW4K9gYPirwc+Oh2naoN1OsnsZMp97Fic1/xb3/oOlJYVrz/7bw8OI5Jmfvr261mOQQwvJnD2wy9I20E2udxQ==",
         "dependencies": {
@@ -59,7 +59,7 @@
       },
       "Arbor.ModelBinding": {
         "type": "Direct",
-        "requested": "[1.0.0-build.1597411066, )",
+        "requested": "[1.0.0-*, )",
         "resolved": "1.0.0-build.1597411066",
         "contentHash": "sdtetD6sTs+/72osk4ILjvxKmmVyDZyC5EnsBWsT2v82k60iQE+oIrUagWURW23N0lGDube0ejXzixkK5jxqgg==",
         "dependencies": {
@@ -1537,8 +1537,8 @@
       "milou.deployer.bootstrapper.common": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.5.0-build.1610121969",
-          "Arbor.KVConfiguration.Urns": "1.1.0-build.1610121442",
+          "Arbor.App.Extensions": "0.5.0",
+          "Arbor.KVConfiguration.Urns": "1.1.0",
           "Arbor.Tooler": "0.11.0",
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.CodeAnalysis.CSharp": "3.8.0",
@@ -1554,9 +1554,9 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.5.0-build.1610121969",
-          "Arbor.KVConfiguration.Core": "1.1.0-build.1610121442",
-          "Arbor.KVConfiguration.Schema.Json": "1.1.0-build.1610121442",
+          "Arbor.App.Extensions": "0.5.0",
+          "Arbor.KVConfiguration.Core": "1.1.0",
+          "Arbor.KVConfiguration.Schema.Json": "1.1.0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.11.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -1574,7 +1574,7 @@
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.5.0-build.1610121969",
+          "Arbor.App.Extensions": "0.5.0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.11.0",
           "JetBrains.Annotations": "2020.3.0",

@@ -3,13 +3,13 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.5.0-build.1610121969" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.5.0-*" />
     <PackageReference Include="DotNext.Threading" Version="2.12.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.1.0-build.1610121442" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.1.0-build.1610121442" />
-    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="1.1.0-build.1610121442" />
-    <PackageReference Include="Arbor.ModelBinding" Version="1.0.0-build.1597411066" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.1.0-*" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.1.0-*" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="1.1.0-*" />
+    <PackageReference Include="Arbor.ModelBinding" Version="1.0.0-*" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.11.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />

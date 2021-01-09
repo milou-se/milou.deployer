@@ -4,7 +4,7 @@
     ".NETCoreApp,Version=v5.0": {
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.5.0-build.1610121969, )",
+        "requested": "[0.5.0-*, )",
         "resolved": "0.5.0-build.1610121969",
         "contentHash": "TxplylHbcg3ZLOzHcY1NjRBZ+3W46g9Yz2zJNnEZLjc4Of97BCV+/Av05Sj1SHNhV4nnT6s1FirA/U3NUVdy4g==",
         "dependencies": {
