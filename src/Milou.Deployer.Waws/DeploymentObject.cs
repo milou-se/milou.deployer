@@ -59,7 +59,7 @@ namespace Milou.Deployer.Waws
 
         public async Task<DeploySummary> SyncTo(
             DeploymentWellKnownProvider destinationProvider,
-            string destinationPath,
+            string? destinationPath,
             DeploymentBaseOptions deploymentBaseOptions,
             DeploymentSyncOptions syncOptions,
             CancellationToken cancellationToken = default)

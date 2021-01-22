@@ -257,7 +257,7 @@ namespace Milou.Deployer.DeployerApp
             return LoggingConstants.DefaultFormat;
         }
 
-        private static string? GetMachineSettingsFile(DirectoryInfo currentDirectory)
+        private static string? GetMachineSettingsFile(DirectoryInfo? currentDirectory)
         {
             if (currentDirectory is null)
             {

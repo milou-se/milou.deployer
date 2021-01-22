@@ -144,7 +144,7 @@ namespace Milou.Deployer.DeployerApp
                                 fallbackManifestPath);
                         }
 
-                        exitCode = await ExecuteAsync(manifestFile, semanticVersion, cancellationToken)
+                        exitCode = await ExecuteAsync(manifestFile, semanticVersion!, cancellationToken)
                             .ConfigureAwait(false);
                     }
                 }
