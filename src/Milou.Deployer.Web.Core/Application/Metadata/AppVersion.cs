@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
@@ -21,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
         {
             Properties =
                 manifestProperties ?? throw new ArgumentNullException(nameof(manifestProperties));
-            AvailablePackageVersions = availablePackageVersions;
+            AvailablePackageVersions = availablePackageVersions.SafeToImmutableArray();
             Target = target ?? throw new ArgumentNullException(nameof(target));
             Status = GetStatus();
         }
@@ -34,7 +35,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
             Properties = new InMemoryKeyValueConfiguration(new NameValueCollection());
             Target = target;
             Message = message;
-            AvailablePackageVersions = availablePackages;
+            AvailablePackageVersions = availablePackages.SafeToImmutableArray();
             Status = GetStatus();
         }
 
@@ -104,7 +105,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
 
         public DeployStatus Status { get; }
 
-        public SemanticVersion LatestNewerAvailable { get; private set; }
+        public SemanticVersion? LatestNewerAvailable { get; private set; }
 
         private DeployStatus GetStatus()
         {

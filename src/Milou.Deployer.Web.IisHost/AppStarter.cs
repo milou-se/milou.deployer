@@ -13,6 +13,7 @@ using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Logging;
 using Arbor.AspNetCore.Host;
+using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
@@ -54,7 +55,30 @@ namespace Milou.Deployer.Web.IisHost
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
 
-                scanAssemblies ??= ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
+                var types = new[]{ typeof(IKeyValueConfiguration)};
+
+                foreach (var type in types)
+                {
+                    TempLogger.WriteLine($"Loaded type {type.FullName}");
+                }
+
+                scanAssemblies ??= ApplicationAssemblies.FilteredAssemblies(new[] { "Arbor", "Milou" });
+
+
+                foreach (var scanAssembly in scanAssemblies)
+                {
+                    foreach (var referencedAssembly in scanAssembly.GetReferencedAssemblies())
+                    {
+                        try
+                        {
+                            AppDomain.CurrentDomain.Load(referencedAssembly);
+                        }
+                        catch (Exception ex)
+                        {
+                            TempLogger.WriteLine(ex.ToString());
+                        }
+                    }
+                }
 
                 cancellationTokenSource ??= new CancellationTokenSource();
 

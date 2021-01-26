@@ -155,6 +155,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                                item.Version == appVersion.SemanticVersion,
                     Index = index
                 }).SingleOrDefault(t => t.Selected)?.Index ?? -1;
+
+            if (appVersion?.Status is null)
+            {
+                return StatusCode(500, new {Message = "App version status is missing"});
+            }
+
             return Json(new
             {
                 displayName = appVersion.Status.DisplayName,
@@ -167,7 +173,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 intervalAgoName = deploymentInterval.Name,
                 deployedAtLocalTime = appVersion.DeployedAtUtc.ToLocalTimeFormatted(clock),
                 statusMessage = appVersion.Message,
-                latestNewerAvailable = appVersion.LatestNewerAvailable.ToNormalizedString() ?? "",
+                latestNewerAvailable = appVersion.LatestNewerAvailable?.ToNormalizedString() ?? "",
                 deployEnabled =
                     deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
                 packageId = deploymentTarget.PackageId,

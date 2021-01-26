@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.5.1" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.5.3" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.1.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.1.4" />
     <PackageReference Include="Arbor.Tooler" Version="0.11.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.2" />
