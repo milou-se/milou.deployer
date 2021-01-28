@@ -31,13 +31,11 @@ namespace Milou.Deployer.Web.Marten
                 return applicationSettings!;
             }
 
-            using (IQuerySession querySession = _documentStore.QuerySession())
-            {
-                ApplicationSettingsData applicationSettingsData =
-                    await querySession.LoadAsync<ApplicationSettingsData>(AppSettings, cancellationToken);
+            using IQuerySession querySession = _documentStore.QuerySession();
+            ApplicationSettingsData applicationSettingsData =
+                await querySession.LoadAsync<ApplicationSettingsData>(AppSettings, cancellationToken);
 
-                applicationSettings = Map(applicationSettingsData ?? new ApplicationSettingsData());
-            }
+            applicationSettings = Map(applicationSettingsData ?? new ApplicationSettingsData());
 
             return applicationSettings;
         }

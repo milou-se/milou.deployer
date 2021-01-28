@@ -92,6 +92,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Tools.Config
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Marten.Abstractions", "Milou.Deployer.Web.Marten.Abstractions\Milou.Deployer.Web.Marten.Abstractions.csproj", "{5406F051-2BF8-490C-9358-31F380C1749A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Development", "tests\Milou.Deployer.Development\Milou.Deployer.Development.csproj", "{DBC98086-9F1B-4804-8978-882600E7D46B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -186,6 +188,10 @@ Global
 		{5406F051-2BF8-490C-9358-31F380C1749A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5406F051-2BF8-490C-9358-31F380C1749A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5406F051-2BF8-490C-9358-31F380C1749A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBC98086-9F1B-4804-8978-882600E7D46B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBC98086-9F1B-4804-8978-882600E7D46B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBC98086-9F1B-4804-8978-882600E7D46B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBC98086-9F1B-4804-8978-882600E7D46B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -216,6 +222,7 @@ Global
 		{206A18B1-3164-41AC-909F-077A2D178B05} = {EB1C7EF0-3F2D-4D08-912A-DD71DDF54246}
 		{924AA017-3636-4997-823B-2F58443B2956} = {15AE0BA6-6E13-4BC4-8E4B-0E34A1D3D679}
 		{5406F051-2BF8-490C-9358-31F380C1749A} = {48FBA6E2-E7DB-4A7C-8B60-6E39807B757F}
+		{DBC98086-9F1B-4804-8978-882600E7D46B} = {369F510A-74DD-404A-BC97-07ED783D7B21}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA9639FD-67CA-4136-950F-DE6230267423}

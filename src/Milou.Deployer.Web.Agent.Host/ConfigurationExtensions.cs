@@ -14,8 +14,16 @@ namespace Milou.Deployer.Web.Agent.Host
                 return default;
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtSecurityToken = tokenHandler.ReadJwtToken(configuration.AccessToken);
+            JwtSecurityToken jwtSecurityToken;
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                jwtSecurityToken = tokenHandler.ReadJwtToken(configuration.AccessToken);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("The access token is invalid", ex);
+            }
 
             string claimType = JwtRegisteredClaimNames.UniqueName;
             string? agentId = jwtSecurityToken.Claims

@@ -10,10 +10,10 @@ namespace Milou.Deployer.Web.Core.Health
     [UsedImplicitly]
     public class HealthBackgroundService : BackgroundService
     {
-        private readonly HealthChecker _healthChecker;
-        private readonly StartupTaskContext _startupTaskContext;
+        private readonly HealthChecker? _healthChecker;
+        private readonly StartupTaskContext? _startupTaskContext;
 
-        public HealthBackgroundService(HealthChecker healthChecker, StartupTaskContext startupTaskContext)
+        public HealthBackgroundService(HealthChecker? healthChecker = null, StartupTaskContext? startupTaskContext = null)
         {
             _healthChecker = healthChecker;
             _startupTaskContext = startupTaskContext;
@@ -23,12 +23,24 @@ namespace Milou.Deployer.Web.Core.Health
         {
             await Task.Yield();
 
-            while (!_startupTaskContext.IsCompleted)
+            if (_healthChecker is null || _startupTaskContext is null)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                return;
             }
 
-            await _healthChecker.PerformHealthChecksAsync(stoppingToken);
+            try
+            {
+                while (!_startupTaskContext.IsCompleted)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                }
+
+                await _healthChecker.PerformHealthChecksAsync(stoppingToken);
+            }
+            catch (TaskCanceledException)
+            {
+                //
+            }
         }
     }
 }

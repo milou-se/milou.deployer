@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.Agent.Host\Milou.Deployer.Web.Agent.Host.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.IisHost\Milou.Deployer.Web.IisHost.csproj" />
+  </ItemGroup>
+
+</Project>
