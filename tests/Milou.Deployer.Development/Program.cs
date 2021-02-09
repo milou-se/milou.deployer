@@ -28,8 +28,7 @@ namespace Milou.Deployer.Development
 
                 var token = TokenHelper.GenerateToken(agentId, key);
 
-                devConfiguration.Agents.Add(agentId,
-                    new AgentConfiguration(token, devConfiguration.ServerUrl));
+                devConfiguration.Agents.Add(agentId, null);
             }
 
             var variables = EnvironmentVariables.GetEnvironmentVariables().Variables
@@ -48,7 +47,6 @@ namespace Milou.Deployer.Development
                 .Where(assembly => !assembly.GetName().Name!.Contains("Agent.Host")).ToImmutableArray();
             var serverTask = AppStarter.StartAsync(args, variables,
                 cancellationTokenSource, serverAssemblies, new object[] {devConfiguration});
-
 
             return await serverTask;
         }

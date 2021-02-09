@@ -8,7 +8,7 @@ namespace Milou.Deployer.Development
     {
         public string ServerUrl { get; set; } = "http://localhost:34343";
 
-        public Dictionary<AgentId, AgentConfiguration> Agents { get; } = new();
+        public Dictionary<AgentId, AgentConfiguration?> Agents { get; } = new();
         public KeyData Key { get; init; }
     }
 }
