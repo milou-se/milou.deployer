@@ -102,7 +102,7 @@ namespace Milou.Deployer.Web.Agent.Host
 
                 bool connected = false;
 
-                while (!connected && _hubConnection is {} && stoppingToken.IsCancellationRequested)
+                while (!connected && _hubConnection is {} && !stoppingToken.IsCancellationRequested)
                 {
                     connected = await Connect();
                 }
@@ -168,7 +168,7 @@ namespace Milou.Deployer.Web.Agent.Host
 
             _lifetime.StopApplication();
 
-            return Task.CompletedTask;;
+            return Task.CompletedTask;
         }
 
         private Task<string> GetAccessToken() => Task.FromResult(_agentConfiguration!.AccessToken);
