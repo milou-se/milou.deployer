@@ -12,12 +12,9 @@ namespace Milou.Deployer.Development
 {
     public class DevEnvironmentConfigurator : IConfigureEnvironment
     {
-        private AgentId? _agentId;
+        private readonly AgentId? _agentId;
 
-        public DevEnvironmentConfigurator(ConfigurationInstanceHolder holder)
-        {
-            _agentId = holder.GetInstances<AgentId>().SingleOrDefault().Value;
-        }
+        public DevEnvironmentConfigurator(ConfigurationInstanceHolder holder) => _agentId = holder.GetInstances<AgentId>().SingleOrDefault().Value;
 
         public void Configure(EnvironmentConfiguration environmentConfiguration)
         {

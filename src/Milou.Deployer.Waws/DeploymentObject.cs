@@ -161,7 +161,6 @@ namespace Milou.Deployer.Waws
             return destinationParameter;
         }
 
-
         private async Task<DeploySummary> SyncToInternal(
             DeploymentBaseOptions deploymentBaseOptions,
             DeploymentSyncOptions syncOptions,

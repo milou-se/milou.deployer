@@ -10,11 +10,13 @@ namespace Milou.Deployer.Web.Agent.Host
         [PublicAPI]
         public void ConfigureServices(IServiceCollection services)
         {
+            // convention method
         }
 
         [PublicAPI]
         public void Configure(IApplicationBuilder app)
         {
+            // convention method
         }
     }
 }

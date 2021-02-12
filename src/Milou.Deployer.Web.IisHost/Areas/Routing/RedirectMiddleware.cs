@@ -51,51 +51,48 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
                 throw;
             }
 
-            if (context.Response.StatusCode == 302)
+            if (context.Response.StatusCode == 302 && context.Response.Headers.TryGetValue(LocationHeader, out var values))
             {
-                if (context.Response.Headers.TryGetValue(LocationHeader, out var values))
+                if (values.Count == 1 && values[0].StartsWith("/"))
                 {
-                    if (values.Count == 1 && values[0].StartsWith("/"))
-                    {
-                        return;
-                    }
-
-                    if (string.IsNullOrWhiteSpace(_environmentConfiguration.PublicHostname))
-                    {
-                        return;
-                    }
-
-                    if (!_environmentConfiguration.PublicHostname.Equals(values, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return;
-                    }
-
-                    var uri = new Uri(values, UriKind.RelativeOrAbsolute);
-
-                    if (!uri.IsAbsoluteUri)
-                    {
-                        return;
-                    }
-
-                    var builder = new UriBuilder(uri) {Host = _environmentConfiguration.PublicHostname};
-
-                    if (_environmentConfiguration.PublicPort.HasValue)
-                    {
-                        builder.Port = _environmentConfiguration.PublicPort.Value;
-                    }
-
-                    if (_environmentConfiguration.PublicPortIsHttps == true)
-                    {
-                        builder.Scheme = "https";
-                    }
-                    else if (_environmentConfiguration.PublicPortIsHttps == false)
-                    {
-                        builder.Scheme = "http";
-                    }
-
-                    context.Response.Headers.Remove(LocationHeader);
-                    context.Response.Headers.Add(LocationHeader, builder.Uri.ToString());
+                    return;
                 }
+
+                if (string.IsNullOrWhiteSpace(_environmentConfiguration.PublicHostname))
+                {
+                    return;
+                }
+
+                if (!_environmentConfiguration.PublicHostname.Equals(values, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                var uri = new Uri(values, UriKind.RelativeOrAbsolute);
+
+                if (!uri.IsAbsoluteUri)
+                {
+                    return;
+                }
+
+                var builder = new UriBuilder(uri) {Host = _environmentConfiguration.PublicHostname};
+
+                if (_environmentConfiguration.PublicPort.HasValue)
+                {
+                    builder.Port = _environmentConfiguration.PublicPort.Value;
+                }
+
+                if (_environmentConfiguration.PublicPortIsHttps == true)
+                {
+                    builder.Scheme = "https";
+                }
+                else if (_environmentConfiguration.PublicPortIsHttps == false)
+                {
+                    builder.Scheme = "http";
+                }
+
+                context.Response.Headers.Remove(LocationHeader);
+                context.Response.Headers.Add(LocationHeader, builder.Uri.ToString());
             }
         }
     }

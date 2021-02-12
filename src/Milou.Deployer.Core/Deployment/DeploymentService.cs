@@ -445,7 +445,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public Task<ExitCode> DeployAsync(
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
-            SemanticVersion explicitVersion,
+            SemanticVersion? explicitVersion,
             CancellationToken cancellationToken = default)
         {
             if (!deploymentExecutionDefinitions.Any())
@@ -474,7 +474,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private async Task<ExitCode> InternalDeployAsync(
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
-            SemanticVersion explicitVersion,
+            SemanticVersion? explicitVersion,
             CancellationToken cancellationToken = default)
         {
             var tempDirectoriesToClean = new List<DirectoryInfo>();
@@ -763,7 +763,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (deploymentExecutionDefinition.PublishType == PublishType.WebDeploy)
                     {
-                        _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
+                        _webDeployHelper.DeploymentTraceEventHandler += (_, args) =>
                         {
                             if (string.IsNullOrWhiteSpace(args.Message))
                             {

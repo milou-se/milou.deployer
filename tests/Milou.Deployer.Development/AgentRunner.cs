@@ -23,8 +23,9 @@ namespace Milou.Deployer.Development
 
                 await _appTask;
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                // ignore
             }
         }
     }

@@ -4,7 +4,6 @@ using System.Linq;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 
-
 namespace Milou.Deployer.Core.Deployment
 {
     public sealed class PublishType : IEquatable<PublishType>
@@ -68,7 +67,6 @@ namespace Milou.Deployer.Core.Deployment
         public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);
 
         public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
-
 
         public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 

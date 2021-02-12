@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 
-
 namespace Milou.Deployer.DeployerApp
 {
     public static class AppBootstrapper

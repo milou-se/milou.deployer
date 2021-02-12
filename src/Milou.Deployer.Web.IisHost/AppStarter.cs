@@ -64,7 +64,6 @@ namespace Milou.Deployer.Web.IisHost
 
                 scanAssemblies ??= ApplicationAssemblies.FilteredAssemblies(new[] { "Arbor", "Milou" });
 
-
                 foreach (var scanAssembly in scanAssemblies)
                 {
                     foreach (var referencedAssembly in scanAssembly.GetReferencedAssemblies())

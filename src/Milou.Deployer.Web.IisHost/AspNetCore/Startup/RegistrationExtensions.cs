@@ -8,7 +8,6 @@ using Arbor.AspNetCore.Host.Mvc;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,13 +17,10 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Http;
 using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Security;
-using Milou.Deployer.Web.IisHost.Areas.Agents;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
 using Newtonsoft.Json;
@@ -74,7 +70,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         openIdConnectOptions.Scope.Add("email");
                         openIdConnectOptions.TokenValidationParameters.ValidIssuer = openIdConnectConfiguration.Issuer;
 
-                        openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, token, parameters) =>
+                        openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, _, __) =>
                         {
                             if (string.Equals(issuer, openIdConnectConfiguration.Issuer, StringComparison.Ordinal))
                             {

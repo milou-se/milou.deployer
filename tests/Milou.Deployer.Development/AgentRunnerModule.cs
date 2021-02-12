@@ -33,11 +33,6 @@ namespace Milou.Deployer.Development
                 return builder;
             }
 
-            //if (_devConfiguration.Agents.TryGetValue(new AgentId(_environmentConfiguration.ApplicationName), out var agentConfiguration))
-            //{
-            //    return builder.AddSingleton(agentConfiguration);
-            //}
-
             return builder;
         }
     }

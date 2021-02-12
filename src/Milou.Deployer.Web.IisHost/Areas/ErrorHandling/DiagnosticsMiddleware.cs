@@ -7,10 +7,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
     {
         private readonly RequestDelegate _next;
 
-        public DiagnosticsMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+        public DiagnosticsMiddleware(RequestDelegate next) => _next = next;
 
         public Task InvokeAsync(HttpContext context)
         {
@@ -18,7 +15,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
 
             if (endpoint is {})
             {
-
             }
 
             return _next(context);

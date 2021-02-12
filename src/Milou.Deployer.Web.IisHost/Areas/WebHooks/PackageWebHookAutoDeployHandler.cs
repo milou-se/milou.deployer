@@ -56,7 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             if (packageIdentifier is null)
             {
-                throw new ArgumentNullException(nameof(packageIdentifier));
+                throw new ArgumentException(nameof(packageIdentifier));
             }
 
             _logger.Information("Received hook for package {Package}", packageIdentifier);

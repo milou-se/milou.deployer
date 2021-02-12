@@ -158,7 +158,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 _variables.Add(DeployerAppConstants.SeedEnabled, "true");
 
-
                 TestConfiguration = await TestPathHelper.CreateTestConfigurationAsync(CancellationToken.None);
 
                 await BeforeInitialize(_cancellationTokenSource.Token);
@@ -190,8 +189,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     throw new DeployerAppException("The cancellation token is already cancelled, skipping start");
                 }
-
-                //await StartAgents();
 
                 try
                 {
@@ -237,7 +234,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     throw new DeployerAppException("The cancellation token is already cancelled, skipping run");
                 }
-
 
                 await RunAsync();
 
@@ -496,7 +492,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             return args;
         }
-
 
         private async Task StartAsync(IReadOnlyCollection<string> args)
         {

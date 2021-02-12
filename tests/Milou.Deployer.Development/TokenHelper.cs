@@ -13,10 +13,8 @@ namespace Milou.Deployer.Development
     {
         public static byte[] GenerateKey()
         {
-
             using var hmac = new HMACSHA256();
             byte[] keyBytes = hmac.Key;
-
 
             return keyBytes;
         }
@@ -46,7 +44,6 @@ namespace Milou.Deployer.Development
             string jwt = handler.WriteToken(securityToken);
 
             return jwt;
-
         }
     }
 }

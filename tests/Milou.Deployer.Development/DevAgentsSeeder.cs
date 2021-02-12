@@ -1,23 +1,21 @@
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment.Targets;
-using Milou.Deployer.Web.Marten;
-using Serilog;
 
 namespace Milou.Deployer.Development
 {
+    [UsedImplicitly]
     public class DevAgentsSeeder : IDataSeeder
     {
         private readonly DevConfiguration? _devConfiguration;
-        private readonly ILogger _logger;
         private readonly IMediator? _mediator;
 
-        public DevAgentsSeeder(ILogger logger, IMediator? mediator = null, DevConfiguration? devConfiguration = null)
+        public DevAgentsSeeder(IMediator? mediator = null, DevConfiguration? devConfiguration = null)
         {
-            _logger = logger;
             _mediator = mediator;
             _devConfiguration = devConfiguration;
         }

@@ -151,7 +151,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 _customMemoryCache.SetValue(cacheKey, appMetadata, applicationSettings.MetadataCacheTimeout);
             }
 
-
             return appMetadata;
         }
 

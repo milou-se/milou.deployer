@@ -67,7 +67,7 @@ namespace Milou.Deployer.Development
         private async Task<AgentRunner> StartAgent(AgentConfiguration agentConfiguration,
             CancellationTokenSource cancellationTokenSource)
         {
-            var instances = new object[] {agentConfiguration, agentConfiguration.AgentId()};
+            object[] instances = {agentConfiguration, agentConfiguration.AgentId()};
             var assemblies
                 = ApplicationAssemblies.FilteredAssemblies().Where(assembly => !assembly.GetName().Name!.Contains("IisHost")).ToArray();
 
@@ -77,7 +77,6 @@ namespace Milou.Deployer.Development
             variables.Add(LoggingConstants.SerilogSeqEnabledDefault, "true");
             variables.Add("urn:arbor:app:web:logging:serilog:default:seqUrl", "http://localhost:5341");
             variables.Add("urn:arbor:app:web:logging:serilog:default:consoleEnabled", "true");
-
 
             var appTask = AppStarter<AgentStartup>.StartAsync(Array.Empty<string>(),
                 variables, instances: instances, assemblies: assemblies

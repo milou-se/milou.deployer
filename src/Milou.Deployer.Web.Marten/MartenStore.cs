@@ -70,7 +70,7 @@ namespace Milou.Deployer.Web.Marten
             _cache = cache;
         }
 
-        public Task<DeploymentTarget> GetDeploymentTargetAsync(
+        public Task<DeploymentTarget?> GetDeploymentTargetAsync(
             string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
@@ -167,7 +167,6 @@ namespace Milou.Deployer.Web.Marten
                     new ProjectInfo(project.OrganizationId, project.Id, ImmutableArray<DeploymentTarget>.Empty))
                 .ToImmutableArray();
         }
-
 
         public async Task<AssignAgentToPoolResult> Handle(AssignAgentToPool request,
             CancellationToken cancellationToken)
@@ -543,6 +542,7 @@ namespace Milou.Deployer.Web.Marten
                 id = data.Id;
                 targetName = data.Name;
 
+                data.NuGetData ??= new NuGetData();
                 data.PackageId = request.PackageId;
                 data.Url = request.Url;
                 data.IisSiteName = request.IisSiteName;
@@ -555,7 +555,6 @@ namespace Milou.Deployer.Web.Marten
                 data.FtpPath = request.FtpPath?.Path;
                 data.PublishType = request.PublishType.Name;
                 data.EnvironmentTypeId = request.EnvironmentTypeId;
-                data.NuGetData ??= new NuGetData();
                 data.NuGetData.NuGetConfigFile = request.NugetConfigFile;
                 data.NuGetData.NuGetPackageSource = request.NugetPackageSource;
                 data.NuGetData.PackageListTimeout = request.PackageListTimeout;
@@ -639,7 +638,7 @@ namespace Milou.Deployer.Web.Marten
             return new CreateProjectResult(createProject.Id);
         }
 
-        private async Task<DeploymentTarget> FindDeploymentTargetAsync(string deploymentTargetId,
+        private async Task<DeploymentTarget?> FindDeploymentTargetAsync(string deploymentTargetId,
             CancellationToken cancellationToken)
         {
             using IQuerySession session = _documentStore.QuerySession();
@@ -705,7 +704,7 @@ namespace Milou.Deployer.Web.Marten
                 })
                 .ToImmutableArray();
 
-        private DeploymentTarget? MapDataToTarget(DeploymentTargetData deploymentTargetData,
+        private DeploymentTarget? MapDataToTarget(DeploymentTargetData? deploymentTargetData,
             ImmutableArray<EnvironmentType> environmentTypes)
         {
             if (deploymentTargetData is null)

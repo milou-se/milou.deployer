@@ -232,7 +232,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             return deploymentTaskResult;
         }
 
-
         public void Dispose()
         {
             _current = null!;

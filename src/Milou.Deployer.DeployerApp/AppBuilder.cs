@@ -116,7 +116,6 @@ namespace Milou.Deployer.DeployerApp
                     Arbor.App.Extensions.Logging.LogEventLevelExtensions.ParseOrDefault(
                         environmentLogLevel.WithDefault(configurationLogLevel));
 
-
                 levelSwitch.MinimumLevel = logLevel;
 
                 LoggerConfiguration loggerConfiguration = new LoggerConfiguration()

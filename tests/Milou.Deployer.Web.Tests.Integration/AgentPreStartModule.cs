@@ -62,12 +62,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             var mediator = _provider.GetRequiredService<IMediator>();
             var createAgentResult = await mediator.Send(new CreateAgent(new AgentId("TestAgent")), cancellationToken);
 
-            var instances =
-                new List<object> {_testConfiguration, _serverConfiguration, variables}
-                    .ToArray();
+            object[] instances = {_testConfiguration, _serverConfiguration, variables};
 
             _testConfiguration.AgentToken = createAgentResult.AccessToken;
-
 
             _agentCancellationTokenSource = new CancellationTokenSource();
 

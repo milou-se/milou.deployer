@@ -2,7 +2,6 @@
 using System.IO;
 using Arbor.App.Extensions.ExtensionMethods;
 
-
 namespace Milou.Deployer.Core.IO
 {
     internal sealed class TempFile : IDisposable

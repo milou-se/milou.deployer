@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Tools
                 }
             }
 
-            int expected = 1;
+            const int expected = 1;
 
             if (usedArgs.Count == expected)
             {

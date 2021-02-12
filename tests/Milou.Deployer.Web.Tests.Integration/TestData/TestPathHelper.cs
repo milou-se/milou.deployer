@@ -24,11 +24,6 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
             var nugetConfigFile = new FileInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests",
                 "Milou.Deployer.Web.Tests.Integration", "TestData", "nuget.config"));
 
-            //var nugetConfigFile =
-            //    new FileInfo(Path.Combine(nugetBaseDirectory.FullName, $"{projectName}.nuget.config"));
-
-            //await NuGetConfigCreator.CreateNuGetConfig(nugetConfigFile, nugetPackageDirectory, cancellationToken);
-
             var testConfiguration = new TestConfiguration(baseDirectory,
                 nugetConfigFile,
                 targetAppRoot);

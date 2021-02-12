@@ -63,7 +63,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             if (string.IsNullOrWhiteSpace(_environmentConfiguration.PublicHostname))
             {
-                //throw new InvalidOperationException("Environment public host name is not set");
                 _environmentConfiguration.PublicHostname = "localhost";
             }
 

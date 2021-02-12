@@ -14,7 +14,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
         public AgentLifeCycleService(IHubContext<AgentHub> hubContext) => _hubContext = hubContext;
 
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Task.Yield();

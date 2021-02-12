@@ -28,6 +28,7 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
 
         public void Configure(IConfiguration configuration)
         {
+            // interface method
         }
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)

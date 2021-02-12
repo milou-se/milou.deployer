@@ -40,11 +40,5 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                     PublishSettingsXml = data.PublishSettingsXml,
                     DeployerProcessArgs = data.ProcessArgs.ToImmutableArray()
                 };
-
-        //data.ProcessArgs,
-        //data.NuGetConfigXml,
-        //data.ManifestJson,
-        //data.PublishSettingsXml,
-        //);
     }
 }

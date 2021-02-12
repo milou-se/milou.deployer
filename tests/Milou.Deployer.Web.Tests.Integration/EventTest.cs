@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class EventTest
     {
-        private ITestOutputHelper _outputHelper;
+        private readonly ITestOutputHelper _outputHelper;
 
         public EventTest(ITestOutputHelper outputHelper) => _outputHelper = outputHelper;
 

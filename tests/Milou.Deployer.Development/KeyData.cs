@@ -6,10 +6,7 @@ namespace Milou.Deployer.Development
     {
         public byte[] Key { get; }
 
-        public KeyData(byte[] key)
-        {
-            Key = key;
-        }
+        public KeyData(byte[] key) => Key = key;
 
         public string KeyAsBase64 => Convert.ToBase64String(Key);
     }

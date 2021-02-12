@@ -9,9 +9,6 @@ namespace Milou.Deployer.Development
     {
         public int Order { get; }
 
-        public Task SeedAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        public Task SeedAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

@@ -1,53 +1,11 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Agent
 {
     [JsonConverter(typeof(AgentIdConverter))]
-    public class AgentId : IEquatable<AgentId>
+    public record AgentId
     {
-        public bool Equals(AgentId? other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != this.GetType())
-            {
-                return false;
-            }
-
-            return Equals((AgentId) obj);
-        }
-
-        public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
-
-        public static bool operator ==(AgentId? left, AgentId? right) => Equals(left, right);
-
-        public static bool operator !=(AgentId? left, AgentId? right) => !Equals(left, right);
-
         public AgentId(string value) => Value = value;
 
         public string Value { get; }

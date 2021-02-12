@@ -7,7 +7,6 @@ using System.Text;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 
-
 namespace Milou.Deployer.Core.Deployment
 {
     public class DeploySummary

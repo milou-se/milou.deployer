@@ -6,9 +6,6 @@ namespace Milou.Deployer.Web.Core.Agents
     {
         public string AccessToken { get; }
 
-        public ResetAgentTokenResult(string accessToken)
-        {
-            AccessToken = accessToken;
-        }
+        public ResetAgentTokenResult(string accessToken) => AccessToken = accessToken;
     }
 }

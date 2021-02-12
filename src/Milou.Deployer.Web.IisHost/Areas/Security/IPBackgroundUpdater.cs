@@ -29,16 +29,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                     {
                         IPHostEntry ipHostEntry = await Dns.GetHostEntryAsync(domain);
 
-                        if (ipHostEntry is {})
+                        if (ipHostEntry.AddressList.Length == 1)
                         {
-                            if (ipHostEntry.AddressList.Length == 1)
-                            {
-                                IPAddress ip = ipHostEntry.AddressList[0];
+                            IPAddress ip = ipHostEntry.AddressList[0];
 
-                                if (!AllowedIpAddressHandler.SetDomainIp(domain, ip))
-                                {
-                                    _logger.Verbose("Could not update domain ip for host {Host}", domain);
-                                }
+                            if (!AllowedIpAddressHandler.SetDomainIp(domain, ip))
+                            {
+                                _logger.Verbose("Could not update domain ip for host {Host}", domain);
                             }
                         }
                     }

@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.Marten.Targets
 
         public bool Enabled { get; set; }
 
-        public NuGetData NuGetData { get; set; }
+        public NuGetData? NuGetData { get; set; }
 
         public TimeSpan? MetadataTimeout { get; set; }
 

@@ -766,7 +766,6 @@ namespace Milou.Deployer.Ftp
             }
 
             return await Create(fullUri, ftpSettings, credentials, logger);
-
         }
 
         public static async Task<FtpHandler> Create(Uri fullUri, FtpSettings? ftpSettings = null, NetworkCredential? credentials = null,

@@ -50,7 +50,7 @@ namespace Milou.Deployer.DeployerApp
 
         public void Dispose()
         {
-            Logger?.Verbose("Disposing deployer app");
+            Logger.Verbose("Disposing deployer app");
 
             if (Logger is IDisposable disposableLogger)
             {
@@ -64,7 +64,7 @@ namespace Milou.Deployer.DeployerApp
                 disposableSettings.Dispose();
             }
 
-            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource.Dispose();
             _cancellationTokenSource = null!;
         }
 
@@ -189,7 +189,7 @@ namespace Milou.Deployer.DeployerApp
         }
 
         private async Task<ExitCode> ExecuteAsync(string file,
-            SemanticVersion version,
+            SemanticVersion? version,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(file))
@@ -246,8 +246,7 @@ namespace Milou.Deployer.DeployerApp
                     throw new InvalidOperationException("Missing version");
                 }
 
-                if (!string.IsNullOrWhiteSpace(inputVersion) &&
-                    SemanticVersion.TryParse(inputVersion, out SemanticVersion semanticInputVersion))
+                if (SemanticVersion.TryParse(inputVersion, out SemanticVersion semanticInputVersion))
                 {
                     version = semanticInputVersion;
                     Logger.Debug("Using interactive version from user: {Version}",

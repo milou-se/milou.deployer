@@ -54,11 +54,11 @@ namespace Milou.Deployer.Web.Marten
                 applicationSettings.ApplicationSettingsCacheTimeout);
         }
 
-        private ApplicationSettings Map(ApplicationSettingsData applicationSettingsData)
+        private ApplicationSettings Map(ApplicationSettingsData? applicationSettingsData)
         {
             var applicationSettings = new ApplicationSettings
             {
-                CacheTime = applicationSettingsData.CacheTime ?? TimeSpan.FromSeconds(300),
+                CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300),
                 NexusConfig = MapFromNexusData(applicationSettingsData?.NexusConfig),
                 AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy),
                 DefaultMetadataRequestTimeout =
@@ -104,7 +104,7 @@ namespace Milou.Deployer.Web.Marten
             };
 
         private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>
-            new NexusConfigData
+            new()
             {
                 HmacKey = nexusConfig.HmacKey,
                 NuGetSource = nexusConfig.NuGetSource,

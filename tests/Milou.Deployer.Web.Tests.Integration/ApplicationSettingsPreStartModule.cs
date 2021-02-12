@@ -11,10 +11,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly IApplicationSettingsStore? _store;
 
-        public ApplicationSettingsPreStartModule(IServiceProvider serviceProvider)
-        {
-            _store = serviceProvider.GetService<IApplicationSettingsStore>();
-        }
+        public ApplicationSettingsPreStartModule(IServiceProvider serviceProvider) => _store = serviceProvider.GetService<IApplicationSettingsStore>();
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
