@@ -3,7 +3,5 @@
 
 namespace Milou.Deployer.Web.Core.Agents.Pools
 {
-    public class GetAgentPoolsQuery : IQuery<AgentPoolListResult>
-    {
-    }
+    public record GetAgentPoolsQuery : IQuery<AgentPoolListResult>;
 }

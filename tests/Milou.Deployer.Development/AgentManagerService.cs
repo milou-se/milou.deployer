@@ -46,10 +46,10 @@ namespace Milou.Deployer.Development
 
                 var cancellationTokenSource = new CancellationTokenSource();
 
-                foreach (var devConfigurationAgent in _devConfiguration.Agents)
+                foreach (var devConfigurationAgent in _devConfiguration.Agents.Where(pair=>pair.Value is {}))
                 {
                     AgentRunner? agentRunner = default;
-                    agentRunner = await StartAgent(devConfigurationAgent.Value, cancellationTokenSource);
+                    agentRunner = await StartAgent(devConfigurationAgent.Value!, cancellationTokenSource);
                     runners.Add(agentRunner);
                 }
 

@@ -4,11 +4,11 @@ namespace Milou.Deployer.Web.Core.Agents
 {
     public class ResetAgentTokenResult : ICommandResult
     {
-        public string Token { get; }
+        public string AccessToken { get; }
 
-        public ResetAgentTokenResult(string token)
+        public ResetAgentTokenResult(string accessToken)
         {
-            Token = token;
+            AccessToken = accessToken;
         }
     }
 }

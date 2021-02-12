@@ -7,15 +7,15 @@ using Milou.Deployer.Web.Core.Agents;
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     [UsedImplicitly]
-    public class AgentStatusHandler : INotificationHandler<AgentConnected>
+    public class UnknownAgentHandler : INotificationHandler<UnknownAgentConnected>
     {
         private readonly AgentsData _agents;
 
-        public AgentStatusHandler(AgentsData agents) => _agents = agents;
+        public UnknownAgentHandler(AgentsData agents) => _agents = agents;
 
-        public Task Handle(AgentConnected notification, CancellationToken cancellationToken)
+        public Task Handle(UnknownAgentConnected notification, CancellationToken cancellationToken)
         {
-            _agents.AgentConnected(notification);
+            _agents.UnknownAgentConnected(notification);
 
             return Task.CompletedTask;
         }

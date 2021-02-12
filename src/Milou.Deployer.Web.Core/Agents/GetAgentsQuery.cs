@@ -2,7 +2,5 @@
 
 namespace Milou.Deployer.Web.Core.Agents
 {
-    public class GetAgentsQuery : IQuery<AgentsQueryResult>
-    {
-    }
+    public record GetAgentsQuery : IQuery<AgentsQueryResult>;
 }

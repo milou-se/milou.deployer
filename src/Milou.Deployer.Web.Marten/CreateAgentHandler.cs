@@ -34,11 +34,7 @@ namespace Milou.Deployer.Web.Marten
 
             var result = await _mediator.Send(new CreateAgentInstallConfiguration(request.AgentId), cancellationToken);
 
-            agentData = new AgentData
-            {
-                AgentId = agentIdValue,
-                AccessToken = result.AccessToken
-            };
+            agentData = new AgentData {AgentId = agentIdValue, AccessToken = result.AccessToken};
 
             session.Store(agentData);
 

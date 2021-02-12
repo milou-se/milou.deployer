@@ -12,11 +12,6 @@ using Serilog;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    public class TestBackgroundService : BackgroundService
-    {
-        protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
-    }
-
     public class AgentResolveServices : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;

@@ -4,16 +4,20 @@ using MediatR;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment.Targets;
+using Milou.Deployer.Web.Marten;
+using Serilog;
 
 namespace Milou.Deployer.Development
 {
     public class DevAgentsSeeder : IDataSeeder
     {
         private readonly DevConfiguration? _devConfiguration;
+        private readonly ILogger _logger;
         private readonly IMediator? _mediator;
 
-        public DevAgentsSeeder(IMediator? mediator = null, DevConfiguration? devConfiguration = null)
+        public DevAgentsSeeder(ILogger logger, IMediator? mediator = null, DevConfiguration? devConfiguration = null)
         {
+            _logger = logger;
             _mediator = mediator;
             _devConfiguration = devConfiguration;
         }
@@ -36,6 +40,13 @@ namespace Milou.Deployer.Development
                     var createAgentResult = await _mediator.Send(new CreateAgent(agentId), cancellationToken);
                     _devConfiguration.Agents[agentId] =
                         new AgentConfiguration(createAgentResult.AccessToken, _devConfiguration.ServerUrl);
+                }
+                else
+                {
+                    var result = await _mediator.Send(new ResetAgentToken(agentId), cancellationToken);
+
+                    _devConfiguration.Agents[agentId] =
+                        new AgentConfiguration(result.AccessToken, _devConfiguration.ServerUrl);
                 }
             }
         }

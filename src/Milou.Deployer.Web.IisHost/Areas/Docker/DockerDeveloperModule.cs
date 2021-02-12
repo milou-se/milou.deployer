@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
 using Arbor.AspNetCore.Host;
 using Arbor.Docker;
-using Arbor.KVConfiguration.Core.Metadata;
-using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -161,23 +159,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
             return smtp4Dev;
         }
-    }
-
-    public static class DeveloperModuleConstants
-    {
-        [Metadata(defaultValue: "false")]
-        public const string DockerEnabledDefault = DeveloperConfiguration.Urn + ":default:docker-enabled";
-    }
-
-    [Urn(Urn)]
-    [Optional]
-    public class DeveloperConfiguration
-    {
-        public const string Urn = "urn:milou:deployer:web:development";
-
-        public DeveloperConfiguration(bool dockerEnabled) => DockerEnabled = dockerEnabled;
-
-        public bool DockerEnabled { get; }
     }
 }
 #endif

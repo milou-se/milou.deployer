@@ -14,7 +14,9 @@ namespace Milou.Deployer.Web.Core.Agents
         }
 
         public AgentId AgentId { get; }
+
         public string AccessToken { get; }
+
         public Uri ServerUri { get; }
     }
 }
