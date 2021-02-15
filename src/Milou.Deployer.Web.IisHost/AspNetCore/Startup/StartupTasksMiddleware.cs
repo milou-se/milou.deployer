@@ -15,8 +15,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         private readonly StartupTaskContext _context;
         private readonly RequestDelegate _next;
         private readonly PathString _startupSegment = new("/startup");
-        private static readonly PathString _hubPath = new(AgentConstants.HubRoute);
-        private static readonly PathString _agentTaskResultPath = new(AgentConstants.DeploymentTaskResult);
+        private static readonly PathString HubPath = new(AgentConstants.HubRoute);
+        private static readonly PathString AgentTaskResultPath = new(AgentConstants.DeploymentTaskResult);
 
         public StartupTasksMiddleware(StartupTaskContext context, RequestDelegate next)
         {
@@ -29,8 +29,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         {
             if (_context.IsCompleted
                 || httpContext.Request.Path.StartsWithSegments(_startupSegment, StringComparison.OrdinalIgnoreCase)
-                || httpContext.Request.Path.StartsWithSegments(_hubPath)
-                || httpContext.Request.Path.StartsWithSegments(_agentTaskResultPath)
+                || httpContext.Request.Path.StartsWithSegments(HubPath)
+                || httpContext.Request.Path.StartsWithSegments(AgentTaskResultPath)
                 || (httpContext.Request.Path.Value is {} pathValue && pathValue.StartsWith("/deployment-task")))
             {
                 await _next(httpContext);

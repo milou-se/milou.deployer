@@ -4,7 +4,7 @@ using Milou.Deployer.Web.Marten.AutoDeploy;
 namespace Milou.Deployer.Web.Marten.Settings
 {
     [MartenData]
-    public class ApplicationSettingsData
+    public record ApplicationSettingsData
     {
         public TimeSpan? CacheTime { get; set; }
 

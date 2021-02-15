@@ -3,7 +3,7 @@
 namespace Milou.Deployer.Web.Marten.Targets
 {
     [MartenData]
-    public class ProjectData
+    public record ProjectData
     {
         [ForeignKey(typeof(OrganizationData))]
         public string OrganizationId { get; set; }

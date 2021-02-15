@@ -5,7 +5,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [MartenData]
     [PublicAPI]
-    public class TaskLog
+    public record TaskLog
     {
         public string DeploymentTaskId { get; set; }
 

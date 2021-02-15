@@ -1,7 +1,7 @@
 ﻿namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [MartenData]
-    public class DeploymentTaskData
+    public record DeploymentTaskData
     {
         public string Id { get; set; }
 

@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
 
             var agentPoolId = new AgentPoolId("Default");
-            var result = await _mediator.Send(new CreateAgentPool(agentPoolId), cancellationToken);
+            var result = await _mediator.Send(new CreateAgentPool(agentPoolId, new AgentPoolName("Default")), cancellationToken);
 
             _logger.Debug("CreateAgentPool result for Id {Id}: {Status}", agentPoolId, result);
 

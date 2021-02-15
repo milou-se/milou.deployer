@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost
     public static class AppStarter
     {
         public static async Task<int> StartAsync(
-            string[] args,
+            string[]? args,
             IReadOnlyDictionary<string, string?> environmentVariables,
             CancellationTokenSource? cancellationTokenSource = null,
             IReadOnlyCollection<Assembly>? scanAssemblies = null,

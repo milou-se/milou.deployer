@@ -1,7 +1,7 @@
 ﻿namespace Milou.Deployer.Web.Marten.AutoDeploy
 {
     [MartenData]
-    public class AutoDeployData
+    public record AutoDeployData
     {
         public bool Enabled { get; set; }
 

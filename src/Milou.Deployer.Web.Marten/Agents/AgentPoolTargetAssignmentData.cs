@@ -2,7 +2,7 @@
 
 namespace Milou.Deployer.Web.Marten.Agents
 {
-    public class AgentPoolTargetAssignmentData
+    public record AgentPoolTargetAssignmentData
     {
         public string Id { get; set; }
 

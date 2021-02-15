@@ -5,7 +5,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [MartenData]
     [PublicAPI]
-    public class TaskMetadata
+    public record TaskMetadata
     {
         public string PackageId { get; set; }
 

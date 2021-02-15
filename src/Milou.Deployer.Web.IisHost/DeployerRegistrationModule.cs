@@ -3,6 +3,7 @@ using Arbor.App.Extensions.Http;
 using Arbor.AspNetCore.Host;
 using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
@@ -10,6 +11,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost
 {
+    [UsedImplicitly]
     public class DeployerRegistrationModule : IServiceProviderModule
     {
         public void Register(ServiceProviderHolder serviceProviderHolder)

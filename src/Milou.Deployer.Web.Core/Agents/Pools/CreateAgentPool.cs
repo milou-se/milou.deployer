@@ -2,5 +2,5 @@
 
 namespace Milou.Deployer.Web.Core.Agents.Pools
 {
-    public sealed record CreateAgentPool(AgentPoolId AgentPoolId) : ICommand<CreateAgentPoolResult>;
+    public sealed record CreateAgentPool(AgentPoolId AgentPoolId, AgentPoolName Name) : ICommand<CreateAgentPoolResult>;
 }

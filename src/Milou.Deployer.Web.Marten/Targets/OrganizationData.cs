@@ -1,7 +1,7 @@
 ﻿namespace Milou.Deployer.Web.Marten.Targets
 {
     [MartenData]
-    public class OrganizationData
+    public record OrganizationData
     {
         public string Id { get; set; }
     }

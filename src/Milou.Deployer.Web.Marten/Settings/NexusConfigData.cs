@@ -1,7 +1,7 @@
 ﻿namespace Milou.Deployer.Web.Marten.Settings
 {
     [MartenData]
-    public class NexusConfigData
+    public record NexusConfigData
     {
         public string? HmacKey { get; set; }
 

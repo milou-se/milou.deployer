@@ -3,7 +3,7 @@
 namespace Milou.Deployer.Web.Marten.Settings
 {
     [MartenData]
-    public class NuGetData
+    public record NuGetData
     {
         public TimeSpan? PackageListTimeout { get; set; }
 

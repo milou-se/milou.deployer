@@ -3,7 +3,7 @@
 namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [MartenData]
-    public class DeploymentTaskPackageData
+    public record DeploymentTaskPackageData
     {
         public string Id { get; set; }
 
