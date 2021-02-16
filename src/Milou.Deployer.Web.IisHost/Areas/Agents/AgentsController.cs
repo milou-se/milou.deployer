@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Pools;
 using Milou.Deployer.Web.IisHost.AspNetCore.Results;
 using Milou.Deployer.Web.IisHost.Controllers;
 
@@ -28,8 +29,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             var unknownAgents = _agentsData.UnknownAgents;
 
             var result = await mediator.Send(new GetAgentsQuery());
+            var agentPoolListResult = await mediator.Send(new GetAgentPoolsQuery());
 
-            return View(new AgentsViewModel(connectedAgents, result.Agents, unknownAgents));
+            return View(new AgentsViewModel(connectedAgents, result.Agents, unknownAgents, agentPoolListResult.AgentPools));
         }
 
         [HttpGet]

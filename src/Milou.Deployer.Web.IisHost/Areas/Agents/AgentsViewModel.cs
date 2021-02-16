@@ -2,12 +2,16 @@
 using System.Linq;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class AgentsViewModel
     {
-        public AgentsViewModel(ImmutableArray<AgentInfo> connectedAgents, ImmutableArray<AgentInfo> agents, ImmutableDictionary<AgentId, string> unknownAgents)
+        public AgentsViewModel(ImmutableArray<AgentInfo> connectedAgents,
+            ImmutableArray<AgentInfo> agents,
+            ImmutableDictionary<AgentId, string> unknownAgents,
+            ImmutableArray<AgentPoolInfo> agentPools)
         {
             ConnectedAgents = connectedAgents;
             DisconnectedAgents = agents
@@ -15,6 +19,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 .ToImmutableArray();
             Agents = agents;
             UnknownAgents = unknownAgents;
+            AgentPools = agentPools;
         }
 
         public ImmutableArray<AgentInfo> ConnectedAgents { get; }
@@ -24,5 +29,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public ImmutableArray<AgentInfo> Agents { get; }
 
         public ImmutableDictionary<AgentId, string> UnknownAgents { get; }
+
+        public ImmutableArray<AgentPoolInfo> AgentPools { get; }
     }
 }

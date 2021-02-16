@@ -144,9 +144,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 try
                 {
                     object instance =
-                        _serviceProvider.GetRequiredService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
+                        _serviceProvider.GetRequiredService(serviceRegistrationInfo
+                            .ServiceDescriptorImplementationType);
 
                     return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
+                }
+                catch (InvalidOperationException)
+                {
+                    return default;
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {

@@ -9,8 +9,4 @@ namespace Milou.Deployer.Web.Core.Agents.Pools
 
         public ImmutableArray<AgentPoolInfo> AgentPools { get; }
     }
-
-    public record AgentPoolInfo(AgentPoolId AgentPoolId, AgentPoolName Name);
-
-    public record AgentPoolName(string Value);
 }

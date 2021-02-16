@@ -1,8 +1,11 @@
 ﻿@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.IisHost.Areas.Agents
 @model Milou.Deployer.Web.IisHost.Areas.Agents.AgentsViewModel
 @inject IAppTime AppTime;
 
 <h1>Agents</h1>
+
+<a href="@Url.RouteUrl(AgentsController.CreateAgentRouteName)">Create new agent</a>
 
 @if (!Model.Agents.Any())
 {
@@ -24,6 +27,22 @@
         {
             <p>No current deployment task</p>
         }
+
+        <form method="post" action="@Url.RouteUrl(AgentPoolsController.AssignAgentToPoolRouteName)">
+
+            <select name="AgentPoolId">
+
+                @foreach (var pool in Model.AgentPools)
+                {
+                    <option value="@pool.AgentPoolId">@pool.Name</option>
+                }
+            </select>
+
+            <input type="hidden" value="@agent.Id.Value" name="agentId"/>
+
+            <button type="submit">Assign agent to pool</button>
+
+        </form>
     }
 }
 else if (Model.DisconnectedAgents.Any())
