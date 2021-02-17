@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                     context.GetRequiredService<IDistributedCache>()));
             builder.Add<IDeploymentService, DeploymentService>(ServiceLifetime.Transient, this);
             builder.AddSingleton(
-                context => new MilouDeployerConfiguration(context.GetService<IKeyValueConfiguration>()),
+                context => new MilouDeployerConfiguration(context.GetRequiredService<IKeyValueConfiguration>()),
                 this);
 
             builder.AddSingleton<ICredentialReadService, ConfigurationCredentialReadService>(this);

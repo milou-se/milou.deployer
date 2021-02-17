@@ -8,9 +8,9 @@ namespace Milou.Deployer.Core
     /// </summary>
     public static class UnitTestDetector
     {
-        private static readonly Lazy<bool> _isInUnitTest = new Lazy<bool>(Initialize);
+        private static readonly Lazy<bool> IsInUnitTest = new (Initialize);
 
-        public static bool HasUnitTestInAppDomain => _isInUnitTest.Value;
+        public static bool HasUnitTestInAppDomain => IsInUnitTest.Value;
 
         public static bool Initialize()
         {

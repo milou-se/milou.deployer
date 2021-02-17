@@ -10,9 +10,9 @@
       },
       "Arbor.Docker": {
         "type": "Direct",
-        "requested": "[0.5.0, )",
-        "resolved": "0.5.0",
-        "contentHash": "hvlsDe3GlS98Np/y4omzanLPPYZQLiInyK39dLoHW3oPG4CSDqd/511JaL4Wivsek/xwvGIyvebtFJ2dvowHlQ==",
+        "requested": "[0.5.1, )",
+        "resolved": "0.5.1",
+        "contentHash": "bQauMd3t+bItkRAW2K4N1LDZ4mjffsjD5QNALlg2Ida9w414Y7PLvelEzlZv2sauMowqMz4Exl6HO0A0Z8cUsA==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -22,11 +22,11 @@
       },
       "Arbor.Docker.Xunit": {
         "type": "Direct",
-        "requested": "[0.4.0-build.*, )",
-        "resolved": "0.4.0-build.1612090658",
-        "contentHash": "PXRFFTDd89U/xhEydr5qGRcGIY6wNO4NRaxK5wMAZKm7YeFJc82iSaUTf+2j/gP7ZnPgn2dgoxvpvoYQiMT/4Q==",
+        "requested": "[0.5.2, )",
+        "resolved": "0.5.2",
+        "contentHash": "2Smi0MMRyPkrOtvbQuVBTYrdPOzNadW3WP0zqYHcbupuLusPkXmg0svFCZ+2pzXxVu142F0C1U1oBYD/IPpQ7A==",
         "dependencies": {
-          "Arbor.Docker": "[0.4.0-build.1612090658]",
+          "Arbor.Docker": "[0.5.0, 2.0.0)",
           "Serilog": "[2.9.0, 3.0.0)",
           "Serilog.Sinks.XUnit": "[2.0.4, 3.0.0)",
           "XUnit": "[2.4.1, 3.0.0)"
@@ -65,9 +65,9 @@
       },
       "NCrunch.Framework": {
         "type": "Direct",
-        "requested": "[4.5.0, )",
-        "resolved": "4.5.0",
-        "contentHash": "cO00m+ZacW/FTH82PXnXiAsEKTygQwyZO56Y3rrccleaENtnNBZDYK/hWCWQT1YghO/+MUkG6V7GfFw9S1ZZYA==",
+        "requested": "[4.7.0.4, )",
+        "resolved": "4.7.0.4",
+        "contentHash": "Mpx7XHuotlxj+qI+MCaHPQz+59IQqtzwt79CBrGo38p+yzsqoyC59AbwFTXJZwHwXoN5CZ505dd0boNgqPTlDg==",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
           "System.Collections.NonGeneric": "4.3.0"
@@ -81,12 +81,11 @@
       },
       "Serilog.Sinks.Debug": {
         "type": "Direct",
-        "requested": "[1.0.1, )",
-        "resolved": "1.0.1",
-        "contentHash": "nE5wvw9+J/V4lA+rEkFUETGjBabK8IlLQY5Z9KDzoo5LvILC4vhTOXLs7DGYs8h5juIf2nLZnVxHDXf404FqEQ==",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "Y6g3OBJ4JzTyyw16fDqtFcQ41qQAydnEvEqmXjhwhgjsnG/FaJ8GUqF5ldsC/bVkK8KYmqrPhDO+tm4dF6xx4A==",
         "dependencies": {
-          "Serilog": "2.5.0",
-          "System.Diagnostics.Debug": "4.3.0"
+          "Serilog": "2.10.0"
         }
       },
       "Serilog.Sinks.XUnit": {
@@ -150,8 +149,8 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.6.1",
-        "contentHash": "S7X/FrazJh2kZViK/voONMdCGIHookRMN7gKi60h7y5/A5p0vJXCUziTtwTJcmyUpwb6OUSVw+NuNeYQG6SHnQ==",
+        "resolved": "0.6.2",
+        "contentHash": "cg/SAx9plhg6TUwg5hzags24Hyu2zhjGLCl5hWROvYi1aX4SxvavqvhddcaMtsFAyrCl9OgycC1Rd4BuFLrjSQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.1.6",
           "Arbor.KVConfiguration.Schema": "1.1.6",
@@ -165,9 +164,9 @@
           "Microsoft.Extensions.Primitives": "5.0.0",
           "Serilog": "2.10.0",
           "Serilog.Sinks.Console": "3.1.1",
-          "Serilog.Sinks.Debug": "1.0.1",
+          "Serilog.Sinks.Debug": "2.0.0",
           "Serilog.Sinks.File": "4.1.0",
-          "Serilog.Sinks.Seq": "4.0.0",
+          "Serilog.Sinks.Seq": "5.0.0",
           "System.Collections.Immutable": "5.0.0",
           "System.ComponentModel.Annotations": "5.0.0"
         }
@@ -638,10 +637,10 @@
       },
       "Serilog.Formatting.Compact": {
         "type": "Transitive",
-        "resolved": "1.0.0",
-        "contentHash": "r3QYz02y7+B7Ng30hyJM929OJhem7SsJ4XDUE0Zfptj2MRiQfpPUb5f58juAFjp/TnNeSX2QNzZEnHwLeoJfHQ==",
+        "resolved": "1.1.0",
+        "contentHash": "pNroKVjo+rDqlxNG5PXkRLpfSCuDOBY0ri6jp9PLe505ljqwhwZz8ospy2vWhQlFu5GkIesh3FcDs4n7sWZODA==",
         "dependencies": {
-          "Serilog": "2.0.0"
+          "Serilog": "2.8.0"
         }
       },
       "Serilog.Sinks.Console": {
@@ -668,8 +667,8 @@
       },
       "Serilog.Sinks.PeriodicBatching": {
         "type": "Transitive",
-        "resolved": "2.1.1",
-        "contentHash": "L1iZtcEzQdEIYCPvhYJYB2RofPg+i1NhHJfS+DpXLyLSMS6OXebqaI1fxWhmJRIjD9D9BuXi23FkZTQDiP7cHw==",
+        "resolved": "2.3.0",
+        "contentHash": "UYKSjTMTlUY9T3OgzMmLDLD+z0qPfgvq/RvG0rKfyz+O+Zrjw3X/Xpv14J4WMcGVsOjUaR+k8n2MdmqVpJtI6A==",
         "dependencies": {
           "Serilog": "2.0.0",
           "System.Collections.Concurrent": "4.0.12",
@@ -678,15 +677,13 @@
       },
       "Serilog.Sinks.Seq": {
         "type": "Transitive",
-        "resolved": "4.0.0",
-        "contentHash": "02HTAboPlG6+/u63+o4bffS5f9VOLMn0/76OsK+Ii90IufoTO6YWIEzZ84KUYjmQnjToe0lrVbLa7qOJdUCYbg==",
+        "resolved": "5.0.0",
+        "contentHash": "jBVpmd7O5YdY9mOkn+k6hmjjrejeq7FOfT64MeMr0Rdmy+AeQbYKOirlOKuX/Vl0xvHWQEtICC34J7TZZkrY6g==",
         "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "Serilog": "2.5.0",
-          "Serilog.Formatting.Compact": "1.0.0",
+          "Serilog": "2.10.0",
+          "Serilog.Formatting.Compact": "1.1.0",
           "Serilog.Sinks.File": "4.0.0",
-          "Serilog.Sinks.PeriodicBatching": "2.1.1",
-          "System.Net.Http": "4.3.2"
+          "Serilog.Sinks.PeriodicBatching": "2.3.0"
         }
       },
       "System.AppContext": {
@@ -987,8 +984,8 @@
       },
       "System.Net.Http": {
         "type": "Transitive",
-        "resolved": "4.3.2",
-        "contentHash": "y7hv0o0weI0j0mvEcBOdt1F3CAADiWlcw3e54m8TfYiRmBPDIsHElx8QUPDlY4x6yWXKPGN0Z2TuXCTPgkm5WQ==",
+        "resolved": "4.3.0",
+        "contentHash": "sYg+FtILtRQuYWSIAuNOELwVuVsxVyJGWQyOnlAzhV4xvhyFnON1bAzYYC+jjRW8JREM45R0R5Dgi8MTC5sEwA==",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
           "System.Collections": "4.3.0",
@@ -1643,7 +1640,7 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.6.1",
+          "Arbor.App.Extensions": "0.6.2",
           "Arbor.KVConfiguration.Core": "1.1.6",
           "Arbor.KVConfiguration.Schema.Json": "1.1.6",
           "Arbor.KVConfiguration.Urns": "1.1.6",

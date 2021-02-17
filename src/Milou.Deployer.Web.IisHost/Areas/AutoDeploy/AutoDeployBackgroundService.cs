@@ -226,21 +226,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         {
             try
             {
-                AppVersion[] appVersions;
-                using (CancellationTokenSource cancellationTokenSource =
+                using CancellationTokenSource cancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
-                {
-                    using var linkedCancellationTokenSource =
-                        CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
-                    var cancellationToken = linkedCancellationTokenSource.Token;
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds));
+                using var linkedCancellationTokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
+                var cancellationToken = linkedCancellationTokenSource.Token;
 
-                    IEnumerable<Task<AppVersion>> tasks = targetsWithUrl.Select(
-                        target =>
-                            _monitoringService.GetAppMetadataAsync(target, cancellationToken));
+                IEnumerable<Task<AppVersion?>> tasks = targetsWithUrl.Select(
+                    target =>
+                        _monitoringService.GetAppMetadataAsync(target, cancellationToken));
 
-                    appVersions = await Task.WhenAll(tasks);
-                }
+                AppVersion[] appVersions = (await Task.WhenAll(tasks)).NotNull().ToArray();
 
                 return appVersions;
             }

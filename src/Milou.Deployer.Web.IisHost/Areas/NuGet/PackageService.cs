@@ -79,7 +79,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     $"The nuget.exe path '{_nuGetConfiguration.NugetExePath}' does not exist");
             }
 
-            string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
+            const string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
 
             string? packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 

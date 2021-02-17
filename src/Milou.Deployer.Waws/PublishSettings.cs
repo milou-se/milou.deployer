@@ -57,8 +57,7 @@ namespace Milou.Deployer.Waws
             if (profiles.Length > 1)
             {
                 profile =
-                    profiles.FirstOrDefault(
-                        current => current.Attribute(PublishMethod!)?.Value.Equals(MsDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
+                    Array.Find(profiles, current => current.Attribute(PublishMethod!)?.Value.Equals(MsDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
             }
             else
             {

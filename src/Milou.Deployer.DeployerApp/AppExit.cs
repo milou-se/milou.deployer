@@ -8,7 +8,6 @@ namespace Milou.Deployer.DeployerApp
 {
     internal sealed class AppExit
     {
-        private const string ExitMessage = "Press ENTER to continue";
         private readonly ILogger _logger;
 
         public AppExit([NotNull] ILogger logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -48,8 +48,7 @@ namespace Milou.Deployer.Development
 
                 foreach (var devConfigurationAgent in _devConfiguration.Agents.Where(pair=>pair.Value is {}))
                 {
-                    AgentRunner? agentRunner = default;
-                    agentRunner = await StartAgent(devConfigurationAgent.Value!, cancellationTokenSource);
+                    var agentRunner = await StartAgent(devConfigurationAgent.Value!, cancellationTokenSource);
                     runners.Add(agentRunner);
                 }
 
@@ -64,7 +63,7 @@ namespace Milou.Deployer.Development
             }
         }
 
-        private async Task<AgentRunner> StartAgent(AgentConfiguration agentConfiguration,
+        private static Task<AgentRunner> StartAgent(AgentConfiguration agentConfiguration,
             CancellationTokenSource cancellationTokenSource)
         {
             object[] instances = {agentConfiguration, agentConfiguration.AgentId()};
@@ -82,7 +81,7 @@ namespace Milou.Deployer.Development
                 variables, instances: instances, assemblies: assemblies
 );
             var agentRunner = new AgentRunner(cancellationTokenSource, appTask);
-            return agentRunner;
+            return Task.FromResult(agentRunner);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
     {
         public FtpResponse(WebResponse webResponse)
         {
-            if (!(webResponse is FtpWebResponse response))
+            if (webResponse is not FtpWebResponse response)
             {
                 throw new InvalidOperationException("Invalid ftp response");
             }

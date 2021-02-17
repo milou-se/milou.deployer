@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 
         [HttpPost]
         [Route(TargetConstants.RemoveTargetPostRoute, Name = TargetConstants.RemoveTargetPostRouteName)]
-        public async Task<IActionResult> Remove([FromBody] RemoveTarget removeTarget, [FromServices] IMediator mediator)
+        public async Task<IActionResult> Remove([FromBody] RemoveTarget? removeTarget, [FromServices] IMediator mediator)
         {
             if (removeTarget is null)
             {
@@ -62,7 +62,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [HttpPost]
         [Route(TargetConstants.CreateTargetPostRoute, Name = TargetConstants.CreateTargetPostRouteName)]
         public async Task<ActionResult<CreateTargetResult>> Post(
-            [FromBody] CreateTarget createTarget,
+            [FromBody] CreateTarget? createTarget,
             [FromServices] IMediator mediator,
             [FromQuery] bool redirect = true)
         {
@@ -99,7 +99,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            DeploymentTarget deploymentTarget =
+            DeploymentTarget? deploymentTarget =
                 await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
@@ -117,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            DeploymentTarget deploymentTarget =
+            DeploymentTarget? deploymentTarget =
                 await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
@@ -133,7 +133,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [Route(TargetConstants.EditTargetPostRoute, Name = TargetConstants.EditTargetPostRouteName)]
         [HttpPost]
         public async Task<ActionResult<UpdateDeploymentTargetResult>> Edit(
-            [FromBody] UpdateDeploymentTarget updateDeploymentTarget,
+            [FromBody] UpdateDeploymentTarget? updateDeploymentTarget,
             [FromServices] IMediator mediator,
             [FromQuery] bool redirect = true)
         {

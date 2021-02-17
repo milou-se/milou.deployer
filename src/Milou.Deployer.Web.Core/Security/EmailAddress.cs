@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Mail;
 
 namespace Milou.Deployer.Web.Core.Security
 {
     //TODO extract from project
-    public class EmailAddress
+    public sealed class EmailAddress
     {
         private EmailAddress(string address) => Address = address;
 
@@ -20,9 +21,14 @@ namespace Milou.Deployer.Web.Core.Security
                 return false;
             }
 
-            //TODO add real email parsing
-            emailAddress = new EmailAddress(email);
-            return email.Contains("@");
+            if (!MailAddress.TryCreate(email, out var mailAddress))
+            {
+                emailAddress = default;
+                return false;
+            }
+
+            emailAddress = new EmailAddress(mailAddress.Address);
+            return true;
         }
     }
 }

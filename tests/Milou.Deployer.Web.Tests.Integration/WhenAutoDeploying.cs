@@ -53,7 +53,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Output.WriteLine(typeof(StartupModule).FullName);
 
-            Assert.NotNull(WebFixture?.App.Host?.Services);
+            Assert.NotNull(WebFixture?.App?.Host?.Services);
 
             using (var httpClient = WebFixture!.App!.Host!.Services.GetRequiredService<IHttpClientFactory>().CreateClient())
             {

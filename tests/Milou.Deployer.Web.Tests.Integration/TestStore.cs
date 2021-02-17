@@ -16,6 +16,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public void Dispose()
         {
+            // in-memory
         }
 
         public void BulkInsert<T>(IReadOnlyCollection<T> documents, BulkInsertMode mode = BulkInsertMode.InsertsOnly, int batchSize = 1000) => throw new NotImplementedException();

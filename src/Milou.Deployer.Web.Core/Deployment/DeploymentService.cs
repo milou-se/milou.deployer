@@ -91,7 +91,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public void TaskDone(string deploymentTaskId)
         {
-            if (_current is {})
+            if (_current is { })
             {
                 _current.Status = WorkTaskStatus.Done;
                 _statusChangedEvent.Set(false);
@@ -106,7 +106,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public void TaskFailed(string deploymentTaskId)
         {
-            if (_current is {})
+            if (_current is { })
             {
                 _statusChangedEvent.Set(false);
                 _current.Status = WorkTaskStatus.Failed;
@@ -248,224 +248,6 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             _statusChangedEvent.Dispose();
         }
-
-        private void LogToQueue(string message)
-        {
-            if (_current is null)
-            {
-                return;
-            }
-
-            if (MessageQueue.IsAddingCompleted)
-            {
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
-
-            MessageQueue.Add((message, _current.Status));
-
-            if (_current.Status == WorkTaskStatus.Done || _current.Status == WorkTaskStatus.Failed)
-            {
-                MessageQueue.CompleteAdding();
-            }
-        }
-
-        private static void ClearTemporaryDirectoriesAndFiles(IEnumerable<TempFile> tempFiles,
-            IEnumerable<DirectoryInfo> tempDirectories)
-        {
-            foreach (TempFile temporaryFile in tempFiles)
-            {
-                temporaryFile.SafeDispose();
-            }
-
-            foreach (DirectoryInfo deploymentTaskTempDirectory in tempDirectories)
-            {
-                deploymentTaskTempDirectory.Refresh();
-
-                if (deploymentTaskTempDirectory.Exists)
-                {
-                    deploymentTaskTempDirectory.Delete(true);
-                }
-            }
-        }
-
-        private static string LogJobMetadata(
-            DeploymentTask deploymentTask,
-            DateTime start,
-            DateTime end,
-            Stopwatch stopwatch,
-            ExitCode exitCode,
-            DeploymentTarget? deploymentTarget)
-        {
-            var metadata = new StringBuilder();
-
-            metadata
-                .Append("Started job ")
-                .Append(deploymentTask.DeploymentTaskId)
-                .Append(" at ")
-                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", start)
-                .Append(" and finished at ")
-                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", end).AppendLine();
-
-            metadata
-                .Append("Total time ")
-                .AppendFormat(CultureInfo.InvariantCulture, "{0:f}", stopwatch.Elapsed.TotalSeconds)
-                .AppendLine(" seconds");
-
-            metadata
-                .Append("Package version: ")
-                .Append(deploymentTask.SemanticVersion)
-                .AppendLine();
-
-            metadata
-                .Append("Package id: ")
-                .AppendLine(deploymentTask.PackageId);
-
-            metadata
-                .Append("Target id: ")
-                .AppendLine(deploymentTask.DeploymentTargetId);
-
-            if (deploymentTarget is null)
-            {
-                metadata.AppendLine("Deployment target not found");
-            }
-            else
-            {
-                metadata.Append("Publish settings file: ").AppendLine(deploymentTarget.PublishSettingFile);
-                metadata.Append("Target directory: ").AppendLine(deploymentTarget.TargetDirectory);
-                metadata.Append("Target URI: ").Append(deploymentTarget.Url).AppendLine();
-            }
-
-            metadata.Append("Exit code ").Append(exitCode).AppendLine();
-
-            string metadataContent = metadata.ToString();
-
-            return metadataContent;
-        }
-
-        private static void CheckPackageMatchingTarget(DeploymentTarget deploymentTarget, string packageId)
-        {
-            if (
-                !string.IsNullOrWhiteSpace(deploymentTarget.PackageId)
-                && !deploymentTarget.PackageId.Equals(packageId,
-                    StringComparison.OrdinalIgnoreCase)
-                && !deploymentTarget.PackageId.Equals(Arbor.App.Extensions.Constants.NotAvailable, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new DeployerAppException(
-                    $"The package id '{packageId}' is not matching the allowed package id: {deploymentTarget.PackageId}");
-            }
-        }
-
-        private static void VerifyPreReleaseAllowed(
-            SemanticVersion version,
-            DeploymentTarget deploymentTarget,
-            string packageId,
-            ILogger logger)
-        {
-            if (version.IsPrerelease && !deploymentTarget.AllowPreRelease)
-            {
-                throw new DeployerAppException(
-                    $"Could not deploy package with id '{packageId}' to target '{deploymentTarget}' because the package is a pre-release version and the target does not support it");
-            }
-
-            if (version.IsPrerelease && logger.IsEnabled(LogEventLevel.Debug))
-            {
-                logger.Debug(
-                    "The deployment target '{DeploymentTarget}' allows package id '{PackageId}' version {Version}, pre-release",
-                    deploymentTarget,
-                    packageId,
-                    version.ToNormalizedString());
-            }
-        }
-
-        private static void VerifyAllowedPackageIsAllowed(
-            DeploymentTarget deploymentTarget,
-            string packageId,
-            ILogger logger)
-        {
-            if (logger.IsEnabled(LogEventLevel.Debug))
-            {
-                if (deploymentTarget.PackageId.Any())
-                {
-                    CheckPackageMatchingTarget(deploymentTarget, packageId);
-
-                    logger.Debug("The deployment target '{DeploymentTarget}' allows package id '{PackageId}'",
-                        deploymentTarget,
-                        packageId);
-                }
-                else
-                {
-                    logger.Debug(
-                        "The deployment target '{DeploymentTarget}' has no allowed package names, allowing any package id",
-                        deploymentTarget);
-                }
-            }
-        }
-
-        private async Task<DeploymentTaskTempData> PrepareDeploymentAsync(
-            DeploymentTask deploymentTask,
-            ILogger logger,
-            CancellationToken cancellationToken = default)
-        {
-            ExitCode exitCode;
-
-            var logBuilder = new List<LogItem>();
-
-            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.DelegateSink((message, _) => LogToQueue(message), _loggingLevelSwitch.MinimumLevel)
-                .WriteTo.DelegateSink((message, level) =>
-                        logBuilder.Add(new LogItem
-                        {
-                            Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()
-                        }),
-                    LogEventLevel.Verbose)
-                .WriteTo.Logger(logger);
-
-            if (Debugger.IsAttached)
-            {
-                loggerConfiguration = loggerConfiguration.WriteTo.Debug();
-            }
-
-            loggerConfiguration = loggerConfiguration.MinimumLevel.ControlledBy(_loggingLevelSwitch);
-
-            Logger log = loggerConfiguration.CreateLogger();
-
-            if (logger.IsEnabled(LogEventLevel.Debug))
-            {
-                logger.Debug(
-                    "Preparing deploy {TaskId} for deployment target '{DeploymentTarget}', package '{PackageId}' version {Version}",
-                    deploymentTask.DeploymentTaskId,
-                    deploymentTask.DeploymentTargetId,
-                    deploymentTask.PackageId,
-                    deploymentTask.SemanticVersion.ToNormalizedString());
-            }
-
-            try
-            {
-                exitCode = await CreateDeploymentPackageAsync(
-                    deploymentTask, log, _loggingLevelSwitch,
-                    cancellationToken);
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Failed to deploy task {DeploymentTask}", deploymentTask);
-                exitCode = ExitCode.Failure;
-            }
-
-            if (!exitCode.IsSuccess)
-            {
-                throw new InvalidOperationException("Create deployment package failed");
-            }
-
-            return new DeploymentTaskTempData(log, deploymentTask.DeploymentTaskId, logBuilder);
-        }
-
-        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch) =>
-            Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
 
         public async Task<ExitCode> CreateDeploymentPackageAsync(
             [NotNull] DeploymentTask deploymentTask,
@@ -642,8 +424,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                         ftpPath = deploymentTarget.FtpPath?.Path,
                         packageListPrefixEnabled = deploymentTarget.PackageListPrefixEnabled,
                         packageListPrefix =
-                            deploymentTarget.PackageListPrefixEnabled.HasValue &&
-                            deploymentTarget.PackageListPrefixEnabled.Value
+                            deploymentTarget.PackageListPrefixEnabled == true
                                 ? deploymentTarget.PackageListPrefix
                                 : ""
                     }
@@ -675,14 +456,14 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             jobLogger.Information("Using definitions JSON: {Json}", manifestJson);
 
-            string manifestFile = "manifest.json";
+            const string manifestFile = "manifest.json";
             jobLogger.Information("Using temp manifest file '{ManifestFile}'", manifestFile);
 
             arguments.Add(manifestFile);
             arguments.Add(Constants.AllowPreRelease);
             arguments.Add(LoggingConstants.PlainOutputFormatEnabled);
             arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
-            arguments.Add($"{LoggingConstants.LoggingCategoryFormatEnabled}");
+            arguments.Add(LoggingConstants.LoggingCategoryFormatEnabled);
             arguments.Add(ConsoleConfigurationKeys.NonInteractiveArgument);
 
             string exePath = _configuration["deployer-exe"];
@@ -712,6 +493,39 @@ namespace Milou.Deployer.Web.Core.Deployment
             return ExitCode.Success;
         }
 
+        private static void CheckPackageMatchingTarget(DeploymentTarget deploymentTarget, string packageId)
+        {
+            if (
+                !string.IsNullOrWhiteSpace(deploymentTarget.PackageId)
+                && !deploymentTarget.PackageId.Equals(packageId,
+                    StringComparison.OrdinalIgnoreCase)
+                && !deploymentTarget.PackageId.Equals(Arbor.App.Extensions.Constants.NotAvailable,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new DeployerAppException(
+                    $"The package id '{packageId}' is not matching the allowed package id: {deploymentTarget.PackageId}");
+            }
+        }
+
+        private static void ClearTemporaryDirectoriesAndFiles(IEnumerable<TempFile> tempFiles,
+            IEnumerable<DirectoryInfo> tempDirectories)
+        {
+            foreach (TempFile temporaryFile in tempFiles)
+            {
+                temporaryFile.SafeDispose();
+            }
+
+            foreach (DirectoryInfo deploymentTaskTempDirectory in tempDirectories)
+            {
+                deploymentTaskTempDirectory.Refresh();
+
+                if (deploymentTaskTempDirectory.Exists)
+                {
+                    deploymentTaskTempDirectory.Delete(true);
+                }
+            }
+        }
+
         private static async Task<TempFile> CreateTempPublishFile(
             DeploymentTarget deploymentTarget,
             string? username,
@@ -723,8 +537,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             var profileNameAttribute = new XAttribute("profileName"!, deploymentTarget.Name);
             var publishMethodAttribute = new XAttribute("publishMethod"!, "MSDeploy");
             var publishUrlAttribute = new XAttribute("publishUrl"!, publishUrl);
-            var userNameAttribute = new XAttribute("userName"!, username ??"");
-            var userPwdAttribute = new XAttribute("userPWD"!, password ??"");
+            var userNameAttribute = new XAttribute("userName"!, username ?? "");
+            var userPwdAttribute = new XAttribute("userPWD"!, password ?? "");
             var webSystemAttribute = new XAttribute("webSystem"!, "WebSites");
             var msdeploySiteAttribute = new XAttribute("msdeploySite"!, "WebSites");
 
@@ -756,5 +570,191 @@ namespace Milou.Deployer.Web.Core.Deployment
             [NotNull] string deploymentTargetId,
             CancellationToken cancellationToken = default) =>
             _deploymentTargetService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
+
+        private static string LogJobMetadata(
+            DeploymentTask deploymentTask,
+            DateTime start,
+            DateTime end,
+            Stopwatch stopwatch,
+            ExitCode exitCode,
+            DeploymentTarget? deploymentTarget)
+        {
+            var metadata = new StringBuilder();
+
+            metadata
+                .Append("Started job ")
+                .Append(deploymentTask.DeploymentTaskId)
+                .Append(" at ")
+                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", start)
+                .Append(" and finished at ")
+                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", end).AppendLine();
+
+            metadata
+                .Append("Total time ")
+                .AppendFormat(CultureInfo.InvariantCulture, "{0:f}", stopwatch.Elapsed.TotalSeconds)
+                .AppendLine(" seconds");
+
+            metadata
+                .Append("Package version: ")
+                .Append(deploymentTask.SemanticVersion)
+                .AppendLine();
+
+            metadata
+                .Append("Package id: ")
+                .AppendLine(deploymentTask.PackageId);
+
+            metadata
+                .Append("Target id: ")
+                .AppendLine(deploymentTask.DeploymentTargetId);
+
+            if (deploymentTarget is null)
+            {
+                metadata.AppendLine("Deployment target not found");
+            }
+            else
+            {
+                metadata.Append("Publish settings file: ").AppendLine(deploymentTarget.PublishSettingFile);
+                metadata.Append("Target directory: ").AppendLine(deploymentTarget.TargetDirectory);
+                metadata.Append("Target URI: ").Append(deploymentTarget.Url).AppendLine();
+            }
+
+            metadata.Append("Exit code ").Append(exitCode).AppendLine();
+
+            string metadataContent = metadata.ToString();
+
+            return metadataContent;
+        }
+
+        private void LogToQueue(string message)
+        {
+            if (_current is null)
+            {
+                return;
+            }
+
+            if (MessageQueue.IsAddingCompleted)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
+            MessageQueue.Add((message, _current.Status));
+
+            if (_current.Status == WorkTaskStatus.Done || _current.Status == WorkTaskStatus.Failed)
+            {
+                MessageQueue.CompleteAdding();
+            }
+        }
+
+        private async Task<DeploymentTaskTempData> PrepareDeploymentAsync(
+            DeploymentTask deploymentTask,
+            ILogger logger,
+            CancellationToken cancellationToken = default)
+        {
+            ExitCode exitCode;
+
+            var logBuilder = new List<LogItem>();
+
+            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+                .WriteTo.DelegateSink((message, _) => LogToQueue(message), _loggingLevelSwitch.MinimumLevel)
+                .WriteTo.DelegateSink((message, level) =>
+                        logBuilder.Add(new LogItem
+                        {
+                            Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()
+                        }),
+                    LogEventLevel.Verbose)
+                .WriteTo.Logger(logger);
+
+            if (Debugger.IsAttached)
+            {
+                loggerConfiguration = loggerConfiguration.WriteTo.Debug();
+            }
+
+            loggerConfiguration = loggerConfiguration.MinimumLevel.ControlledBy(_loggingLevelSwitch);
+
+            Logger log = loggerConfiguration.CreateLogger();
+
+            if (logger.IsEnabled(LogEventLevel.Debug))
+            {
+                logger.Debug(
+                    "Preparing deploy {TaskId} for deployment target '{DeploymentTarget}', package '{PackageId}' version {Version}",
+                    deploymentTask.DeploymentTaskId,
+                    deploymentTask.DeploymentTargetId,
+                    deploymentTask.PackageId,
+                    deploymentTask.SemanticVersion.ToNormalizedString());
+            }
+
+            try
+            {
+                exitCode = await CreateDeploymentPackageAsync(
+                    deploymentTask, log, _loggingLevelSwitch,
+                    cancellationToken);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex, "Failed to deploy task {DeploymentTask}", deploymentTask);
+                exitCode = ExitCode.Failure;
+            }
+
+            if (!exitCode.IsSuccess)
+            {
+                throw new InvalidOperationException("Create deployment package failed");
+            }
+
+            return new DeploymentTaskTempData(log, deploymentTask.DeploymentTaskId, logBuilder);
+        }
+
+        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch) =>
+            Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
+
+        private static void VerifyAllowedPackageIsAllowed(
+            DeploymentTarget deploymentTarget,
+            string packageId,
+            ILogger logger)
+        {
+            if (logger.IsEnabled(LogEventLevel.Debug))
+            {
+                if (deploymentTarget.PackageId.Any())
+                {
+                    CheckPackageMatchingTarget(deploymentTarget, packageId);
+
+                    logger.Debug("The deployment target '{DeploymentTarget}' allows package id '{PackageId}'",
+                        deploymentTarget,
+                        packageId);
+                }
+                else
+                {
+                    logger.Debug(
+                        "The deployment target '{DeploymentTarget}' has no allowed package names, allowing any package id",
+                        deploymentTarget);
+                }
+            }
+        }
+
+        private static void VerifyPreReleaseAllowed(
+            SemanticVersion version,
+            DeploymentTarget deploymentTarget,
+            string packageId,
+            ILogger logger)
+        {
+            if (version.IsPrerelease && !deploymentTarget.AllowPreRelease)
+            {
+                throw new DeployerAppException(
+                    $"Could not deploy package with id '{packageId}' to target '{deploymentTarget}' because the package is a pre-release version and the target does not support it");
+            }
+
+            if (version.IsPrerelease && logger.IsEnabled(LogEventLevel.Debug))
+            {
+                logger.Debug(
+                    "The deployment target '{DeploymentTarget}' allows package id '{PackageId}' version {Version}, pre-release",
+                    deploymentTarget,
+                    packageId,
+                    version.ToNormalizedString());
+            }
+        }
     }
 }

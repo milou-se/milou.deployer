@@ -1,12 +1,25 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Agents.Pools
 {
     [JsonConverter(typeof(AgentPoolNameConverter))]
-    public record AgentPoolName(string Value)
+    public record AgentPoolName
     {
-        public override string ToString() => Value ?? base.ToString();
+        public AgentPoolName([JetBrains.Annotations.NotNull] string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+            }
+
+            Value = value;
+        }
+
+        public string Value { get; }
+
+        public override string ToString() => Value;
 
         public static bool TryParse(string? value
             , [NotNullWhen(true)] out AgentPoolName? agentPoolName)
@@ -20,5 +33,5 @@ namespace Milou.Deployer.Web.Core.Agents.Pools
             agentPoolName = new AgentPoolName(value);
             return true;
         }
-    };
+    }
 }

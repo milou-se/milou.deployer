@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Agent;
@@ -7,6 +8,7 @@ using Milou.Deployer.Web.Marten.Agents;
 
 namespace Milou.Deployer.Web.Marten
 {
+    [UsedImplicitly]
     public class GetAgentConfigurationQueryHandler : IRequestHandler<GetAgentConfigurationQuery, GetAgentConfigurationQueryResult>
     {
         private readonly IDocumentStore _documentStore;

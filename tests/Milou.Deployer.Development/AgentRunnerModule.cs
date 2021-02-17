@@ -1,23 +1,23 @@
 using System.Linq;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.DependencyInjection;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 
 namespace Milou.Deployer.Development
 {
+    [UsedImplicitly]
     public class AgentRunnerModule : IModule
     {
         private readonly IApplicationAssemblyResolver _applicationAssemblyResolver;
         private readonly DevConfiguration? _devConfiguration;
-        private readonly EnvironmentConfiguration _environmentConfiguration;
 
-        public AgentRunnerModule(IApplicationAssemblyResolver applicationAssemblyResolver, EnvironmentConfiguration environmentConfiguration, DevConfiguration? devConfiguration = null)
+        public AgentRunnerModule(IApplicationAssemblyResolver applicationAssemblyResolver, DevConfiguration? devConfiguration = null)
         {
             _applicationAssemblyResolver = applicationAssemblyResolver;
             _devConfiguration = devConfiguration;
-            _environmentConfiguration = environmentConfiguration;
         }
 
         public IServiceCollection Register(IServiceCollection builder)

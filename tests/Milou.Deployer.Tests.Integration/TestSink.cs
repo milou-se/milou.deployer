@@ -8,10 +8,10 @@ namespace Milou.Deployer.Tests.Integration
 {
     public class TestSink : ILogEventSink
     {
-        private readonly IFormatProvider _formatProvider;
+        private readonly IFormatProvider? _formatProvider;
         private readonly ITestOutputHelper _helper;
 
-        public TestSink(IFormatProvider formatProvider, ITestOutputHelper helper)
+        public TestSink(IFormatProvider? formatProvider, ITestOutputHelper helper)
         {
             _formatProvider = formatProvider;
             _helper = helper;

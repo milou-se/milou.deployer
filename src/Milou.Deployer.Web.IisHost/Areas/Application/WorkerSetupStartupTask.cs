@@ -23,7 +23,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         private readonly ICustomClock _clock;
         private readonly IKeyValueConfiguration _configuration;
-        private readonly IServiceProvider _deploymentService;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly ConfigurationInstanceHolder _holder;
         private readonly ILogger _logger;
@@ -37,7 +36,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ILogger logger,
             IDeploymentTargetReadService deploymentTargetReadService,
             ConfigurationInstanceHolder holder,
-            IServiceProvider deploymentService,
             IMediator mediator,
             WorkerConfiguration workerConfiguration,
             TimeoutHelper timeoutHelper,
@@ -48,7 +46,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             _logger = logger;
             _deploymentTargetReadService = deploymentTargetReadService;
             _holder = holder;
-            _deploymentService = deploymentService;
             _mediator = mediator;
             _workerConfiguration = workerConfiguration;
             _timeoutHelper = timeoutHelper;

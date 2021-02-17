@@ -14,8 +14,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         public static IEnumerable<object[]> GetTestAssemblyTypes()
         {
             string[] assemblyNameStartsWith = { "Milou" };
-            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false,
-                assemblyNameStartsWith: assemblyNameStartsWith);
+            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: assemblyNameStartsWith,
+useCache: false);
 
             var allTypes = filteredAssemblies.SelectMany(a => a.GetExportedTypes()).ToArray();
 

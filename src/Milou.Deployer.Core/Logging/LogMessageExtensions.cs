@@ -14,7 +14,7 @@ namespace Milou.Deployer.Core.Logging
         private const string MessageTemplate = "{Message}";
         private const string MessageTemplateWithCategory = "{Category} {Message}";
 
-        public static void ParseAndLog(this ILogger logger, string? message, string? category = null)
+        public static void ParseAndLog(this ILogger? logger, string? message, string? category = null)
         {
             if (logger is null)
             {
@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.Logging
             }
         }
 
-        public static (string?, LogEventLevel) Parse(string? message)
+        internal static (string?, LogEventLevel) Parse(string? message)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -72,27 +72,27 @@ namespace Milou.Deployer.Core.Logging
 
             if (message.StartsWith(Information, StringComparison.OrdinalIgnoreCase))
             {
-                return (message.Substring(Information.Length + 1).Trim(), LogEventLevel.Information);
+                return (message[(Information.Length + 1)..].Trim(), LogEventLevel.Information);
             }
 
             if (message.StartsWith(Fatal, StringComparison.OrdinalIgnoreCase))
             {
-                return (message.Substring(Fatal.Length + 1).Trim(), LogEventLevel.Fatal);
+                return (message[(Fatal.Length + 1)..].Trim(), LogEventLevel.Fatal);
             }
 
             if (message.StartsWith(Error, StringComparison.OrdinalIgnoreCase))
             {
-                return (message.Substring(Error.Length + 1).Trim(), LogEventLevel.Error);
+                return (message[(Error.Length + 1)..].Trim(), LogEventLevel.Error);
             }
 
             if (message.StartsWith(Debug, StringComparison.OrdinalIgnoreCase))
             {
-                return (message.Substring(Debug.Length + 1).Trim(), LogEventLevel.Debug);
+                return (message[(Debug.Length + 1)..].Trim(), LogEventLevel.Debug);
             }
 
             if (message.StartsWith(Verbose, StringComparison.OrdinalIgnoreCase))
             {
-                return (message.Substring(Verbose.Length + 1).Trim(), LogEventLevel.Verbose);
+                return (message[(Verbose.Length + 1)..].Trim(), LogEventLevel.Verbose);
             }
 
             return (message, LogEventLevel.Information);

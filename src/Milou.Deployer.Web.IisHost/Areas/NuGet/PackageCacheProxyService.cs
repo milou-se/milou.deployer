@@ -64,7 +64,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     cacheKey,
                     packageId);
 
-                if (packages?.Versions?.Length > 0)
+                if (packages?.Versions.Length > 0)
                 {
                     return packages.Versions
                         .Select(version => new PackageVersion(packageId, SemanticVersion.Parse(version)))
@@ -81,7 +81,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     await _applicationSettingsStore.GetApplicationSettings(CancellationToken.None);
                 var cacheTime = settings.CacheTime;
 
-                var versions = addedPackages
+                string[] versions = addedPackages
                     .Select(version => version.Version.ToNormalizedString())
                     .ToArray();
 
@@ -103,7 +103,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             return addedPackages;
         }
 
-        public async Task ClearCache(string packageId, string notificationNugetConfig, string notificationNugetSource)
+        public async Task ClearCache(string packageId, string? notificationNugetConfig, string? notificationNugetSource)
         {
             string cacheKey = GetCacheKey(notificationNugetConfig, notificationNugetSource, packageId);
 

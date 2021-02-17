@@ -167,7 +167,7 @@ namespace Milou.Deployer.Waws
             Action<List<string>> onConfigureArgs,
             CancellationToken cancellationToken = default)
         {
-            string exePath =
+            const string exePath =
                 @"C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"; // TODO fix hard coded path to msdeploy
 
             var arguments = new List<string>();
@@ -215,15 +215,15 @@ namespace Milou.Deployer.Waws
             {
                 if (message.StartsWith("Verbose: ", StringComparison.Ordinal))
                 {
-                    _logger.Verbose("{Message}", message.Substring(startIndex: 9));
+                    _logger.Verbose("{Message}", message[9..]);
                 }
                 else if (message.StartsWith("Debug: ", StringComparison.Ordinal))
                 {
-                    _logger.Debug("{Message}", message.Substring(startIndex: 7));
+                    _logger.Debug("{Message}", message[7..]);
                 }
                 else
                 {
-                    _logger.Information("{Message}", message.Substring(startIndex: 6));
+                    _logger.Information("{Message}", message[6..]);
                 }
 
                 if (message.Contains("deleting file (", StringComparison.OrdinalIgnoreCase))

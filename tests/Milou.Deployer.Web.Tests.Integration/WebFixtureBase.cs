@@ -40,20 +40,16 @@ namespace Milou.Deployer.Web.Tests.Integration
         private const string ConnectionStringFormat =
             "Server=localhost;Port={0};User Id=postgres;Password=test;Database=postgres;Pooling=false";
 
+        private readonly CancellationTokenSource _agentCancellationTokenSource = new();
+
         private readonly ImmutableArray<Assembly> _assemblies;
 
         private readonly IMessageSink _diagnosticMessageSink;
         private readonly List<ContainerArgs> _dockerArgs;
-        private readonly FtpArgs _ftp;
         private readonly DirectoryInfo _globalTempDir;
         private readonly string _oldTemp;
         private readonly PostgresArgs _postgres;
-        private readonly RedisArgs _redis;
         private readonly SeqArgs _seq;
-        private readonly Smtp4DevArgs _smtp4Dev;
-        protected readonly IDictionary<string, string> _variables = new Dictionary<string, string>();
-        private readonly CancellationTokenSource _agentCancellationTokenSource;
-        private readonly Task<int> _agentTask;
         private DirectoryInfo _appRootDirectory;
 
         private CancellationTokenSource _cancellationTokenSource;
@@ -64,7 +60,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
-            string? id = "-it";
+            const string? id = "-it";
             _assemblies = ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
             _globalTempDir =
                 new DirectoryInfo(Path.Combine(Path.GetTempPath(), "mdst-" + Guid.NewGuid())).EnsureExists();
@@ -75,44 +71,42 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _dockerArgs = new List<ContainerArgs>();
 
-            _smtp4Dev = CreateSmtp4Dev(id);
-            _dockerArgs.Add(_smtp4Dev.ContainerArgs);
+            Smtp4DevArgs smtp4Dev = CreateSmtp4Dev(id);
+            _dockerArgs.Add(smtp4Dev.ContainerArgs);
 
             _postgres = CreatePostgres(id);
             _dockerArgs.Add(_postgres.ContainerArgs);
 
-            _ftp = CreateFtp(id);
-            _dockerArgs.Add(_ftp.ContainerArgs);
+            FtpArgs ftp = CreateFtp(id);
+            _dockerArgs.Add(ftp.ContainerArgs);
 
-            _redis = CreateRedis(id);
-            _dockerArgs.Add(_redis.ContainerArgs);
+            RedisArgs redis = CreateRedis(id);
+            _dockerArgs.Add(redis.ContainerArgs);
 
             _seq = CreateSeq(id);
             _dockerArgs.Add(_seq.ContainerArgs);
 
-            _variables.Add(LoggingConstants.SerilogSeqEnabledDefault, "true");
+            Variables.Add(LoggingConstants.SerilogSeqEnabledDefault, "true");
             string seqUrl = $"http://localhost:{_seq.HttpPort}";
-            _variables.Add("urn:arbor:app:web:logging:serilog:default:seqUrl", seqUrl);
+            Variables.Add("urn:arbor:app:web:logging:serilog:default:seqUrl", seqUrl);
             Console.WriteLine($"Using seq url {seqUrl}");
         }
 
+        protected IDictionary<string, string> Variables { get; } = new Dictionary<string, string>();
+
         public ServerEnvironmentTestConfiguration ServerEnvironmentTestSiteConfiguration { get; protected set; }
 
-        [PublicAPI]
-        public List<DirectoryInfo> DirectoriesToClean { get; } = new List<DirectoryInfo>();
+        [PublicAPI] public List<DirectoryInfo> DirectoriesToClean { get; } = new();
 
-        [PublicAPI]
-        public TestConfiguration TestConfiguration { get; protected set; }
+        [PublicAPI] public TestConfiguration TestConfiguration { get; protected set; }
 
-        [PublicAPI]
-        public List<FileInfo> FilesToClean { get; } = new List<FileInfo>();
+        [PublicAPI] public List<FileInfo> FilesToClean { get; } = new();
 
         public Exception Exception { get; private set; }
 
-        public App<ApplicationPipeline> App { get; private set; }
+        public App<ApplicationPipeline>? App { get; private set; }
 
-        [PublicAPI]
-        public int? HttpPort => GetHttpPort();
+        [PublicAPI] public int? HttpPort => GetHttpPort();
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
@@ -141,11 +135,11 @@ namespace Milou.Deployer.Web.Tests.Integration
                 string connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat,
                     _postgres.PgPort.Port);
 
-                _variables.Add("urn:milou:deployer:web:marten:singleton:connection-string",
+                Variables.Add("urn:milou:deployer:web:marten:singleton:connection-string",
                     connStr);
-                _variables.Add("urn:milou:deployer:web:marten:singleton:enabled", "true");
+                Variables.Add("urn:milou:deployer:web:marten:singleton:enabled", "true");
 
-                _variables.Add(ApplicationConstants.DevelopmentMode.TrimStart('-'), "true");
+                Variables.Add(ApplicationConstants.DevelopmentMode.TrimStart('-'), "true");
 
                 string rootDirectory = VcsTestPathHelper.GetRootDirectory();
 
@@ -156,13 +150,13 @@ namespace Milou.Deployer.Web.Tests.Integration
                     new ServerEnvironmentTestConfiguration(TcpHelper.GetAvailablePort(portPoolRange),
                         _appRootDirectory);
 
-                _variables.Add(DeployerAppConstants.SeedEnabled, "true");
+                Variables.Add(DeployerAppConstants.SeedEnabled, "true");
 
                 TestConfiguration = await TestPathHelper.CreateTestConfigurationAsync(CancellationToken.None);
 
                 await BeforeInitialize(_cancellationTokenSource.Token);
 
-                _environmentVariables = new EnvironmentVariables(_variables.ToImmutableDictionary());
+                _environmentVariables = new EnvironmentVariables(Variables.ToImmutableDictionary());
 
                 IReadOnlyCollection<string> args = await RunSetupAsync();
 
@@ -196,7 +190,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    if (App?.Host?.Services?.GetService<IHostApplicationLifetime>() is {} hostApplicationLifetime
+                    if (App?.Host?.Services?.GetService<IHostApplicationLifetime>() is { } hostApplicationLifetime
                         && !hostApplicationLifetime.ApplicationStopped.IsCancellationRequested)
                     {
                         hostApplicationLifetime.StopApplication();
@@ -255,7 +249,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             App?.Logger?.Information("Stopping app from {Type}", GetType().FullName);
             _cancellationTokenSource?.Dispose();
-            App?.Dispose();
+            App.SafeDispose();
 
             FileInfo[] files = FilesToClean.ToArray();
 
@@ -269,7 +263,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                         fileInfo.Delete();
                     }
                 }
-                catch (Exception)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     // ignore
                 }
@@ -291,17 +285,17 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             try
             {
-                _agentCancellationTokenSource?.Cancel();
-                if (_agentTask is {})
-                {
-                    await _agentTask;
-                }
+                _agentCancellationTokenSource.Cancel();
             }
             catch (TaskCanceledException)
             {
                 // ignored
             }
             catch (OperationCanceledException)
+            {
+                // ignored
+            }
+            catch (ObjectDisposedException)
             {
                 // ignored
             }
@@ -341,7 +335,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 PortMapping.MapSinglePort(ftpSecondary.Port, 20),
                 PortMapping.MapSinglePort(ftpDefault.Port, 21),
-                new PortMapping(passivePorts, passivePorts)
+                new(passivePorts, passivePorts)
             };
 
             var ftp = new ContainerArgs(
@@ -455,7 +449,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         private int? GetHttpPort()
         {
             var environmentConfiguration =
-                App.Host!.Services.GetService<EnvironmentConfiguration>();
+                App?.Host?.Services.GetService<EnvironmentConfiguration>();
 
             return environmentConfiguration?.HttpPort;
         }
@@ -482,7 +476,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             };
 
             var assemblies = _assemblies
-                .Where(a => a.FullName is string fullName && !fullName.Contains("Agent.Host")).ToImmutableArray();
+                .Where(a => a.FullName is {} fullName && !fullName.Contains("Agent.Host")).ToImmutableArray();
 
             App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args,
                 _environmentVariables.Variables, assemblies, instances);
@@ -495,6 +489,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private async Task StartAsync(IReadOnlyCollection<string> args)
         {
+            if (App is null)
+            {
+                return;
+            }
+
             App.Logger.Information("Starting app");
 
             await App.RunAsync(args.ToArray());

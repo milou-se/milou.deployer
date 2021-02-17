@@ -58,7 +58,7 @@ namespace Milou.Deployer.Web.Marten
         private readonly ILogger _logger;
 
         private readonly IMediator _mediator;
-        private static readonly AgentsInPoolResult _emptyResult = new(ImmutableArray<AgentId>.Empty);
+        private static readonly AgentsInPoolResult EmptyResult = new(ImmutableArray<AgentId>.Empty);
 
         public MartenStore([NotNull] IDocumentStore documentStore,
             ILogger logger,
@@ -124,7 +124,7 @@ namespace Milou.Deployer.Web.Marten
 
             bool Filter(DeploymentTarget target)
             {
-                if (options is null || options.OnlyEnabled)
+                if (options?.OnlyEnabled != false)
                 {
                     return target.Enabled;
                 }
@@ -461,12 +461,12 @@ namespace Milou.Deployer.Web.Marten
         {
             using var session = _documentStore.OpenSession();
 
-            string id = "/agentAssignments";
+            const string id = "/agentAssignments";
             var agentData = await session.LoadAsync<AgentPoolAssignmentData>(id, cancellationToken);
 
             if (agentData is null)
             {
-                return _emptyResult;
+                return EmptyResult;
             }
 
             var agentIds = agentData.Agents
@@ -661,7 +661,7 @@ namespace Milou.Deployer.Web.Marten
 
         private AgentInfo MapAgentData(AgentData agent) => new(new AgentId(agent.AgentId));
 
-        private AgentPoolInfo MapAgentPool(AgentPoolData agentPoolData) => new(new AgentPoolId(agentPoolData.Id), new (agentPoolData.Name));
+        private AgentPoolInfo MapAgentPool(AgentPoolData agentPoolData) => new(new AgentPoolId(agentPoolData.Id), new (agentPoolData.Name ?? "N/A"));
 
         private ImmutableArray<OrganizationInfo> MapDataToOrganizations(
             IReadOnlyList<OrganizationData> organizations,

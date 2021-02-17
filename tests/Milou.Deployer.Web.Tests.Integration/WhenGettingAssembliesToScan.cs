@@ -21,8 +21,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             string[] assemblyNameStartsWith = {"Milou"};
             var filteredAssemblies =
-                ApplicationAssemblies.FilteredAssemblies(useCache: false,
-                    assemblyNameStartsWith: assemblyNameStartsWith);
+                ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: assemblyNameStartsWith,
+useCache: false);
             var assemblies = filteredAssemblies
                 .Where(assembly =>
                 {

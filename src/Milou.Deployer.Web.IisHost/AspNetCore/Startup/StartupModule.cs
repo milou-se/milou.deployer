@@ -10,6 +10,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     public class StartupModule : IModule
     {
         public IServiceCollection Register(IServiceCollection builder) =>
-            builder.AddSingleton(context => new StartupTaskContext(context.GetServices<IStartupTask>(), context.GetService<ILogger>()), this);
+            builder.AddSingleton(context => new StartupTaskContext(context.GetServices<IStartupTask>(), context.GetRequiredService<ILogger>()), this);
     }
 }

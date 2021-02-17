@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
     {
         public static async Task<TestConfiguration> CreateTestConfigurationAsync(CancellationToken cancellationToken)
         {
-            string projectName = "Milou.Deployer.Web.Tests.Integration";
+            const string projectName = "Milou.Deployer.Web.Tests.Integration";
 
             string baseDirectoryPath = Path.Combine(Path.GetTempPath(),
                 projectName + "-" + DateTime.UtcNow.Ticks);

@@ -92,7 +92,7 @@ namespace Milou.Deployer.Core.Deployment
                 .Select(file => new
                 {
                     File = file,
-                    RelativePath = file.FullName.Substring(contentDirectory.FullName.Length).TrimStart('\\')
+                    RelativePath = file.FullName[contentDirectory.FullName.Length..].TrimStart('\\')
                 })
                 .ToArray();
 
@@ -226,8 +226,7 @@ namespace Milou.Deployer.Core.Deployment
                 nugetExePath: deploymentExecutionDefinition.NuGetExePath,
                 timeoutInSeconds: 35,
                 adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
-                prefix: deploymentExecutionDefinition.PackageListPrefixEnabled.HasValue &&
-                        deploymentExecutionDefinition.PackageListPrefixEnabled.Value
+                prefix: deploymentExecutionDefinition.PackageListPrefixEnabled == true
                     ? deploymentExecutionDefinition.PackageListPrefix ?? ""
                     : ""
             );

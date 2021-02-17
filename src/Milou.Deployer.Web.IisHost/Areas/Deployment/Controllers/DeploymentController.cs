@@ -34,12 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [NotNull] IDeploymentTargetReadService getTargets,
             TimeoutHelper timeoutHelper)
         {
-            if (logger is null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger;
             _getTargets = getTargets ?? throw new ArgumentNullException(nameof(getTargets));
             _timeoutHelper = timeoutHelper;
         }

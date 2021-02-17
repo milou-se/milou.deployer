@@ -55,7 +55,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
 
             bool Filter(DeploymentTarget target)
             {
-                if (options is null || options.OnlyEnabled)
+                if (options?.OnlyEnabled != false)
                 {
                     return target.Enabled;
                 }

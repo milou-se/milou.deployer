@@ -53,11 +53,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route(MonitorConstants.MonitorRoute, Name = MonitorConstants.MonitorRouteName)]
-        [Route("")]
-        public IActionResult Status() => View();
-
-        [HttpGet]
         [Route("~/api/targets")]
         public async Task<IActionResult> Targets(CancellationToken cancellationToken,
             [FromServices] IEnvironmentTypeService environmentTypeService)
@@ -112,6 +107,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             return Json(new {targets});
         }
+
+        [HttpGet]
+        [Route(MonitorConstants.MonitorRoute, Name = MonitorConstants.MonitorRouteName)]
+        [Route("")]
+        public IActionResult Status() => View();
 
         [HttpGet]
         [Route(TargetConstants.TargetStatusApiRoute, Name = TargetConstants.TargetStatusApiRouteName)]

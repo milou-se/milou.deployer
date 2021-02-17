@@ -70,9 +70,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 {
                     try
                     {
-                        using var session = _store.OpenSession();
-
-                        _ = await session.Query<DeploymentTargetData>().ToListAsync(cancellationToken);
+                        await TryReadFromDatabase(cancellationToken);
 
                         retry = false;
                     }
@@ -138,6 +136,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             IsCompleted = true;
 
             _logger.Debug("Done running data seeders");
+        }
+
+        private async Task TryReadFromDatabase(CancellationToken cancellationToken)
+        {
+            if (_store is null)
+            {
+                return;
+            }
+
+            using var session = _store.OpenSession();
+
+            _ = await session.Query<DeploymentTargetData>().ToListAsync(cancellationToken);
         }
     }
 }

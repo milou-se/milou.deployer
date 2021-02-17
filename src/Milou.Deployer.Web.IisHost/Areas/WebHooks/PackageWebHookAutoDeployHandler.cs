@@ -104,7 +104,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                             if (metadata?.SemanticVersion is {})
                             {
-                                if (packageIdentifier.Version > metadata.SemanticVersion)
+                                if (packageIdentifier.Version > metadata!.SemanticVersion)
                                 {
                                     _logger.Information(
                                         "Auto deploying package {PackageIdentifier} to target {Name} from web hook",

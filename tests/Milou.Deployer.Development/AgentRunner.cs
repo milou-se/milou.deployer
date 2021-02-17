@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 
 namespace Milou.Deployer.Development
 {
@@ -23,7 +24,7 @@ namespace Milou.Deployer.Development
 
                 await _appTask;
             }
-            catch (Exception)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 // ignore
             }

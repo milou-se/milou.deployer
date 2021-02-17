@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
+using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Agent;
@@ -12,16 +13,12 @@ using Milou.Deployer.Web.Marten.Agents;
 
 namespace Milou.Deployer.Web.Marten
 {
-    public class
-        GetAssignedAgentsInPoolsQueryHandler : IRequestHandler<GetAssignedAgentsInPoolsQuery,
-            AssignedAgentsInPoolsQueryResult>
+    [UsedImplicitly]
+    public class GetAssignedAgentsInPoolsQueryHandler : IRequestHandler<GetAssignedAgentsInPoolsQuery, AssignedAgentsInPoolsQueryResult>
     {
         private readonly IDocumentStore _documentStore;
 
-        public GetAssignedAgentsInPoolsQueryHandler(IDocumentStore documentStore)
-        {
-            _documentStore = documentStore;
-        }
+        public GetAssignedAgentsInPoolsQueryHandler(IDocumentStore documentStore) => _documentStore = documentStore;
 
         public async Task<AssignedAgentsInPoolsQueryResult> Handle(GetAssignedAgentsInPoolsQuery request,
             CancellationToken cancellationToken)
@@ -44,7 +41,7 @@ namespace Milou.Deployer.Web.Marten
                     ? (null, null)
                     : ((AgentId?) new AgentId(a.AgentId),(AgentPoolId?) new AgentPoolId(value))).ToArray();
 
-            var dictionary =  pools.ToImmutableDictionary(pool => new AgentPoolInfo(new AgentPoolId(pool.Id), new AgentPoolName(pool.Name)),
+            var dictionary =  pools.ToImmutableDictionary(pool => new AgentPoolInfo(new AgentPoolId(pool.Id), new AgentPoolName(pool.Name ?? "N/A")),
 
                 pool => agentTuples.Where(t => string.Equals(pool.Id, t.Item2?.Value))
                     .Select(t => t.Item1)

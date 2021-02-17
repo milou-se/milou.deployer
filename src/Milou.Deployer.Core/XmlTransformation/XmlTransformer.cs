@@ -144,7 +144,7 @@ namespace Milou.Deployer.Core.XmlTransformation
                 return new TransformationResult(false);
             }
 
-            if (matchingFiles.Any() && possibleXmlTransformation?.ActionFile is {})
+            if (matchingFiles.Any() && possibleXmlTransformation.ActionFile is {})
             {
                 FileInfo originalFile = matchingFiles.Single();
 

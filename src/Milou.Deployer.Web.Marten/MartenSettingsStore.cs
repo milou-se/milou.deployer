@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.Marten
             }
 
             using IQuerySession querySession = _documentStore.QuerySession();
-            ApplicationSettingsData applicationSettingsData =
+            ApplicationSettingsData? applicationSettingsData =
                 await querySession.LoadAsync<ApplicationSettingsData>(AppSettings, cancellationToken);
 
             applicationSettings = Map(applicationSettingsData ?? new ApplicationSettingsData());

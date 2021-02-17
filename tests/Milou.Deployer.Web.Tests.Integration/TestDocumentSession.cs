@@ -18,17 +18,10 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public void Dispose()
         {
+            // in-memory
         }
 
-        public T Load<T>(string id) => throw new NotSupportedException();
-
-        public Task<T> LoadAsync<T>(string id, CancellationToken token = new()) => Task.FromResult(default(T));
-
-        public T Load<T>(int id) => throw new NotSupportedException();
-
-        public T Load<T>(long id) => throw new NotSupportedException();
-
-        public T Load<T>(Guid id) => throw new NotSupportedException();
+        public Task<T> LoadAsync<T>(string id, CancellationToken token = new()) => Task.FromResult(default(T)!);
 
         public Task<T> LoadAsync<T>(int id, CancellationToken token = new()) => throw new NotSupportedException();
 
@@ -36,15 +29,23 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public Task<T> LoadAsync<T>(Guid id, CancellationToken token = new()) => throw new NotSupportedException();
 
+        public T Load<T>(string id) => throw new NotSupportedException();
+
+        public T Load<T>(int id) => throw new NotSupportedException();
+
+        public T Load<T>(long id) => throw new NotSupportedException();
+
+        public T Load<T>(Guid id) => throw new NotSupportedException();
+
         public IMartenQueryable<T> Query<T>() => throw new NotSupportedException();
+
+        public TOut Query<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query) => throw new NotSupportedException();
 
         public IReadOnlyList<T> Query<T>(string sql, params object[] parameters) => throw new NotSupportedException();
 
-        public Task<IReadOnlyList<T>> QueryAsync<T>(string sql, CancellationToken token = new(), params object[] parameters) => throw new NotSupportedException();
-
         public IBatchedQuery CreateBatchQuery() => throw new NotSupportedException();
 
-        public TOut Query<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query) => throw new NotSupportedException();
+        public Task<IReadOnlyList<T>> QueryAsync<T>(string sql, CancellationToken token = new(), params object[] parameters) => throw new NotSupportedException();
 
         public Task<TOut> QueryAsync<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query, CancellationToken token = new()) => throw new NotSupportedException();
 
@@ -139,6 +140,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void Store<T>(IEnumerable<T> entities) => throw new NotSupportedException();
 
         public void Store<T>(params T[] entities)  {
+            // in-memory
         }
 
         public void Store<T>(string tenantId, IEnumerable<T> entities) => throw new NotSupportedException();

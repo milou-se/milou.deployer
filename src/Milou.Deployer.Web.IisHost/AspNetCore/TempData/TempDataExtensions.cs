@@ -1,4 +1,5 @@
 ﻿using System;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;
@@ -30,7 +31,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
             {
                 tempData[key] = JsonConvert.SerializeObject(value);
             }
-            catch (Exception)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 // ignore
             }
@@ -52,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                     return default;
                 }
 
-                tempData.TryGetValue(key, out var o);
+                tempData.TryGetValue(key, out object? o);
 
                 switch (o)
                 {
@@ -61,14 +62,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                     case string json:
                         try
                         {
-                            if (typeof(T).IsAbstract)
-                            {
-                                return default;
-                            }
-
-                            T deserializeObject = JsonConvert.DeserializeObject<T>(json);
-
-                            return deserializeObject;
+                            return typeof(T).IsAbstract ? default : JsonConvert.DeserializeObject<T>(json);
                         }
                         catch (Exception)
                         {

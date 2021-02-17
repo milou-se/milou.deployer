@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.Agent.Host
                 throw new InvalidOperationException("The access token is invalid", ex);
             }
 
-            string claimType = JwtRegisteredClaimNames.UniqueName;
+            const string claimType = JwtRegisteredClaimNames.UniqueName;
             string? agentId = jwtSecurityToken.Claims
                 .SingleOrDefault(claim => claim.Type == claimType)
                 ?.Value;

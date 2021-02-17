@@ -83,7 +83,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 }
             }
 
-            if (!File.Exists(exePath))
+            if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
                 _logger.Debug("The specified agent exe '{AgentExe}' does not exist", applicationSettings.AgentExe);
                 return;
@@ -92,7 +92,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _logger.Information("Starting agent as sub-process {Path}", applicationSettings.AgentExe);
             var exitCode = await ProcessRunner.ExecuteProcessAsync(
                 applicationSettings.AgentExe,
-                workingDirectory: new FileInfo(applicationSettings.AgentExe).Directory,
+                workingDirectory: new FileInfo(exePath).Directory,
                 cancellationToken: stoppingToken);
 
             if (!stoppingToken.IsCancellationRequested && !exitCode.IsSuccess)

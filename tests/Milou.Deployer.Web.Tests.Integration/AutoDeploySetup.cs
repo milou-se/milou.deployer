@@ -37,8 +37,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
-            _variables.Add("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
-            _variables.Add("TestDeploymentUri",
+            Variables.Add("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
+            Variables.Add("TestDeploymentUri",
                 $"http://localhost:{ServerEnvironmentTestSiteConfiguration.Port.Port + 1}");
 
             string deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
@@ -75,27 +75,27 @@ namespace Milou.Deployer.Web.Tests.Integration
                     $"Could not find nuget test packages located in {integrationTestProjectDirectory.FullName}");
             }
 
-            _variables.Add(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
+            Variables.Add(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
 
-            _variables.Add(ConfigurationConstants.NugetConfigFile,
+            Variables.Add(ConfigurationConstants.NugetConfigFile,
                 TestConfiguration.NugetConfigFile.FullName);
 
-            _variables.Add(ConfigurationConstants.NuGetPackageSourceName,
+            Variables.Add(ConfigurationConstants.NuGetPackageSourceName,
                 milouDeployerWebTestsIntegration);
 
-            _variables.Add(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds",
                 "0");
 
-            _variables.Add(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:afterDeployDelayInSeconds",
                 "1");
 
-            _variables.Add(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
                 "10");
 
-            _variables.Add(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:enabled",
                 "true");
 

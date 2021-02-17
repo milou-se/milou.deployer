@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment.Ftp
 {
-    public class FtpPublishSettings
+    public sealed class FtpPublishSettings
     {
         private const string UsernameAttribute = "userName";
         private const string UserPasswordAttribute = "userPWD";
