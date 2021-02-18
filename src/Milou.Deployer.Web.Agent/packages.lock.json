@@ -6,7 +6,7 @@
         "type": "Direct",
         "requested": "[0.6.2, )",
         "resolved": "0.6.2",
-        "contentHash": "cg/SAx9plhg6TUwg5hzags24Hyu2zhjGLCl5hWROvYi1aX4SxvavqvhddcaMtsFAyrCl9OgycC1Rd4BuFLrjSQ==",
+        "contentHash": "opHuOYDI3FJNkDxVUioMYdls1KRBt/ZXIb0b6rIUQEPQ4hioze0c27lmRBYok7padolBxOOS7t0QYlKjRmTOmA==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.1.6",
           "Arbor.KVConfiguration.Schema": "1.1.6",
