@@ -12,6 +12,8 @@ namespace Milou.Deployer.Web.Core.Agents.Pools
 
         public string Value { get; }
 
+        public static AgentPoolId Empty { get; } = new("N/A");
+
         public AgentPoolId([JetBrains.Annotations.NotNull] string value)
         {
             if (string.IsNullOrWhiteSpace(value))

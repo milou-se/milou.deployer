@@ -184,6 +184,11 @@ namespace Milou.Deployer.Web.Marten
                 agentData.Agents.Add(request.AgentId.Value, "");
             }
 
+            if (agentData.Agents[request.AgentId.Value] == request.AgentPoolId.Value)
+            {
+                return new AssignAgentToPoolResult();
+            }
+
             agentData.Agents[request.AgentId.Value] = request.AgentPoolId.Value;
 
             session.Store(agentData);

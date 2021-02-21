@@ -30,8 +30,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             var result = await mediator.Send(new GetAgentsQuery());
             var agentPoolListResult = await mediator.Send(new GetAgentPoolsQuery());
+            var assignedAgentsInPoolsResult = await mediator.Send(new GetAssignedAgentsInPoolsQuery());
 
-            return View(new AgentsViewModel(connectedAgents, result.Agents, unknownAgents, agentPoolListResult.AgentPools));
+            return View(new AgentsViewModel(connectedAgents, result.Agents, unknownAgents, agentPoolListResult.AgentPools, assignedAgentsInPoolsResult.AssignedAgents));
         }
 
         [HttpGet]

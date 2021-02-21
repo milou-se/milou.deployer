@@ -1,4 +1,5 @@
 ﻿@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Agents
 @model Milou.Deployer.Web.IisHost.Areas.Agents.AgentsViewModel
 @inject IAppTime AppTime;
@@ -34,8 +35,9 @@
 
                 @foreach (var pool in Model.AgentPools)
                 {
-                    <option value="@pool.AgentPoolId">@pool.Name</option>
+                    <option value="@pool.AgentPoolId" @((Model.CurrentPool(agent.Id) == pool.AgentPoolId).Selected())>@pool.Name</option>
                 }
+
             </select>
 
             <input type="hidden" value="@agent.Id.Value" name="agentId"/>
