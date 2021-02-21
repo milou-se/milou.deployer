@@ -75,6 +75,8 @@
                 @if (item.Target.Enabled && item.AvailablePackageVersions.Any() && !item.Target.IsReadOnly)
                 {
                     <form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
+
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="targetId" value="@item.Target.Id"/>
                         <input type="hidden" name="current-version-major" value="@(item.SemanticVersion?.Major)" disabled="disabled"/>
                         <input type="hidden" name="current-version-minor" value="@(item.SemanticVersion?.Minor)" disabled="disabled"/>

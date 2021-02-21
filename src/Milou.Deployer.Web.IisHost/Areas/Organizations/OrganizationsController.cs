@@ -26,6 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
             return View(new OrganizationsViewOutputModel(organizations, createOrganizationResult));
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(OrganizationConstants.CreateOrganizationPostRoute,
             Name = OrganizationConstants.CreateOrganizationPostRouteName)]

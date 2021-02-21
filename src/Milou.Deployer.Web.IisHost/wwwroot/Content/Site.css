@@ -300,6 +300,7 @@ fieldset {
     display: inline-block;
     margin: 0;
     padding: 5px;
+    cursor: pointer;
 }
 
 .tab a:link, .tab a:visited, .tab a:active, .tab a:hover {

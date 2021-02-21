@@ -45,6 +45,8 @@
 
 <form method="post" action="@Url.RouteUrl(OrganizationConstants.CreateOrganizationPostRouteName)">
 
+    @Html.AntiForgeryToken()
+
     <input type="text" name="id"/>
 
     <input type="submit" value="Create organization"/>

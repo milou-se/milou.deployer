@@ -41,6 +41,8 @@
 
 <form method="post" action="@Url.RouteUrl(ProjectConstants.CreateProjectPostRouteName)">
 
+    @Html.AntiForgeryToken()
+
     <input type="text" name="id"/>
 
     <input type="hidden" name="organizationId" value="@Model.OrganizationId"/>

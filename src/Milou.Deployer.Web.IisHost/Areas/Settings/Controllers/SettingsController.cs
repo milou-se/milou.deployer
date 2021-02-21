@@ -30,6 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             return View(settingsViewModel);
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(SettingsConstants.LogSettingsPostRoute, Name = SettingsConstants.LogSettingsPostRouteName)]
         public async Task<IActionResult> LogLevel(
@@ -41,6 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(SettingsConstants.SaveSettingsPostRoute, Name = SettingsConstants.SaveSettingsPostRouteName)]
         public async Task<IActionResult> ApplicationSettings(

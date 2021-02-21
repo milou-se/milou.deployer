@@ -14,14 +14,13 @@
 
 @if (Model.AgentPools.Any())
 {
-<h2>Agent pools</h2>
 @foreach (var agentPool in Model.AgentPools)
     {
-<h3>@agentPool.AgentPoolId.Value</h3>
+<h2>@agentPool.AgentPoolId.Value</h2>
 @if (Model.AssignedAgents[agentPool].Length > 0)
         {
 
-            <h4>Agents in pool</h4>
+<h3>Agents in pool</h3>
 <ul>
     @foreach (var item in Model.AssignedAgents[agentPool])
                 {

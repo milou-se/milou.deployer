@@ -64,11 +64,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             return View(new DeploymentViewOutputModel(items, targets));
         }
 
-        [HttpGet]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         [Route(TargetConstants.InvalidateCacheRoute, Name = TargetConstants.InvalidateCacheRouteName)]
-        public ActionResult InvalidateCache([FromServices] ICustomMemoryCache customMemoryCache)
+        public ActionResult InvalidateCache([FromBody] InvalidateCache invalidateCache,  [FromServices] ICustomMemoryCache customMemoryCache)
         {
-            customMemoryCache.Invalidate(Request.Query["prefix"]);
+            customMemoryCache.Invalidate(invalidateCache.Prefix);
 
             return RedirectToAction(nameof(Index));
         }

@@ -3,10 +3,20 @@
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentViewOutputModel
 
 <p>
-    <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Töm cache</a>
+    <form method="post" action="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">
+        
+        @Html.AntiForgeryToken()
+
+        <input type="text" name="prefix"/>
+
+        <input type="submit" value="Empty cache"/>
+
+    </form>
 </p>
 
-<form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
+<form method="post" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
+
+    @Html.AntiForgeryToken()
 
     <div>
 

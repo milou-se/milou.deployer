@@ -64,6 +64,9 @@
                 <div v-if="target.deployEnabled">
 
                     <form method="post" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
+
+                        @Html.AntiForgeryToken()
+
                         @*v-on:submit.prevent*@
                         <input type="hidden" name="targetId" v-bind:value="target.targetId"/>
 

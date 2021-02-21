@@ -35,22 +35,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             return View(new AgentsViewModel(connectedAgents, result.Agents, unknownAgents, agentPoolListResult.AgentPools, assignedAgentsInPoolsResult.AssignedAgents));
         }
 
-        [HttpGet]
-        [Route(CreateAgentRoute, Name = CreateAgentRouteName)]
-        public IActionResult Create() => View();
-
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(AgentsRoute, Name = AgentsRouteName)]
         public async Task<IActionResult> Index(
             [FromBody] CreateAgent createAgent,
             [FromServices] IMediator mediator) =>
-            (await mediator.Send(createAgent)).ToActionResult();
+            this.ToActionResult(await mediator.Send(createAgent), AgentsRouteName);
 
+        [HttpGet]
+        [Route(CreateAgentRoute, Name = CreateAgentRouteName)]
+        public IActionResult Create() => View();
+
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(ResetAgentTokenRoute, Name = ResetAgentTokenRouteName)]
         public async Task<IActionResult> ResetToken(
             [FromBody] ResetAgentToken resetToken,
             [FromServices] IMediator mediator) =>
-            (await mediator.Send(resetToken)).ToActionResult();
+            this.ToActionResult(await mediator.Send(resetToken), AgentsRouteName);
     }
 }

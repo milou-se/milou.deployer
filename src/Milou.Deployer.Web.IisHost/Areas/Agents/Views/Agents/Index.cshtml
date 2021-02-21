@@ -30,7 +30,7 @@
         }
 
         <form method="post" action="@Url.RouteUrl(AgentPoolsController.AssignAgentToPoolRouteName)">
-
+            @Html.AntiForgeryToken()
             <select name="AgentPoolId">
 
                 @foreach (var pool in Model.AgentPools)

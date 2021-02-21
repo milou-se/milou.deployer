@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Pools;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
@@ -43,6 +44,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             foreach (var deploymentTarget in deploymentTargets)
             {
                 await _mediator.Send(new AssignTargetToPool(agentPoolId, new DeploymentTargetId(deploymentTarget.Id)), cancellationToken);
+            }
+
+            var agents = await _mediator.Send(new GetAgentsQuery(), cancellationToken);
+
+            var assignedAgents = await _mediator.Send(new GetAssignedAgentsInPoolsQuery(), cancellationToken);
+
+            foreach (var agent in agents.Agents)
+            {
+                bool assigned = false;
+                foreach (var assignedAgentsAssignedAgent in assignedAgents.AssignedAgents)
+                {
+                    if (assignedAgentsAssignedAgent.Value.Contains(agent.Id))
+                    {
+                        assigned = true;
+                        break;
+                    }
+                }
+
+                if (!assigned)
+                {
+                    await _mediator.Send(new AssignAgentToPool(agentPoolId, agent.Id), cancellationToken);
+                }
             }
         }
 

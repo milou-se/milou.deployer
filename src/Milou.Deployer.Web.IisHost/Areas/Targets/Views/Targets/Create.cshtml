@@ -5,6 +5,8 @@
 
 <form method="post" action="@Url.RouteUrl(TargetConstants.CreateTargetPostRouteName)">
 
+    @Html.AntiForgeryToken()
+
     <div class="input-field">
         <label for="target-id">ID</label>
         <input type="text" name="id" id="target-id"/>

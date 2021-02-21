@@ -204,8 +204,8 @@ namespace Milou.Deployer.Waws
             {
                 var asSpan = entry.AsSpan();
 
-                int start = asSpan.IndexOf(value: '(') + 1;
-                int end = asSpan.LastIndexOf(value: ')');
+                int start = asSpan.IndexOf('(') + 1;
+                int end = asSpan.LastIndexOf(')');
                 int length = end - start;
 
                 return asSpan.Slice(start, length).ToString();

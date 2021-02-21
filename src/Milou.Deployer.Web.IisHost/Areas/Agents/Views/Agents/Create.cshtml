@@ -4,13 +4,17 @@
 
 <form method="post" action="@Url.RouteUrl(AgentsController.AgentsRouteName)">
 
-    <input name="agentId" />
+    @Html.AntiForgeryToken()
 
-    <input type="submit" value="Create" />
+    <input name="agentId"/>
+
+    <input type="submit" value="Create"/>
 
 </form>
 
 <form method="post" action="@Url.RouteUrl(AgentsController.ResetAgentTokenRouteName)">
+
+    @Html.AntiForgeryToken()
 
     <input name="agentId" />
 

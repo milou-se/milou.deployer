@@ -1,8 +1,13 @@
 ﻿@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
 
-<ul>
-    <li>
-        <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Invalidate package cache</a>
-    </li>
-</ul>
+
+<form method="post" action="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">
+
+    @Html.AntiForgeryToken()
+
+    <input type="text" name="prefix"/>
+
+    <input type="submit" value="Empty cache"/>
+
+</form>

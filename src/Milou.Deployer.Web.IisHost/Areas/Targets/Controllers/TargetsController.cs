@@ -40,6 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return View(targetsViewModel);
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(TargetConstants.RemoveTargetPostRoute, Name = TargetConstants.RemoveTargetPostRouteName)]
         public async Task<IActionResult> Remove([FromBody] RemoveTarget? removeTarget, [FromServices] IMediator mediator)
@@ -59,6 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return RedirectToRoute(MonitorConstants.MonitorRouteName);
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(TargetConstants.CreateTargetPostRoute, Name = TargetConstants.CreateTargetPostRouteName)]
         public async Task<ActionResult<CreateTargetResult>> Post(
@@ -130,6 +132,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return View(new EditTargetViewOutputModel(deploymentTarget, environmentTypes));
         }
 
+        [ValidateAntiForgeryToken]
         [Route(TargetConstants.EditTargetPostRoute, Name = TargetConstants.EditTargetPostRouteName)]
         [HttpPost]
         public async Task<ActionResult<UpdateDeploymentTargetResult>> Edit(
@@ -164,6 +167,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return updateDeploymentTargetResult;
         }
 
+        [ValidateAntiForgeryToken]
         [Route(TargetConstants.EnableTargetPostRoute, Name = TargetConstants.EnableTargetPostRouteName)]
         [HttpPost]
         public async Task<IActionResult> Enable(
@@ -175,6 +179,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return Redirect("/");
         }
 
+        [ValidateAntiForgeryToken]
         [Route(TargetConstants.DisableTargetPostRoute, Name = TargetConstants.DisableTargetPostRouteName)]
         [HttpPost]
         public async Task<IActionResult> Disable(

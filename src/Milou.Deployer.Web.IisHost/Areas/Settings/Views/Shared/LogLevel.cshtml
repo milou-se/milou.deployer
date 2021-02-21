@@ -10,12 +10,16 @@ Current level <span class="highlighted">@Model.LogEventLevel</span>
 
 <form method="post" action="@Url.RouteUrl(SettingsConstants.LogSettingsPostRouteName)">
 
+    @Html.AntiForgeryToken()
+
     <select name="newLevel">
         @foreach (var item in Enum.GetNames(typeof(LogEventLevel)))
         {
             <option @item.Equals(Model.LogEventLevel.ToString()).Selected()>@item</option>
         }
     </select>
+
+    <input type="text" name="timeSpan" value="00:05:00"/>
 
     <input type="submit" value="Change level"/>
 

@@ -15,6 +15,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
         public DeploymentTaskLogController(ILogger logger) => _logger = logger;
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(AgentConstants.DeploymentTaskLogRoute, Name = AgentConstants.DeploymentTaskLogRouteName)]
         public async Task<IActionResult> Log([FromBody] SerilogSinkEvents events, [FromServices] IMediator mediator)

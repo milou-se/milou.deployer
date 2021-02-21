@@ -25,12 +25,12 @@ namespace Milou.Deployer.Web.Marten
         {
             using var session = _documentStore.QuerySession();
 
-            var agentPoolAssignmentData = await session.LoadAsync<AgentPoolAssignmentData>("/agentAssignments", cancellationToken);
+            var agentPoolAssignmentData = await session.LoadAsync<AgentPoolAssignmentData>(DocumentConstants.AgentAssignmentsId, cancellationToken);
 
             var pools = await session.Query<AgentPoolData>().ToListAsync(token: cancellationToken);
             var agents = await session.Query<AgentData>().ToListAsync(token: cancellationToken);
 
-            return Map(agentPoolAssignmentData ?? new AgentPoolAssignmentData {Id = "/agentAssignments"}, pools, agents);
+            return Map(agentPoolAssignmentData ?? new AgentPoolAssignmentData {Id = DocumentConstants.AgentAssignmentsId}, pools, agents);
         }
 
         private AssignedAgentsInPoolsQueryResult Map(AgentPoolAssignmentData agentPoolAssignmentData,

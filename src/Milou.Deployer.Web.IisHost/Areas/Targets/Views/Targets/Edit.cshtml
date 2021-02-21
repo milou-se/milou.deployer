@@ -24,6 +24,8 @@ else
 {
     <form action="@Url.RouteUrl(TargetConstants.RemoveTargetPostRouteName)" method="post">
 
+        @Html.AntiForgeryToken()
+
         <fieldset>
             <legend>Actions</legend>
 
@@ -38,6 +40,8 @@ else
     </form>
 
     <form method="post" action="@Url.RouteUrl(TargetConstants.EditTargetPostRouteName)">
+
+    @Html.AntiForgeryToken()
 
     <fieldset>
         <legend>General settings</legend>

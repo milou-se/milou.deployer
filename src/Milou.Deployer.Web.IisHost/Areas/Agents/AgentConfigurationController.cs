@@ -9,6 +9,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class AgentConfigurationController : BaseApiController
     {
+        [ValidateAntiForgeryToken]
         [AllowAnonymous]
         [HttpPost]
         [Route("~/agent/install-configuration/")]

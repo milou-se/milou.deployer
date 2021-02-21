@@ -173,11 +173,9 @@ namespace Milou.Deployer.Web.Marten
             CancellationToken cancellationToken)
         {
             using var session = _documentStore.OpenSession();
+            var agentData = await session.LoadAsync<AgentPoolAssignmentData>(DocumentConstants.AgentAssignmentsId, cancellationToken);
 
-            const string id = "/agentAssignments";
-            var agentData = await session.LoadAsync<AgentPoolAssignmentData>(id, cancellationToken);
-
-            agentData ??= new AgentPoolAssignmentData {Id = id};
+            agentData ??= new AgentPoolAssignmentData {Id = DocumentConstants.AgentAssignmentsId};
 
             if (!agentData.Agents.ContainsKey(request.AgentId.Value))
             {
@@ -186,7 +184,12 @@ namespace Milou.Deployer.Web.Marten
 
             if (agentData.Agents[request.AgentId.Value] == request.AgentPoolId.Value)
             {
-                return new AssignAgentToPoolResult();
+                return new AssignAgentToPoolResult
+                {
+                    AgentId = request.AgentId,
+                    AgentPoolId = request.AgentPoolId,
+                    Updated = false
+                };
             }
 
             agentData.Agents[request.AgentId.Value] = request.AgentPoolId.Value;
@@ -195,7 +198,12 @@ namespace Milou.Deployer.Web.Marten
 
             await session.SaveChangesAsync(cancellationToken);
 
-            return new AssignAgentToPoolResult();
+            return new AssignAgentToPoolResult
+            {
+                AgentId = request.AgentId,
+                AgentPoolId = request.AgentPoolId,
+                Updated = false
+            };
         }
 
         public async Task<AssignTargetToPoolResult> Handle(AssignTargetToPool request,
@@ -466,8 +474,7 @@ namespace Milou.Deployer.Web.Marten
         {
             using var session = _documentStore.OpenSession();
 
-            const string id = "/agentAssignments";
-            var agentData = await session.LoadAsync<AgentPoolAssignmentData>(id, cancellationToken);
+            var agentData = await session.LoadAsync<AgentPoolAssignmentData>(DocumentConstants.AgentAssignmentsId, cancellationToken);
 
             if (agentData is null)
             {

@@ -27,6 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             _deploymentService = deploymentService;
         }
 
+        [ValidateAntiForgeryToken]
         [Route(DeploymentConstants.DeployRoute, Name = DeploymentConstants.DeployRouteName)]
         [HttpPost]
         public async Task<IActionResult> Index(DeploymentTaskInput? deploymentTaskInput)

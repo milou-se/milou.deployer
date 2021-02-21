@@ -8,6 +8,8 @@ Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
 
 <form method="post" action="@Url.RouteUrl(SettingsConstants.SaveSettingsPostRouteName)">
 
+    @Html.AntiForgeryToken()
+
     <div>
         Cache time: <input type="text" name="cacheTime" value="@Model.ApplicationSettings.CacheTime"/>
     </div>

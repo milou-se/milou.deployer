@@ -17,6 +17,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
         {
             ViewAssemblyLoader.LoadViewAssemblies(_logger);
 
+            builder.AddAntiforgery();
+
             return builder;
         }
     }

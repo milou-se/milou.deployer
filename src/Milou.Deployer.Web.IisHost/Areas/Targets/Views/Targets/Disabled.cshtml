@@ -29,6 +29,8 @@
                 {
                     <form method="post" action="@Url.RouteUrl(TargetConstants.DisableTargetPostRouteName)">
 
+                        @Html.AntiForgeryToken()
+
                         <input type="hidden" name="targetId" value="@target.Id"/>
 
                         <input type="submit" value="Disable"/>
@@ -38,6 +40,8 @@
                 else
                 {
                     <form method="post" action="@Url.RouteUrl(TargetConstants.EnableTargetPostRouteName)">
+
+                        @Html.AntiForgeryToken()
 
                         <input type="hidden" name="targetId" value="@target.Id"/>
 

@@ -42,6 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             return new ObjectResult(deploymentTaskPackage);
         }
 
+        [ValidateAntiForgeryToken]
         [Route(AgentConstants.DeploymentTaskResult, Name = AgentConstants.DeploymentTaskResultName)]
         [HttpPost]
         public async Task<IActionResult> DeployAgentResult(

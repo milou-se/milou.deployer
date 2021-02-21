@@ -33,6 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
             return View(new ProjectsViewOutputModel(projects, createProjectResult, organizationId));
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(ProjectConstants.CreateProjectPostRoute,
             Name = ProjectConstants.CreateProjectPostRouteName)]
