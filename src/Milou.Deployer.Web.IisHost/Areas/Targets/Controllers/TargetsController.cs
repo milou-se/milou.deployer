@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
@@ -97,7 +98,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
         [HttpGet]
         public async Task<IActionResult> Index(
-            [FromRoute] string deploymentTargetId,
+            [FromRoute] DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
@@ -115,7 +116,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
         [HttpGet]
         public async Task<IActionResult> Edit(
-            [FromRoute] string deploymentTargetId,
+            [ValueFromRoute] DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {

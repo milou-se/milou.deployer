@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                 PackageId = notification.DeploymentTask.PackageId,
                 Version = notification.DeploymentTask.SemanticVersion.ToNormalizedString(),
                 DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
-                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId.TargetId,
                 Id = $"deploymentTaskMetadata/{notification.DeploymentTask.DeploymentTaskId}",
                 StartedAtUtc = notification.Result.StartedAtUtc,
                 FinishedAtUtc = notification.Result.FinishedAtUtc,

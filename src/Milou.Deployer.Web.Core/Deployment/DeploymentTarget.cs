@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Configuration;
 using Newtonsoft.Json;
 
@@ -18,10 +19,10 @@ namespace Milou.Deployer.Web.Core.Deployment
     public class DeploymentTarget
     {
         public static readonly DeploymentTarget None =
-            new DeploymentTarget(Constants.NotAvailable, Constants.NotAvailable, Constants.NotAvailable);
+            new DeploymentTarget(new DeploymentTargetId(Constants.NotAvailable), Constants.NotAvailable, Constants.NotAvailable);
 
         public DeploymentTarget(
-            [NotNull] string id,
+            [NotNull] DeploymentTargetId id,
             [NotNull] string name,
             string packageId,
             string? publishSettingsXml = null,
@@ -52,11 +53,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             bool? packageListPrefixEnabled = default,
             string? packageListPrefix = default)
         {
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(id));
-            }
-
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
@@ -124,7 +120,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public EnvironmentType? EnvironmentType { get; }
 
-        public string Id { get; }
+        public DeploymentTargetId Id { get; }
 
         public string Name { get; }
 
@@ -172,9 +168,9 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public override string ToString()
         {
-            if (string.IsNullOrWhiteSpace(Name) && string.IsNullOrWhiteSpace(Id))
+            if (string.IsNullOrWhiteSpace(Name))
             {
-                return base.ToString()!;
+                return Id.TargetId;
             }
 
             return $"{Name} ({Id})";

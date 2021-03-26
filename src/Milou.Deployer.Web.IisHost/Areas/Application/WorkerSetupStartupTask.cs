@@ -10,6 +10,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Startup;
@@ -59,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             await Task.Yield();
 
-            IReadOnlyCollection<string> targetIds;
+            IReadOnlyCollection<DeploymentTargetId> targetIds;
 
             try
             {
@@ -90,14 +91,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 return;
             }
 
-            foreach (string targetId in targetIds)
+            foreach (var targetId in targetIds)
             {
                 var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _logger, _mediator,
                     _workerConfiguration, _timeoutHelper, _clock, _serviceProvider);
 
                 _holder.Add(new NamedInstance<DeploymentTargetWorker>(
                     deploymentTargetWorker,
-                    targetId));
+                    targetId.TargetId));
 
                 await _mediator.Send(new StartWorker(deploymentTargetWorker), stoppingToken);
             }

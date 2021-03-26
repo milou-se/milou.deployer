@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
 
             var testTarget = new DeploymentTarget(
-                "TestTarget",
+                new("TestTarget"),
                 "Test target",
                 "MilouDeployerWebTest",
                 allowExplicitPreRelease: false,
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 emailNotificationAddresses: new StringValues("noreply@localhost.local"),
                 enabled: true);
 
-            var createTarget = new CreateTarget(testTarget.Id, testTarget.Name);
+            var createTarget = new CreateTarget(testTarget.Id.TargetId, testTarget.Name);
             await _mediator.Send(createTarget, cancellationToken);
 
             string nugetConfigFile = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests", "Milou.Deployer.Web.Tests.Integration", "TestData", "nuget.config");
@@ -62,7 +62,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             await _mediator.Send(updateDeploymentTarget, cancellationToken);
 
-            var enableTarget = new EnableTarget(testTarget.Id);
+            var enableTarget = new EnableTarget(testTarget.Id.TargetId);
 
             await _mediator.Send(enableTarget, cancellationToken);
         }

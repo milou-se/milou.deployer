@@ -10,6 +10,7 @@ using DotNext.Threading;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
@@ -38,7 +39,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private bool _isDisposed;
 
         public DeploymentTargetWorker(
-            [NotNull] string targetId,
+            [NotNull] DeploymentTargetId targetId,
             [NotNull] ILogger logger,
             [NotNull] IMediator mediator,
             [NotNull] WorkerConfiguration workerConfiguration,
@@ -46,11 +47,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             ICustomClock clock,
             IServiceProvider serviceProvider)
         {
-            if (string.IsNullOrWhiteSpace(targetId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(targetId));
-            }
-
             TargetId = targetId;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -64,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public bool IsRunning { get; private set; }
 
-        public string TargetId { get; }
+        public DeploymentTargetId TargetId { get; }
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -268,11 +264,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             if (deploymentTask is null)
             {
                 throw new ArgumentNullException(nameof(deploymentTask));
-            }
-
-            if (string.IsNullOrWhiteSpace(deploymentTask.DeploymentTargetId))
-            {
-                throw new ArgumentNullException(nameof(deploymentTask), "Target id is missing");
             }
 
             try

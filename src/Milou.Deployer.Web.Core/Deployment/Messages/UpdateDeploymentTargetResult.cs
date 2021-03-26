@@ -2,13 +2,14 @@
 using Arbor.App.Extensions.Messaging;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class UpdateDeploymentTargetResult : ITargetResult, IEvent, ICommandResult
     {
         public UpdateDeploymentTargetResult(string targetName,
-            string targetId,
+            DeploymentTargetId targetId,
             params ValidationError[] validationErrors)
         {
             TargetName = targetName;
@@ -16,7 +17,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             ValidationErrors = validationErrors.ToImmutableArray();
         }
 
-        public string TargetId { get; }
+        public DeploymentTargetId TargetId { get; }
 
         [PublicAPI]
         public ImmutableArray<ValidationError> ValidationErrors { get; }

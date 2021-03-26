@@ -1,11 +1,12 @@
 ﻿using Arbor.App.Extensions.Messaging;
+using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
     public class TargetCreated : IEvent
     {
-        public TargetCreated(string targetId) => TargetId = targetId;
+        public TargetCreated(DeploymentTargetId targetId) => TargetId = targetId;
 
-        public string TargetId { get; }
+        public DeploymentTargetId TargetId { get; }
     }
 }

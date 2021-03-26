@@ -15,6 +15,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
@@ -90,7 +91,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             const string packageVersion = "MilouDeployerWebTest 1.2.4";
 
             var deploymentTaskId = Guid.NewGuid();
-            const string deploymentTargetId = TestDataCreator.Testtarget;
+            var deploymentTargetId = new DeploymentTargetId(TestDataCreator.Testtarget);
             var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId,
                 nameof(AutoDeployStartupTask));
 

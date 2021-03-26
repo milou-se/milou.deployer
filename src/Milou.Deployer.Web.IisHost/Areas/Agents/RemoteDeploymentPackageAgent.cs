@@ -6,6 +6,7 @@ using Arbor.Processing;
 using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Deployment;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
@@ -27,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public AgentId AgentId { get; }
 
         public async Task<ExitCode> RunAsync(string deploymentTaskId,
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             var agent = _agentsData.Agents.SingleOrDefault(current =>
@@ -46,7 +47,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
 
             await _agentHub.Clients.Clients(agent.ConnectionId).SendAsync(AgentConstants.SignalRDeployCommand,
-                deploymentTaskId, deploymentTargetId, cancellationToken);
+                deploymentTaskId, deploymentTargetId.TargetId, cancellationToken);
 
             await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken); //TODO
 

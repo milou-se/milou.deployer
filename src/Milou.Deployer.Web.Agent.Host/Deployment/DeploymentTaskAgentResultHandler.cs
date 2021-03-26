@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         {
             HttpClient httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
 
-            var response = await httpClient.PostAsJsonAsync(AgentConstants.DeploymentTaskResult, request, cancellationToken);
+            var response = await httpClient.PostAsJson(AgentConstants.DeploymentTaskResult, request, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {

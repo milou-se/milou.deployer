@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         }
 
         public async Task<ExitCode> RunAsync(string deploymentTaskId,
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             _logger.Information("Received deployment task {DeploymentTaskId}", deploymentTaskId);
@@ -74,15 +74,6 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 {
                     _logger.Error(
                         "Deployment task package for deployment task id {DeploymentTaskId} is missing deployment task id",
-                        deploymentTaskId);
-
-                    return ExitCode.Failure;
-                }
-
-                if (string.IsNullOrWhiteSpace(deploymentTaskPackage.DeploymentTargetId))
-                {
-                    _logger.Error(
-                        "Deployment task package for deployment task id {DeploymentTaskId} is missing deployment target id",
                         deploymentTaskId);
 
                     return ExitCode.Failure;

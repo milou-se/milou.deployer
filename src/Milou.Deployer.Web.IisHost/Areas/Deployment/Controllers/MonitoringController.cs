@@ -7,6 +7,7 @@ using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
@@ -116,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [HttpGet]
         [Route(TargetConstants.TargetStatusApiRoute, Name = TargetConstants.TargetStatusApiRouteName)]
         public async Task<IActionResult> Status(
-            string deploymentTargetId,
+            [ValueFromRoute] DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] MonitoringService monitoringService,
             [FromServices] ICustomClock clock)

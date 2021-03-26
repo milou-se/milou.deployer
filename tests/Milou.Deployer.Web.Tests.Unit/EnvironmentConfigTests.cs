@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithEmptyOldEnvironment()
         {
-            DeploymentTarget target = new DeploymentTarget("123", "123", "abc",
+            var target = new DeploymentTarget(new("123"), "123", "abc",
                 environmentConfiguration: "");
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithOldEnvironment()
         {
-            DeploymentTarget target = new DeploymentTarget("123", "123", "abc",
+            var target = new DeploymentTarget(new("123"), "123", "abc",
                 environmentConfiguration: "test");
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithOtherEnvironment()
         {
-            DeploymentTarget target = new DeploymentTarget("123", "123", "abc",
+            var target = new DeploymentTarget(new("123"), "123", "abc",
                 environmentType: new EnvironmentType("", "", PreReleaseBehavior.Allow));
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
@@ -41,7 +41,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithoutEnvironment()
         {
-            DeploymentTarget target = new DeploymentTarget("123", "123", "abc");
+            var target = new DeploymentTarget(new("123"), "123", "abc");
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
 
@@ -51,7 +51,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithUnknownEnvironment()
         {
-            DeploymentTarget target = new DeploymentTarget("123", "123", "abc",
+            var target = new DeploymentTarget(new("123"), "123", "abc",
                 environmentType: EnvironmentType.Unknown);
 
             string? environmentConfig = target.GetEnvironmentConfiguration();

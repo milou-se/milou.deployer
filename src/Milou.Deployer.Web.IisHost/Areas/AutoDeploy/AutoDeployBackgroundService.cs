@@ -113,7 +113,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                 foreach (DeploymentTarget deploymentTarget in targetsWithUrl)
                 {
                     AppVersion? appVersion = appVersions.SingleOrDefault(version =>
-                        version.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
+                        version.Target.Id == deploymentTarget.Id);
 
                     if (appVersion?.SemanticVersion is null)
                     {

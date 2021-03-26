@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public async Task<IActionResult> Log([FromBody] SerilogSinkEvents events, [FromServices] IMediator mediator)
         {
             string deploymentTaskId = Request.Headers["x-deployment-task-id"];
-            string deploymentTargetId = Request.Headers["x-deployment-target-id"];
+            var deploymentTargetId = new DeploymentTargetId(Request.Headers["x-deployment-target-id"]);
 
             if (events?.Events is null)
             {
@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             foreach (SerilogSinkEvent serilogSinkEvent in events.Events.NotNull())
             {
-                if (!string.IsNullOrWhiteSpace(deploymentTaskId) && !string.IsNullOrWhiteSpace(deploymentTargetId) &&
+                if (!string.IsNullOrWhiteSpace(deploymentTaskId) &&
                     !string.IsNullOrWhiteSpace(serilogSinkEvent.RenderedMessage))
                 {
                     await mediator.Publish(new AgentLogNotification(deploymentTaskId, deploymentTargetId,

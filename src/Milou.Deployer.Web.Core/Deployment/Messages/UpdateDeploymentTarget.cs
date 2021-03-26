@@ -4,13 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions.Messaging;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
+using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class UpdateDeploymentTarget : ICommand<UpdateDeploymentTargetResult>, IValidatableObject
     {
         public UpdateDeploymentTarget(
-            string id,
+            DeploymentTargetId id,
             bool allowExplicitPreRelease,
             string? url,
             string packageId,
@@ -49,7 +50,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             PublishSettingsXml = publishSettingsXml;
             TargetDirectory = targetDirectory;
             WebConfigTransform = webConfigTransform;
-            IsValid = !string.IsNullOrWhiteSpace(Id);
+            IsValid = Id != DeploymentTargetId.Invalid;
             EnvironmentTypeId = environmentTypeId?.Trim();
             PackageListPrefix = packageListPrefix;
 
@@ -73,7 +74,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public string? EnvironmentTypeId { get; }
 
-        public string Id { get; }
+        public DeploymentTargetId Id { get; }
 
         public Uri? Url { get; }
 

@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                 var taskMetadata = new TaskLog
                 {
                     DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
-                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId.TargetId,
                     Id = taskLogId,
                     FinishedAtUtc = notification.FinishedAtUtc
                 };

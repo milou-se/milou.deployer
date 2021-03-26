@@ -56,6 +56,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         private readonly IDeploymentTargetService _targetSource;
         private DeploymentTask? _current;
         private DeploymentTaskTempData? _tempData;
+        private bool _isDisposing;
+        private bool _isDisposed;
 
         public DeploymentService(
             [NotNull] ILogger logger,
@@ -91,6 +93,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public void TaskDone(string deploymentTaskId)
         {
+            CheckDisposed();
+
             if (_current is { })
             {
                 _current.Status = WorkTaskStatus.Done;
@@ -104,8 +108,18 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
+        private void CheckDisposed()
+        {
+            if (_isDisposed || _isDisposing)
+            {
+                throw new ObjectDisposedException(ToString());
+            }
+        }
+
         public void TaskFailed(string deploymentTaskId)
         {
+            CheckDisposed();
+
             if (_current is { })
             {
                 _statusChangedEvent.Set(false);
@@ -227,13 +241,19 @@ namespace Milou.Deployer.Web.Core.Deployment
                 TempDirectories[deploymentTask.DeploymentTaskId]);
 
             TempFiles.Remove(deploymentTask.DeploymentTaskId);
-            TempDirectories.Remove(deploymentTask.DeploymentTargetId);
+            TempDirectories.Remove(deploymentTask.DeploymentTargetId.TargetId);
 
             return deploymentTaskResult;
         }
 
         public void Dispose()
         {
+            if (_isDisposing || _isDisposed)
+            {
+                return;
+            }
+
+            _isDisposing = true;
             _current = null!;
             MessageQueue.Dispose();
             foreach (var pair in TempFiles)
@@ -247,6 +267,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
 
             _statusChangedEvent.Dispose();
+            _isDisposing = false;
+            _isDisposed = true;
         }
 
         public async Task<ExitCode> CreateDeploymentPackageAsync(
@@ -369,7 +391,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 const string secretKeyPrefix = "publish-settings";
 
-                string id = deploymentTarget.Id;
+                var id = deploymentTarget.Id.TargetId;
 
                 const string usernameKey = secretKeyPrefix + ":username";
                 const string passwordKey = secretKeyPrefix + ":password";
@@ -567,7 +589,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         }
 
         private Task<DeploymentTarget?> GetDeploymentTarget(
-            [NotNull] string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default) =>
             _deploymentTargetService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
 
@@ -605,7 +627,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             metadata
                 .Append("Target id: ")
-                .AppendLine(deploymentTask.DeploymentTargetId);
+                .AppendLine(deploymentTask.DeploymentTargetId.TargetId);
 
             if (deploymentTarget is null)
             {

@@ -14,6 +14,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
@@ -167,7 +168,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 _timeoutHelper.CreateCancellationTokenSource(applicationSettings.DefaultMetadataRequestTimeout);
             using var linkedTokenSource =
                 CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token);
-            var tasks = new Dictionary<string, Task<(HttpResponseMessage?, string)>>();
+            var tasks = new Dictionary<DeploymentTargetId, Task<(HttpResponseMessage?, string)>>();
 
             foreach (DeploymentTarget deploymentTarget in targets)
             {
@@ -384,7 +385,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return appVersion;
         }
 
-        private string GetCacheKey(string targetId) => $"{nameof(AppVersion)}:{targetId}";
+        private string GetCacheKey(DeploymentTargetId targetId) => $"{nameof(AppVersion)}:{targetId.Value}";
 
         private async Task<(HttpResponseMessage?, string?)> GetWrappedResponseAsync(
             DeploymentTarget deploymentTarget,
@@ -427,7 +428,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        private void InvalidateCache(string targetId)
+        private void InvalidateCache(DeploymentTargetId targetId)
         {
             string cacheKey = GetCacheKey(targetId);
 

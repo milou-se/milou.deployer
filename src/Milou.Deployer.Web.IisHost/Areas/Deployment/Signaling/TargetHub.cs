@@ -31,7 +31,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
                 return;
             }
 
-            await _mediator.Send(new SubscribeToDeploymentLog(Context.ConnectionId, targetId));
+            await _mediator.Send(new SubscribeToDeploymentLog(Context.ConnectionId, new (targetId)));
         }
     }
 }

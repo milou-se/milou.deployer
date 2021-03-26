@@ -1,6 +1,7 @@
 ﻿using System;
 using Arbor.Processing;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
@@ -8,7 +9,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
     {
         public DeploymentTaskResult(
             string deploymentTaskId,
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             ExitCode exitCode,
             DateTime startedAtUtc,
             DateTime finishedAtUtc,
@@ -26,7 +27,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public string DeploymentTaskId { get; }
 
         [PublicAPI]
-        public string DeploymentTargetId { get; }
+        public DeploymentTargetId DeploymentTargetId { get; }
 
         public ExitCode ExitCode { get; }
 

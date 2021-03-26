@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Serilog;
 
@@ -27,7 +28,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
         }
 
         public async Task<DeploymentTarget?> GetDeploymentTargetAsync(
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             var organizations = await GetOrganizationsAsync(cancellationToken);
@@ -93,7 +94,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
                             "testproject",
                             new List<DeploymentTarget>
                             {
-                                new DeploymentTarget("TestTarget",
+                                new DeploymentTarget(new DeploymentTargetId("TestTarget"),
                                     "Test target",
                                     "MilouDeployer",
                                     null,

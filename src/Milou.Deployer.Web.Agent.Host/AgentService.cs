@@ -62,10 +62,12 @@ namespace Milou.Deployer.Web.Agent.Host
                 return;
             }
 
-            var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, deploymentTargetId, _stoppingToken);
+            var id = new DeploymentTargetId(deploymentTargetId);
+
+            var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, id, _stoppingToken);
 
             var deploymentTaskAgentResult =
-                new DeploymentTaskAgentResult(deploymentTaskId, deploymentTargetId, exitCode.IsSuccess);
+                new DeploymentTaskAgentResult(deploymentTaskId, id, exitCode.IsSuccess);
 
             await _mediator.Send(deploymentTaskAgentResult, _stoppingToken);
         }

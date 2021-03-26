@@ -10,7 +10,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
-
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -30,11 +30,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         IAsyncDisposable
     {
         private readonly AgentsData _agents;
-        private readonly Dictionary<string, CancellationTokenSource> _cancellations;
+        private readonly Dictionary<DeploymentTargetId, CancellationTokenSource> _cancellations;
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly Dictionary<string, Task> _tasks;
+        private readonly Dictionary<DeploymentTargetId, Task> _tasks;
         private readonly TimeoutHelper _timeoutHelper;
         private List<DeploymentTargetWorker> _workers;
         private CancellationToken _stoppingToken;
@@ -53,8 +53,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _mediator = mediator;
             _agents = agents;
             _timeoutHelper = timeoutHelper;
-            _tasks = new Dictionary<string, Task>();
-            _cancellations = new Dictionary<string, CancellationTokenSource>();
+            _tasks = new();
+            _cancellations = new ();
         }
 
         public Task Handle(AgentDeploymentDone notification, CancellationToken cancellationToken)
@@ -102,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(TargetEnabled notification, CancellationToken cancellationToken)
         {
-            if (!_configurationInstanceHolder.TryGet(notification.TargetId,
+            if (!_configurationInstanceHolder.TryGet(notification.TargetId.TargetId,
                 out DeploymentTargetWorker? worker))
             {
                 _logger.Warning("Could not get worker for target id {TargetId}", notification.TargetId);
@@ -117,11 +117,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public Task Handle(WorkerCreated notification, CancellationToken cancellationToken)
         {
             if (!_configurationInstanceHolder.TryGet(
-                notification.Worker.TargetId,
+                notification.Worker.TargetId.TargetId,
                 out DeploymentTargetWorker _))
             {
                 _configurationInstanceHolder.Add(
-                    new NamedInstance<IDeploymentTargetWorker>(notification.Worker, notification.Worker.TargetId));
+                    new NamedInstance<IDeploymentTargetWorker>(notification.Worker, notification.Worker.TargetId.TargetId));
             }
 
             StartWorker(notification.Worker, cancellationToken);
@@ -136,14 +136,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.FromResult(Unit.Value);
         }
 
-        private DeploymentTargetWorker? GetWorkerByTargetId([NotNull] string targetId)
+        private DeploymentTargetWorker? GetWorkerByTargetId([NotNull] DeploymentTargetId targetId)
         {
-            if (string.IsNullOrWhiteSpace(targetId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(targetId));
-            }
-
-            if (!_configurationInstanceHolder.TryGet(targetId,
+            if (!_configurationInstanceHolder.TryGet(targetId.TargetId,
                 out DeploymentTargetWorker? worker))
             {
                 int registered = _configurationInstanceHolder.RegisteredTypes
@@ -211,12 +206,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 try
                 {
-                    string[] completedTaskKeys = _tasks
+                    var completedTaskKeys = _tasks
                         .Where(pair => pair.Value.IsCompletedSuccessfully)
                         .Select(pair => pair.Key)
                         .ToArray();
 
-                    foreach (string completedTaskKey in completedTaskKeys)
+                    foreach (var completedTaskKey in completedTaskKeys)
                     {
                         if (_tasks.ContainsKey(completedTaskKey))
                         {

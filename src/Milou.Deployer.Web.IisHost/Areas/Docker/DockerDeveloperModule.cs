@@ -70,6 +70,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var redis = CreateRedis();
             dockerArgs.Add(redis);
 
+            dockerArgs.Add(CreatePgAdmin());
+
             _dockerContext = await DockerContext.CreateContextAsync(dockerArgs, _logger);
 
             await _dockerContext.ContainerTask;
@@ -77,6 +79,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             _logger.Debug("Started containers {Containers}",
                 string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
         }
+
+        private ContainerArgs CreatePgAdmin() =>
+            new("dpage/pgadmin4",
+                "pgadmin", new[] {PortMapping.MapSinglePort(4000, 80)},
+                new Dictionary<string, string>
+                {
+                    ["PGADMIN_DEFAULT_EMAIL"] = "info@dev.local", ["PGADMIN_DEFAULT_PASSWORD"] = "dev",
+                });
 
         public int Order { get; } = 0;
 

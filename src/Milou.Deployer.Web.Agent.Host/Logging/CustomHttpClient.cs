@@ -8,13 +8,13 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
 {
     public sealed class CustomHttpClient : IHttpClient
     {
-        private readonly string _deploymentTargetId;
+        private readonly DeploymentTargetId _deploymentTargetId;
         private readonly string _deploymentTaskId;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public CustomHttpClient(IHttpClientFactory httpClientFactory,
             string deploymentTaskId,
-            string deploymentTargetId)
+            DeploymentTargetId deploymentTargetId)
         {
             _httpClientFactory = httpClientFactory;
             _deploymentTaskId = deploymentTaskId;
@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri) {Content = content};
 
             request.Headers.Add("x-deployment-task-id", _deploymentTaskId);
-            request.Headers.Add("x-deployment-target-id", _deploymentTargetId);
+            request.Headers.Add("x-deployment-target-id", _deploymentTargetId.TargetId);
             HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(request);
 
             return httpResponseMessage;

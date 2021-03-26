@@ -1,10 +1,12 @@
-﻿namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
+﻿using Milou.Deployer.Web.Agent;
+
+namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 {
     public class DeploymentTaskItem
     {
         public DeploymentTaskItem(string deploymentTaskId,
             string packageVersion,
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             string? startedBy)
         {
             DeploymentTaskId = deploymentTaskId;
@@ -17,7 +19,7 @@
 
         public string PackageVersion { get; }
 
-        public string DeploymentTargetId { get; }
+        public DeploymentTargetId DeploymentTargetId { get; }
 
         public string? StartedBy { get; }
     }

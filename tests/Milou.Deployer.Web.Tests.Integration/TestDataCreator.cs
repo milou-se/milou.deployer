@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                             "testproject",
                             new List<DeploymentTarget>
                             {
-                                new DeploymentTarget(Testtarget,
+                                new DeploymentTarget(new(Testtarget),
                                     "Test target",
                                     "MilouDeployerWebTest",
                                     allowExplicitPreRelease: false,

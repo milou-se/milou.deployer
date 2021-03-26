@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
             using var publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)
                 ? null
-                : TempFile.CreateTempFile(deploymentTaskPackage.DeploymentTargetId, ".publishSettings");
+                : TempFile.CreateTempFile(deploymentTaskPackage.DeploymentTargetId.TargetId, ".publishSettings");
 
             DirectoryInfo? currentDir = manifestFile.File!.Directory;
 

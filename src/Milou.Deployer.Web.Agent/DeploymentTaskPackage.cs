@@ -4,7 +4,7 @@ namespace Milou.Deployer.Web.Agent
 {
     public sealed record DeploymentTaskPackage(
         string DeploymentTaskId,
-        string DeploymentTargetId,
+        DeploymentTargetId DeploymentTargetId,
         string AgentId)
     {
         public ImmutableArray<string> DeployerProcessArgs { get; init; }

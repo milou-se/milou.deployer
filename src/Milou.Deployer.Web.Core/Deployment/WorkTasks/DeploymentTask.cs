@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Newtonsoft.Json;
 using NuGet.Versioning;
@@ -12,18 +13,13 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
     {
         public DeploymentTask(
             [NotNull] string packageVersion,
-            [NotNull] string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             Guid deploymentTaskId,
             string startedBy)
         {
             if (string.IsNullOrWhiteSpace(packageVersion))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageVersion));
-            }
-
-            if (string.IsNullOrWhiteSpace(deploymentTargetId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
             }
 
             string[] parts = packageVersion.Split(' ');
@@ -41,7 +37,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 
         public DeploymentTask(
             [NotNull] PackageVersion packageVersion,
-            [NotNull] string deploymentTargetId,
+            [NotNull] DeploymentTargetId deploymentTargetId,
             Guid deploymentTaskId,
             string? startedBy)
         {
@@ -62,7 +58,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 
         public SemanticVersion SemanticVersion { get; }
 
-        public string DeploymentTargetId { get; }
+        public DeploymentTargetId DeploymentTargetId { get; }
 
         public string PackageId { get; }
 

@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -52,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            if (string.IsNullOrWhiteSpace(deploymentTaskInput.TargetId))
+            if (deploymentTaskInput.TargetId == DeploymentTargetId.Invalid)
             {
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }

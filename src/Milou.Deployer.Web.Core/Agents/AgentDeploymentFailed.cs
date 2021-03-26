@@ -5,7 +5,7 @@ namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentDeploymentFailed : IEvent
     {
-        public AgentDeploymentFailed(string deploymentTaskId, string deploymentTargetId, string agentId)
+        public AgentDeploymentFailed(string deploymentTaskId, DeploymentTargetId deploymentTargetId, string agentId)
         {
             DeploymentTaskId = deploymentTaskId;
             DeploymentTargetId = deploymentTargetId;
@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public string DeploymentTaskId { get; }
 
-        public string DeploymentTargetId { get; }
+        public DeploymentTargetId DeploymentTargetId { get; }
 
         public AgentId AgentId { get; }
     }

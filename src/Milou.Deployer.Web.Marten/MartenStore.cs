@@ -72,14 +72,9 @@ namespace Milou.Deployer.Web.Marten
         }
 
         public Task<DeploymentTarget?> GetDeploymentTargetAsync(
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(deploymentTargetId))
-            {
-                throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(deploymentTargetId));
-            }
-
             return FindDeploymentTargetAsync(deploymentTargetId, cancellationToken);
         }
 
@@ -242,7 +237,7 @@ namespace Milou.Deployer.Web.Marten
             var deploymentTaskPackageData = new DeploymentTaskPackageData
             {
                 Id = request.DeploymentTaskPackage.DeploymentTaskId,
-                DeploymentTargetId = request.DeploymentTaskPackage.DeploymentTargetId,
+                DeploymentTargetId = request.DeploymentTaskPackage.DeploymentTargetId.TargetId,
                 NuGetConfigXml = request.DeploymentTaskPackage.NugetConfigXml,
                 ManifestJson = request.DeploymentTaskPackage.ManifestJson,
                 PublishSettingsXml = request.DeploymentTaskPackage.PublishSettingsXml,
@@ -323,7 +318,7 @@ namespace Milou.Deployer.Web.Marten
 
             using (IDocumentSession session = _documentStore.OpenSession())
             {
-                var data = new DeploymentTargetData {Id = createTarget.Id, Name = createTarget.Name};
+                var data = new DeploymentTargetData {Id = createTarget.Id.TargetId, Name = createTarget.Name};
 
                 session.Store(data);
 
@@ -418,7 +413,7 @@ namespace Milou.Deployer.Web.Marten
             using IDocumentSession session = _documentStore.OpenSession();
 
             DeploymentTargetData deploymentTargetData =
-                await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+                await session.LoadAsync<DeploymentTargetData>(request.TargetId.TargetId, cancellationToken);
 
             if (deploymentTargetData is null)
             {
@@ -514,7 +509,7 @@ namespace Milou.Deployer.Web.Marten
                     return Unit.Value;
                 }
 
-                session.Delete<DeploymentTargetData>(request.DeploymentTargetId);
+                session.DeleteWhere<DeploymentTargetData>(data => data.Id.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase));
                 session.DeleteWhere<TaskMetadata>(m =>
                     m.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase));
 
@@ -537,19 +532,19 @@ namespace Milou.Deployer.Web.Marten
 
             string targetName;
 
-            string id;
+            DeploymentTargetId id;
 
             using (IDocumentSession session = _documentStore.OpenSession())
             {
                 DeploymentTargetData data =
-                    await session.LoadAsync<DeploymentTargetData>(request.Id, cancellationToken);
+                    await session.LoadAsync<DeploymentTargetData>(request.Id.TargetId, cancellationToken);
 
                 if (data is null)
                 {
-                    return new UpdateDeploymentTargetResult("", "", new ValidationError("Not found"));
+                    return new UpdateDeploymentTargetResult("", DeploymentTargetId.Invalid, new ValidationError("Not found"));
                 }
 
-                id = data.Id;
+                id = new(data.Id);
                 targetName = data.Name;
 
                 data.NuGetData ??= new NuGetData();
@@ -594,7 +589,7 @@ namespace Milou.Deployer.Web.Marten
             {
                 Id = notification.DeploymentTask.DeploymentTaskId,
                 PackageVersion = notification.DeploymentTask.PackageVersion,
-                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId.TargetId,
                 StartedBy = notification.DeploymentTask.StartedBy,
                 AgentId = ""
             });
@@ -648,7 +643,7 @@ namespace Milou.Deployer.Web.Marten
             return new CreateProjectResult(createProject.Id);
         }
 
-        private async Task<DeploymentTarget?> FindDeploymentTargetAsync(string deploymentTargetId,
+        private async Task<DeploymentTarget?> FindDeploymentTargetAsync(DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken)
         {
             using IQuerySession session = _documentStore.QuerySession();
@@ -656,7 +651,7 @@ namespace Milou.Deployer.Web.Marten
             {
                 DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
                     .SingleOrDefaultAsync(target =>
-                            target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
+                            target.Id.Equals(deploymentTargetId.TargetId, StringComparison.OrdinalIgnoreCase),
                         cancellationToken);
 
                 var environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken);
@@ -731,7 +726,7 @@ namespace Milou.Deployer.Web.Marten
             try
             {
                 deploymentTargetAsync = new DeploymentTarget(
-                    deploymentTargetData.Id,
+                    new (deploymentTargetData.Id),
                     deploymentTargetData.Name,
                     deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable)!,
                     deploymentTargetData.PublishSettingsXml,

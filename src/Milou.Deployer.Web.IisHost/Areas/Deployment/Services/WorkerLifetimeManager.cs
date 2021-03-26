@@ -52,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             // TODO remove old worker
 
-            _configurationInstanceHolder.Add(new NamedInstance<DeploymentTargetWorker>(worker, notification.TargetId));
+            _configurationInstanceHolder.Add(new NamedInstance<DeploymentTargetWorker>(worker, notification.TargetId.TargetId));
 
             await _mediator.Publish(new WorkerCreated(worker), cancellationToken);
         }
