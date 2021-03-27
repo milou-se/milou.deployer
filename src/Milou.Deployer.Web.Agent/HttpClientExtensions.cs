@@ -9,9 +9,9 @@ namespace Milou.Deployer.Web.Agent
 {
     public static class HttpClientExtensions
     {
-        public static async Task<HttpResponseMessage> PostAsJson<T>(this HttpClient httpClient, string url, T instance, CancellationToken cancellationToken = default)
+        public static async Task<HttpResponseMessage> PostAsJson<T>(this HttpClient httpClient, Uri url, T instance, CancellationToken cancellationToken = default)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(url));
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
 
             string? json = JsonConvert.SerializeObject(instance);
 

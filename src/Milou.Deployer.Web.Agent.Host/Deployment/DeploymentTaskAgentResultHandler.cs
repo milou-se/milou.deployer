@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -13,19 +14,24 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
+        private readonly AgentConfiguration _agentConfiguration;
 
         public DeploymentTaskAgentResultHandler(IHttpClientFactory httpClientFactory,
-            ILogger logger)
+            ILogger logger, AgentConfiguration agentConfiguration)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _agentConfiguration = agentConfiguration;
         }
 
         public async Task<Unit> Handle(DeploymentTaskAgentResult request, CancellationToken cancellationToken)
         {
             HttpClient httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
 
-            var response = await httpClient.PostAsJson(AgentConstants.DeploymentTaskResult, request, cancellationToken);
+            var uriBuilder =
+                new UriBuilder(_agentConfiguration.ServerBaseUri) {Path = AgentConstants.DeploymentTaskResult};
+
+            var response = await httpClient.PostAsJson(uriBuilder.Uri, request, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
