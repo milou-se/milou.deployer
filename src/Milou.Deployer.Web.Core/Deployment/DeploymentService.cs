@@ -195,7 +195,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     _tempData?.TempLogger.Debug("Waiting for task to complete");
 
                     while (!(deploymentTask.Status == WorkTaskStatus.Done ||
-                             deploymentTask.Status == WorkTaskStatus.Failed))
+                             deploymentTask.Status == WorkTaskStatus.Failed) && (!_isDisposed || _isDisposing))
                     {
                         await _statusChangedEvent.WaitAsync(cancellationToken);
                     }
@@ -209,41 +209,48 @@ namespace Milou.Deployer.Web.Core.Deployment
                 logger.Error(ex, "Error deploying");
             }
 
-            var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
+            try
+            {
+                var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
-            await _mediator.Publish(
-                new DeploymentFinished(deploymentTask,
-                    _tempData?.LogBuilder.ToArray() ?? Array.Empty<LogItem>(), finishedAtUtc),
-                cancellationToken);
+                await _mediator.Publish(
+                    new DeploymentFinished(deploymentTask,
+                        _tempData?.LogBuilder.ToArray() ?? Array.Empty<LogItem>(), finishedAtUtc),
+                    cancellationToken);
 
-            stopwatch.Stop();
+                stopwatch.Stop();
 
-            _tempData?.TempLogger.SafeDispose();
+                CheckDisposed();
 
-            string metadataContent = LogJobMetadata(deploymentTask,
-                start,
-                finishedAtUtc,
-                stopwatch,
-                result,
-                deploymentTarget);
+                string metadataContent = LogJobMetadata(deploymentTask,
+                    start,
+                    finishedAtUtc,
+                    stopwatch,
+                    result,
+                    deploymentTarget);
 
-            var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId,
-                deploymentTask.DeploymentTargetId,
-                result,
-                start,
-                finishedAtUtc,
-                metadataContent);
+                var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId,
+                    deploymentTask.DeploymentTargetId,
+                    result,
+                    start,
+                    finishedAtUtc,
+                    metadataContent);
 
-            await _mediator.Publish(new DeploymentMetadataLog(deploymentTask, deploymentTaskResult),
-                cancellationToken);
+                await _mediator.Publish(new DeploymentMetadataLog(deploymentTask, deploymentTaskResult),
+                    cancellationToken);
 
-            ClearTemporaryDirectoriesAndFiles(TempFiles[deploymentTask.DeploymentTaskId],
-                TempDirectories[deploymentTask.DeploymentTaskId]);
+                return deploymentTaskResult;
+            }
+            finally
+            {
+                _tempData?.TempLogger.SafeDispose();
 
-            TempFiles.Remove(deploymentTask.DeploymentTaskId);
-            TempDirectories.Remove(deploymentTask.DeploymentTargetId.TargetId);
+                ClearTemporaryDirectoriesAndFiles(TempFiles[deploymentTask.DeploymentTaskId],
+                    TempDirectories[deploymentTask.DeploymentTaskId]);
 
-            return deploymentTaskResult;
+                TempFiles.Remove(deploymentTask.DeploymentTaskId);
+                TempDirectories.Remove(deploymentTask.DeploymentTargetId.TargetId);
+            }
         }
 
         public void Dispose()
