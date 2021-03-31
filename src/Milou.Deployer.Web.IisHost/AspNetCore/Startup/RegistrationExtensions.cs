@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Host.Hosting;
 using Arbor.AspNetCore.Host.Mvc;
-using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
+using Arbor.AspNetCore.Mvc.Formatting.HtmlForms;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.AspNetCore.Authentication;

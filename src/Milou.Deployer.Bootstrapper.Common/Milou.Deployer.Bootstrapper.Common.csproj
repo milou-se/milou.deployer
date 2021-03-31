@@ -5,15 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.6.2" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.1.6" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.1.6" />
-    <PackageReference Include="Arbor.Tooler" Version="0.12.0" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.7.0-build.1617041268" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.2.0-build.1617034280" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.2.0-build.1617034280" />
+    <PackageReference Include="Arbor.Tooler" Version="0.13.0-build.1617034623" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NuGet.Versioning" Version="5.8.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NuGet.Versioning" Version="5.9.0" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
