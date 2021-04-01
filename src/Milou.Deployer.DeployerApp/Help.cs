@@ -20,7 +20,7 @@ namespace Milou.Deployer.DeployerApp
                     $"uses format '{LoggingConstants.PlainOutputFormatEnabled}' otherwise '{LoggingConstants.DefaultFormat}'"
             };
 
-            int longestKey = helpCommands.Keys.Select(key => key.Length).Max();
+            int longestKey = helpCommands.Keys.Max(key => key.Length);
 
             const int extras = 3;
 

@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Core.Deployment
     public class DeploymentTarget
     {
         public static readonly DeploymentTarget None =
-            new DeploymentTarget(new DeploymentTargetId(Constants.NotAvailable), Constants.NotAvailable, Constants.NotAvailable);
+            new(new DeploymentTargetId(Constants.NotAvailable), Constants.NotAvailable, Constants.NotAvailable);
 
         public DeploymentTarget(
             [NotNull] DeploymentTargetId id,
@@ -113,7 +113,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public bool? AllowExplicitExplicitPreRelease { get; }
 
         public bool AllowPreRelease =>
-            (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value) ||
+            AllowExplicitExplicitPreRelease == true ||
             EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
         public string? EnvironmentTypeId { get; }

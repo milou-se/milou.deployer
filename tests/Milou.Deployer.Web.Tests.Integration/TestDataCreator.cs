@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Microsoft.Extensions.Primitives;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 
@@ -16,14 +17,14 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             var targets = new List<OrganizationInfo>
             {
-                new OrganizationInfo("testorg",
+                new("testorg",
                     new List<ProjectInfo>
                     {
-                        new ProjectInfo("testorg",
+                        new("testorg",
                             "testproject",
                             new List<DeploymentTarget>
                             {
-                                new DeploymentTarget(new(Testtarget),
+                                new(new DeploymentTargetId(Testtarget),
                                     "Test target",
                                     "MilouDeployerWebTest",
                                     allowExplicitPreRelease: false,

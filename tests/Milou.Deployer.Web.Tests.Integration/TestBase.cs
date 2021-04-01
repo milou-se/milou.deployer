@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             WebFixture = webFixture ?? throw new ArgumentNullException(nameof(webFixture));
             webFixture.App?.ConfigurationInstanceHolder.AddInstance(output);
 
-            CancellationTokenSource = WebFixture.App?.CancellationTokenSource ?? new();
+            CancellationTokenSource = WebFixture.App?.CancellationTokenSource ?? new CancellationTokenSource();
 
             if (webFixture.Exception is { })
             {

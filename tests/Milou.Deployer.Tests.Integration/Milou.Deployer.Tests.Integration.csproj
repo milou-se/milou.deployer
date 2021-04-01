@@ -6,9 +6,10 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
-    <PackageReference Include="Arbor.Docker" Version="0.5.1" />
+    <PackageReference Include="Arbor.Docker" Version="0.5.2-build.1617191482" />
     <PackageReference Include="Arbor.Docker.Xunit" Version="0.5.2" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />

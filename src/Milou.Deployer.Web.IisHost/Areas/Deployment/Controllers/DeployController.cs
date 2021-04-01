@@ -58,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            PackageVersion packageVersion = new PackageVersion(deploymentTaskInput.PackageId, semanticVersion);
+            PackageVersion packageVersion = new(deploymentTaskInput.PackageId, semanticVersion);
 
             var deploymentTask = new DeploymentTask(packageVersion,
                 deploymentTaskInput.TargetId,

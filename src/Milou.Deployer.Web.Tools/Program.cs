@@ -91,7 +91,7 @@ namespace Milou.Deployer.Web.Tools
 
         private static async Task<string> WriteFileAsync(string value)
         {
-            string tempFileName = Path.GetTempFileName();
+            string tempFileName = Path.GetRandomFileName();
             string destFileName = tempFileName + ".txt";
             File.Move(tempFileName, destFileName);
             await File.WriteAllTextAsync(destFileName, value, Encoding.UTF8);

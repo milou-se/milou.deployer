@@ -9,6 +9,7 @@ using Arbor.Primitives;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Primitives;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -36,7 +37,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
 
             var testTarget = new DeploymentTarget(
-                new("TestTarget"),
+                new DeploymentTargetId("TestTarget"),
                 "Test target",
                 "MilouDeployerWebTest",
                 allowExplicitPreRelease: false,

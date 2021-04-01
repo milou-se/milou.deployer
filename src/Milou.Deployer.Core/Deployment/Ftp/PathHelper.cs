@@ -51,7 +51,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 throw new InvalidOperationException($"The file path '{fullName}' does not start with '{baseFullName}'");
             }
 
-            string substring = fullName.Substring(baseFullName.Length);
+            string substring = fullName[baseFullName.Length..];
 
             string relative = $"/{substring.Replace("\\", "/", StringComparison.Ordinal).TrimStart('/')}";
 

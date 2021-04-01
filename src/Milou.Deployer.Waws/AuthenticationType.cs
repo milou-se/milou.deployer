@@ -5,7 +5,7 @@ namespace Milou.Deployer.Waws
 {
     public sealed class AuthenticationType : IEquatable<AuthenticationType>
     {
-        public static readonly AuthenticationType Basic = new AuthenticationType(nameof(Basic));
+        public static readonly AuthenticationType Basic = new(nameof(Basic));
 
         private AuthenticationType([NotNull] string name)
         {

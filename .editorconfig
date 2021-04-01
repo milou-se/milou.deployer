@@ -378,3 +378,5 @@ dotnet_diagnostic.RCS1073.severity = none
 # RCS1036: Remove redundant empty line.
 dotnet_diagnostic.RCS1036.severity = warning
 
+dotnet_diagnostic.S3453.severity = none
+

@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
                 Name = environmentType.Name
             };
 
-        public static EnvironmentType MapFromData(EnvironmentTypeData data) => new EnvironmentType(data.Id, data.Name,
+        public static EnvironmentType MapFromData(EnvironmentTypeData data) => new(data.Id, data.Name,
             Core.Deployment.PreReleaseBehavior.Parse(data.PreReleaseBehavior));
     }
 }

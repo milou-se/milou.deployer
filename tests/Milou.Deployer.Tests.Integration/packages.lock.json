@@ -10,9 +10,9 @@
       },
       "Arbor.Docker": {
         "type": "Direct",
-        "requested": "[0.5.1, )",
-        "resolved": "0.5.1",
-        "contentHash": "bQauMd3t+bItkRAW2K4N1LDZ4mjffsjD5QNALlg2Ida9w414Y7PLvelEzlZv2sauMowqMz4Exl6HO0A0Z8cUsA==",
+        "requested": "[0.5.2-build.1617191482, )",
+        "resolved": "0.5.2-build.1617191482",
+        "contentHash": "CgLrazBZjloUb19bGuLUV0+xmdMcIRbdELHXY6cchyTiyTsSwQ5+V2F/xeuLbrdOYqY75RlBKZPCMNyovXnh8g==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -72,6 +72,12 @@
           "NETStandard.Library": "1.6.1",
           "System.Collections.NonGeneric": "4.3.0"
         }
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[13.0.1, )",
+        "resolved": "13.0.1",
+        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
       "NuGet.Versioning": {
         "type": "Direct",
@@ -481,11 +487,6 @@
           "System.Xml.ReaderWriter": "4.3.0",
           "System.Xml.XDocument": "4.3.0"
         }
-      },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
       "NuGet.Common": {
         "type": "Transitive",

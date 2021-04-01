@@ -13,19 +13,19 @@ namespace Milou.Deployer.Core.Deployment
     {
         public TimeSpan TotalTime { get; set; }
 
-        public HashSet<string> DeletedFiles { get; } = new HashSet<string>();
+        public HashSet<string> DeletedFiles { get; } = new();
 
-        public HashSet<string> DeletedDirectories { get; } = new HashSet<string>();
+        public HashSet<string> DeletedDirectories { get; } = new();
 
-        public HashSet<string> CreatedDirectories { get; } = new HashSet<string>();
+        public HashSet<string> CreatedDirectories { get; } = new();
 
-        public HashSet<string> CreatedFiles { get; private set; } = new HashSet<string>();
+        public HashSet<string> CreatedFiles { get; private set; } = new();
 
-        public HashSet<string> IgnoredFiles { get; } = new HashSet<string>();
+        public HashSet<string> IgnoredFiles { get; } = new();
 
-        public HashSet<string> IgnoredDirectories { get; } = new HashSet<string>();
+        public HashSet<string> IgnoredDirectories { get; } = new();
 
-        public HashSet<string> UpdatedFiles { get; } = new HashSet<string>();
+        public HashSet<string> UpdatedFiles { get; } = new();
 
         public int ExitCode { get; set; }
 

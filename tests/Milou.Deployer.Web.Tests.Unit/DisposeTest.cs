@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         public void DisposeNonDisposable()
         {
             Exception? exception = null;
-            object o = new object();
+            object o = new();
             try
             {
                 o.SafeDispose();

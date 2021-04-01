@@ -10,7 +10,7 @@ namespace Milou.Deployer.Waws
 
         public TraceLevel TraceLevel { get; set; }
 
-        public SkipDirectiveCollection SkipDirectives { get; } = new SkipDirectiveCollection();
+        public SkipDirectiveCollection SkipDirectives { get; } = new();
 
         public string? ComputerName { get; set; }
 

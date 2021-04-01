@@ -53,8 +53,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _mediator = mediator;
             _agents = agents;
             _timeoutHelper = timeoutHelper;
-            _tasks = new();
-            _cancellations = new ();
+            _tasks = new Dictionary<DeploymentTargetId, Task>();
+            _cancellations = new Dictionary<DeploymentTargetId, CancellationTokenSource>();
         }
 
         public Task Handle(AgentDeploymentDone notification, CancellationToken cancellationToken)

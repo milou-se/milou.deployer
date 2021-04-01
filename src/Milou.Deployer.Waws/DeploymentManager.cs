@@ -8,6 +8,6 @@ namespace Milou.Deployer.Waws
             string path,
             DeploymentBaseOptions deploymentBaseOptions,
             ILogger logger) =>
-            new DeploymentObject(provider, path, deploymentBaseOptions, logger);
+            new(provider, path, deploymentBaseOptions, logger);
     }
 }

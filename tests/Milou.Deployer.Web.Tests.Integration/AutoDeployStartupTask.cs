@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly TestConfiguration? _testConfiguration;
         private readonly ServerEnvironmentTestConfiguration _serverEnvironmentTestSiteConfiguration;
         private IWebHost _webHost;
-        private readonly AsyncManualResetEvent _handle = new AsyncManualResetEvent(false);
+        private readonly AsyncManualResetEvent _handle = new(false);
         private readonly DeploymentWorkerService _worker;
 
         public AutoDeployStartupTask(

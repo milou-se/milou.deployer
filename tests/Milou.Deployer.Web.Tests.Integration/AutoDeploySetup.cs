@@ -47,11 +47,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var keys = new List<KeyValue>
             {
-                new KeyValue(ConfigurationConstants.NugetConfigFile,
+                new(ConfigurationConstants.NugetConfigFile,
                     TestConfiguration.NugetConfigFile.FullName,
                     null),
-                new KeyValue(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
-                new KeyValue(ConfigurationKeys.LogLevel, "Verbose", null)
+                new(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
+                new(ConfigurationKeys.LogLevel, "Verbose", null)
             }.ToImmutableArray();
 
             string serializedConfigurationItems =

@@ -73,10 +73,8 @@ namespace Milou.Deployer.Web.Marten
 
         public Task<DeploymentTarget?> GetDeploymentTargetAsync(
             DeploymentTargetId deploymentTargetId,
-            CancellationToken cancellationToken = default)
-        {
-            return FindDeploymentTargetAsync(deploymentTargetId, cancellationToken);
-        }
+            CancellationToken cancellationToken = default) =>
+            FindDeploymentTargetAsync(deploymentTargetId, cancellationToken);
 
         public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
             CancellationToken cancellationToken = default)
@@ -544,7 +542,7 @@ namespace Milou.Deployer.Web.Marten
                     return new UpdateDeploymentTargetResult("", DeploymentTargetId.Invalid, new ValidationError("Not found"));
                 }
 
-                id = new(data.Id);
+                id = new DeploymentTargetId(data.Id);
                 targetName = data.Name;
 
                 data.NuGetData ??= new NuGetData();
@@ -668,7 +666,7 @@ namespace Milou.Deployer.Web.Marten
 
         private AgentInfo MapAgentData(AgentData agent) => new(new AgentId(agent.AgentId));
 
-        private AgentPoolInfo MapAgentPool(AgentPoolData agentPoolData) => new(new AgentPoolId(agentPoolData.Id), new (agentPoolData.Name ?? "N/A"));
+        private AgentPoolInfo MapAgentPool(AgentPoolData agentPoolData) => new(new AgentPoolId(agentPoolData.Id), new AgentPoolName(agentPoolData.Name ?? "N/A"));
 
         private ImmutableArray<OrganizationInfo> MapDataToOrganizations(
             IReadOnlyList<OrganizationData> organizations,
@@ -726,7 +724,7 @@ namespace Milou.Deployer.Web.Marten
             try
             {
                 deploymentTargetAsync = new DeploymentTarget(
-                    new (deploymentTargetData.Id),
+                    new DeploymentTargetId(deploymentTargetData.Id),
                     deploymentTargetData.Name,
                     deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable)!,
                     deploymentTargetData.PublishSettingsXml,

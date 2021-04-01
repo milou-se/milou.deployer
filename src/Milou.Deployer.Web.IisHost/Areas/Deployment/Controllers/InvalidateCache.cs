@@ -4,9 +4,6 @@
     {
         public string? Prefix { get; }
 
-        public InvalidateCache(string? prefix)
-        {
-            Prefix = prefix;
-        }
+        public InvalidateCache(string? prefix) => Prefix = prefix;
     }
 }

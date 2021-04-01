@@ -4,7 +4,7 @@
     {
         public bool DeleteDestination { get; set; }
 
-        public DeploymentRuleCollection Rules { get; set; } = new DeploymentRuleCollection();
+        public DeploymentRuleCollection Rules { get; set; } = new();
 
         public bool DoNotDelete { get; set; }
 
@@ -12,7 +12,7 @@
 
         public bool UseChecksum { get; set; } = true;
 
-        public static DeploymentRuleCollection GetAvailableRules() => new DeploymentRuleCollection
+        public static DeploymentRuleCollection GetAvailableRules() => new()
         {
             DeploymentRule.DoNotDeleteRule
         };

@@ -106,7 +106,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             {
                 PortMapping.MapSinglePort(hostPort: 20, containerPort: 20),
                 PortMapping.MapSinglePort(hostPort: 21, containerPort: 21),
-                new PortMapping(passivePorts, passivePorts)
+                new(passivePorts, passivePorts)
             };
 
             var ftp = new ContainerArgs(

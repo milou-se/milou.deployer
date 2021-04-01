@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
     public class CustomMemoryCache : ICustomMemoryCache
     {
         private static readonly ConcurrentDictionary<string, object> Keys =
-            new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            new(StringComparer.OrdinalIgnoreCase);
 
         private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;

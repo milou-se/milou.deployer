@@ -62,15 +62,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 var lifeTime = WebFixture!.App!.Host!.Services.GetRequiredService<IHostApplicationLifetime>();
 
-                cancellationTokenSource.Token.Register(() =>
-                {
-                    Debug.WriteLine("Cancellation for app in test");
-                });
+                cancellationTokenSource.Token.Register(() => Debug.WriteLine("Cancellation for app in test"));
 
-                lifeTime.ApplicationStopped.Register(() =>
-                {
-                    Debug.WriteLine("Stop for app in test");
-                });
+                lifeTime.ApplicationStopped.Register(() => Debug.WriteLine("Stop for app in test"));
 
                 while (!cancellationTokenSource.Token.IsCancellationRequested
                        && semanticVersion != expectedVersion

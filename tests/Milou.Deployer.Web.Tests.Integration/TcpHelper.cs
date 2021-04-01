@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     internal static class TcpHelper
     {
         private static readonly ConcurrentDictionary<int, PortPoolRental> Rentals =
-            new ConcurrentDictionary<int, PortPoolRental>();
+            new();
 
         private static void Return([NotNull] PortPoolRental rental)
         {

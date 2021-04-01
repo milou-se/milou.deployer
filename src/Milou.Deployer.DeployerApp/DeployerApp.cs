@@ -90,7 +90,7 @@ namespace Milou.Deployer.DeployerApp
             PrintEnvironmentVariables(args);
 
             string[] parameterArgs =
-                args.Where(arg => arg.IndexOf("=", StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
+                args.Where(arg => arg.Contains("=", StringComparison.OrdinalIgnoreCase)).ToArray();
 
             string[] nonFlagArgs =
                 args.Where(arg => !arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))

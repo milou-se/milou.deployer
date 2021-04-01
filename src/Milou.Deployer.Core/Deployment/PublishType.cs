@@ -8,9 +8,9 @@ namespace Milou.Deployer.Core.Deployment
 {
     public sealed class PublishType : IEquatable<PublishType>
     {
-        public static readonly PublishType Ftp = new PublishType(nameof(Ftp));
-        public static readonly PublishType Ftps = new PublishType(nameof(Ftps));
-        public static readonly PublishType WebDeploy = new PublishType(nameof(WebDeploy));
+        public static readonly PublishType Ftp = new(nameof(Ftp));
+        public static readonly PublishType Ftps = new(nameof(Ftps));
+        public static readonly PublishType WebDeploy = new(nameof(WebDeploy));
 
         private PublishType([NotNull] string name)
         {

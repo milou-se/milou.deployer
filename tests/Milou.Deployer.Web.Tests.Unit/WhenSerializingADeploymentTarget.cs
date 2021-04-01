@@ -1,4 +1,5 @@
 ﻿using System;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Json;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ItShouldBeDeserializable()
         {
-            var target = new DeploymentTarget(new("myid"), "myName", "tool");
+            var target = new DeploymentTarget(new DeploymentTargetId("myid"), "myName", "tool");
 
             string json = JsonConvert.SerializeObject(target,
                 Formatting.Indented,
@@ -39,7 +40,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ItShouldBeDeserializableWithNuget()
         {
-            var target = new DeploymentTarget(new("myid"), "myName", "tool",
+            var target = new DeploymentTarget(new DeploymentTargetId("myid"), "myName", "tool",
                 nuget: new TargetNuGetSettings
                 {
                     NuGetConfigFile = "123",

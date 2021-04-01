@@ -39,7 +39,7 @@ namespace Milou.Deployer.Web.Marten
             (AgentId?, AgentPoolId?)[] agentTuples = agents.Select(a =>
                 !agentPoolAssignmentData.Agents.TryGetValue(a.AgentId, out string? value)
                     ? (null, null)
-                    : ((AgentId?) new AgentId(a.AgentId),(AgentPoolId?) new AgentPoolId(value))).ToArray();
+                    : (new AgentId(a.AgentId), new AgentPoolId(value))).ToArray();
 
             var dictionary =  pools.ToImmutableDictionary(pool => new AgentPoolInfo(new AgentPoolId(pool.Id), new AgentPoolName(pool.Name ?? "N/A")),
 

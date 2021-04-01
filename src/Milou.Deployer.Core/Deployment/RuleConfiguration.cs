@@ -8,7 +8,7 @@ namespace Milou.Deployer.Core.Deployment
 {
     public class RuleConfiguration
     {
-        private static readonly List<string> DefaultExcludes = new List<string>
+        private static readonly List<string> DefaultExcludes = new()
         {
             "/locks", "/deployments", "/site/locks/", "/site/deployments/"
         };

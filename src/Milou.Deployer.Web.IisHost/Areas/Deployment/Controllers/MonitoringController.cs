@@ -117,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [HttpGet]
         [Route(TargetConstants.TargetStatusApiRoute, Name = TargetConstants.TargetStatusApiRouteName)]
         public async Task<IActionResult> Status(
-            [ValueFromRoute] DeploymentTargetId deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] MonitoringService monitoringService,
             [FromServices] ICustomClock clock)

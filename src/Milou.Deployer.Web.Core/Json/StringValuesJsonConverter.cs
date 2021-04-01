@@ -37,16 +37,11 @@ namespace Milou.Deployer.Web.Core.Json
             object? existingValue,
             JsonSerializer serializer)
         {
-            if (reader is null)
-            {
-                return null;
-            }
-
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var array = JArray.Load(reader);
 
-                var values = array.ToObject<string[]>();
+                string[]? values = array.ToObject<string[]>();
 
                 return new StringValues(values);
             }

@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
         private DeploymentTaskPackage Map(DeploymentTaskPackageData data) =>
             new (
                 data.Id,
-                new (data.DeploymentTargetId),
+                new DeploymentTargetId(data.DeploymentTargetId),
                 data.AgentId)
                 {
                     ManifestJson = data.ManifestJson,
