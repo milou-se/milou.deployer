@@ -105,6 +105,11 @@ namespace Milou.Deployer.Core.Deployment
             var fileList = JsonConvert.DeserializeAnonymousType(json,
                 new {files = new[] {new {file = "", sha512Base64Encoded = ""}}});
 
+            if (fileList is null)
+            {
+                throw new InvalidOperationException($"Could not get file list from json {json}");
+            }
+
             _logger.Debug("Verifying file list containing {FileCount} files", fileList.files.Length);
 
             string[] expectedFiles = fileList.files

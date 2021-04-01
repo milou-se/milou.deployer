@@ -18,10 +18,10 @@ namespace Milou.Deployer.Core.Deployment
             {
                 var deploymentExecutionDefinitions = JsonConvert.DeserializeAnonymousType(
                         data,
-                        new {definitions = Array.Empty<DeploymentExecutionDefinition>()}).definitions
+                        new {definitions = Array.Empty<DeploymentExecutionDefinition>()})?.definitions
                     .ToImmutableArray();
 
-                return deploymentExecutionDefinitions;
+                return deploymentExecutionDefinitions ?? ImmutableArray<DeploymentExecutionDefinition>.Empty;
             }
             catch (Exception ex)
             {

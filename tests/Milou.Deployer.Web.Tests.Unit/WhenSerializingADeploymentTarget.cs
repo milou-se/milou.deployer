@@ -25,13 +25,13 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             _testOutputHelper.WriteLine(json);
 
-            DeploymentTarget deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            DeploymentTarget? deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
-            _testOutputHelper.WriteLine(deserialized.ToString());
+            _testOutputHelper.WriteLine(deserialized?.ToString());
 
             Assert.NotNull(deserialized);
 
-            Assert.NotNull(deserialized.NuGet);
+            Assert.NotNull(deserialized!.NuGet);
             Assert.Null(deserialized.NuGet.NuGetPackageSource);
             Assert.Null(deserialized.NuGet.NuGetConfigFile);
         }
@@ -53,13 +53,13 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             _testOutputHelper.WriteLine(json);
 
-            DeploymentTarget deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            DeploymentTarget? deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
-            _testOutputHelper.WriteLine(deserialized.ToString());
+            _testOutputHelper.WriteLine(deserialized?.ToString());
 
             Assert.NotNull(deserialized);
 
-            Assert.NotNull(deserialized.NuGet);
+            Assert.NotNull(deserialized!.NuGet);
             Assert.NotNull(deserialized.NuGet.NuGetPackageSource);
             Assert.NotNull(deserialized.NuGet.NuGetConfigFile);
         }

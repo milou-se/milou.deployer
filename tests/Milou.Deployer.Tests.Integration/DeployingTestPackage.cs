@@ -94,7 +94,7 @@ namespace Milou.Deployer.Tests.Integration
                         new {definitions = Array.Empty<DeploymentExecutionDefinition>()});
 
                     Assert.NotNull(deploymentExecutionDefinition);
-                    Assert.NotNull(deploymentExecutionDefinition.definitions);
+                    Assert.NotNull(deploymentExecutionDefinition!.definitions);
 
                     Assert.Single(deploymentExecutionDefinition.definitions);
 
@@ -134,7 +134,7 @@ namespace Milou.Deployer.Tests.Integration
                         text,
                         new {keys = new List<KeyValuePair<string, string>>()});
 
-                    Assert.NotNull(metadata.keys.SingleOrDefault(key =>
+                    Assert.NotNull(metadata?.keys.SingleOrDefault(key =>
                         key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
 
                     Assert.Equal(0, exitCode);

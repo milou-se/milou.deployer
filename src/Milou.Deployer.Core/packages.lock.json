@@ -61,9 +61,9 @@
       },
       "Arbor.ModelBinding.Primitives": {
         "type": "Direct",
-        "requested": "[1.1.0-build.1617179722.systemtextjson, )",
-        "resolved": "1.1.0-build.1617179722.systemtextjson",
-        "contentHash": "1cnGdGXHiXsVFW3d1Fv6cj4VU+xdMcwVEOQY1QWW1eJnbqsoyE41avZhDcGWKaRxO62T/+jTiIynBl06IrKCoA==",
+        "requested": "[1.1.0-build.1617222349.systemtextjson, )",
+        "resolved": "1.1.0-build.1617222349.systemtextjson",
+        "contentHash": "Fi71M3ACF5lOgRoaXc57Xd2VynNV2Pc0F5kapsA6ez7rG50LSxPLrEubdr0FYFTrB/GvruRjVtz8qImQB0+V8w==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1",
           "System.Text.Json": "5.0.1"

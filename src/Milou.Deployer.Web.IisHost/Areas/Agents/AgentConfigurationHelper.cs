@@ -46,6 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 new(ClaimTypes.NameIdentifier, request.AgentId.Value),
                 new(ClaimTypes.Name, request.AgentId.Value),
                 new("milou_agent", request.AgentId.Value),
+                new("unique_name", request.AgentId.Value),
             };
 
             var securityTokenDescriptor = new SecurityTokenDescriptor

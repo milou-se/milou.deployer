@@ -12,14 +12,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             var tryParseMethod = bindingContext.ModelType
                 .GetMethods().SingleOrDefault(m => m.IsStatic && m.Name == "TryParse");
 
-
             var valueProviderResult = bindingContext.ValueProvider.GetValue(bindingContext.ModelName);
 
             if (valueProviderResult == ValueProviderResult.None)
             {
                 return Task.CompletedTask;
             }
-
 
             if (tryParseMethod is { })
             {

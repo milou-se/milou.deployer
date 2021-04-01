@@ -136,8 +136,8 @@
       },
       "Arbor.ModelBinding.Primitives": {
         "type": "Transitive",
-        "resolved": "1.1.0-build.1617179722.systemtextjson",
-        "contentHash": "1cnGdGXHiXsVFW3d1Fv6cj4VU+xdMcwVEOQY1QWW1eJnbqsoyE41avZhDcGWKaRxO62T/+jTiIynBl06IrKCoA==",
+        "resolved": "1.1.0-build.1617222349.systemtextjson",
+        "contentHash": "Fi71M3ACF5lOgRoaXc57Xd2VynNV2Pc0F5kapsA6ez7rG50LSxPLrEubdr0FYFTrB/GvruRjVtz8qImQB0+V8w==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1",
           "System.Text.Json": "5.0.1"
@@ -668,7 +668,7 @@
           "Arbor.KVConfiguration.Core": "1.2.0-build.1617034280",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0-build.1617034280",
           "Arbor.KVConfiguration.Urns": "1.2.0-build.1617034280",
-          "Arbor.ModelBinding.Primitives": "1.1.0-build.1617179722.systemtextjson",
+          "Arbor.ModelBinding.Primitives": "1.1.0-build.1617222349.systemtextjson",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0-build.1617034623",
           "JetBrains.Annotations": "2020.3.0",

@@ -2,7 +2,7 @@
 
 namespace Milou.Deployer.Web.Agent
 {
-    [ClassValueType(BackingValueType.String)]
+    [StringValueType]
     public partial class TestId
     {
     }

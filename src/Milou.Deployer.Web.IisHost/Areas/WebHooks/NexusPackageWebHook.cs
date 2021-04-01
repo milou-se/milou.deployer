@@ -81,7 +81,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            NexusWebHookNotification webHookNotification =
+            NexusWebHookNotification? webHookNotification =
                 JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
 
             if (string.IsNullOrWhiteSpace(webHookNotification?.Audit?.Attributes?.Name))

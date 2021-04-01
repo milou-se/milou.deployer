@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Arbor.ModelBinding.Primitives;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Agent
 {
-    [JsonConverter(typeof(AgentIdConverter))]
-    public record AgentId
+    [StringValueType(StringComparison.OrdinalIgnoreCase)]
+    public partial class AgentId
     {
-        public AgentId(string value) => Value = value;
-
-        public string Value { get; }
-
         public static AgentId Parse([JetBrains.Annotations.NotNull] string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
