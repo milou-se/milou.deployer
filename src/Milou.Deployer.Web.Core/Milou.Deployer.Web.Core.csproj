@@ -3,12 +3,12 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.7.0-build.1617041268" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.7.0" />
     <PackageReference Include="DotNext.Threading" Version="3.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Arbor.ModelBinding" Version="1.1.0-build.1617222349.systemtextjson" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.13.0-build.1617034623" />
+    <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="MailKit" Version="2.11.1" />
     <PackageReference Include="Marten" Version="3.9.0" />

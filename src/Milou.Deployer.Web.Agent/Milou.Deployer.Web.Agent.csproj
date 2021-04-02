@@ -5,15 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.7.0-build.1617041268" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.7.0" />
     <PackageReference Include="Arbor.ModelBinding.Generators" Version="1.1.0-build.1617222349.systemtextjson">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Arbor.ModelBinding.Primitives" Version="1.1.0-build.1617222349.systemtextjson" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.2.0-build.1617034280" />
-    <PackageReference Include="Arbor.Tooler" Version="0.13.0-build.1617034623" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.2.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
