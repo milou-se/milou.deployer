@@ -41,7 +41,7 @@
       },
       "Arbor.ModelBinding.Generators": {
         "type": "Direct",
-        "requested": "[1.1.0-build.1617222349.systemtextjson, )",
+        "requested": "[*-*, )",
         "resolved": "1.1.0-build.1617222349.systemtextjson",
         "contentHash": "HvqLha3Mtj6s0zIXqnpgzlihS67CPUih64vPvRteQIIkLhar9T3zHTvc5Ed8UbUJmMLAUU248/GgWxEb3dsfdA==",
         "dependencies": {
@@ -50,7 +50,7 @@
       },
       "Arbor.ModelBinding.Primitives": {
         "type": "Direct",
-        "requested": "[1.1.0-build.1617222349.systemtextjson, )",
+        "requested": "[*-*, )",
         "resolved": "1.1.0-build.1617222349.systemtextjson",
         "contentHash": "Fi71M3ACF5lOgRoaXc57Xd2VynNV2Pc0F5kapsA6ez7rG50LSxPLrEubdr0FYFTrB/GvruRjVtz8qImQB0+V8w==",
         "dependencies": {

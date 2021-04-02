@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v5.0": {
       "FluentFTP": {
         "type": "Direct",
-        "requested": "[33.1.3, )",
-        "resolved": "33.1.3",
-        "contentHash": "yTrWrgyooodhU9WAUMvPGZYbBmlORrlKIz7GdOA7NqaQC2Xsu57xAn9WBATzdsIW0pgFMoEQoyQcCF2e9KEBuQ==",
+        "requested": "[33.1.4, )",
+        "resolved": "33.1.4",
+        "contentHash": "caMGV9FmJe8kJcpJ5GymBhK2LdJv9WkWNAdCmak/9gG/VHloQXPL0mFeOD9kn/8A1OUgHz4dMqjwQVO65CCLKA==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
@@ -778,7 +778,7 @@
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "1.1.0-build.1617222349.systemtextjson",
+          "Arbor.ModelBinding.Primitives": "1.0.0-0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
           "JetBrains.Annotations": "2020.3.0",

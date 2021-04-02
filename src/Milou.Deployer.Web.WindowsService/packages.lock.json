@@ -10,7 +10,7 @@
       },
       "Arbor.Tooler": {
         "type": "Direct",
-        "requested": "[0.13.0-build.1617034623, )",
+        "requested": "[0.13.0, )",
         "resolved": "0.13.0",
         "contentHash": "fixNctSxrr2l521av9JBgDeNoTNYB9iSEWGJc0ftywJiq/Lh2SCbIPI1NKMxcXOHXhC56yEwr1BWyazN2qBHkA==",
         "dependencies": {
@@ -1668,7 +1668,7 @@
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "1.1.0-build.1617222349.systemtextjson",
+          "Arbor.ModelBinding.Primitives": "1.0.0-0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -1688,7 +1688,7 @@
         "dependencies": {
           "Arbor.App.Extensions": "0.7.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "1.1.0-build.1617222349.systemtextjson",
+          "Arbor.ModelBinding.Primitives": "0.0.0-0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -1706,7 +1706,7 @@
         "type": "Project",
         "dependencies": {
           "Arbor.App.Extensions": "0.7.0",
-          "Arbor.ModelBinding": "1.1.0-build.1617222349.systemtextjson",
+          "Arbor.ModelBinding": "1.1.0-0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
           "DotNext.Threading": "3.0.0",
@@ -1743,8 +1743,8 @@
         "type": "Project",
         "dependencies": {
           "Arbor.App.Extensions": "0.7.0",
-          "Arbor.AspNetCore.Host": "0.9.0-build.1617190618.scheduling",
-          "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "1.0.0-build.1617362575",
+          "Arbor.AspNetCore.Host": "0.9.0-0",
+          "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "1.0.0-0",
           "Arbor.Docker": "0.6.0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",

@@ -36,13 +36,13 @@
 
     <PackageReference Include="Arbor.App.Extensions" Version="0.7.0" />
 
-    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.9.0-build.1617190618.scheduling" />
+    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.9.*-*" />
 
     <PackageReference Include="Arbor.Docker" Version="0.6.0" Condition="'$(Configuration)' == 'Debug'" />
 
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="1.0.0-build.1617362575" />
+    <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="1.*-*" />
     <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />

@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v5.0": {
       "Arbor.KVConfiguration.UserConfiguration": {
         "type": "Direct",
-        "requested": "[1.2.0-build.1617034280, )",
-        "resolved": "1.2.0-build.1617380697.refs-tags-120",
-        "contentHash": "8u8+ojxcdV+UByiFIqLjSoEmbMWjBUz0dW6cIzcHmDu8QEonRQqeUHStXjmUYtKkI78H9RbceYoBJmQMJgJ9+A==",
+        "requested": "[*, )",
+        "resolved": "1.2.0",
+        "contentHash": "wX1D0A4xn9nju6dYKEwQIP9Q2uO9MxTQ9B5IVY0QON7Dab9iHevRvxNX3tjlOqntm+CreVE18VO0yqUDgT6Wxw==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "[1.1.6, 2.0.0)",
           "Arbor.KVConfiguration.JsonConfiguration": "[1.1.6, 2.0.0)",
@@ -30,6 +30,12 @@
         "requested": "[5.0.0, )",
         "resolved": "5.0.0",
         "contentHash": "cI/VWn9G1fghXrNDagX9nYaaB/nokkZn0HYAawGaELQrl8InSezfe9OnfPZLcJq3esXxygh3hkq2c3qoV3SDyQ=="
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[*, )",
+        "resolved": "13.0.1",
+        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
       "Serilog": {
         "type": "Direct",
@@ -168,8 +174,8 @@
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "33.1.3",
-        "contentHash": "yTrWrgyooodhU9WAUMvPGZYbBmlORrlKIz7GdOA7NqaQC2Xsu57xAn9WBATzdsIW0pgFMoEQoyQcCF2e9KEBuQ==",
+        "resolved": "33.1.4",
+        "contentHash": "caMGV9FmJe8kJcpJ5GymBhK2LdJv9WkWNAdCmak/9gG/VHloQXPL0mFeOD9kn/8A1OUgHz4dMqjwQVO65CCLKA==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
@@ -363,11 +369,6 @@
           "System.Xml.ReaderWriter": "4.0.11",
           "System.Xml.XDocument": "4.0.11"
         }
-      },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
       "NuGet.Common": {
         "type": "Transitive",
@@ -1316,7 +1317,7 @@
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "1.1.0-build.1617222349.systemtextjson",
+          "Arbor.ModelBinding.Primitives": "1.0.0-0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -1334,7 +1335,7 @@
       "milou.deployer.ftp": {
         "type": "Project",
         "dependencies": {
-          "FluentFTP": "33.1.3",
+          "FluentFTP": "33.1.4",
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
           "Milou.Deployer.Core": "1.0.0",

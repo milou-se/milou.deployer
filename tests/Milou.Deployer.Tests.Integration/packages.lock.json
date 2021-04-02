@@ -4,15 +4,15 @@
     ".NETCoreApp,Version=v5.0": {
       "Arbor.Aesculus": {
         "type": "Direct",
-        "requested": "[3.0.2, )",
-        "resolved": "3.0.2",
-        "contentHash": "YWFdVy4MjN/pmh3FueugcOVhgQY82+hcivmXuWQBxlEPwrZ0E+3KgGsrnq/QjCntDfrSk5XB+Dw+Zlpsv0mQ9A=="
+        "requested": "[3.2.0, )",
+        "resolved": "3.2.0",
+        "contentHash": "bguLsxf5ntYjX4z3SeXbQkwKskDSL5au9lWV8VQCYb6oN0TXPHv5LSfOlbT+emm4X6Xodvy3R293PzFdp1RK8A=="
       },
       "Arbor.Docker": {
         "type": "Direct",
-        "requested": "[0.5.2-build.1617191482, )",
-        "resolved": "0.6.0-build.1617387128.refs-tags-060",
-        "contentHash": "Opobl35ZeZF8w83bYqqoahj6noHl8Yf2kbtWiNnDXZw/FNVrvdkO+mJyDWOfmxIAnen7Z48+o82uXq1MpDqZ+A==",
+        "requested": "[0.6.0, )",
+        "resolved": "0.6.0",
+        "contentHash": "fzwtC/D7Y8zJjemi8wTQnTjeJRi7QV5ZfGNsAvPUyBc0kn+dk9sIzSVzn/JBZ/o4MzAxIHeIjQZMsAgiE37ckw==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -22,11 +22,11 @@
       },
       "Arbor.Docker.Xunit": {
         "type": "Direct",
-        "requested": "[0.5.2, )",
-        "resolved": "0.5.2",
-        "contentHash": "2Smi0MMRyPkrOtvbQuVBTYrdPOzNadW3WP0zqYHcbupuLusPkXmg0svFCZ+2pzXxVu142F0C1U1oBYD/IPpQ7A==",
+        "requested": "[0.6.0, )",
+        "resolved": "0.6.0",
+        "contentHash": "1QGMa90s+m2Yy+3uKwHF8sH0zq0ZC5drkTlLxX6GD7Lz7oKVs1sA32wfu+QQwrtsDaXCm+fSJ//Bb0G0uaTtsA==",
         "dependencies": {
-          "Arbor.Docker": "[0.5.0, 2.0.0)",
+          "Arbor.Docker": "[0.6.0, 2.0.0)",
           "Serilog": "[2.9.0, 3.0.0)",
           "Serilog.Sinks.XUnit": "[2.0.4, 3.0.0)",
           "XUnit": "[2.4.1, 3.0.0)"
@@ -55,12 +55,12 @@
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[16.9.1, )",
-        "resolved": "16.9.1",
-        "contentHash": "9acz3fExifstaoKTAvHVwRGMFrtb1QLlT6KfxOFTYM4dksuzwpkApjt0xP+yJcuRsPcf14F1b0Du3GgfKZWHJw==",
+        "requested": "[16.9.4, )",
+        "resolved": "16.9.4",
+        "contentHash": "M/k16vmS7Hz/+Kuy3p6XE743XPjYYMzfN5ZvpSLY44Ngh5IBMk0Je5Qed8oq6/kvzJA2DTrXa7YrfceHhbQKeQ==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "16.9.1",
-          "Microsoft.TestPlatform.TestHost": "16.9.1"
+          "Microsoft.CodeCoverage": "16.9.4",
+          "Microsoft.TestPlatform.TestHost": "16.9.4"
         }
       },
       "NCrunch.Framework": {
@@ -75,7 +75,7 @@
       },
       "Newtonsoft.Json": {
         "type": "Direct",
-        "requested": "[13.0.1, )",
+        "requested": "[*, )",
         "resolved": "13.0.1",
         "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
@@ -227,8 +227,8 @@
       },
       "Arbor.KVConfiguration.UserConfiguration": {
         "type": "Transitive",
-        "resolved": "1.2.0-build.1617380697.refs-tags-120",
-        "contentHash": "8u8+ojxcdV+UByiFIqLjSoEmbMWjBUz0dW6cIzcHmDu8QEonRQqeUHStXjmUYtKkI78H9RbceYoBJmQMJgJ9+A==",
+        "resolved": "1.2.0",
+        "contentHash": "wX1D0A4xn9nju6dYKEwQIP9Q2uO9MxTQ9B5IVY0QON7Dab9iHevRvxNX3tjlOqntm+CreVE18VO0yqUDgT6Wxw==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "[1.1.6, 2.0.0)",
           "Arbor.KVConfiguration.JsonConfiguration": "[1.1.6, 2.0.0)",
@@ -269,8 +269,8 @@
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "33.1.3",
-        "contentHash": "yTrWrgyooodhU9WAUMvPGZYbBmlORrlKIz7GdOA7NqaQC2Xsu57xAn9WBATzdsIW0pgFMoEQoyQcCF2e9KEBuQ==",
+        "resolved": "33.1.4",
+        "contentHash": "caMGV9FmJe8kJcpJ5GymBhK2LdJv9WkWNAdCmak/9gG/VHloQXPL0mFeOD9kn/8A1OUgHz4dMqjwQVO65CCLKA==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
@@ -315,8 +315,8 @@
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
-        "resolved": "16.9.1",
-        "contentHash": "OEIMvld3rabmyc1L4VvHWOMTEOYrGLbgoVxwAaD8RwX8GT3a1Aal7QpJXLV22f47LpMhSz0uOBerKAd8eI9wNA=="
+        "resolved": "16.9.4",
+        "contentHash": "N/RYB07gJkPZ1nJiq0QGxFIL+X5vVl4GI99PiTYXpbfI30NTZMRJgZ+4jYLFYLDQqj9o1Juhv+3iiymd7lozrA=="
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Transitive",
@@ -384,8 +384,8 @@
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
-        "resolved": "16.9.1",
-        "contentHash": "UuS6HBi6pVJDGS5pmf6Mi38oSQVQ4vE5AOmNJzA5WgOUlFmvg9fTq9KCSd5o+UPSVH420t9wthj2Q0M9Yfb+HA==",
+        "resolved": "16.9.4",
+        "contentHash": "t43y1MZYshZFfc/g8nzy4o86PW2WfFcoQ+MjgYUlfj1pptKHc7Xr+R6sFBODA+y1I+Mc+Ujzme/c2cGX2AuOwQ==",
         "dependencies": {
           "NuGet.Frameworks": "5.0.0",
           "System.Reflection.Metadata": "1.6.0"
@@ -393,10 +393,10 @@
       },
       "Microsoft.TestPlatform.TestHost": {
         "type": "Transitive",
-        "resolved": "16.9.1",
-        "contentHash": "j/lZDlkuoUJ+lRJXOXLJpwUGXmko5/woAPo/hN6QhFRo0J5wscQPoPJ1isvXpB4Iw7x7A3jYllxR5QjV3cMlRw==",
+        "resolved": "16.9.4",
+        "contentHash": "3YuJ7OSb1YPk+OTZfpa8U7I+TUZRH/nCeOWcN+TERp1SUZrcGeG2IGBZvVZ9CbKuQ+7wLiwsfcIgKIu+kbvibg==",
         "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "16.9.1",
+          "Microsoft.TestPlatform.ObjectModel": "16.9.4",
           "Newtonsoft.Json": "9.0.1"
         }
       },
@@ -1567,6 +1567,7 @@
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
           "Milou.Deployer.DeployerApp": "1.0.0",
+          "Newtonsoft.Json": "0.0.0",
           "Serilog.Sinks.Console": "3.1.1",
           "Serilog.Sinks.File": "4.1.0",
           "System.Collections.Immutable": "5.0.0"
@@ -1579,7 +1580,7 @@
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "1.1.0-build.1617222349.systemtextjson",
+          "Arbor.ModelBinding.Primitives": "1.0.0-0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -1597,7 +1598,7 @@
       "milou.deployer.deployerapp": {
         "type": "Project",
         "dependencies": {
-          "Arbor.KVConfiguration.UserConfiguration": "1.2.0-build.1617034280",
+          "Arbor.KVConfiguration.UserConfiguration": "0.0.0",
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
@@ -1605,6 +1606,7 @@
           "Milou.Deployer.Ftp": "1.0.0",
           "Milou.Deployer.IIS": "1.0.0",
           "Milou.Deployer.Waws": "1.0.0",
+          "Newtonsoft.Json": "0.0.0",
           "Serilog": "2.10.0",
           "Serilog.Sinks.Console": "3.1.1",
           "Serilog.Sinks.File": "4.1.0",
@@ -1614,7 +1616,7 @@
       "milou.deployer.ftp": {
         "type": "Project",
         "dependencies": {
-          "FluentFTP": "33.1.3",
+          "FluentFTP": "33.1.4",
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
           "Milou.Deployer.Core": "1.0.0",

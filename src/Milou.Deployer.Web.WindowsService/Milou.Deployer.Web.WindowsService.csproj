@@ -50,7 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.13.0-build.1617034623" />
+    <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.4" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
