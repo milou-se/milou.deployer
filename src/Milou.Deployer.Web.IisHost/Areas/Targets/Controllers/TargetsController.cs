@@ -29,90 +29,35 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         public TargetsController([NotNull] IDeploymentTargetReadService targetSource) =>
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
 
-        [HttpGet]
-        [Route(TargetConstants.TargetsRoute, Name = TargetConstants.TargetsRouteName)]
-        public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
-        {
-            IReadOnlyCollection<OrganizationInfo> organizations =
-                await _targetSource.GetOrganizationsAsync(cancellationToken);
-
-            var targetsViewModel = new OrganizationsViewModel(organizations);
-
-            return View(targetsViewModel);
-        }
-
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        [Route(TargetConstants.RemoveTargetPostRoute, Name = TargetConstants.RemoveTargetPostRouteName)]
-        public async Task<IActionResult> Remove([FromBody] RemoveTarget? removeTarget, [FromServices] IMediator mediator)
-        {
-            if (removeTarget is null)
-            {
-                return BadRequest($"Model of type {typeof(RemoveTarget)} is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await mediator.Send(removeTarget);
-
-            return RedirectToRoute(MonitorConstants.MonitorRouteName);
-        }
-
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        [Route(TargetConstants.CreateTargetPostRoute, Name = TargetConstants.CreateTargetPostRouteName)]
-        public async Task<ActionResult<CreateTargetResult>> Post(
-            [FromBody] CreateTarget? createTarget,
-            [FromServices] IMediator mediator,
-            [FromQuery] bool redirect = true)
-        {
-            if (createTarget is null)
-            {
-                return BadRequest($"Model of type {typeof(CreateTarget)} is null");
-            }
-
-            if (!createTarget.IsValid)
-            {
-                return BadRequest($"Model of type {typeof(CreateTarget)} {createTarget} is invalid");
-            }
-
-            CreateTargetResult createTargetResult = await mediator.Send(createTarget);
-
-            if (redirect)
-            {
-                TempData.Put(createTargetResult);
-
-                return RedirectToRoute(MonitorConstants.MonitorRouteName);
-            }
-
-            return createTargetResult;
-        }
-
         [Route(TargetConstants.CreateTargetGetRoute, Name = TargetConstants.CreateTargetGetRouteName)]
         [HttpGet]
         public IActionResult Create() => View(new CreateTargetViewOutputModel());
 
-        [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
-        [HttpGet]
-        public async Task<IActionResult> Index(
-            [FromRoute] DeploymentTargetId deploymentTargetId,
-            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
-            [FromServices] IEnvironmentTypeService environmentTypeService)
+        [ValidateAntiForgeryToken]
+        [Route(TargetConstants.DisableTargetPostRoute, Name = TargetConstants.DisableTargetPostRouteName)]
+        [HttpPost]
+        public async Task<IActionResult> Disable(
+            [FromBody] DisableTarget disableTarget,
+            [FromServices] IMediator mediator)
         {
-            DeploymentTarget? deploymentTarget =
-                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            await mediator.Send(disableTarget);
 
-            if (deploymentTarget is null)
-            {
-                return new NotFoundResult();
-            }
-
-            return new ObjectResult(deploymentTarget);
+            return Redirect("/");
         }
 
+        [Route(TargetConstants.DisabledTargetsRoute, Name = TargetConstants.DisabledTargetsRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> Disabled(
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
+        {
+            var targets =
+                await deploymentTargetReadService.GetDeploymentTargetsAsync(new TargetOptions {OnlyEnabled = false});
+
+            return View(new TargetListViewModel(targets.OrderBy(target => target.Enabled).ToImmutableArray()));
+        }
+
+        [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
+        [HttpGet]
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
         [HttpGet]
         public async Task<IActionResult> Edit(
@@ -120,7 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            DeploymentTarget? deploymentTarget =
+            var deploymentTarget =
                 await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
@@ -180,27 +125,83 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return Redirect("/");
         }
 
-        [ValidateAntiForgeryToken]
-        [Route(TargetConstants.DisableTargetPostRoute, Name = TargetConstants.DisableTargetPostRouteName)]
-        [HttpPost]
-        public async Task<IActionResult> Disable(
-            [FromBody] DisableTarget disableTarget,
-            [FromServices] IMediator mediator)
+        [HttpGet]
+        [Route(TargetConstants.TargetsRoute, Name = TargetConstants.TargetsRouteName)]
+        public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            await mediator.Send(disableTarget);
+            IReadOnlyCollection<OrganizationInfo> organizations =
+                await _targetSource.GetOrganizationsAsync(cancellationToken);
 
-            return Redirect("/");
+            var targetsViewModel = new OrganizationsViewModel(organizations);
+
+            return View(targetsViewModel);
         }
 
-        [Route(TargetConstants.DisabledTargetsRoute, Name = TargetConstants.DisabledTargetsRouteName)]
-        [HttpGet]
-        public async Task<IActionResult> Disabled(
-            [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
+        public async Task<IActionResult> Index(
+            [FromRoute] DeploymentTargetId deploymentTargetId,
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
+            [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            var targets =
-                await deploymentTargetReadService.GetDeploymentTargetsAsync(new TargetOptions {OnlyEnabled = false});
+            var deploymentTarget =
+                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
-            return View(new TargetListViewModel(targets.OrderBy(target => target.Enabled).ToImmutableArray()));
+            if (deploymentTarget is null)
+            {
+                return new NotFoundResult();
+            }
+
+            return new ObjectResult(deploymentTarget);
+        }
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        [Route(TargetConstants.CreateTargetPostRoute, Name = TargetConstants.CreateTargetPostRouteName)]
+        public async Task<ActionResult<CreateTargetResult>> Post(
+            [FromBody] CreateTarget? createTarget,
+            [FromServices] IMediator mediator,
+            [FromQuery] bool redirect = true)
+        {
+            if (createTarget is null)
+            {
+                return BadRequest($"Model of type {typeof(CreateTarget)} is null");
+            }
+
+            if (!createTarget.IsValid)
+            {
+                return BadRequest($"Model of type {typeof(CreateTarget)} {createTarget} is invalid");
+            }
+
+            CreateTargetResult createTargetResult = await mediator.Send(createTarget);
+
+            if (redirect)
+            {
+                TempData.Put(createTargetResult);
+
+                return RedirectToRoute(MonitorConstants.MonitorRouteName);
+            }
+
+            return createTargetResult;
+        }
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        [Route(TargetConstants.RemoveTargetPostRoute, Name = TargetConstants.RemoveTargetPostRouteName)]
+        public async Task<IActionResult> Remove([FromBody] RemoveTarget? removeTarget,
+            [FromServices] IMediator mediator)
+        {
+            if (removeTarget is null)
+            {
+                return BadRequest($"Model of type {typeof(RemoveTarget)} is null");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await mediator.Send(removeTarget);
+
+            return RedirectToRoute(MonitorConstants.MonitorRouteName);
         }
     }
 }

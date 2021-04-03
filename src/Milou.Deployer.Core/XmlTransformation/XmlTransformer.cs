@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.XmlTransformation
                 return ExitCode.Failure;
             }
 
-            string destFilePath = Path.GetTempFileName();
+            string destFilePath = Path.GetRandomFileName();
 
             _logger.Debug(
                 "Transforming original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",

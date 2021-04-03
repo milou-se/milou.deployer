@@ -46,7 +46,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 
                 if (transformFile.Exists)
                 {
-                    string tempFileName = Path.GetTempFileName();
+                    string tempFileName = Path.GetRandomFileName();
 
                     var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
 

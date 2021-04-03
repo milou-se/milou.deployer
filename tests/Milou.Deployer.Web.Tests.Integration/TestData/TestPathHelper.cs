@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
             baseDirectory.Create();
             DirectoryInfo targetAppRoot = baseDirectory.CreateSubdirectory("target");
             DirectoryInfo nugetBaseDirectory = baseDirectory.CreateSubdirectory("nuget");
-            DirectoryInfo nugetPackageDirectory = nugetBaseDirectory.CreateSubdirectory("packages");
+            _ = nugetBaseDirectory.CreateSubdirectory("packages");
 
             var nugetConfigFile = new FileInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests",
                 "Milou.Deployer.Web.Tests.Integration", "TestData", "nuget.config"));

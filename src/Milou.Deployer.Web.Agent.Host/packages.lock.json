@@ -5,19 +5,19 @@
       "Arbor.AspNetCore.Host": {
         "type": "Direct",
         "requested": "[*-*, )",
-        "resolved": "0.9.0-build.1617190618.scheduling",
-        "contentHash": "PAcNBsDoIAAk3VLDB79wJ7toOORQ4a2K0uaYXhZLyVIVQW87wSTLUlvXrwE6Pbxr1tBPyPbF0ohrxSHyZBOUsQ==",
+        "resolved": "0.9.0-build.1617449350.scheduling",
+        "contentHash": "vYkqlvuQV0zqzzaXUxa3kUhX85qW+GvIVxN3EN+M4485+IKILs0iCBUe3sG88lufjLixM/tEzVvqkS0iHVsOuw==",
         "dependencies": {
-          "Arbor.App.Extensions": "0.7.0-build.1617041268",
-          "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "1.0.0-build.1617189400",
-          "Arbor.KVConfiguration.Core": "1.2.0-build.1617034280",
-          "Arbor.KVConfiguration.DependencyInjection": "1.2.0-build.1617034280",
-          "Arbor.KVConfiguration.JsonConfiguration": "1.2.0-build.1617034280",
-          "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": "1.2.0-build.1617034280",
-          "Arbor.KVConfiguration.Schema.Json": "1.2.0-build.1617034280",
-          "Arbor.KVConfiguration.Urns": "1.2.0-build.1617034280",
-          "Arbor.KVConfiguration.UserConfiguration": "1.2.0-build.1617034280",
-          "Arbor.ModelBinding": "1.1.0-build.1617179722.systemtextjson",
+          "Arbor.App.Extensions": "0.7.0",
+          "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "1.0.0-build.1617362575",
+          "Arbor.KVConfiguration.Core": "1.2.0",
+          "Arbor.KVConfiguration.DependencyInjection": "1.2.0",
+          "Arbor.KVConfiguration.JsonConfiguration": "1.2.0",
+          "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": "1.2.0",
+          "Arbor.KVConfiguration.Schema.Json": "1.2.0",
+          "Arbor.KVConfiguration.Urns": "1.2.0",
+          "Arbor.KVConfiguration.UserConfiguration": "1.2.0",
+          "Arbor.ModelBinding": "1.1.0-build.1617222349.systemtextjson",
           "Arbor.Processing": "0.6.0",
           "Cronos": "0.7.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -234,10 +234,10 @@
       },
       "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": {
         "type": "Transitive",
-        "resolved": "1.0.0-build.1617189400",
-        "contentHash": "iHJyYb4s1GBrcf5ihmk2x6ryTVzb3zgID24zv0I/XiUzea3y+IQEowCL7tRUQoyxFUB5PDdbCMy2BynunZGoFw==",
+        "resolved": "1.0.0-build.1617362575",
+        "contentHash": "q+ExiaBzewDwl7nJUWR1cvUsQiT6PkvyIVIc4v6/FdZoP9Z61tMKSW79fz83XbUTn6PNvlDfuzGdNDFTZb7K1g==",
         "dependencies": {
-          "Arbor.ModelBinding": "1.1.0-build.1617179722.systemtextjson",
+          "Arbor.ModelBinding": "1.1.0-build.1617222349.systemtextjson",
           "Arbor.ModelBinding.NewtonsoftJson": "1.1.0-build.1617179722.systemtextjson",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
@@ -255,8 +255,8 @@
       },
       "Arbor.KVConfiguration.DependencyInjection": {
         "type": "Transitive",
-        "resolved": "1.2.0-build.1617380697.refs-tags-120",
-        "contentHash": "U64/9Jji7G1Qw8Wdf3ARfBXM2Q9uiQXyAmStAIVtapENr33mGlAhc1GMhKq/ewwcOPcWRn5ynAL6/h2reyMFnA==",
+        "resolved": "1.2.0",
+        "contentHash": "mKOmuFrWxeYiazgPnpPdmIasLwRLhzz8B+M2W/xUhFB6KfXhPLxFPD+2dKjnclkZchMUWw7tY7wbmcqKvy0cUA==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "[1.1.6, 2.0.0)",
           "Arbor.KVConfiguration.Urns": "[1.1.6, 2.0.0)",
@@ -276,8 +276,8 @@
       },
       "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": {
         "type": "Transitive",
-        "resolved": "1.2.0-build.1617380697.refs-tags-120",
-        "contentHash": "ms/zEf/Qiby2FeREqQIEPpXxu50WFtgcuqpAZ8Z/ke5XEokoHbFLAHhch3QEBQot2Eqw85BP1VTtqTXX3hMkGg==",
+        "resolved": "1.2.0",
+        "contentHash": "iAlCkdUen3vh/+g04bsL4kVSUb/vx96SakD9XrHBfrwA/t+7gNShPkEqvKArculKVza/n3fFkyYgXxOgkRul8w==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "[1.1.6, 2.0.0)",
           "Arbor.KVConfiguration.Urns": "[1.1.6, 2.0.0)",
@@ -314,8 +314,8 @@
       },
       "Arbor.ModelBinding": {
         "type": "Transitive",
-        "resolved": "1.1.0-build.1617217709.systemtextjson",
-        "contentHash": "TDiOtuxalh5V4MW735oTyUg0Tp3Qmz/L5HHZmtMeC7OqBVUHjDBedgDL6Jjiig794ANsAEpuYFyOx9zF896gjQ==",
+        "resolved": "1.1.0-build.1617222349.systemtextjson",
+        "contentHash": "m78gi3vQIILb8uhaWGWuyw5bKHps2cbWPetiYR5jh7aUpRXvJqbcRQu0dXmxUmfrp3fyOYs9r77yH5kuJMc1qA==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "5.0.0"
         }

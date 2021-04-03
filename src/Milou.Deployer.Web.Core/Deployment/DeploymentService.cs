@@ -363,7 +363,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     await File.ReadAllTextAsync(deploymentTargetParametersFile, Encoding.UTF8, cancellationToken);
 
                 parameterDictionary = JsonConvert
-                    .DeserializeObject<Dictionary<string, string[]>>(parametersJson).ToImmutableDictionary();
+                    .DeserializeObject<Dictionary<string, string[]>>(parametersJson)?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
 
                 jobLogger.Information("Using WebDeploy parameters from file {DeploymentTargetParametersFile}",
                     deploymentTargetParametersFile);
@@ -398,7 +398,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 const string secretKeyPrefix = "publish-settings";
 
-                var id = deploymentTarget.Id.TargetId;
+                string? id = deploymentTarget.Id.TargetId;
 
                 const string usernameKey = secretKeyPrefix + ":username";
                 const string passwordKey = secretKeyPrefix + ":password";

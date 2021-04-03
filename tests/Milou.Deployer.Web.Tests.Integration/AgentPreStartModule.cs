@@ -70,7 +70,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _agentCancellationTokenSource.Token.Register(() => Console.WriteLine("Agent is cancelled"));
 
-            bool IsAgentAssembly(Assembly assembly)
+            static bool IsAgentAssembly(Assembly assembly)
             {
                 bool isAgentAssembly = assembly.FullName is { } fullName &&
                                            (fullName.Contains("Arbor", StringComparison.Ordinal) ||
