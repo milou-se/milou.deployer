@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
+    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

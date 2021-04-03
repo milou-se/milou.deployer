@@ -351,8 +351,8 @@
       },
       "Arbor.KVConfiguration.JsonConfiguration": {
         "type": "Transitive",
-        "resolved": "1.2.0-build.1617380697.refs-tags-120",
-        "contentHash": "Zj0F42Azn1MKjpcfrQ5c83hhFkAKI2djSzIBYU4mSp9xTuoaQByDHJX19wiKuCPfdTlOyrPuTdUFIUx0Bah2Rw==",
+        "resolved": "1.2.0",
+        "contentHash": "C6rSsRhZT36UCa739qbmz1AG/9PamkWF70nEqr7bPzX6sH92O0i7LDjo5lP48BnFvWpAwjuyJITAGFb4j1MG6A==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "[1.1.6, 2.0.0)",
           "Arbor.KVConfiguration.Schema": "[1.1.6, 2.0.0)",
@@ -2503,6 +2503,7 @@
       "milou.deployer.deployerapp": {
         "type": "Project",
         "dependencies": {
+          "Arbor.KVConfiguration.JsonConfiguration": "0.0.0",
           "Arbor.KVConfiguration.UserConfiguration": "0.0.0",
           "Arbor.Processing": "0.6.0",
           "JetBrains.Annotations": "2020.3.0",
@@ -2660,7 +2661,7 @@
           "Microsoft.Extensions.Primitives": "5.0.0",
           "Milou.Deployer.Web.Core": "1.0.0",
           "Milou.Deployer.Web.Marten": "1.0.0",
-          "Newtonsoft.Json": "13.0.1",
+          "Newtonsoft.Json": "0.0.0",
           "NuGet.Packaging": "5.9.0",
           "NuGet.Versioning": "5.9.0",
           "Serilog": "2.10.0",
@@ -2697,6 +2698,7 @@
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
+          "Newtonsoft.Json": "0.0.0",
           "System.Collections.Immutable": "5.0.0"
         }
       }

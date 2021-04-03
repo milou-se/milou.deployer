@@ -2,6 +2,18 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v5.0": {
+      "Arbor.KVConfiguration.JsonConfiguration": {
+        "type": "Direct",
+        "requested": "[*, )",
+        "resolved": "1.2.0",
+        "contentHash": "C6rSsRhZT36UCa739qbmz1AG/9PamkWF70nEqr7bPzX6sH92O0i7LDjo5lP48BnFvWpAwjuyJITAGFb4j1MG6A==",
+        "dependencies": {
+          "Arbor.KVConfiguration.Core": "[1.1.6, 2.0.0)",
+          "Arbor.KVConfiguration.Schema": "[1.1.6, 2.0.0)",
+          "Arbor.KVConfiguration.Schema.Json": "[1.1.6, 2.0.0)",
+          "Newtonsoft.Json": "[12.0.1, 14.0.0)"
+        }
+      },
       "Arbor.KVConfiguration.UserConfiguration": {
         "type": "Direct",
         "requested": "[*, )",
@@ -104,17 +116,6 @@
         "dependencies": {
           "Microsoft.Extensions.Primitives": "[3.0.0, 6.0.0)",
           "System.Collections.Immutable": "[1.5.0, 6.0.0)"
-        }
-      },
-      "Arbor.KVConfiguration.JsonConfiguration": {
-        "type": "Transitive",
-        "resolved": "1.1.6",
-        "contentHash": "vmM++qVg9XThGuVboGIOr8GWBLod7UtL5wt6bK80Pjg62NZJ83207sCca6pZok+1P0yHnOO5TPQEWUupRNk7og==",
-        "dependencies": {
-          "Arbor.KVConfiguration.Core": "[1.1.6, 2.0.0)",
-          "Arbor.KVConfiguration.Schema": "[1.1.6, 2.0.0)",
-          "Arbor.KVConfiguration.Schema.Json": "[1.1.6, 2.0.0)",
-          "Newtonsoft.Json": "[12.0.1, 13.0.0)"
         }
       },
       "Arbor.KVConfiguration.Schema": {

@@ -2450,7 +2450,7 @@
           "Microsoft.Extensions.Primitives": "5.0.0",
           "Milou.Deployer.Web.Core": "1.0.0",
           "Milou.Deployer.Web.Marten": "1.0.0",
-          "Newtonsoft.Json": "13.0.1",
+          "Newtonsoft.Json": "0.0.0",
           "NuGet.Packaging": "5.9.0",
           "NuGet.Versioning": "5.9.0",
           "Serilog": "2.10.0",
@@ -2487,6 +2487,7 @@
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
+          "Newtonsoft.Json": "0.0.0",
           "System.Collections.Immutable": "5.0.0"
         }
       }

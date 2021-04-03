@@ -252,7 +252,7 @@
       },
       "Newtonsoft.Json": {
         "type": "Direct",
-        "requested": "[13.0.1, )",
+        "requested": "[*, )",
         "resolved": "13.0.1",
         "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
@@ -1782,6 +1782,7 @@
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
+          "Newtonsoft.Json": "0.0.0",
           "System.Collections.Immutable": "5.0.0"
         }
       }

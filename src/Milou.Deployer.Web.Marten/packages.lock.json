@@ -1115,6 +1115,7 @@
           "JetBrains.Annotations": "2020.3.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
           "Microsoft.Extensions.Primitives": "5.0.0",
+          "Newtonsoft.Json": "0.0.0",
           "System.Collections.Immutable": "5.0.0"
         }
       }
