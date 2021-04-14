@@ -63,6 +63,12 @@
         "resolved": "0.6.0",
         "contentHash": "KcuciNAfg/ArkDdcM1hHMeIprKwQjdHWV6zXBFAqmKDxGB9rdDHk9a1jHTVQ5r7y5gxAowCUGLgEcfheKItoig=="
       },
+      "AspNetCore.Authentication.Basic": {
+        "type": "Direct",
+        "requested": "[*, )",
+        "resolved": "5.1.0",
+        "contentHash": "K4bt5xrPQUeS6p83+LZz1eneU8dhjKT8uuceGAtr5q4h7CW3vchkzZKRVNKJH1e0T6AQqU794b9Mhsh8VaPEVw=="
+      },
       "FluentAssertions": {
         "type": "Direct",
         "requested": "[5.10.3, )",
@@ -95,6 +101,15 @@
         "contentHash": "/uYzMoGxpLql70sSBhX0iO/Xy9jCcvqqt+LBzPtxyyCRGYcYUvRri0tTqFVH0lxFt3HD2aNZgWsWnHXmBA57xQ==",
         "dependencies": {
           "System.ServiceProcess.ServiceController": "5.0.0"
+        }
+      },
+      "Microsoft.AspNetCore.TestHost": {
+        "type": "Direct",
+        "requested": "[5.0.5, )",
+        "resolved": "5.0.5",
+        "contentHash": "Rzv5PBOMiSk9BXl0eBoD8YIs6tepAKeaR534oxpeuRap3vfJ4OVqwqH5glKm4Z+Ay6NY8sursdUjBIEr9jHgtQ==",
+        "dependencies": {
+          "System.IO.Pipelines": "5.0.1"
         }
       },
       "Microsoft.CodeAnalysis.Common": {
@@ -157,6 +172,16 @@
         "dependencies": {
           "Microsoft.CodeCoverage": "16.9.4",
           "Microsoft.TestPlatform.TestHost": "16.9.4"
+        }
+      },
+      "Microsoft.TestPlatform.TestHost": {
+        "type": "Direct",
+        "requested": "[16.9.4, )",
+        "resolved": "16.9.4",
+        "contentHash": "3YuJ7OSb1YPk+OTZfpa8U7I+TUZRH/nCeOWcN+TERp1SUZrcGeG2IGBZvVZ9CbKuQ+7wLiwsfcIgKIu+kbvibg==",
+        "dependencies": {
+          "Microsoft.TestPlatform.ObjectModel": "16.9.4",
+          "Newtonsoft.Json": "9.0.1"
         }
       },
       "NCrunch.Framework": {
@@ -1039,15 +1064,6 @@
         "dependencies": {
           "NuGet.Frameworks": "5.0.0",
           "System.Reflection.Metadata": "1.6.0"
-        }
-      },
-      "Microsoft.TestPlatform.TestHost": {
-        "type": "Transitive",
-        "resolved": "16.9.4",
-        "contentHash": "3YuJ7OSb1YPk+OTZfpa8U7I+TUZRH/nCeOWcN+TERp1SUZrcGeG2IGBZvVZ9CbKuQ+7wLiwsfcIgKIu+kbvibg==",
-        "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "16.9.4",
-          "Newtonsoft.Json": "9.0.1"
         }
       },
       "Microsoft.Web.Administration": {

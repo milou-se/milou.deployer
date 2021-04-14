@@ -16,9 +16,11 @@
     <PackageReference Include="Arbor.Docker.Xunit" Version="0.6.0" />
     <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
+    <PackageReference Include="AspNetCore.Authentication.Basic" Version="*" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.9.0">
@@ -30,6 +32,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.9.4" />
     <PackageReference Include="NCrunch.Framework" Version="4.7.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NuGet.Packaging" Version="5.9.0" />

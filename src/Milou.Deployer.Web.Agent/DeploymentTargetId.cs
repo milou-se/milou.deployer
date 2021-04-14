@@ -11,8 +11,6 @@ namespace Milou.Deployer.Web.Agent
 
         public static readonly DeploymentTargetId Invalid = new(Constants.NotAvailable);
 
-        public override string ToString() => TargetId;
-
         public static bool TryParse(string? value, out DeploymentTargetId? deploymentTargetId)
         {
             if (string.IsNullOrWhiteSpace(value))

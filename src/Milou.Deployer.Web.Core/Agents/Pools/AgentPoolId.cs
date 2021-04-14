@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Milou.Deployer.Web.Agent;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Agents.Pools

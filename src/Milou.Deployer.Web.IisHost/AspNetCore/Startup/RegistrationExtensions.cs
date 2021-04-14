@@ -35,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         public static IServiceCollection AddDeploymentAuthentication(
             this IServiceCollection serviceCollection,
             CustomOpenIdConnectConfiguration? openIdConnectConfiguration,
-            MilouAuthenticationConfiguration milouAuthenticationConfiguration,
+            MilouAuthenticationConfiguration? milouAuthenticationConfiguration,
             ILogger logger,
             EnvironmentConfiguration environmentConfiguration)
         {
@@ -127,16 +127,14 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                 {
                     byte[] bytes = Convert.FromBase64String(milouAuthenticationConfiguration.BearerTokenIssuerKey);
 
-                    var tokenValidationParameters = new TokenValidationParameters
+                    options.TokenValidationParameters = new ()
                     {
                         IssuerSigningKeys = new List<SecurityKey> {new SymmetricSecurityKey(bytes)},
                         ValidateAudience = false,
                         ValidateIssuer = false
                     };
 
-                    options.TokenValidationParameters = tokenValidationParameters;
-
-                    options.Events = new JwtBearerEvents
+                    options.Events = new ()
                     {
                         OnMessageReceived = OnMessageReceived,
                         OnChallenge = OnChallenge,

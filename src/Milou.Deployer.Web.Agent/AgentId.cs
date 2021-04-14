@@ -36,7 +36,5 @@ namespace Milou.Deployer.Web.Agent
             agentId = new AgentId(value);
             return true;
         }
-
-        public override string ToString() => Value;
     }
 }
