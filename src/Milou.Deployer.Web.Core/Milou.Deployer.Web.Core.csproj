@@ -9,7 +9,7 @@
     <PackageReference Include="Arbor.ModelBinding" Version="1.1.*-*" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
-    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="MailKit" Version="2.11.1" />
     <PackageReference Include="Marten" Version="3.9.0" />
     <PackageReference Include="Marten" Version="3.13.4" />
@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NuGet.Frameworks" Version="5.9.0" />
     <PackageReference Include="NuGet.Packaging" Version="5.9.0" />

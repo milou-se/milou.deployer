@@ -43,15 +43,15 @@
       },
       "JetBrains.Annotations": {
         "type": "Direct",
-        "requested": "[2020.3.0, )",
-        "resolved": "2020.3.0",
-        "contentHash": "FnX06vtxuoZnhZdR6UHt5kJ7HUC/syODfGLnhPDn1x5sXvvepNyCl4jMtPUzJfsPWh7q0Jo+AIYz5xaVbbyikA=="
+        "requested": "[2021.1.0, )",
+        "resolved": "2021.1.0",
+        "contentHash": "n9JSw5Z+F+6gp9vSv4aLH6p/bx3GAYA6FZVq1wJq/TJySv/kPgFKLGFeS7A8Xa5X4/GWorh5gd43yjamUgnBNA=="
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Direct",
-        "requested": "[5.0.0, )",
-        "resolved": "5.0.0",
-        "contentHash": "cI/VWn9G1fghXrNDagX9nYaaB/nokkZn0HYAawGaELQrl8InSezfe9OnfPZLcJq3esXxygh3hkq2c3qoV3SDyQ=="
+        "requested": "[5.0.1, )",
+        "resolved": "5.0.1",
+        "contentHash": "5WPSmL4YeP7eW+Vc8XZ4DwjYWBAiSwDV9Hm63JJWcz1Ie3Xjv4KuJXzgCstj48LkLfVCYa7mLcx7y+q6yqVvtw=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
@@ -237,8 +237,8 @@
       },
       "Arbor.ModelBinding.Primitives": {
         "type": "Transitive",
-        "resolved": "1.1.0-build.1617222349.systemtextjson",
-        "contentHash": "Fi71M3ACF5lOgRoaXc57Xd2VynNV2Pc0F5kapsA6ez7rG50LSxPLrEubdr0FYFTrB/GvruRjVtz8qImQB0+V8w==",
+        "resolved": "1.1.0-build.1617741586.systemtextjson",
+        "contentHash": "gwYedRSk8y1CtJI4ssc+qvi9GhVSh9YRGoz0cdBk7WpcTWwJUgbrM/7Axtoq6dZm/cnTd4KQLiL1d3kU91pdew==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1",
           "System.Text.Json": "5.0.1"
@@ -269,8 +269,8 @@
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "33.1.4",
-        "contentHash": "caMGV9FmJe8kJcpJ5GymBhK2LdJv9WkWNAdCmak/9gG/VHloQXPL0mFeOD9kn/8A1OUgHz4dMqjwQVO65CCLKA==",
+        "resolved": "33.1.6",
+        "contentHash": "exMA8o6lEpaMJ85ezRGq3Vu63/7Af2HFWci4mGvT5QRlPxpmmfddNltP2a7ShxI6tpYCZlqGavueUzPfcQVmOA==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
@@ -1565,8 +1565,8 @@
         "type": "Project",
         "dependencies": {
           "Arbor.KVConfiguration.JsonConfiguration": "0.0.0",
-          "JetBrains.Annotations": "2020.3.0",
-          "Microsoft.Extensions.Primitives": "5.0.0",
+          "JetBrains.Annotations": "2021.1.0",
+          "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.DeployerApp": "1.0.0",
           "Newtonsoft.Json": "0.0.0",
           "Serilog.Sinks.Console": "3.1.1",
@@ -1584,10 +1584,10 @@
           "Arbor.ModelBinding.Primitives": "1.0.0-0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
-          "JetBrains.Annotations": "2020.3.0",
+          "JetBrains.Annotations": "2021.1.0",
           "MediatR": "9.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
-          "Microsoft.Extensions.Primitives": "5.0.0",
+          "Microsoft.Extensions.Primitives": "5.0.1",
           "Microsoft.Web.Xdt": "3.1.0",
           "Newtonsoft.Json": "13.0.1",
           "NuGet.Packaging": "5.9.0",
@@ -1602,8 +1602,8 @@
           "Arbor.KVConfiguration.JsonConfiguration": "0.0.0",
           "Arbor.KVConfiguration.UserConfiguration": "0.0.0",
           "Arbor.Processing": "0.6.0",
-          "JetBrains.Annotations": "2020.3.0",
-          "Microsoft.Extensions.Primitives": "5.0.0",
+          "JetBrains.Annotations": "2021.1.0",
+          "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Core": "1.0.0",
           "Milou.Deployer.Ftp": "1.0.0",
           "Milou.Deployer.IIS": "1.0.0",
@@ -1618,9 +1618,9 @@
       "milou.deployer.ftp": {
         "type": "Project",
         "dependencies": {
-          "FluentFTP": "33.1.4",
-          "JetBrains.Annotations": "2020.3.0",
-          "Microsoft.Extensions.Primitives": "5.0.0",
+          "FluentFTP": "33.1.6",
+          "JetBrains.Annotations": "2021.1.0",
+          "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.10.0",
           "System.Collections.Immutable": "5.0.0"
@@ -1629,8 +1629,8 @@
       "milou.deployer.iis": {
         "type": "Project",
         "dependencies": {
-          "JetBrains.Annotations": "2020.3.0",
-          "Microsoft.Extensions.Primitives": "5.0.0",
+          "JetBrains.Annotations": "2021.1.0",
+          "Microsoft.Extensions.Primitives": "5.0.1",
           "Microsoft.Web.Administration": "11.1.0",
           "Microsoft.Win32.Registry": "5.0.0",
           "Milou.Deployer.Core": "1.0.0",
@@ -1641,8 +1641,8 @@
       "milou.deployer.waws": {
         "type": "Project",
         "dependencies": {
-          "JetBrains.Annotations": "2020.3.0",
-          "Microsoft.Extensions.Primitives": "5.0.0",
+          "JetBrains.Annotations": "2021.1.0",
+          "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Core": "1.0.0",
           "Serilog": "2.10.0",
           "System.Collections.Immutable": "5.0.0"
