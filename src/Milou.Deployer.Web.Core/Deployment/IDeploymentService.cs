@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Serilog;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -17,7 +18,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             ILogger logger,
             CancellationToken cancellationToken);
 
-        void Log(string message);
+        void Log(string message, LogEventLevel level = LogEventLevel.Information);
         void TaskDone(string deploymentTaskId);
         void TaskFailed(string deploymentTaskId);
     }

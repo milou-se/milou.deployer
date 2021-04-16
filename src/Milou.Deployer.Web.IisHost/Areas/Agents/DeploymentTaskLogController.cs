@@ -51,8 +51,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                             deploymentTaskId, deploymentTargetId);
                     }
 
-                    await mediator.Publish(new AgentLogNotification(deploymentTaskId, deploymentTargetId,
-                        serilogSinkEvent.RenderedMessage));
+                    string message = serilogSinkEvent.RenderedMessage.Replace("\\\"", "");
+
+                    await mediator.Publish(new AgentLogNotification(deploymentTaskId, deploymentTargetId, message, serilogSinkEvent.Level));
                 }
             }
 

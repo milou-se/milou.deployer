@@ -900,7 +900,7 @@ namespace Milou.Deployer.Core.Deployment
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Deployed failed");
+                _logger.Error(ex, "Deploy failed: {Message}", ex.Message);
                 return ExitCode.Failure;
             }
             finally

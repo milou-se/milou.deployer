@@ -93,7 +93,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } = new();
 
-        public void Log(string message) => _tempData?.TempLogger.Information("{Message}", message);
+        public void Log(string message, LogEventLevel level = LogEventLevel.Information) => _tempData?.TempLogger.Write(level, "{Message}", message);
 
         public void TaskDone(string deploymentTaskId)
         {

@@ -179,7 +179,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         _logger.Information("Executed deployment task {DeploymentTask}", deploymentTask);
 
                         deploymentTask.Status = WorkTaskStatus.Done;
-                        service.Log("Work task completed");
+                        service.Log($"Work task {deploymentTask.DeploymentTaskId} completed for target {deploymentTask.DeploymentTargetId}");
                     }
                     else
                     {
@@ -189,7 +189,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             result.Metadata);
 
                         deploymentTask.Status = WorkTaskStatus.Failed;
-                        service.Log("Work task failed");
+                        service.Log($"Work task {deploymentTask.DeploymentTaskId} failed for target {deploymentTask.DeploymentTargetId}");
                     }
 
                     await _loggingCompleted.WaitAsync(stoppingToken);
@@ -206,7 +206,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                         if (ex is OperationCanceledException operationCanceledException)
                         {
-                            _logger.Error(operationCanceledException, "Deployment Target Worker cancellation was triggered with ongoing task");
+                            _logger.Error(operationCanceledException, "Deployment Target Worker cancellation was triggered with ongoing task {Task}", deploymentTask.DeploymentTaskId);
                         }
                         else
                         {
@@ -388,10 +388,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out var service) &&
-                !string.IsNullOrWhiteSpace(notification.Message))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out var service)
+                && !string.IsNullOrWhiteSpace(notification.Message))
             {
-                service.Log(notification.Message);
+                service.Log(notification.Message, notification.LogEventLevel);
             }
             else
             {

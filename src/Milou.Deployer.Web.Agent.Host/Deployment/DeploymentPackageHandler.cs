@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.IO;
 using Arbor.Processing;
+using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.DeployerApp;
 using Newtonsoft.Json;
@@ -89,7 +90,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
             Directory.SetCurrentDirectory(currentDir.FullName);
 
-            string[] inputArgs = Array.Empty<string>();
+            string[] inputArgs = {$"-{ConfigurationKeys.AllowPreReleaseEnvironmentVariable}={deploymentExecutionDefinition.IsPreRelease}"};
 
             using DeployerApp.DeployerApp deployerApp =
                 await AppBuilder.BuildAppAsync(inputArgs,
