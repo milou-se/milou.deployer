@@ -11,6 +11,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             DateTime startedAtUtc,
             DateTime finishedAtUtc,
             int exitCode,
+            WorkTaskStatus status,
             string packageId,
             string version)
         {
@@ -19,6 +20,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             StartedAtUtc = startedAtUtc;
             FinishedAtUtc = finishedAtUtc;
             ExitCode = exitCode;
+            Status = status;
             PackageId = packageId;
             Version = version;
         }
@@ -33,6 +35,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
         public DateTime FinishedAtUtc { get; }
 
         public int ExitCode { get; }
+        public WorkTaskStatus Status { get; }
 
         public string PackageId { get; }
 

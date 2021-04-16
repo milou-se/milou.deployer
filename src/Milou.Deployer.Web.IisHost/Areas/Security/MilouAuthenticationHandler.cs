@@ -59,10 +59,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
             var claims = new List<Claim>();
             AuthenticateResult authenticateResult;
+
             if (!string.IsNullOrWhiteSpace(address))
             {
                 claims.Add(new Claim(CustomClaimTypes.IpAddress, address));
                 claims.Add(new Claim(ClaimTypes.NameIdentifier, address));
+                claims.Add(new Claim("unique_name", address));
 
                 authenticateResult = AuthenticateResult.Success(
                     new AuthenticationTicket(

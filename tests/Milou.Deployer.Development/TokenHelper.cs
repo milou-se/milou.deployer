@@ -25,7 +25,8 @@ namespace Milou.Deployer.Development
             {
                 new(ClaimTypes.NameIdentifier, agentId.Value),
                 new(ClaimTypes.Name, agentId.Value),
-                new("milou_agent", agentId.Value)
+                new("milou_agent", agentId.Value),
+                new("unique_name",agentId.Value),
             };
 
             var handler = new JwtSecurityTokenHandler();

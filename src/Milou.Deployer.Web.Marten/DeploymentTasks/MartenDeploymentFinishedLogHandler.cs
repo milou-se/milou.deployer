@@ -44,7 +44,8 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                     DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
                     DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId.TargetId,
                     Id = taskLogId,
-                    FinishedAtUtc = notification.FinishedAtUtc
+                    FinishedAtUtc = notification.FinishedAtUtc,
+                    Status = notification.DeploymentTask.Status.Status
                 };
 
                 session.Store(taskMetadata);

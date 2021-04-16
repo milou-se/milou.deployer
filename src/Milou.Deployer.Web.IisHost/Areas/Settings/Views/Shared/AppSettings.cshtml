@@ -39,6 +39,14 @@ Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
     </div>
 
     <div>
+        Default NuGet source: <input type="text" name="defaultNugetConig.NuGetSource" value="@Model.ApplicationSettings.DefaultNuGetConfig.NuGetSource"/>
+    </div>
+
+    <div>
+        Default NuGet config: <input type="text" name="defaultNuGetConfig.NuGetConfig" value="@Model.ApplicationSettings.DefaultNuGetConfig.NuGetConfig"/>
+    </div>
+
+    <div>
         Agent exe full path: <input type="text" name="agentExe" value="@Model.ApplicationSettings.AgentExe"/>
     </div>
 

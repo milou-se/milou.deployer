@@ -9,6 +9,7 @@ using Arbor.App.Extensions.Logging;
 using Arbor.Primitives;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.IisHost;
+using Serilog;
 
 namespace Milou.Deployer.Development
 {
@@ -16,6 +17,9 @@ namespace Milou.Deployer.Development
     {
         public static async Task<int> Main(string[] args)
         {
+            new LoggerConfiguration().WriteTo.Seq("http://localhost:5341");
+
+
             byte[] key = TokenHelper.GenerateKey();
 
             var agents = new List<string>() {"Agent1"};

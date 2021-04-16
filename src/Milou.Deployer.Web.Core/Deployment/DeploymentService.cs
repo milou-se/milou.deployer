@@ -29,6 +29,7 @@ using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Logging;
+using Milou.Deployer.Web.Core.Settings;
 using Newtonsoft.Json;
 using NuGet.Versioning;
 using Serilog;
@@ -43,6 +44,7 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         private readonly IAgentService _agentService;
         private readonly IKeyValueConfiguration _configuration;
+        private readonly IApplicationSettingsStore _applicationSettingsStore;
         private readonly ICredentialReadService _credentialReadService;
 
         private readonly ICustomClock _customClock;
@@ -69,7 +71,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             IDeploymentTargetService deploymentTargetService,
             IAgentService agentService,
             IKeyValueConfiguration configuration,
-            AgentsData agentsData)
+            AgentsData agentsData,
+            IApplicationSettingsStore applicationSettingsStore)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -81,6 +84,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             _deploymentTargetService = deploymentTargetService;
             _agentService = agentService;
             _configuration = configuration;
+            _applicationSettingsStore = applicationSettingsStore;
         }
 
         private Dictionary<string, List<DirectoryInfo>> TempDirectories { get; } = new();
@@ -199,6 +203,11 @@ namespace Milou.Deployer.Web.Core.Deployment
                     {
                         await _statusChangedEvent.WaitAsync(cancellationToken);
                     }
+                }
+
+                if (deploymentTask.Status == WorkTaskStatus.Failed)
+                {
+                    deployExitCode = ExitCode.Failure;
                 }
 
                 result = deployExitCode;
@@ -398,7 +407,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 const string secretKeyPrefix = "publish-settings";
 
-                string? id = deploymentTarget.Id.TargetId;
+                string id = deploymentTarget.Id.TargetId;
 
                 const string usernameKey = secretKeyPrefix + ":username";
                 const string passwordKey = secretKeyPrefix + ":password";
@@ -460,8 +469,6 @@ namespace Milou.Deployer.Web.Core.Deployment
                 }
             };
 
-            string? nugetXml = null;
-
             if (publishSettingsFile?.Exists ?? false)
             {
                 publishSettingsXml = await
@@ -474,12 +481,25 @@ namespace Milou.Deployer.Web.Core.Deployment
                 return ExitCode.Failure;
             }
 
-            if (!string.IsNullOrWhiteSpace(deploymentTarget.NuGet.NuGetConfigFile) &&
-                File.Exists(deploymentTarget.NuGet.NuGetConfigFile))
+            async Task<string?> ReadNuGetConfig(string? configFile)
             {
-                nugetXml = await
-                    File.ReadAllTextAsync(deploymentTarget.NuGet.NuGetConfigFile, Encoding.UTF8, cancellationToken);
+                string? xml = null;
+
+                if (!string.IsNullOrWhiteSpace(configFile)
+                    && File.Exists(configFile))
+                {
+                    xml = await File.ReadAllTextAsync(configFile, Encoding.UTF8, cancellationToken);
+                }
+
+                return xml;
             }
+
+            var settings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+
+            string? nugetXml = await ReadNuGetConfig(deploymentTarget.NuGet.NuGetConfigFile)
+                               ?? await ReadNuGetConfig(settings.DefaultNuGetConfig.NuGetConfig);
+
+            string? nugetSource = deploymentTarget.NuGet.NuGetPackageSource ?? settings.DefaultNuGetConfig.NuGetSource;
 
             string manifestJson = JsonConvert.SerializeObject(definitions, Formatting.Indented);
 
@@ -510,7 +530,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                 "")
             {
                 DeployerProcessArgs = arguments.ToImmutableArray(),
-                NugetConfigXml = nugetXml,
+                NuGetConfigXml = nugetXml,
+                NuGetSource = nugetSource,
                 ManifestJson = manifestJson,
                 PublishSettingsXml = publishSettingsXml
             };

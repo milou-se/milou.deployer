@@ -13,6 +13,8 @@ namespace Milou.Deployer.Web.Agent
 
         public string? PublishSettingsXml { get; init; }
 
-        public string? NugetConfigXml { get; init; }
+        public string? NuGetConfigXml { get; init; }
+
+        public string? NuGetSource { get; init; }
     }
 }

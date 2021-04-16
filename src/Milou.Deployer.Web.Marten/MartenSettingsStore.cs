@@ -60,6 +60,7 @@ namespace Milou.Deployer.Web.Marten
             {
                 CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300),
                 NexusConfig = MapFromNexusData(applicationSettingsData?.NexusConfig),
+                DefaultNuGetConfig = MapFromNuGetData(applicationSettingsData?.DefaultNuGetConfig),
                 AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy),
                 DefaultMetadataRequestTimeout =
                     applicationSettingsData?.DefaultMetadataTimeout ?? TimeSpan.FromSeconds(30),
@@ -81,6 +82,9 @@ namespace Milou.Deployer.Web.Marten
 
         private NexusConfig MapFromNexusData(NexusConfigData? data) =>
             new() {HmacKey = data?.HmacKey, NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
+
+        private DefaultNuGetConfig MapFromNuGetData(DefaultNuGetConfigData? data) =>
+            new() {NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
 
         private AutoDeployData MapToAutoDeployData(AutoDeploySettings? autoDeploySettings) =>
             new()

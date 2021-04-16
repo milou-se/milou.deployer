@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 return ExitCode.Failure;
             }
 
-            if (agent?.ConnectionId is null)
+            if (agent.ConnectionId is null)
             {
                 _logger.Error("Agent");
                 return ExitCode.Failure;
@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             await _agentHub.Clients.Clients(agent.ConnectionId).SendAsync(AgentConstants.SignalRDeployCommand,
                 deploymentTaskId, deploymentTargetId.TargetId, cancellationToken);
 
-            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken); //TODO
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken); //TODO
 
             return ExitCode.Success;
         }

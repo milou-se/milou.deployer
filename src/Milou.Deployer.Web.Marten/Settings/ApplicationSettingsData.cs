@@ -12,6 +12,8 @@ namespace Milou.Deployer.Web.Marten.Settings
 
         public NexusConfigData? NexusConfig { get; set; }
 
+        public DefaultNuGetConfigData? DefaultNuGetConfig { get; set; }
+
         public AutoDeployData AutoDeploy { get; set; }
 
         public TimeSpan DefaultMetadataTimeout { get; set; }

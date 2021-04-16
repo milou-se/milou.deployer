@@ -36,7 +36,8 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                 data.AgentId)
                 {
                     ManifestJson = data.ManifestJson,
-                    NugetConfigXml = data.NuGetConfigXml,
+                    NuGetConfigXml = data.NuGetConfigXml,
+                    NuGetSource = data.NuGetSource,
                     PublishSettingsXml = data.PublishSettingsXml,
                     DeployerProcessArgs = data.ProcessArgs.ToImmutableArray()
                 };

@@ -6,6 +6,8 @@
 
         public const string SignalRDeployCommand = "Deploy";
 
+        public const string SignalRPingCommand = "Ping";
+
         public const string DeploymentTaskResult = "/deployment-task/result";
 
         public const string DeploymentTaskResultName = nameof(DeploymentTaskResult);

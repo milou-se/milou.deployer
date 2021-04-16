@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Core.Settings
     {
         public TimeSpan CacheTime { get; set; }
 
-        public NexusConfig NexusConfig { get; set; } = new NexusConfig();
+        public NexusConfig NexusConfig { get; set; } = new ();
 
         public AutoDeploySettings AutoDeploy { get; set; }
 
@@ -20,5 +20,7 @@ namespace Milou.Deployer.Web.Core.Settings
         public string? AgentExe { get; set; }
 
         public bool HostAgentEnabled { get; set; }
+
+        public DefaultNuGetConfig DefaultNuGetConfig { get; set; } = new();
     }
 }

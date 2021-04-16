@@ -13,6 +13,8 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 
         public string? NuGetConfigXml { get; set; }
 
+        public string? NuGetSource { get; set; }
+
         public string? ManifestJson { get; set; }
 
         public string? PublishSettingsXml { get; set; }

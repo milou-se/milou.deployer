@@ -29,6 +29,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                 StartedAtUtc = notification.Result.StartedAtUtc,
                 FinishedAtUtc = notification.Result.FinishedAtUtc,
                 Metadata = notification.Result.Metadata,
+                Status = notification.DeploymentTask.Status.Status,
                 ExitCode = notification.Result.ExitCode.Code
             };
 

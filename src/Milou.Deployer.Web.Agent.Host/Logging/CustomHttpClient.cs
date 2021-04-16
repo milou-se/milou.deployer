@@ -1,7 +1,9 @@
-﻿using System.Net.Http;
+﻿using System.Diagnostics.Tracing;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Milou.Deployer.Web.Agent.Host.Configuration;
+using Serilog;
 using Serilog.Sinks.Http;
 
 namespace Milou.Deployer.Web.Agent.Host.Logging
@@ -9,16 +11,22 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
     public sealed class CustomHttpClient : IHttpClient
     {
         private readonly DeploymentTargetId _deploymentTargetId;
+        private readonly AgentId _agentId;
+        private readonly ILogger _logger;
         private readonly string _deploymentTaskId;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public CustomHttpClient(IHttpClientFactory httpClientFactory,
             string deploymentTaskId,
-            DeploymentTargetId deploymentTargetId)
+            DeploymentTargetId deploymentTargetId,
+            AgentId agentId,
+            ILogger logger)
         {
             _httpClientFactory = httpClientFactory;
             _deploymentTaskId = deploymentTaskId;
             _deploymentTargetId = deploymentTargetId;
+            _agentId = agentId;
+            _logger = logger;
         }
 
         public void Dispose()
@@ -37,9 +45,14 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
 
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri) {Content = content};
 
-            request.Headers.Add("x-deployment-task-id", _deploymentTaskId);
-            request.Headers.Add("x-deployment-target-id", _deploymentTargetId.TargetId);
+            request.Headers.Add("X-Deployment-Task-Id", _deploymentTaskId);
+            request.Headers.Add("X-Deployment-Target-Id", _deploymentTargetId.TargetId);
             HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(request);
+
+            if (!httpResponseMessage.IsSuccessStatusCode)
+            {
+                _logger.Warning("Failed to send log item from agent {AgentId} to server for deployment task id {DeploymentTaskId}, deployment target id {DeploymentTargetId}", _agentId, _deploymentTaskId, _deploymentTargetId);
+            }
 
             return httpResponseMessage;
         }

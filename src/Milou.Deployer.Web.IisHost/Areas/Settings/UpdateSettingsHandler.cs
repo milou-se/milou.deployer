@@ -53,6 +53,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.MetadataCacheTimeout = request.MetadataCacheTimeout.Value;
             }
 
+            if (request.DefaultNuGetConfig is { })
+            {
+                applicationSettings.NexusConfig.NuGetConfig = request.DefaultNuGetConfig.NuGetConfig;
+                applicationSettings.NexusConfig.NuGetSource = request.DefaultNuGetConfig.NuGetSource;
+            }
+
             applicationSettings.AgentExe = string.IsNullOrWhiteSpace(request.AgentExe) ? null : request.AgentExe;
 
             if (request.HostAgentEnabled.HasValue)

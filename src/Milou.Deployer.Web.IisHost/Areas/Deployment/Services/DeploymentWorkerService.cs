@@ -61,6 +61,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
+            if (workerByTargetId is null)
+            {
+                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify success", notification.DeploymentTargetId);
+            }
+
             workerByTargetId?.NotifyDeploymentDone(notification);
 
             _agents.AgentDone(notification.AgentId);
@@ -72,6 +77,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
+            if (workerByTargetId is null)
+            {
+                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify failure", notification.DeploymentTargetId);
+            }
+
             workerByTargetId?.NotifyDeploymentFailed(notification);
 
             _agents.AgentDone(notification.AgentId);
@@ -82,6 +92,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public Task Handle(AgentLogNotification notification, CancellationToken cancellationToken)
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
+
+            if (workerByTargetId is null)
+            {
+                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify progress", notification.DeploymentTargetId);
+            }
 
             workerByTargetId?.LogProgress(notification);
 

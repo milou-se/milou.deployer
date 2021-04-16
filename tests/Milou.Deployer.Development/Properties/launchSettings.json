@@ -1,7 +1,7 @@
 ﻿{
   "iisSettings": {
-    "windowsAuthentication": false, 
-    "anonymousAuthentication": true, 
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
     "iisExpress": {
       "applicationUrl": "http://localhost:61371",
       "sslPort": 0
@@ -17,8 +17,8 @@
     },
     "Milou.Deployer.Development": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "applicationUrl": "http://localhost:5000",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:34343",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

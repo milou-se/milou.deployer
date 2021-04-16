@@ -5,7 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.IO;
 using Arbor.Processing;
+using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.DeployerApp;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace Milou.Deployer.Web.Agent.Host.Deployment
@@ -18,8 +20,52 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             CancellationToken cancellationToken)
         {
             using var manifestFile = TempFile.CreateTempFile("manifest", ".json");
+            using var nugetConfig = TempFile.CreateTempFile("nuget", ".config");
 
-            await File.WriteAllTextAsync(manifestFile.File!.FullName, deploymentTaskPackage.ManifestJson, Encoding.UTF8,
+            // Deserialize manifest, add NuGet config, serialize
+
+            if (string.IsNullOrWhiteSpace(deploymentTaskPackage.ManifestJson))
+            {
+                throw new InvalidOperationException("JSON manifest is missing");
+            }
+
+            var definitions = JsonConvert.DeserializeAnonymousType(deploymentTaskPackage.ManifestJson,
+                new {definitions = Array.Empty<DeploymentExecutionDefinition>()});
+
+            if (definitions?.definitions.Length != 1)
+            {
+                throw new InvalidOperationException($"Expected exactly 1 {nameof(DeploymentExecutionDefinition)}");
+            }
+
+            var deploymentExecutionDefinition = definitions.definitions[0];
+
+            if (!string.IsNullOrWhiteSpace(deploymentTaskPackage.NuGetSource))
+            {
+                deploymentExecutionDefinition = deploymentExecutionDefinition with
+                {
+                    NuGetPackageSource = deploymentTaskPackage.NuGetSource
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(deploymentTaskPackage.NuGetConfigXml))
+            {
+                string? nuGetConfigFile = nugetConfig.File?.FullName;
+
+                if (nuGetConfigFile is { })
+                {
+                    await File.WriteAllTextAsync(nuGetConfigFile, deploymentTaskPackage.NuGetConfigXml, cancellationToken);
+
+                    deploymentExecutionDefinition = deploymentExecutionDefinition with
+                    {
+                        NuGetConfigFile = nuGetConfigFile
+                    };
+                }
+            }
+
+            string manifest =
+                JsonConvert.SerializeObject(new {definitions = new[] {deploymentExecutionDefinition}});
+
+            await File.WriteAllTextAsync(manifestFile.File!.FullName, manifest, Encoding.UTF8,
                 cancellationToken);
 
             using var publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)

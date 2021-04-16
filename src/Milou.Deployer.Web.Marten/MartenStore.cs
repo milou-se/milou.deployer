@@ -236,7 +236,8 @@ namespace Milou.Deployer.Web.Marten
             {
                 Id = request.DeploymentTaskPackage.DeploymentTaskId,
                 DeploymentTargetId = request.DeploymentTaskPackage.DeploymentTargetId.TargetId,
-                NuGetConfigXml = request.DeploymentTaskPackage.NugetConfigXml,
+                NuGetConfigXml = request.DeploymentTaskPackage.NuGetConfigXml,
+                NuGetSource = request.DeploymentTaskPackage.NuGetSource,
                 ManifestJson = request.DeploymentTaskPackage.ManifestJson,
                 PublishSettingsXml = request.DeploymentTaskPackage.PublishSettingsXml,
                 AgentId = request.DeploymentTaskPackage.AgentId,
@@ -350,6 +351,7 @@ namespace Milou.Deployer.Web.Marten
                         item.StartedAtUtc,
                         item.FinishedAtUtc,
                         item.ExitCode,
+                        WorkTaskStatus.ParseOrDefault(item.Status),
                         item.PackageId,
                         item.Version))
                 .ToImmutableArray());

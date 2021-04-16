@@ -25,6 +25,7 @@ using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
 using Newtonsoft.Json;
 using Serilog;
+using Serilog.Events;
 using MessageReceivedContext = Microsoft.AspNetCore.Authentication.JwtBearer.MessageReceivedContext;
 using TokenValidatedContext = Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext;
 
@@ -97,6 +98,15 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                             if (!string.IsNullOrWhiteSpace(environmentConfiguration.PublicHostname))
                             {
                                 builder.Host = environmentConfiguration.PublicHostname;
+
+                                if (logger.IsEnabled(LogEventLevel.Verbose))
+                                {
+                                    logger.Verbose("Using redirect from environment public host name {HostName}", environmentConfiguration.PublicHostname);
+                                }
+                            }
+                            else if (logger.IsEnabled(LogEventLevel.Verbose))
+                            {
+                                logger.Verbose("Using default redirect for OpenId Connect");
                             }
 
                             if (environmentConfiguration.PublicPortIsHttps == true)
@@ -116,13 +126,14 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             {
                 authenticationBuilder.AddMilouAuthentication(
                     MilouAuthenticationConstants.MilouAuthenticationScheme,
-                    "Milou",
-                    options => { });
+                    "Milou", _ => { });
             }
 
             if (milouAuthenticationConfiguration?.BearerTokenEnabled == true
                 && !string.IsNullOrWhiteSpace(milouAuthenticationConfiguration.BearerTokenIssuerKey))
             {
+                logger.Information("Bearer token authentication is enabled");
+
                 authenticationBuilder.AddJwtBearer(options =>
                 {
                     byte[] bytes = Convert.FromBase64String(milouAuthenticationConfiguration.BearerTokenIssuerKey);
@@ -141,6 +152,10 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         OnTokenValidated = OnTokenValidated
                     };
                 });
+            }
+            else
+            {
+                logger.Information("Bearer token authentication is disabled");
             }
 
             return serviceCollection;

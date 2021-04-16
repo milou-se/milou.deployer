@@ -76,6 +76,40 @@ namespace Milou.Deployer.Web.Core.Agents
             }
         }
 
+        public void AgentDisconnected(AgentDisconnected agentDisconnected)
+        {
+            var agentId = agentDisconnected.AgentId;
+
+            if (agentId is null)
+            {
+                throw new InvalidOperationException("Agent disconnected without agent id");
+            }
+
+            if (!_agents.ContainsKey(agentId))
+            {
+                _agents.TryAdd(agentId,
+                    new AgentState(agentId)
+                    {
+                        ConnectedAt = _customClock.UtcNow(),
+                        IsConnected = false,
+                        ConnectionId = null
+                    });
+            }
+            else
+            {
+                if (_agents.TryGetValue(agentId, out var state))
+                {
+                    state.IsConnected = false;
+                    state.ConnectedAt = _customClock.UtcNow();
+                    state.ConnectionId = null;
+                }
+                else
+                {
+                    _logger.Error("Could not get agent state for agent id {AgentId}", agentId);
+                }
+            }
+        }
+
         public void AgentDone(AgentId agentId)
         {
             if (!_agents.TryGetValue(agentId, out var state))

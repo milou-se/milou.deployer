@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
                 var agentInfo = availableAgents.FirstOrDefault(); // improve algorithm to select agent
 
-                if (agentInfo is {})
+                if (agentInfo is {ConnectionId: { }})
                 {
                     _logger.Information("Deployment task {DeploymentTaskId} was assigned to agent {Agent}",
                         deploymentTask.DeploymentTaskId, agentInfo.Id);

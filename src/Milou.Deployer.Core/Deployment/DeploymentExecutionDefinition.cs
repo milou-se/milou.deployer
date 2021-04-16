@@ -10,7 +10,7 @@ using NuGet.Versioning;
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public class DeploymentExecutionDefinition
+    public record DeploymentExecutionDefinition
     {
         [JsonConstructor]
         [UsedImplicitly]
@@ -202,9 +202,9 @@ namespace Milou.Deployer.Core.Deployment
 
         public string? IisSiteName { get; }
 
-        public string? NuGetConfigFile { get; }
+        public string? NuGetConfigFile { get; init; }
 
-        public string? NuGetPackageSource { get; }
+        public string? NuGetPackageSource { get; init; }
 
         [JsonProperty(nameof(FtpPath))]
         public string? FtpPathValue => FtpPath?.Path;

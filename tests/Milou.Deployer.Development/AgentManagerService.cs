@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Logging;
 using Arbor.App.Extensions.Tasks;
 using Arbor.AspNetCore.Host;
 using Arbor.Primitives;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Core.Startup;
@@ -46,7 +48,7 @@ namespace Milou.Deployer.Development
 
                 var cancellationTokenSource = new CancellationTokenSource();
 
-                foreach (var devConfigurationAgent in _devConfiguration.Agents.Where(pair=>pair.Value is {}))
+                foreach (var devConfigurationAgent in _devConfiguration.Agents.Where(pair => pair.Value is { }))
                 {
                     var agentRunner = await StartAgent(devConfigurationAgent.Value!, cancellationTokenSource);
                     runners.Add(agentRunner);
@@ -61,9 +63,13 @@ namespace Milou.Deployer.Development
                     await agentRunner.StopAsync();
                 }
             }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+
+            }
         }
 
-        private static Task<AgentRunner> StartAgent(AgentConfiguration agentConfiguration,
+        private static async Task<AgentRunner> StartAgent(AgentConfiguration agentConfiguration,
             CancellationTokenSource cancellationTokenSource)
         {
             object[] instances = {agentConfiguration, agentConfiguration.AgentId()};
@@ -76,12 +82,16 @@ namespace Milou.Deployer.Development
             variables.Add(LoggingConstants.SerilogSeqEnabledDefault, "true");
             variables.Add("urn:arbor:app:web:logging:serilog:default:seqUrl", "http://localhost:5341");
             variables.Add("urn:arbor:app:web:logging:serilog:default:consoleEnabled", "true");
+            variables.Add(ConfigurationKeys.AllowPreReleaseEnvironmentVariable, "true");
 
             var appTask = AppStarter<AgentStartup>.StartAsync(Array.Empty<string>(),
                 variables, instances: instances, assemblies: assemblies
 );
             var agentRunner = new AgentRunner(cancellationTokenSource, appTask);
-            return Task.FromResult(agentRunner);
+
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            return agentRunner;
         }
     }
 }

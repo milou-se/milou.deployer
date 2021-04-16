@@ -23,6 +23,8 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 
         public int ExitCode { get; set; }
 
+        public string Status { get; set; }
+
         public string Version { get; set; }
     }
 }

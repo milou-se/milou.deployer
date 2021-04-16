@@ -20,15 +20,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         [Route(AgentConstants.DeploymentTaskLogRoute, Name = AgentConstants.DeploymentTaskLogRouteName)]
         public async Task<IActionResult> Log([FromBody] SerilogSinkEvents? events, [FromServices] IMediator mediator)
         {
-            string deploymentTaskId = Request.Headers["x-deployment-task-id"];
-            var deploymentTargetId = new DeploymentTargetId(Request.Headers["x-deployment-target-id"]);
+            string deploymentTaskId = Request.Headers["X-Deployment-Task-Id"];
+            var deploymentTargetId = new DeploymentTargetId(Request.Headers["X-Deployment-Target-Id"]);
 
             if (events?.Events is null)
             {
-                return Ok();
+                ModelState.AddModelError("Events", "Events is null");
+                return BadRequest(ModelState);
             }
 
-            foreach (SerilogSinkEvent serilogSinkEvent in events.Events.NotNull())
+            var serilogSinkEvents = events.Events.NotNull().SafeToImmutableArray();
+
+            if (serilogSinkEvents.IsDefaultOrEmpty)
+            {
+                ModelState.AddModelError("Events", "Events is are empty");
+                return BadRequest(ModelState);
+            }
+
+            _logger.Verbose("Received {Count} log events for deployment task id {DeploymentTaskId}, {DeploymentTargetId}", serilogSinkEvents.Length, deploymentTaskId, deploymentTargetId);
+
+            foreach (SerilogSinkEvent serilogSinkEvent in serilogSinkEvents)
             {
                 if (!string.IsNullOrWhiteSpace(deploymentTaskId) &&
                     !string.IsNullOrWhiteSpace(serilogSinkEvent.RenderedMessage))

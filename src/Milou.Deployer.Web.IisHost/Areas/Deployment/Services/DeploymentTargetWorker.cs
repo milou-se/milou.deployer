@@ -113,6 +113,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         out (string Message, WorkTaskStatus Status) valueTuple,
                         TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
                     {
+                        _logger.Information("Message queue for deployment service {Service} for deployment task id {DeploymentTaskId} timed out after {Seconds} seconds", deploymentService, deploymentTask.DeploymentTaskId, _workerConfiguration.MessageTimeOutInSeconds);
                         deploymentService.MessageQueue.CompleteAdding();
                     }
 
@@ -125,8 +126,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
 
                 _loggingCompleted.Set();
-
-                _services.TryRemove(deploymentTask.DeploymentTaskId, out _);
             }
         }
 
@@ -407,11 +406,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
             {
                 service.TaskDone(notification.DeploymentTaskId);
+
+                Task.Run(() => RemoveServiceFromTask(notification.DeploymentTaskId));
             }
             else
             {
-                _logger.Warning("Could not handle agent task done notification");
+                _logger.Warning("Could not handle agent task done notification {Notification}", notification);
             }
+        }
+
+        private async Task RemoveServiceFromTask(string deploymentTaskId)
+        {
+            _logger.Verbose("Waiting for removing service from deployment task id {DeploymentTaskId}", deploymentTaskId);
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            _services.TryRemove(deploymentTaskId, out _);
+
+            _logger.Verbose("Removed service from deployment task id {DeploymentTaskId}", deploymentTaskId);
         }
 
         public void NotifyDeploymentFailed(AgentDeploymentFailed notification)
@@ -421,10 +431,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
             {
                 service.TaskFailed(notification.DeploymentTaskId);
+
+                Task.Run(() => RemoveServiceFromTask(notification.DeploymentTaskId));
             }
             else
             {
-                _logger.Warning("Could not handle agent failed notification");
+                _logger.Warning("Could not handle agent failed notification {Notification}", notification);
             }
         }
     }

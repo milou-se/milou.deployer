@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Messaging;
+﻿ using Arbor.App.Extensions.Messaging;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Agent;
 

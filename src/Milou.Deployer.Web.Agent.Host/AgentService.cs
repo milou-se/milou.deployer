@@ -158,7 +158,15 @@ namespace Milou.Deployer.Web.Agent.Host
             _hubConnection.Closed += HubConnectionOnClosed;
 
             _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
+            _hubConnection.On<string>(AgentConstants.SignalRPingCommand, Ping);
             _hubConnection.On("ServerShuttingDown", ShutDown);
+        }
+
+        private Task Ping(string arg)
+        {
+            _logger.Verbose("Received ping from server");
+
+            return Task.CompletedTask;
         }
 
         private Task ShutDown()
