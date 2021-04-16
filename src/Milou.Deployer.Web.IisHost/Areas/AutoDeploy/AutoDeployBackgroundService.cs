@@ -193,6 +193,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         {
             try
             {
+                var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+
                 using CancellationTokenSource packageVersionCancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds));
@@ -204,8 +206,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 var packageVersions = (await _packageService.GetPackageVersionsAsync(
                         deploymentTarget.PackageId,
-                        nugetConfigFile: deploymentTarget.NuGet.NuGetConfigFile,
-                        nugetPackageSource: deploymentTarget.NuGet.NuGetPackageSource,
+                        nugetConfigFile: deploymentTarget.NuGet.NuGetConfigFile.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetConfig),
+                        nugetPackageSource: deploymentTarget.NuGet.NuGetPackageSource.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetSource),
                         cancellationToken: linked.Token))
                     .ToImmutableHashSet();
 

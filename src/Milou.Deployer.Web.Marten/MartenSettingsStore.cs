@@ -56,20 +56,41 @@ namespace Milou.Deployer.Web.Marten
 
         private ApplicationSettings Map(ApplicationSettingsData? applicationSettingsData)
         {
+            var applicationSettingsCacheTime = TimeSpan.FromSeconds(300);
+
+            var applicationSettingsCacheTimeout = TimeSpan.FromMinutes(10);
+            var metadataCacheTimeout = TimeSpan.FromMinutes(5);
             var applicationSettings = new ApplicationSettings
             {
-                CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300),
+                CacheTime = applicationSettingsData?.CacheTime ?? applicationSettingsCacheTime,
                 NexusConfig = MapFromNexusData(applicationSettingsData?.NexusConfig),
                 DefaultNuGetConfig = MapFromNuGetData(applicationSettingsData?.DefaultNuGetConfig),
                 AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy),
                 DefaultMetadataRequestTimeout =
                     applicationSettingsData?.DefaultMetadataTimeout ?? TimeSpan.FromSeconds(30),
                 ApplicationSettingsCacheTimeout =
-                    applicationSettingsData?.ApplicationSettingsCacheTimeout ?? TimeSpan.FromMinutes(10),
-                MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? TimeSpan.FromMinutes(5),
+                    applicationSettingsData?.ApplicationSettingsCacheTimeout ?? applicationSettingsCacheTimeout,
+                MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? metadataCacheTimeout,
                 AgentExe = applicationSettingsData?.AgentExe,
-                HostAgentEnabled = applicationSettingsData?.HostAgentEnabled ?? false
+                HostAgentEnabled = applicationSettingsData?.HostAgentEnabled ?? false,
             };
+
+            if (applicationSettings.CacheTime <= TimeSpan.Zero || applicationSettings.CacheTime.TotalSeconds < 1)
+            {
+                applicationSettings.CacheTime = applicationSettingsCacheTime;
+            }
+
+            if (applicationSettings.ApplicationSettingsCacheTimeout <= TimeSpan.Zero ||
+                applicationSettings.ApplicationSettingsCacheTimeout.TotalSeconds < 1)
+            {
+                applicationSettings.ApplicationSettingsCacheTimeout = metadataCacheTimeout;
+            }
+
+            if (applicationSettings.MetadataCacheTimeout <= TimeSpan.Zero ||
+                applicationSettings.MetadataCacheTimeout.TotalSeconds < 1)
+            {
+                applicationSettings.MetadataCacheTimeout = applicationSettingsCacheTimeout;
+            }
 
             return applicationSettings;
         }
@@ -104,8 +125,11 @@ namespace Milou.Deployer.Web.Marten
                 DefaultMetadataTimeout = applicationSettings.DefaultMetadataRequestTimeout,
                 MetadataCacheTimeout = applicationSettings.MetadataCacheTimeout,
                 AgentExe = applicationSettings.AgentExe,
-                HostAgentEnabled = applicationSettings.HostAgentEnabled
+                HostAgentEnabled = applicationSettings.HostAgentEnabled,
+                DefaultNuGetConfig = MapToNuGetData(applicationSettings.DefaultNuGetConfig)
             };
+
+        private DefaultNuGetConfigData MapToNuGetData(DefaultNuGetConfig defaultNuGetConfig) => new() {NuGetSource = defaultNuGetConfig.NuGetSource, NuGetConfig = defaultNuGetConfig.NuGetConfig};
 
         private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>
             new()

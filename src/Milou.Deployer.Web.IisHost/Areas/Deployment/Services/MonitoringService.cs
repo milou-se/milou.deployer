@@ -290,11 +290,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
+                var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+
                 IReadOnlyCollection<PackageVersion> allPackageVersions =
                     await _packageService.GetPackageVersionsAsync(
                         target.PackageId,
-                        nugetConfigFile: target.NuGet.NuGetConfigFile,
-                        nugetPackageSource: target.NuGet.NuGetPackageSource,
+                        nugetConfigFile: target.NuGet.NuGetConfigFile.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetConfig),
+                        nugetPackageSource: target.NuGet.NuGetPackageSource.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetSource),
                         includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPreRelease,
                         cancellationToken: cancellationToken);
 

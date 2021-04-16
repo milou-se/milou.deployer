@@ -31,32 +31,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.NexusConfig.NuGetConfig = request.NexusConfig.NuGetConfig;
             }
 
-            if (request.AutoDeploy?.Enabled is {})
-            {
-                applicationSettings.AutoDeploy.Enabled = request.AutoDeploy.Enabled;
-                applicationSettings.AutoDeploy.PollingEnabled = request.AutoDeploy.PollingEnabled;
-            }
+            applicationSettings.AutoDeploy.Enabled = request.AutoDeploy.Enabled;
+            applicationSettings.AutoDeploy.PollingEnabled = request.AutoDeploy.PollingEnabled;
 
-            if (request.ApplicationSettingsCacheTimeout.HasValue &&
-                request.ApplicationSettingsCacheTimeout.Value.TotalSeconds >= 0.5D)
+            if (request.ApplicationSettingsCacheTimeout is {TotalSeconds: >= 0.5D})
             {
                 applicationSettings.ApplicationSettingsCacheTimeout = request.ApplicationSettingsCacheTimeout.Value;
             }
 
-            if (request.DefaultMetadataTimeout.HasValue && request.DefaultMetadataTimeout.Value.TotalSeconds >= 0.5D)
+            if (request.DefaultMetadataTimeout is {TotalSeconds: >= 0.5D})
             {
                 applicationSettings.DefaultMetadataRequestTimeout = request.DefaultMetadataTimeout.Value;
             }
 
-            if (request.MetadataCacheTimeout.HasValue && request.MetadataCacheTimeout.Value.TotalSeconds >= 0.5D)
+            if (request.MetadataCacheTimeout is {TotalSeconds: >= 0.5D})
             {
                 applicationSettings.MetadataCacheTimeout = request.MetadataCacheTimeout.Value;
             }
 
             if (request.DefaultNuGetConfig is { })
             {
-                applicationSettings.NexusConfig.NuGetConfig = request.DefaultNuGetConfig.NuGetConfig;
-                applicationSettings.NexusConfig.NuGetSource = request.DefaultNuGetConfig.NuGetSource;
+                applicationSettings.DefaultNuGetConfig.NuGetConfig = request.DefaultNuGetConfig.NuGetConfig;
+                applicationSettings.DefaultNuGetConfig.NuGetSource = request.DefaultNuGetConfig.NuGetSource;
             }
 
             applicationSettings.AgentExe = string.IsNullOrWhiteSpace(request.AgentExe) ? null : request.AgentExe;
