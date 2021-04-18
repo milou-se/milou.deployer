@@ -26,6 +26,5 @@ namespace Milou.Deployer.Core.Deployment.Configuration
         [Metadata]
         public const string ApplicationInsightsProfiler2SkipDirectiveEnabled =
             "urn:milou:deployer:tools:web-deploy:directives:application-insights-profiler-2-directive:enabled";
-
     }
 }

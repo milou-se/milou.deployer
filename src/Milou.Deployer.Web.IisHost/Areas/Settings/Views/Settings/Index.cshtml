@@ -1,0 +1,20 @@
+﻿@using Milou.Deployer.Web.IisHost.Areas.Settings.Views.Settings
+@model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
+
+<h1>Settings</h1>
+
+@foreach (var module in SettingsViewModule.All)
+{
+    <div class="tab" id="@module.InvariantName">
+        @module.InvariantName
+    </div>
+}
+
+<div class="tab-contents">
+    @foreach (var module in SettingsViewModule.All)
+    {
+        <div class="tab-content" id="tab-content-@module.InvariantName">
+            @await Html.PartialAsync(module.InvariantName, Model)
+        </div>
+    }
+</div>

@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <ArborPublishEnabled>false</ArborPublishEnabled>
+    <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
+    <ArborBuild_NuGetWebPackageEnabled>false</ArborBuild_NuGetWebPackageEnabled>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Milou.Deployer.Tests.Integration\ConditionalFactAttribute.cs" Link="ConditionalFactAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Arbor.Aesculus" Version="3.2.0" />
+    <PackageReference Include="Arbor.Docker" Version="0.6.0" />
+    <PackageReference Include="Arbor.Docker.Xunit" Version="0.6.0" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.8.0" />
+    <PackageReference Include="Arbor.Processing" Version="0.6.0" />
+    <PackageReference Include="AspNetCore.Authentication.Basic" Version="*" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.9.4" />
+    <PackageReference Include="NCrunch.Framework" Version="4.7.0.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NuGet.Packaging" Version="5.9.1" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+    <PackageReference Include="Serilog.Sinks.XUnit" Version="2.0.4" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.analyzers" Version="0.10.0" />
+    <PackageReference Include="xunit.runner.console" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.Agent.Host\Milou.Deployer.Web.Agent.Host.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.IisHost\Milou.Deployer.Web.IisHost.csproj" />
+    <ProjectReference Include="..\..\src\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
+</ItemGroup>
+</Project>

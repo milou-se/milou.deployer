@@ -5,18 +5,24 @@ on: [push, workflow_dispatch]
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
     - name: install-tools
       run: |
         dotnet tool install --global Arbor.Tooler.GlobalTool
         dotnet tool install --global Arbor.Build.Bootstrapper
     - name: build
       env:
-        Arbor.X.NuGet.PackageUpload.Server.ApiKey: ${{ secrets.myget }}
-        Arbor.X.NuGet.PackageUpload.Server.Uri: "https://www.myget.org/F/milou-se/api/v2/package"
-        Arbor.X.NuGet.PackageUpload.Enabled: "true"
-        Arbor.X.NuGet.PackageUpload.ForceUploadEnabled: "true"
+        Arbor.Build.NuGet.PackageUpload.Server.ApiKey: ${{ secrets.myget }}
+        Arbor.Build.NuGet.PackageUpload.Server.Uri: "https://www.myget.org/F/milou-se/api/v2/package"
+        Arbor.Build.NuGet.PackageUpload.Enabled: "true"
+        Arbor.Build.NuGet.PackageUpload.ForceUploadEnabled: "true"
       run: build\build.bat

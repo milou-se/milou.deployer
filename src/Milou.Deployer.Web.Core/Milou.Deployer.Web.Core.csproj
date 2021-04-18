@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Arbor.App.Extensions" Version="0.8.0" />
+    <PackageReference Include="DotNext.Threading" Version="3.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Arbor.ModelBinding" Version="2.0.0" />
+    <PackageReference Include="Arbor.Processing" Version="0.6.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
+    <PackageReference Include="MailKit" Version="2.11.1" />
+    <PackageReference Include="Marten" Version="3.9.0" />
+    <PackageReference Include="Marten" Version="3.13.4" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NuGet.Frameworks" Version="5.9.1" />
+    <PackageReference Include="NuGet.Packaging" Version="5.9.1" />
+    <PackageReference Include="NuGet.Packaging.Core" Version="5.9.1" />
+    <PackageReference Include="NuGet.Versioning" Version="5.9.1" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="3.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Core\Milou.Deployer.Core.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj" />
+  </ItemGroup>
+</Project>

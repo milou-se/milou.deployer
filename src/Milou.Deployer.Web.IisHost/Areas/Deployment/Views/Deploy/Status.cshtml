@@ -1,0 +1,49 @@
+﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment
+@using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
+@model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.StatusViewOutputModel
+
+<div id="messages"></div>
+
+@section scripts
+{
+    <script src="/Scripts/Libs/signalr.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        var messages = document.getElementById('messages');
+
+        let connection = new signalR.HubConnectionBuilder()
+            .withUrl('@DeploymentLogConstants.HubRoute')
+            .build();
+
+        connection.on('@TargetHub.MessageMethod',
+            data => {
+
+                console.log(data);
+
+                const para = createSpanLogItemElement(data);
+
+                messages.appendChild(para);
+
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+
+        connection.on('@TargetHub.TargetsWithUpdates',
+            (packageId, version, targets) => {
+
+                console.log(`Update is available for package ${packageId} version ${version} for target ${targets.join(', ')}`);
+            });
+
+        function htmlEscape(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        connection.start().then(() => connection.invoke('subscribe', '@Model.DeploymentTargetId'));
+
+    </script>
+}

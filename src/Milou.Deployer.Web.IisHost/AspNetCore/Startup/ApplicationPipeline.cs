@@ -1,0 +1,49 @@
+﻿using Arbor.App.Extensions.Application;
+using Arbor.AspNetCore.Host.Logging;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.IisHost.Areas.ErrorHandling;
+using Milou.Deployer.Web.IisHost.Areas.Routing;
+
+namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
+{
+    [PublicAPI]
+    public class ApplicationPipeline
+    {
+        public void Configure(IApplicationBuilder app)
+        {
+            EnvironmentConfiguration environmentConfiguration =
+                app!.ApplicationServices.GetRequiredService<EnvironmentConfiguration>();
+
+            app.AddForwardHeaders(environmentConfiguration);
+
+            app.AddRequestLogging(environmentConfiguration);
+
+            app.AddExceptionHandling(environmentConfiguration);
+
+            app.UseMiddleware<DiagnosticsMiddleware>();
+
+            app.UseMiddleware<StartupTasksMiddleware>();
+
+            app.UseMiddleware<RedirectMiddleware>();
+
+            app.UseCustomStaticFiles(environmentConfiguration);
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
+
+            app.UseMiddleware<ConfigurationErrorMiddleware>();
+
+            app.UseEndpoints(
+                options =>
+                {
+                    options.MapControllers();
+                    options.UseSignalRHubs();
+                });
+        }
+    }
+}

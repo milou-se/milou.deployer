@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <ArborBuild_PublishRuntimeIdentifier>win10-x64</ArborBuild_PublishRuntimeIdentifier>
+    <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Milou.Deployer.Web.IisHost\Program.cs" Link="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Content\Site.css" Link="wwwroot\content\Site.css" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.eot" Link="wwwroot\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.ttf" Link="wwwroot\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.woff" Link="wwwroot\fonts\glyphicons-halflings-regular.woff" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\content\" />
+    <Folder Include="wwwroot\fonts\" />
+    <Folder Include="wwwroot\scripts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.svg" Link="wwwroot\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\fonts\glyphicons-halflings-regular.woff2" Link="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.intellisense.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.intellisense.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.min.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.min.map" Link="wwwroot\scripts\Libs\jquery-3.1.1.min.map" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.slim.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.slim.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.slim.min.js" Link="wwwroot\scripts\Libs\jquery-3.1.1.slim.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery-3.1.1.slim.min.map" Link="wwwroot\scripts\Libs\jquery-3.1.1.slim.min.map" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate-vsdoc.js" Link="wwwroot\scripts\Libs\jquery.validate-vsdoc.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.js" Link="wwwroot\scripts\Libs\jquery.validate.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.min.js" Link="wwwroot\scripts\Libs\jquery.validate.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.unobtrusive.js" Link="wwwroot\scripts\Libs\jquery.validate.unobtrusive.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\jquery.validate.unobtrusive.min.js" Link="wwwroot\scripts\Libs\jquery.validate.unobtrusive.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\modernizr-2.8.3.js" Link="wwwroot\scripts\Libs\modernizr-2.8.3.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.js" Link="wwwroot\scripts\Libs\respond.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.matchmedia.addListener.js" Link="wwwroot\scripts\Libs\respond.matchmedia.addListener.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.matchmedia.addListener.min.js" Link="wwwroot\scripts\Libs\respond.matchmedia.addListener.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\respond.min.js" Link="wwwroot\scripts\Libs\respond.min.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js" Link="wwwroot\scripts\Libs\signalr.js" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js.map" Link="wwwroot\scripts\Libs\signalr.js.map" />
+    <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Site.js" Link="wwwroot\scripts\Site.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Arbor.Processing" Version="0.6.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NuGet.Packaging" Version="5.9.1" />
+    <PackageReference Include="NuGet.Versioning" Version="5.9.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Web.IisHost\Milou.Deployer.Web.IisHost.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,12 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Web.Deployment;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.WebDeploy;
-
 using Serilog;
 
 namespace Milou.Deployer.Waws
@@ -18,57 +15,73 @@ namespace Milou.Deployer.Waws
 
         public WebDeployHelper(ILogger logger) => _logger = logger;
 
-        /// <summary>
-        ///     Deploys the content to one site.
-        /// </summary>
-        /// <param name="sourcePath">The content path.</param>
-        /// <param name="publishSettingsFile">The publish settings file.</param>
-        /// <param name="appOfflineDelay">Delay for app offline</param>
-        /// <param name="password">The password.</param>
-        /// <param name="allowUntrusted">Deploy even if destination certificate is untrusted</param>
-        /// <param name="doNotDelete">todo: describe doNotDelete parameter on DeployContentToOneSite</param>
-        /// <param name="traceLevel">todo: describe traceLevel parameter on DeployContentToOneSite</param>
-        /// <param name="whatIf">todo: describe whatIf parameter on DeployContentToOneSite</param>
-        /// <param name="targetPath">todo: describe targetPath parameter on DeployContentToOneSite</param>
-        /// <param name="useChecksum">todo: describe useChecksum parameter on DeployContentToOneSite</param>
-        /// <param name="appOfflineEnabled">todo: describe appOfflineEnabled parameter on DeployContentToOneSite</param>
-        /// <param name="applicationInsightsProfiler2SkipDirectiveEnabled"></param>
-        /// <param name="logAction">todo: describe logAction parameter on DeployContentToOneSite</param>
-        /// <param name="appDataSkipDirectiveEnabled">
-        ///     AppData Skip Directive Enabled
-        ///     DeployContentToOneSite
-        /// </param>
-        /// <returns>DeploymentChangeSummary.</returns>
-        private async Task<DeploymentChangeSummary> DeployContentToOneSiteAsync2(
+        public async Task<DeploySummary> DeployContentToOneSiteAsync(
             string sourcePath,
-            string publishSettingsFile,
+            string? publishSettingsFile,
             TimeSpan appOfflineDelay,
-            string password = null,
+            string? password = null,
             bool allowUntrusted = false,
             bool doNotDelete = true,
             TraceLevel traceLevel = TraceLevel.Off,
             bool whatIf = false,
-            string targetPath = null,
+            string? targetPath = null,
             bool useChecksum = false,
             bool appOfflineEnabled = false,
             bool appDataSkipDirectiveEnabled = false,
             bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
-            Action<string> logAction = null)
+            Action<string>? logAction = null)
+        {
+            DeploySummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
+                publishSettingsFile,
+                appOfflineDelay,
+                password,
+                allowUntrusted,
+                doNotDelete,
+                traceLevel,
+                whatIf,
+                targetPath,
+                useChecksum,
+                appOfflineEnabled,
+                appDataSkipDirectiveEnabled,
+                applicationInsightsProfiler2SkipDirectiveEnabled,
+                logAction
+            ).ConfigureAwait(false);
+
+            return deploymentChangeSummary;
+        }
+
+        public event EventHandler<CustomEventArgs>? DeploymentTraceEventHandler;
+
+        private async Task<DeploySummary> DeployContentToOneSiteAsync2(
+            string sourcePath,
+            string? publishSettingsFile,
+            TimeSpan appOfflineDelay,
+            string? password = null,
+            bool allowUntrusted = false,
+            bool doNotDelete = true,
+            TraceLevel traceLevel = TraceLevel.Off,
+            bool whatIf = false,
+            string? targetPath = null,
+            bool useChecksum = false,
+            bool appOfflineEnabled = false,
+            bool appDataSkipDirectiveEnabled = false,
+            bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
+            Action<string>? logAction = null)
         {
             sourcePath = Path.GetFullPath(sourcePath);
 
-            var sourceBaseOptions = new DeploymentBaseOptions();
+            PublishSettings? publishSettings = default;
 
-            PublishSettings publishSettings = default;
-
-            if (File.Exists(publishSettingsFile))
+            if (!string.IsNullOrWhiteSpace(publishSettingsFile) && File.Exists(publishSettingsFile))
             {
-                publishSettings = new PublishSettings(publishSettingsFile);
+                publishSettings = await PublishSettings.Load(publishSettingsFile);
             }
 
-            string destinationPath = SetBaseOptions(publishSettings,
-                out DeploymentBaseOptions destBaseOptions,
+            DeploymentBaseOptions destBaseOptions = await SetBaseOptions(
+                publishSettings,
                 allowUntrusted);
+
+            string? destinationPath = destBaseOptions.SiteName;
 
             destBaseOptions.TraceLevel = traceLevel;
             destBaseOptions.Trace += DestBaseOptions_Trace;
@@ -76,16 +89,17 @@ namespace Milou.Deployer.Waws
             if (appDataSkipDirectiveEnabled)
             {
                 destBaseOptions.SkipDirectives.Add(
-                    new DeploymentSkipDirective("AppData", "objectName=\"dirpath\",absolutePath=App_Data"));
+                    new SkipDirective("AppData", "objectName=\"dirpath\",absolutePath=App_Data"));
             }
 
             if (applicationInsightsProfiler2SkipDirectiveEnabled)
             {
                 destBaseOptions.SkipDirectives.Add(
-                    new DeploymentSkipDirective("WebJobs",
+                    new SkipDirective("WebJobs",
                         "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous"));
+
                 destBaseOptions.SkipDirectives.Add(
-                    new DeploymentSkipDirective("ApplicationInsightsProfiler2",
+                    new SkipDirective("ApplicationInsightsProfiler2",
                         "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous\\\\ApplicationInsightsProfiler2"));
             }
 
@@ -94,14 +108,15 @@ namespace Milou.Deployer.Waws
                 destBaseOptions.Password = password;
             }
 
-            var sourceProvider = DeploymentWellKnownProvider.ContentPath;
-            var targetProvider = DeploymentWellKnownProvider.ContentPath;
+            DeploymentWellKnownProvider sourceProvider = DeploymentWellKnownProvider.ContentPath;
+            DeploymentWellKnownProvider targetProvider = DeploymentWellKnownProvider.ContentPath;
 
             if (!string.IsNullOrEmpty(targetPath))
             {
                 if (Path.IsPathRooted(targetPath))
                 {
-                    sourceProvider = targetProvider = DeploymentWellKnownProvider.DirPath;
+                    sourceProvider = DeploymentWellKnownProvider.DirPath;
+                    targetProvider = DeploymentWellKnownProvider.DirPath;
 
                     destinationPath = targetPath;
                 }
@@ -123,9 +138,7 @@ namespace Milou.Deployer.Waws
 
             var syncOptions = new DeploymentSyncOptions
             {
-                DoNotDelete = doNotDelete,
-                WhatIf = whatIf,
-                UseChecksum = useChecksum
+                DoNotDelete = doNotDelete, WhatIf = whatIf, UseChecksum = useChecksum
             };
 
             logAction?.Invoke(
@@ -142,86 +155,24 @@ namespace Milou.Deployer.Waws
                 const string ruleName = "AppOffline";
                 bool added = AddDeploymentRule(syncOptions, ruleName);
 
-                if (added)
-                {
-                    logAction?.Invoke($"Added deployment rule '{ruleName}'");
-                }
-                else
-                {
-                    logAction?.Invoke($"Could not add deployment rule '{ruleName}'");
-                }
+                logAction?.Invoke(added
+                    ? $"Added deployment rule '{ruleName}'"
+                    : $"Could not add deployment rule '{ruleName}'");
             }
 
-            if (!doNotDelete
-                && targetProvider == DeploymentWellKnownProvider.DirPath
-                && Directory.Exists(destinationPath)
-                && string.IsNullOrWhiteSpace(publishSettingsFile))
-            {
-                var sourceDir = new DirectoryInfo(sourcePath);
+            DeploySummary deployContentToOneSite;
 
-                if (sourceDir.Exists)
-                {
-                    var targetDir = new DirectoryInfo(destinationPath);
-
-                    FileInfo[] allTargetFiles = targetDir.GetFiles("*", SearchOption.AllDirectories);
-
-                    FileInfo[] allSourceFiles = sourceDir.GetFiles("*", SearchOption.AllDirectories);
-
-                    bool TargetExistsInSource(FileInfo targetFile)
-                    {
-                        string expectedSourceName = targetFile.FullName.Replace(targetDir.FullName, "");
-
-                        bool sourceFileExists = allSourceFiles.Any(sourceFile =>
-                            sourceFile.FullName.Replace(sourceDir.FullName, "").Equals(expectedSourceName,
-                                StringComparison.OrdinalIgnoreCase));
-
-                        return sourceFileExists;
-                    }
-
-                    void DeleteEmptyDirectory(DirectoryInfo currentDirectory)
-                    {
-                        DirectoryInfo[] subDirectories = currentDirectory.GetDirectories();
-
-                        foreach (DirectoryInfo subDirectory in subDirectories)
-                        {
-                            DeleteEmptyDirectory(subDirectory);
-                        }
-
-                        currentDirectory.Refresh();
-
-                        if (currentDirectory.GetFiles().Length == 0
-                            && currentDirectory.GetDirectories().Length == 0)
-                        {
-                            currentDirectory.Delete();
-                            logAction($"Deleted empty directory '{currentDirectory.FullName}'");
-                        }
-                    }
-
-                    FileInfo[] toDelete = allTargetFiles
-                        .Where(currentFile => !TargetExistsInSource(currentFile))
-                        .Where(currentFile =>
-                            !appDataSkipDirectiveEnabled
-                            || currentFile.FullName.IndexOf("App_Data", StringComparison.OrdinalIgnoreCase) < 0)
-                        .ToArray();
-
-                    foreach (FileInfo fileInfo in toDelete)
-                    {
-                        fileInfo.Delete();
-                        logAction($"Deleted file '{fileInfo.FullName}'");
-                    }
-
-                    DeleteEmptyDirectory(targetDir);
-                }
-            }
-
-            DeploymentChangeSummary deployContentToOneSite;
+            DeploymentBaseOptions sourceBaseOptions = publishSettings is {}
+                ? await DeploymentBaseOptions.Load(publishSettings)
+                : new DeploymentBaseOptions();
 
             using (DeploymentObject deploymentObject =
-                DeploymentManager.CreateObject(sourceProvider, sourcePath, sourceBaseOptions))
+                DeploymentManager.CreateObject(sourceProvider, sourcePath, sourceBaseOptions, _logger))
             {
-                FileInfo appOfflineFile = null;
+                FileInfo? appOfflineFile = null;
 
                 if (targetProvider == DeploymentWellKnownProvider.DirPath
+                    && !string.IsNullOrWhiteSpace(destinationPath)
                     && Directory.Exists(destinationPath)
                     && string.IsNullOrWhiteSpace(publishSettingsFile))
                 {
@@ -230,7 +181,7 @@ namespace Milou.Deployer.Waws
                     appOfflineFile = new FileInfo(appOfflineFilePath);
                 }
 
-                if (appOfflineFile != null && appOfflineDelay.TotalMilliseconds >= 1)
+                if (appOfflineFile is {} && appOfflineDelay.TotalMilliseconds >= 1)
                 {
                     await Task.Delay(appOfflineDelay).ConfigureAwait(false);
                 }
@@ -240,51 +191,62 @@ namespace Milou.Deployer.Waws
                     appOfflineFile?.Refresh();
                     if (appOfflineFile?.Exists == false)
                     {
-                        using var _ = File.Create(appOfflineFile.FullName);
+                        await using FileStream _ = File.Create(appOfflineFile.FullName);
                     }
 
-                    deployContentToOneSite =
+                    deployContentToOneSite = await
                         deploymentObject.SyncTo(targetProvider, destinationPath, destBaseOptions, syncOptions);
+
+                    if (deployContentToOneSite.ExitCode != 0)
+                    {
+                        return deployContentToOneSite;
+                    }
                 }
                 finally
                 {
-                    if (appOfflineFile != null)
+                    if (appOfflineFile is {})
                     {
                         appOfflineFile.Refresh();
 
                         if (appOfflineFile.Exists)
                         {
-                            logAction($"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction?.Invoke(
+                                $"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                             appOfflineFile.Delete();
-                            logAction($"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
+                            logAction?.Invoke(
+                                $"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                         }
                     }
                 }
             }
 
-            string siteName = SetBaseOptions(publishSettings,
-                out DeploymentBaseOptions destDeleteBaseOptions,
+            DeploymentBaseOptions destDeleteBaseOptions = await SetBaseOptions(
+                publishSettings,
                 allowUntrusted);
 
-            var syncDeleteOptions = new DeploymentSyncOptions
-            {
-                DeleteDestination = true
-            };
+            var syncDeleteOptions = new DeploymentSyncOptions {DeleteDestination = true};
 
-            if (publishSettings?.SiteName is object)
+            if (publishSettings?.SiteName is {})
             {
-                DeploymentChangeSummary results;
-                using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(DeploymentWellKnownProvider.ContentPath,
-                    siteName + "/App_Offline.htm",
-                    destBaseOptions))
+                DeploySummary results;
+                using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(
+                    DeploymentWellKnownProvider.ContentPath,
+                    "/App_Offline.htm",
+                    destBaseOptions, _logger))
                 {
                     destDeleteBaseOptions.TraceLevel = traceLevel;
                     destDeleteBaseOptions.Trace += DestBaseOptions_Trace;
 
-                    results = deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
+                    results = await deploymentDeleteObject.SyncTo(destDeleteBaseOptions, syncDeleteOptions);
                 }
 
                 _logger.Debug("AppOffline result: {AppOffline}", results.ToDisplayValue());
+
+                if (results.ExitCode != 0)
+                {
+                    _logger.Error("Could not delete /App_offline.htm");
+                    deployContentToOneSite.ExitCode = results.ExitCode;
+                }
             }
 
             return deployContentToOneSite;
@@ -293,84 +255,40 @@ namespace Milou.Deployer.Waws
         private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
         {
             DeploymentRuleCollection rules = DeploymentSyncOptions.GetAvailableRules();
-            bool added = rules.TryGetValue(name, out DeploymentRule newRule);
+            bool added = rules.TryGetValue(name, out var newRule);
 
             if (added)
             {
-                syncOptions.Rules.Add(newRule);
+                syncOptions.Rules.Add(newRule!);
             }
 
             return added;
         }
 
-        private static string SetBaseOptions(
-            PublishSettings publishSettings,
-            out DeploymentBaseOptions deploymentBaseOptions,
+        private static async Task<DeploymentBaseOptions> SetBaseOptions(
+            PublishSettings? publishSettings,
             bool allowUntrusted)
         {
-            if (publishSettings is object)
+            if (publishSettings is {})
             {
-                deploymentBaseOptions = new DeploymentBaseOptions
-                {
-                    ComputerName = publishSettings.ComputerName,
-                    UserName = publishSettings.Username,
-                    Password = publishSettings.Password,
-                    AuthenticationType = publishSettings.AuthenticationType
-                };
+                DeploymentBaseOptions deploymentBaseOptions = await DeploymentBaseOptions.Load(publishSettings);
 
-                if (allowUntrusted || publishSettings.AllowUntrusted)
-                {
-                    ServicePointManager.ServerCertificateValidationCallback = delegate
-                    {
-                        return true;
-                    };
-                }
+                deploymentBaseOptions.ComputerName = publishSettings.ComputerName;
+                deploymentBaseOptions.UserName = publishSettings.Username;
+                deploymentBaseOptions.Password = publishSettings.Password;
+                deploymentBaseOptions.AuthenticationType = publishSettings.AuthenticationType;
+                deploymentBaseOptions.AllowUntrusted = allowUntrusted || publishSettings.AllowUntrusted;
+                deploymentBaseOptions.SiteName = publishSettings.SiteName;
 
-                return publishSettings.SiteName;
+                return deploymentBaseOptions;
             }
 
-            deploymentBaseOptions = new DeploymentBaseOptions();
+            var deploymentBaseOptions2 = new DeploymentBaseOptions();
 
-            return string.Empty;
+            return deploymentBaseOptions2;
         }
 
-        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e) => DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
-
-        public async Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
-            string sourcePath,
-            string publishSettingsFile,
-            TimeSpan appOfflineDelay,
-            string password = null,
-            bool allowUntrusted = false,
-            bool doNotDelete = true,
-            TraceLevel traceLevel = TraceLevel.Off,
-            bool whatIf = false,
-            string targetPath = null,
-            bool useChecksum = false,
-            bool appOfflineEnabled = false,
-            bool appDataSkipDirectiveEnabled = false,
-            bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
-            Action<string> logAction = null)
-        {
-            DeploymentChangeSummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
-                publishSettingsFile,
-                appOfflineDelay,
-                password,
-                allowUntrusted,
-                doNotDelete,
-                traceLevel,
-                whatIf,
-                targetPath,
-                useChecksum,
-                appOfflineEnabled,
-                appDataSkipDirectiveEnabled,
-                applicationInsightsProfiler2SkipDirectiveEnabled,
-                logAction
-            ).ConfigureAwait(false);
-
-            return new ResultAdapter(deploymentChangeSummary);
-        }
-
-        public event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
+        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e) =>
+            DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
     }
 }

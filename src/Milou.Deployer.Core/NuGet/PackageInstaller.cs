@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
-using Milou.Deployer.Core.Extensions;
+
 using NuGet.Packaging;
 using NuGet.Versioning;
 using Serilog;
@@ -33,24 +35,26 @@ namespace Milou.Deployer.Core.NuGet
             _keyValueConfiguration = keyValueConfiguration;
         }
 
-        public async Task<MayBe<InstalledPackage>> InstallPackageAsync(
+        [ItemCanBeNull]
+        public async Task<InstalledPackage?> InstallPackageAsync(
             DeploymentExecutionDefinition deploymentExecutionDefinition,
             DirectoryInfo tempDirectory,
             bool includeVersion = true,
-            SemanticVersion explicitVersion = null,
+            SemanticVersion? explicitVersion = null,
             CancellationToken cancellationToken = default)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (tempDirectory == null)
+            if (tempDirectory is null)
             {
                 throw new ArgumentNullException(nameof(tempDirectory));
             }
 
-            string executePath = deploymentExecutionDefinition.NuGetExePath.WithDefault(_deployerConfiguration.NuGetExePath);
+            string? executePath =
+                deploymentExecutionDefinition.NuGetExePath.WithDefault(_deployerConfiguration.NuGetExePath);
 
             if (string.IsNullOrWhiteSpace(executePath))
             {
@@ -62,7 +66,7 @@ namespace Milou.Deployer.Core.NuGet
                 throw new InvalidOperationException($"The NuGet executable file '{executePath}' does not exist");
             }
 
-            var arguments = new List<string> { "install", deploymentExecutionDefinition.PackageId };
+            var arguments = new List<string> {"install", deploymentExecutionDefinition.PackageId};
 
             void AddVersion(string value)
             {
@@ -70,7 +74,7 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add(value);
             }
 
-            if (explicitVersion != null)
+            if (explicitVersion is {})
             {
                 AddVersion(explicitVersion.ToNormalizedString());
             }
@@ -144,16 +148,13 @@ namespace Milou.Deployer.Core.NuGet
             }
 
             const string sourceKey = ConfigurationKeys.NuGetSource;
-            string nugetSourceInConfiguration = _deployerConfiguration.NuGetSource;
-            string nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
+            string? nugetSourceInConfiguration = _deployerConfiguration.NuGetSource;
+            string? nugetSourceInDeploymentExecution = deploymentExecutionDefinition.NuGetPackageSource;
 
             if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
             {
-                if (!string.IsNullOrWhiteSpace(nugetSourceInDeploymentExecution))
-                {
-                    _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
-                        nugetSourceInDeploymentExecution);
-                }
+                _logger.Information("A specific NuGet source is defined in definition: '{Source}'",
+                    nugetSourceInDeploymentExecution);
 
                 arguments.Add("-Source");
                 arguments.Add(nugetSourceInDeploymentExecution);
@@ -175,27 +176,27 @@ namespace Milou.Deployer.Core.NuGet
             }
 
             ExitCode? exitCode = default;
-            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            try
             {
-                try
-                {
-                    exitCode = await ProcessRunner.ExecuteProcessAsync(
-                                   executePath,
-                                   arguments,
-                                   (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                                   (message, category) => _logger.Error("{Category} {Message}", category, message),
-                                   (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                                   (message, category) => _logger.Verbose("{Category} {Message}", category, message),
-                                   debugAction: (message, category) => _logger.Debug(
-                                       "{Category} {Message}",
-                                       category,
-                                       message),
-                                   cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
-                }
-                catch (TaskCanceledException ex)
-                {
-                    _logger.Error(ex, "NuGet package install timed out");
-                }
+                exitCode = await ProcessRunner.ExecuteProcessAsync(
+                    executePath,
+                    arguments,
+                    (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                    (message, category) => _logger.Error("{Category} {Message}", category, message),
+                    (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                    (message, category) => _logger.Verbose("{Category} {Message}", category, message),
+                    debugAction: (message, category) => _logger.Debug(
+                        "{Category} {Message}",
+                        category,
+                        message),
+                    cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.Error(ex, "NuGet package install timed out");
             }
 
             if (exitCode?.IsSuccess != true)
@@ -204,16 +205,14 @@ namespace Milou.Deployer.Core.NuGet
                     executePath,
                     string.Join(" ", arguments.Select(arg => $"\"{arg}\"")),
                     exitCode);
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
             var packageFiles =
                 tempDirectory.EnumerateFiles("*.nupkg", SearchOption.AllDirectories)
                     .Where(
                         file =>
-                            file.Name.IndexOf(
-                                deploymentExecutionDefinition.PackageId,
-                                StringComparison.InvariantCultureIgnoreCase) >= 0)
+                            file.Name.Contains(deploymentExecutionDefinition.PackageId, StringComparison.InvariantCultureIgnoreCase))
                     .ToList();
 
             if (!packageFiles.Any())
@@ -223,7 +222,7 @@ namespace Milou.Deployer.Core.NuGet
                     deploymentExecutionDefinition.PackageId,
                     tempDirectory.FullName);
 
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
             if (packageFiles.Count > 1)
@@ -235,7 +234,7 @@ namespace Milou.Deployer.Core.NuGet
                     packageFiles.Count,
                     string.Join(",", packageFiles.Select(file => $"'{file.FullName}'")));
 
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
             FileInfo foundPackageFile = packageFiles.Single();
@@ -256,12 +255,12 @@ namespace Milou.Deployer.Core.NuGet
                     packageId,
                     deploymentExecutionDefinition.PackageId);
 
-                return MayBe<InstalledPackage>.Nothing;
+                return default;
             }
 
-            var installedPackage = new MayBe<InstalledPackage>(InstalledPackage.Create(packageId,
+            var installedPackage = InstalledPackage.Create(packageId,
                 semanticVersion,
-                foundPackageFile.FullName));
+                foundPackageFile.FullName);
 
             return installedPackage;
         }

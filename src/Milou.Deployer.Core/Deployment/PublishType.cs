@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
-
-using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Core.Deployment
 {
     public sealed class PublishType : IEquatable<PublishType>
     {
-        public static readonly PublishType Ftp = new PublishType(nameof(Ftp));
-        public static readonly PublishType Ftps = new PublishType(nameof(Ftps));
-        public static readonly PublishType WebDeploy = new PublishType(nameof(WebDeploy));
+        public static readonly PublishType Ftp = new(nameof(Ftp));
+        public static readonly PublishType Ftps = new(nameof(Ftps));
+        public static readonly PublishType WebDeploy = new(nameof(WebDeploy));
 
         private PublishType([NotNull] string name)
         {
@@ -25,32 +24,13 @@ namespace Milou.Deployer.Core.Deployment
 
         public static PublishType Default => WebDeploy;
 
-        public static ImmutableArray<PublishType> All => EnumerateOf<PublishType>.All;
+        public static ImmutableArray<PublishType> All => EnumerableOf<PublishType>.All;
 
         public bool IsAnyFtpType => Equals(Ftp) || Equals(Ftps);
 
         public string Name { get; }
 
-        public static bool TryParseOrDefault(string value, out PublishType publishType)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                publishType = Default;
-                return false;
-            }
-
-            var found = All.SingleOrDefault(a => a.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
-
-            publishType = found ?? Default;
-
-            return found != null;
-        }
-
-        public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);
-
-        public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
-
-        public bool Equals(PublishType other)
+        public bool Equals(PublishType? other)
         {
             if (other is null)
             {
@@ -65,7 +45,28 @@ namespace Milou.Deployer.Core.Deployment
             return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        public override bool Equals(object obj) => ReferenceEquals(this, obj) || (obj is PublishType other && Equals(other));
+        public override bool Equals(object? obj) =>
+            ReferenceEquals(this, obj) || (obj is PublishType other && Equals(other));
+
+        public static bool TryParseOrDefault(string? value, out PublishType? publishType)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                publishType = Default;
+                return false;
+            }
+
+            PublishType? found =
+                All.SingleOrDefault(a => a.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            publishType = found ?? Default;
+
+            return found is {};
+        }
+
+        public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);
+
+        public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
 
         public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 

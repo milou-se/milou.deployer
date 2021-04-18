@@ -5,27 +5,27 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public sealed class FtpMethod : IEquatable<FtpMethod>
     {
-        public static readonly FtpMethod ListDirectory = new FtpMethod(nameof(WebRequestMethods.Ftp.ListDirectory),
+        public static readonly FtpMethod ListDirectory = new(nameof(WebRequestMethods.Ftp.ListDirectory),
             WebRequestMethods.Ftp.ListDirectory);
 
-        public static readonly FtpMethod ListDirectoryDetails = new FtpMethod(
+        public static readonly FtpMethod ListDirectoryDetails = new(
             nameof(WebRequestMethods.Ftp.ListDirectoryDetails),
             WebRequestMethods.Ftp.ListDirectoryDetails);
 
         public static readonly FtpMethod DeleteFile =
-            new FtpMethod(nameof(WebRequestMethods.Ftp.DeleteFile), WebRequestMethods.Ftp.DeleteFile);
+            new(nameof(WebRequestMethods.Ftp.DeleteFile), WebRequestMethods.Ftp.DeleteFile);
 
-        public static readonly FtpMethod RemoveDirectory = new FtpMethod(nameof(WebRequestMethods.Ftp.RemoveDirectory),
+        public static readonly FtpMethod RemoveDirectory = new(nameof(WebRequestMethods.Ftp.RemoveDirectory),
             WebRequestMethods.Ftp.RemoveDirectory);
 
         public static readonly FtpMethod UploadFile =
-            new FtpMethod(nameof(WebRequestMethods.Ftp.UploadFile), WebRequestMethods.Ftp.UploadFile);
+            new(nameof(WebRequestMethods.Ftp.UploadFile), WebRequestMethods.Ftp.UploadFile);
 
         public static readonly FtpMethod GetFileSize =
-            new FtpMethod(nameof(WebRequestMethods.Ftp.GetFileSize), WebRequestMethods.Ftp.GetFileSize);
+            new(nameof(WebRequestMethods.Ftp.GetFileSize), WebRequestMethods.Ftp.GetFileSize);
 
         public static readonly FtpMethod MakeDirectory =
-            new FtpMethod(nameof(WebRequestMethods.Ftp.MakeDirectory), WebRequestMethods.Ftp.MakeDirectory);
+            new(nameof(WebRequestMethods.Ftp.MakeDirectory), WebRequestMethods.Ftp.MakeDirectory);
 
         private FtpMethod(string name, string command)
         {
@@ -37,7 +37,22 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public string Command { get; }
 
-        public override bool Equals(object obj)
+        public bool Equals(FtpMethod? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Command, other.Command, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override bool Equals(object? obj)
         {
             if (obj is null)
             {
@@ -54,7 +69,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 return false;
             }
 
-            return Equals((FtpMethod) obj);
+            return Equals((FtpMethod)obj);
         }
 
         public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Command);
@@ -62,21 +77,6 @@ namespace Milou.Deployer.Core.Deployment.Ftp
         public static bool operator ==(FtpMethod left, FtpMethod right) => Equals(left, right);
 
         public static bool operator !=(FtpMethod left, FtpMethod right) => !Equals(left, right);
-
-        public bool Equals(FtpMethod other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Command, other.Command, StringComparison.OrdinalIgnoreCase);
-        }
 
         public override string ToString() => $"{Name} [{Command}]";
     }

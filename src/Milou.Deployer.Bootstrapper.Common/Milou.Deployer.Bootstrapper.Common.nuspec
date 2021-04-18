@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
-<package >
+
+<package>
   <metadata>
     <id>Milou.Deployer.Bootstrapper.Common</id>
     <version>0.0.1</version>
     <title>Milou.Deployer.Bootstrapper.Common</title>
-    <authors>Milou Communication AB</authors>
+    <authors>Niklas Lundberg, Milou Communication AB</authors>
     <owners></owners>
     <description>
       Milou.Deployer.Bootstrapper.Common
@@ -19,18 +20,19 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <copyright>Copyright Milou Communication AB 2015-2020</copyright>
+    <copyright>Copyright Niklas Lundberg Milou Communication AB 2015-2021</copyright>
     <dependencies>
       <dependency id="Arbor.KVConfiguration.Urns" version="[0.19.1,2.0.0)" />
       <dependency id="Arbor.Tooler" version="[0.5.1,2.0.0)" />
       <dependency id="Serilog.Sinks.Console" version="[3.0.0,4.0.0)" />
-      <dependency id="Microsoft.Extensions.Primitives" version="[3.0.1,4.0.0)" />
+      <dependency id="Microsoft.Extensions.Primitives" version="[3.0.1,6.0.0)" />
       <dependency id="Arbor.Processing" version="[0.3.0,2.0.0)" />
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin\$configuration$\netstandard2.0\**\*.*" target="lib\netstandard2.0" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
+    <file src="bin\$configuration$\net5.0\**\*.*" target="lib\net5.0"
+          exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
   </files>
 </package>

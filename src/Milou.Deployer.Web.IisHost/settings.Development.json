@@ -1,0 +1,125 @@
+{
+  "version": "1.0",
+  "keys": [
+    {
+      "key": "urn:arbor:app:web:assembly-prefix",
+      "value": "Milou"
+    },
+    {
+      "key": "urn:arbor:app:web:assembly-prefix",
+      "value": "Arbor"
+    },
+    {
+      "key": "urn:milou:deployer:web:nuget-configuration:default:nuget-exe-path",
+      "value": ""
+    },
+    {
+      "key": "ASPNETCORE_ENVIRONMENT",
+      "value": "Development"
+    },
+    {
+      "key": "urn:milou:deployer:web:marten:singleton:connection-string",
+      "value": "host=localhost;port=5433;database=postgres;password=test;username=postgres"
+    },
+    {
+      "key": "urn:arbor:app:web:log:level",
+      "value": "verbose"
+    },
+    {
+      "key": "urn:milou:deployer:web:marten:singleton:enabled",
+      "value": true
+    },
+    {
+      "key": "urn:milou:deployer:authorization:allowed-ips",
+      "value": "::1,127.0.0.1"
+    },
+    {
+      "key": "urn:milou:deployer:web:milou-authentication:default:enabled",
+      "value": true
+    },
+    {
+      "key": "urn:milou:deployer:web:diagnostics:enabled",
+      "value": true
+    },
+    {
+      "key": "urn:milou:deployer:web:email:configuration:default:default-from-email-address",
+      "value": "noreploy@localhost.local"
+    },
+    {
+      "key": "urn:milou:deployer:web:email:configuration:default:smtp-host",
+      "value": "localhost"
+    },
+    {
+      "key": "urn:milou:deployer:web:email:configuration:default:port",
+      "value": 2526
+    },
+    {
+      "key": "urn:milou:deployer:web:email:configuration:default:use-ssl",
+      "value": "false"
+    },
+    {
+      "key": "urn:milou:deployer:web:email:configuration:default:username",
+      "value": ""
+    },
+    {
+      "key": "urn:milou:deployer:web:email:configuration:default:EmailEnabled",
+      "value": true
+    },
+    {
+      "key": "urn:milou:deployer:web:email:configuration:default:useSsl",
+      "value": false
+    },
+    {
+      "key": "urn:milou:deployer:web:email:notifications:default:enabled",
+      "value": true
+    },
+    {
+      "key": "urn:milou:deployer:web:email:notifications:default:to:1:address",
+      "value": "receiver@localhost.local"
+    },
+    {
+      "key": "urn:milou:deployer:web:development:default:docker-enabled",
+      "value": "true"
+    },
+    {
+      "key": "urn:milou:deployer:web:email:notifications:default:from:address",
+      "value": "sender@localhost.local"
+    },
+    {
+      "key": "urn:arbor:app:caching:redis:default:host",
+      "value": "localhost:26379"
+    },
+    {
+      "key": "urn:arbor:app:web:logging:serilog:default:seqUrl",
+      "value": "http://localhost:5341"
+    },
+    {
+      "key": "urn:arbor:app:web:logging:serilog:default:seqEnabled",
+      "value": true
+    },
+    {
+      "key": "Logging:LogLevel:Default",
+      "value": "Debug"
+    },
+    {
+      "key": "Logging:LogLevel:System.Net.Http.HttpClient",
+      "value": "Information"
+    },
+    {
+      "key": "LogLevel:System.Net.Http.HttpClient",
+      "value": "Information"
+    },
+    {
+      "key": "urn:arbor:app:web:logging:microsoft:level",
+      "value": "Information"
+    },
+    {
+      "key": "urn:milou:deployer:web:http-logging:default:enabled",
+      "value": false
+    },
+    {
+      "key": "development-mode",
+      "value": true
+    }
+  ]
+}

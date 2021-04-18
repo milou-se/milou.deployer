@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
-
 using Microsoft.Web.XmlTransform;
-
 using Milou.Deployer.Core.Deployment;
-using Milou.Deployer.Core.Extensions;
+
 using Serilog;
 
 namespace Milou.Deployer.Core.XmlTransformation
@@ -16,23 +15,28 @@ namespace Milou.Deployer.Core.XmlTransformation
             [NotNull] DirectoryInfo contentDirectory,
             [NotNull] ILogger logger)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (contentDirectory == null)
+            if (contentDirectory is null)
             {
                 throw new ArgumentNullException(nameof(contentDirectory));
             }
 
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }
 
             try
             {
+                if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
+                {
+                    return;
+                }
+
                 logger.Debug(
                     "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
                     deploymentExecutionDefinition.WebConfigTransformFile,
@@ -42,7 +46,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 
                 if (transformFile.Exists)
                 {
-                    string tempFileName = Path.GetTempFileName();
+                    string tempFileName = Path.GetRandomFileName();
 
                     var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
 
@@ -72,7 +76,7 @@ namespace Milou.Deployer.Core.XmlTransformation
                         logger.Information(
                             "Successfully transformed web.config with transformation {Transformation}",
                             deploymentExecutionDefinition.WebConfigTransformFile);
-                        tempFileInfo.CopyTo(webConfig.FullName, overwrite: true);
+                        tempFileInfo.CopyTo(webConfig.FullName, true);
                     }
                     else
                     {
@@ -86,7 +90,8 @@ namespace Milou.Deployer.Core.XmlTransformation
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                logger.Error(ex, "Could not apply web.config transform with {Transform}", deploymentExecutionDefinition.WebConfigTransformFile);
+                logger.Error(ex, "Could not apply web.config transform with {Transform}",
+                    deploymentExecutionDefinition.WebConfigTransformFile);
                 throw;
             }
         }

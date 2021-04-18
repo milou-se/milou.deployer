@@ -64,3 +64,13 @@ Where manifest.json follows this schema:
 * --debug (enables debugging)
 * --non-interactive (disables interactive user prompts, default is interactive if the user session is interactive)
 * --plain-console (skips log level and other metadata for standard output)
+
+# Local development
+
+## Local setup
+
+ * Ensure Docker Desktop for Windows is installed
+ * run "docker volume create deploydata" once
+ * Set Milou.Deployer.Web.IisHost as the startup project
+
+Docker containers will be started by the application itself.

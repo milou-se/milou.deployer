@@ -1,0 +1,103 @@
+﻿@using Arbor.App.Extensions
+@using Arbor.App.Extensions.ExtensionMethods
+@model Milou.Deployer.Web.IisHost.Areas.Targets.OrganizationsViewModel
+
+<h1>Targets</h1>
+
+<div class="organizations">
+
+    @foreach (var organizationViewModel in Model.Organizations)
+    {
+        <h2 class="organization-toggler">Organization: @organizationViewModel.Organization</h2>
+
+        <div class="projects">
+
+            @foreach (var project in organizationViewModel.Projects)
+            {
+                <h3 class="project-toggler">Project: @project.ProjectName</h3>
+
+                <div class="targets">
+
+                    @foreach (var item in project.Targets)
+                    {
+                        <div class="target">
+                            <h4>@item.Target.Name</h4>
+                            <p>
+                                Id: <strong>@item.Target.Id</strong>
+                            </p>
+
+                            <p>
+                                <label for="@(item.Target)-prerelease">Allow pre-release</label> <input disabled="disabled" id="@(item.Target)-prerelease" type="checkbox" @(item.Target.AllowExplicitExplicitPreRelease.HasValue && item.Target.AllowExplicitExplicitPreRelease.Value ? "checked=\"checked\"" : string.Empty)/>
+                            </p>
+
+                            <p>
+                                <label for="@(item.Target)-autoDeployment">Auto deployment</label> <input disabled="disabled" id="@(item.Target)-autoDeployment" type="checkbox" @(item.Target.AutoDeployment ? "checked=\"checked\"" : string.Empty)/>
+                            </p>
+
+                            <p>
+                                URL:
+                                @if (item.Target.Url != null)
+                                {
+                                    <a href="@item.Target.Url">@item.Target.Url</a>
+                                }
+                                else
+                                {
+                                    <span>@Constants.NotAvailable</span>
+                                }
+                            </p>
+
+                            <p>
+                                PublishSettings file:
+                                @if (item.Target.PublishSettingFile.HasSomeString())
+                                {
+                                    <span>@item.Target.PublishSettingFile</span>
+                                }
+                                else
+                                {
+                                    <span>@Constants.NotAvailable</span>
+                                }
+                            </p>
+
+                            <p>
+                                PublishSettings XML:
+                                @if (item.Target.PublishSettingsXml.HasValue())
+                                {
+                                    <span>@item.Target.PublishSettingsXml</span>
+                                }
+                                else
+                                {
+                                    <span>@Constants.NotAvailable</span>
+                                }
+                            </p>
+
+                            <ul>
+                                @foreach (var configPair in item.ConfigurationPairs)
+                                {
+                                    <li>@configPair.Key.Wrap("\""): <strong>@configPair.Value.Wrap("\"")</strong></li>
+                                }
+                            </ul>
+
+                            <p>Parameters</p>
+
+                            <ul>
+                                @foreach (var parametersPair in item.Target.Parameters)
+                                {
+                                    <li>@parametersPair.Key.Wrap("\""): <strong>@string.Join(", ", parametersPair.Value.Select(value => value.Wrap("\""))))</strong></li>
+                                }
+                            </ul>
+
+                            <p>Allowed package name</p>
+
+
+                            <p>@item.Target.PackageId</p>
+
+                        </div>
+                    }
+                </div>
+
+                <div class="after-targets"></div>
+            }
+        </div>
+        <div class="after-projects"></div>
+    }
+</div>

@@ -341,6 +341,42 @@ dotnet_diagnostic.CA1303.severity = none
 
 # CA2000: Dispose objects before losing scope
 dotnet_diagnostic.CA2000.severity = none
+# CA2000: Dispose objects before losing scope
 
 # IDE0001: Simplify Names
 dotnet_diagnostic.IDE0001.severity = none
+dotnet_diagnostic.IDE0047.severity = none
+dotnet_diagnostic.IDE0060.severity = none
+
+# CA1000: Do not declare static members on generic types
+dotnet_diagnostic.CA1000.severity = none
+dotnet_diagnostic.CA1031.severity = none
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA1062.severity = none
+# false positive for records
+dotnet_diagnostic.CA1801.severity = none
+dotnet_diagnostic.CA1806.severity = none
+dotnet_diagnostic.CA1824.severity = none
+dotnet_diagnostic.CA2007.severity = none
+
+# S1854:
+dotnet_diagnostic.S1854.severity = none
+dotnet_diagnostic.S4457.severity = none
+dotnet_diagnostic.S927.severity = none
+dotnet_diagnostic.S1481.severity = none
+dotnet_diagnostic.CS8618.severity = none
+dotnet_diagnostic.CS8620.severity = none
+dotnet_diagnostic.CS8631.severity = none
+
+dotnet_diagnostic.RCS1194.severity = none
+
+dotnet_diagnostic.RCS1080.severity = none
+dotnet_diagnostic.RCS1090.severity = none
+dotnet_diagnostic.RCS1197.severity = none
+dotnet_diagnostic.RCS1073.severity = none
+
+# RCS1036: Remove redundant empty line.
+dotnet_diagnostic.RCS1036.severity = warning
+
+dotnet_diagnostic.S3453.severity = none
+

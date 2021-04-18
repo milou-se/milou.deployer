@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using Arbor.App.Extensions.IO;
 using Arbor.Processing;
 using JetBrains.Annotations;
 using Microsoft.Web.XmlTransform;
@@ -28,22 +28,22 @@ namespace Milou.Deployer.Core.XmlTransformation
             [NotNull] DirectoryInfo originalFileRootDirectory,
             [NotNull] DirectoryInfo transformationFileRootDirectory)
         {
-            if (originalFile == null)
+            if (originalFile is null)
             {
                 throw new ArgumentNullException(nameof(originalFile));
             }
 
-            if (transformationFile == null)
+            if (transformationFile is null)
             {
                 throw new ArgumentNullException(nameof(transformationFile));
             }
 
-            if (originalFileRootDirectory == null)
+            if (originalFileRootDirectory is null)
             {
                 throw new ArgumentNullException(nameof(originalFileRootDirectory));
             }
 
-            if (transformationFileRootDirectory == null)
+            if (transformationFileRootDirectory is null)
             {
                 throw new ArgumentNullException(nameof(transformationFileRootDirectory));
             }
@@ -63,7 +63,7 @@ namespace Milou.Deployer.Core.XmlTransformation
                 return ExitCode.Failure;
             }
 
-            string destFilePath = Path.GetTempFileName();
+            string destFilePath = Path.GetRandomFileName();
 
             _logger.Debug(
                 "Transforming original '{FullName}' with transformation '{FullName1}' using temp target '{DestFilePath}'",
@@ -99,10 +99,8 @@ namespace Milou.Deployer.Core.XmlTransformation
                     transformationFile.FullName,
                     destFilePath);
 
-                using (var destinationFileStream = new FileStream(destFilePath, FileMode.OpenOrCreate))
-                {
-                    xmlTransformableDocument.Save(destinationFileStream);
-                }
+                using var destinationFileStream = new FileStream(destFilePath, FileMode.OpenOrCreate);
+                xmlTransformableDocument.Save(destinationFileStream);
             }
 
             File.Copy(destFilePath, originalFile.FullName, true);
@@ -132,7 +130,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 
         public TransformationResult TransformMatch(FileMatch possibleXmlTransformation, DirectoryInfo contentDirectory)
         {
-            ImmutableArray<FileInfo> matchingFiles = _fileMatcher.Matches(
+            var matchingFiles = _fileMatcher.Matches(
                 possibleXmlTransformation,
                 contentDirectory);
 
@@ -146,11 +144,11 @@ namespace Milou.Deployer.Core.XmlTransformation
                 return new TransformationResult(false);
             }
 
-            if (matchingFiles.Any())
+            if (matchingFiles.Any() && possibleXmlTransformation.ActionFile is {})
             {
                 FileInfo originalFile = matchingFiles.Single();
 
-                ExitCode transformExitCode = TransformFile(
+                var transformExitCode = TransformFile(
                     originalFile,
                     possibleXmlTransformation.ActionFile,
                     contentDirectory,
@@ -167,7 +165,7 @@ namespace Milou.Deployer.Core.XmlTransformation
             {
                 _logger.Debug(
                     "Could not find any matching file for transform, looked for '{TargetName}'",
-                    possibleXmlTransformation.TargetName);
+                    possibleXmlTransformation?.TargetName ?? Arbor.App.Extensions.Constants.NotAvailable);
             }
 
             return new TransformationResult(true, transformedFiles);

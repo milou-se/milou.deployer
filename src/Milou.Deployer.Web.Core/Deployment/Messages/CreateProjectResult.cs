@@ -1,0 +1,31 @@
+﻿using System.Collections.Immutable;
+using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.Messaging;
+using Arbor.KVConfiguration.Core;
+using Newtonsoft.Json;
+
+namespace Milou.Deployer.Web.Core.Deployment.Messages
+{
+    public class CreateProjectResult : ICommandResult
+    {
+        public CreateProjectResult(string projectName)
+        {
+            ProjectName = projectName;
+            ValidationErrors = ImmutableArray<ValidationError>.Empty;
+        }
+
+        public CreateProjectResult(params ValidationError[] validationErrors) =>
+            ValidationErrors = validationErrors.SafeToImmutableArray();
+
+        [JsonConstructor]
+        private CreateProjectResult(string projectName, ValidationError[] validationErrors)
+        {
+            ProjectName = projectName;
+            ValidationErrors = validationErrors.ToImmutableArray();
+        }
+
+        public string ProjectName { get; }
+
+        public ImmutableArray<ValidationError> ValidationErrors { get; }
+    }
+}

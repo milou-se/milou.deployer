@@ -1,0 +1,36 @@
+﻿@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.IisHost.Areas.Agents
+@model Milou.Deployer.Web.IisHost.Areas.Agents.AgentPoolsViewModel
+@inject IAppTime AppTime;
+
+<h1>Agent pools</h1>
+
+<a href="@Url.RouteUrl(AgentPoolsController.CreateAgentPoolRouteName)">Create new agent pool</a>
+
+@if (!Model.AgentPools.Any())
+{
+<p>There are no registered agents</p>
+}
+
+@if (Model.AgentPools.Any())
+{
+@foreach (var agentPool in Model.AgentPools)
+    {
+<h2>@agentPool.AgentPoolId.Value</h2>
+@if (Model.AssignedAgents[agentPool].Length > 0)
+        {
+
+<h3>Agents in pool</h3>
+<ul>
+    @foreach (var item in Model.AssignedAgents[agentPool])
+                {
+    <li>@item.Value</li>
+    }
+</ul>
+}
+        else
+        {
+<p>Pool has no assigned agents</p>
+}
+    }
+}

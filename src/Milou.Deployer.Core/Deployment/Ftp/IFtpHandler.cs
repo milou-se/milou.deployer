@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment.Ftp
 {
-    public interface IFtpHandler: IDisposable
+    public interface IFtpHandler : IDisposable
     {
         Task<bool> DirectoryExistsAsync([NotNull] FtpPath dir, CancellationToken cancellationToken);
 
@@ -25,14 +25,14 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             [NotNull] FtpPath path,
             CancellationToken cancellationToken = default);
 
-        Task<FtpSummary> UploadDirectoryAsync(
+        Task<DeploySummary> UploadDirectoryAsync(
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             [NotNull] DirectoryInfo baseDirectory,
             [NotNull] FtpPath basePath,
             CancellationToken cancellationToken);
 
-        Task<IDeploymentChangeSummary> PublishAsync(
+        Task<DeploySummary> PublishAsync(
             [NotNull] RuleConfiguration ruleConfiguration,
             [NotNull] DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken);

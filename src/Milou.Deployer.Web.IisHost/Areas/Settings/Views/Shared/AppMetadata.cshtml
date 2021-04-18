@@ -1,0 +1,28 @@
+﻿@using Arbor.App.Extensions
+@model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
+<h2>Application metadata</h2>
+
+@if (Model.ApplicationMetadata.AllKeys.IsDefaultOrEmpty)
+{
+    @Constants.NotAvailable
+}
+else
+{
+    <table>
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Values</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.ApplicationMetadata.AllKeys)
+        {
+            <tr>
+                <td>@item</td>
+                <td>@Model.ApplicationMetadata[item]</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

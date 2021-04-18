@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
+    <PackageReference Include="Marten" Version="3.13.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NuGet.Packaging" Version="5.9.1" />
+    <PackageReference Include="NuGet.Versioning" Version="5.9.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Milou.Deployer.Web.Marten.Abstractions\Milou.Deployer.Web.Marten.Abstractions.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
+  </ItemGroup>
+
+</Project>

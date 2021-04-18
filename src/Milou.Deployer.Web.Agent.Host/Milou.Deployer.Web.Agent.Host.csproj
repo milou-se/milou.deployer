@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Buffer-*.json" />
+    <None Remove="*.bookmark" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.DeployerApp\Milou.Deployer.DeployerApp.csproj" />
+    <ProjectReference Include="..\Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.9.0" />
+    <PackageReference Include="Arbor.Processing" Version="0.6.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.2.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Http" Version="7.2.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

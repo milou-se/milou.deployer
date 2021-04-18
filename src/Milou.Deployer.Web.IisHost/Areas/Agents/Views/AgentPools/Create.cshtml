@@ -1,0 +1,15 @@
+﻿@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.IisHost.Areas.Agents
+@inject IAppTime AppTime;
+
+<form method="post" action="@Url.RouteUrl(AgentPoolsController.AgentPoolsRouteName)">
+
+    @Html.AntiForgeryToken()
+
+    <input name="agentPoolId" />
+
+    <input name="name" />
+
+    <input type="submit" value="Create" />
+
+</form>

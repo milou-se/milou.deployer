@@ -1,17 +1,17 @@
 ﻿{
-    "version": "1.0",
-    "keys": [
-        {
-            "key": "major",
-            "value": 4
-        },
-        {
-            "key": "minor",
-            "value": 8
-        },
-        {
-            "key": "patch",
-            "value": 1
-        }
-    ]
+  "version": "1.0",
+  "keys": [
+    {
+      "key": "major",
+      "value": 5
+    },
+    {
+      "key": "minor",
+      "value": 0
+    },
+    {
+      "key": "patch",
+      "value": 0
+    }
+  ]
 }

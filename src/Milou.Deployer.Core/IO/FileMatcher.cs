@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.IO;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Extensions;
-using Milou.Deployer.Core.XmlTransformation;
 
+using Milou.Deployer.Core.XmlTransformation;
 using Serilog;
 
 namespace Milou.Deployer.Core.IO
@@ -19,12 +19,12 @@ namespace Milou.Deployer.Core.IO
 
         public ImmutableArray<FileInfo> Matches([NotNull] FileMatch fileMatch, [NotNull] DirectoryInfo rootDirectory)
         {
-            if (fileMatch == null)
+            if (fileMatch is null)
             {
                 throw new ArgumentNullException(nameof(fileMatch));
             }
 
-            if (rootDirectory == null)
+            if (rootDirectory is null)
             {
                 throw new ArgumentNullException(nameof(rootDirectory));
             }
@@ -58,9 +58,15 @@ namespace Milou.Deployer.Core.IO
                                 fileMatch.TargetName);
 
                             return isMatch;
-                        }).Where(
+                        })
+                    .Where(
                         file =>
                         {
+                            if (file.Directory is null || fileMatch.ActionFile.Directory is null)
+                            {
+                                return false;
+                            }
+
                             string sourceRelativePath =
                                 fileMatch.ActionFile.Directory.GetRelativePath(
                                     fileMatch.ActionFileRootDirectory);

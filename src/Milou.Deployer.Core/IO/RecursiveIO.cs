@@ -10,8 +10,8 @@ namespace Milou.Deployer.Core.IO
 {
     public static class RecursiveIO
     {
-        private static readonly ImmutableHashSet<string> _DeniedExtensions =
-            new HashSet<string> { ".user", ".ncrunchproject", ".dotsettings", ".csproj" }
+        private static readonly ImmutableHashSet<string> DeniedExtensions =
+            new HashSet<string> {".user", ".ncrunchproject", ".dotsettings", ".csproj"}
                 .ToImmutableHashSet();
 
         public static void RecursiveCopy(
@@ -20,17 +20,17 @@ namespace Milou.Deployer.Core.IO
             [NotNull] ILogger logger,
             ImmutableArray<string> excludedFilePatterns)
         {
-            if (sourceDirectoryInfo == null)
+            if (sourceDirectoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(sourceDirectoryInfo));
             }
 
-            if (targetDirectoryInfo == null)
+            if (targetDirectoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(targetDirectoryInfo));
             }
 
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }
@@ -44,13 +44,14 @@ namespace Milou.Deployer.Core.IO
                 targetDirectoryInfo.Create();
             }
 
-            ImmutableArray<FileInfo> deniedFilesInDirectory = excludedFilePatterns
-                .Select(sourceDirectoryInfo.GetFiles).SelectMany(files => files)
+            var deniedFilesInDirectory = excludedFilePatterns
+                .Select(sourceDirectoryInfo.GetFiles)
+                .SelectMany(files => files)
                 .ToImmutableArray();
 
             foreach (FileInfo currentFile in sourceDirectoryInfo.GetFiles())
             {
-                if (_DeniedExtensions.Any(denied =>
+                if (DeniedExtensions.Any(denied =>
                     currentFile.Extension.Length > 0
                     && denied.Equals(currentFile.Extension, StringComparison.OrdinalIgnoreCase)))
                 {
@@ -84,12 +85,12 @@ namespace Milou.Deployer.Core.IO
 
         public static void RecursiveDelete(DirectoryInfo sourceDirectoryInfo, [NotNull] ILogger logger)
         {
-            if (sourceDirectoryInfo == null)
+            if (sourceDirectoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(sourceDirectoryInfo));
             }
 
-            if (logger == null)
+            if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }

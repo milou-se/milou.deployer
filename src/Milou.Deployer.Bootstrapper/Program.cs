@@ -11,11 +11,15 @@ namespace Milou.Deployer.Bootstrapper
         {
             int exitCode;
 
-            using (App app = await App.CreateAsync(args).ConfigureAwait(false))
+            using (BootstrapperApp bootstrapperApp = await BootstrapperApp.CreateAsync(args).ConfigureAwait(false))
             {
-                NuGetPackageInstallResult nuGetPackageInstallResult = await app.ExecuteAsync(args.ToImmutableArray()).ConfigureAwait(false);
+                NuGetPackageInstallResult nuGetPackageInstallResult =
+                    await bootstrapperApp.ExecuteAsync(args.ToImmutableArray()).ConfigureAwait(false);
 
-                exitCode = nuGetPackageInstallResult.SemanticVersion is {} && nuGetPackageInstallResult.PackageDirectory is {} ? 0 : 1;
+                exitCode = nuGetPackageInstallResult.SemanticVersion is {} &&
+                           nuGetPackageInstallResult.PackageDirectory is {}
+                    ? 0
+                    : 1;
             }
 
             return exitCode;

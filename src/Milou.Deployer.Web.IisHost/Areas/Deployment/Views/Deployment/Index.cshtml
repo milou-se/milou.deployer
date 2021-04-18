@@ -1,0 +1,50 @@
+﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentViewOutputModel
+
+<p>
+    <form method="post" action="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">
+        
+        @Html.AntiForgeryToken()
+
+        <input type="text" name="prefix"/>
+
+        <input type="submit" value="Empty cache"/>
+
+    </form>
+</p>
+
+<form method="post" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
+
+    @Html.AntiForgeryToken()
+
+    <div>
+
+        <label for="packageVersion">Package</label>
+
+        <select name="packageVersion" id="packageVersion">
+
+            @foreach (var item in Model.PackageVersions)
+            {
+                <option value="@item.PackageId @item.Version.ToNormalizedString()">@item.PackageId @item.Version.ToNormalizedString()</option>
+            }
+        </select>
+
+    </div>
+    <div>
+        <label for="target">Target</label>
+        <select name="targetId" id="target">
+
+            @foreach (var item in Model.Targets)
+            {
+                <option value="@item.Id">@item.Name</option>
+            }
+        </select>
+
+    </div>
+    <div>
+        <input type="submit" value="Deploy" class="deploy-button"/>
+    </div>
+
+
+</form>

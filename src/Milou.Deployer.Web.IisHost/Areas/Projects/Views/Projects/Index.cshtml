@@ -1,0 +1,52 @@
+﻿@using Milou.Deployer.Web.IisHost.Areas.Projects
+@model Milou.Deployer.Web.IisHost.Areas.Projects.ProjectsViewOutputModel
+
+@if (Model.CreateProjectResult is {})
+{
+    if (Model.CreateProjectResult.ValidationErrors.Length == 1)
+    {
+        <h3>@Model.CreateProjectResult.ValidationErrors[0].ErrorMessage</h3>
+    }
+    else if (Model.CreateProjectResult.ValidationErrors.Length > 0)
+    {
+        <ul>
+            @foreach (var item in Model.CreateProjectResult.ValidationErrors)
+            {
+                <li>@item.ErrorMessage</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <h3>Successfully created project @Model.CreateProjectResult.ProjectName</h3>
+    }
+}
+
+<table>
+    <thead>
+    <tr>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.Projects)
+    {
+        <tr>
+            <td>@item.ProjectFullName</td>
+        </tr>
+    }
+
+    </tbody>
+</table>
+
+<form method="post" action="@Url.RouteUrl(ProjectConstants.CreateProjectPostRouteName)">
+
+    @Html.AntiForgeryToken()
+
+    <input type="text" name="id"/>
+
+    <input type="hidden" name="organizationId" value="@Model.OrganizationId"/>
+
+    <input type="submit" value="Create project"/>
+
+</form>

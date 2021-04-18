@@ -6,21 +6,21 @@ namespace Milou.Deployer.Core.Deployment.WebDeploy
 {
     public interface IWebDeployHelper
     {
-        Task<IDeploymentChangeSummary> DeployContentToOneSiteAsync(
+        Task<DeploySummary> DeployContentToOneSiteAsync(
             string sourcePath,
-            string publishSettingsFile,
+            string? publishSettingsFile,
             TimeSpan appOfflineDelay,
-            string password = null,
+            string? password = null,
             bool allowUntrusted = false,
             bool doNotDelete = true,
             TraceLevel traceLevel = TraceLevel.Off,
             bool whatIf = false,
-            string targetPath = null,
+            string? targetPath = null,
             bool useChecksum = false,
             bool appOfflineEnabled = false,
             bool appDataSkipDirectiveEnabled = false,
             bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
-            Action<string> logAction = null);
+            Action<string>? logAction = null);
 
         event EventHandler<CustomEventArgs> DeploymentTraceEventHandler;
     }

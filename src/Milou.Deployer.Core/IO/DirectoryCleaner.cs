@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Extensions;
+
 using Serilog;
 
 namespace Milou.Deployer.Core.IO
@@ -14,11 +15,12 @@ namespace Milou.Deployer.Core.IO
     {
         private readonly ILogger _logger;
 
-        public DirectoryCleaner([NotNull] ILogger logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        public DirectoryCleaner([NotNull] ILogger logger) =>
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public async Task CleanFilesAsync([NotNull] IList<string> files, int attempt = 0)
         {
-            if (files == null)
+            if (files is null)
             {
                 throw new ArgumentNullException(nameof(files));
             }
@@ -49,7 +51,7 @@ namespace Milou.Deployer.Core.IO
 
                     files.Remove(file);
                 }
-                catch (Exception ex) when(!ex.IsFatal())
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Warning(ex, "Could not delete file '{FullName}'", file);
                 }
@@ -62,9 +64,11 @@ namespace Milou.Deployer.Core.IO
             }
         }
 
-        public async Task CleanDirectoriesAsync(IList<DirectoryInfo> directoriesToClean, int attempt = 0)
+        public async Task CleanDirectoriesAsync(
+            IList<DirectoryInfo> directoriesToClean,
+            int attempt = 0)
         {
-            if (directoriesToClean == null)
+            if (directoriesToClean is null)
             {
                 throw new ArgumentNullException(nameof(directoriesToClean));
             }
@@ -79,8 +83,7 @@ namespace Milou.Deployer.Core.IO
                 return;
             }
 
-            foreach (
-                DirectoryInfo tempDirectory in
+            foreach (DirectoryInfo tempDirectory in
                 directoriesToClean.OrderByDescending(directory => directory.FullName.Length))
             {
                 _logger.Verbose("Deleting temp directory '{FullName}'", tempDirectory.FullName);
@@ -117,7 +120,9 @@ namespace Milou.Deployer.Core.IO
                 directoryInfo.Refresh();
             }
 
-            List<DirectoryInfo> nonEmptyDirectories = directoriesToClean.Where(dir => dir.Exists && (dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0)).ToList();
+            var nonEmptyDirectories = directoriesToClean
+                .Where(dir => dir.Exists && (dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0))
+                .ToList();
 
             if (nonEmptyDirectories.Count > 0)
             {

@@ -2,7 +2,6 @@ syntax: glob
 
 ### Custom ###
 
-**/*.lock.json
 Artifacts
 .vscode
 .idea
@@ -23,7 +22,6 @@ Artifacts
 [Rr]eleases/
 x64/
 x86/
-build/
 bld/
 [Bb]in/
 [Oo]bj/
@@ -146,7 +144,6 @@ publish/
 # NuGet Packages
 *.nuget.props
 *.nupkg
-**/packages/*
 
 # Windows Azure Build Output
 csx/
@@ -256,3 +253,11 @@ Session.vim
 *~
 **/*nCrunchTemp_*
 *.orig
+Milou.Deployer.v3.ncrunchsolution
+Buffer-*.json
+Buffer.bookmark
+src/Milou.Deployer.Web.IisHost/config.user.json
+servertemp
+agenttemp
+temp
+tools/Milou.Deployer/*.settings.json

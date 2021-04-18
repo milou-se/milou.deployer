@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@model Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentLogViewOutputModel
+
+<div id="logElements"></div>
+@{
+    var url = Context.Request.GetEncodedUrl();
+
+    _ = Uri.TryCreate(url, UriKind.Absolute, out var uri);
+
+    var builder = new UriBuilder(uri);
+
+    builder.Path += ".json";
+
+    var fetchUrl = builder.Uri;
+}
+
+@section scripts {
+
+    <script type="text/javascript">
+
+        function getLogLines() {
+            return fetch('@(fetchUrl)')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    return data;
+                });
+        };
+
+        $(function() {
+            const logElements = document.getElementById('logElements');
+
+            getLogLines().then(function(logLines) {
+                const elements = showLogLines(logLines);
+                logElements.appendChild(elements);
+            });
+
+        });
+
+    </script>
+}

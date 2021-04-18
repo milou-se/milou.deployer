@@ -1,32 +1,34 @@
 <?xml version="1.0"?>
-<package >
-	<metadata>
-		<id>Milou.Deployer.ConsoleClient</id>
-		<version>0.0.1</version>
-		<title>Milou.Deployer.ConsoleClient</title>
-		<authors>Milou Communication AB</authors>
-		<owners></owners>
-		<description>
-			Milou.Deployer.ConsoleClient
-		</description>
-		<releaseNotes>
-		</releaseNotes>
-		<summary>
-			Milou.Deployer.ConsoleClient
-		</summary>
-		<language>en-US</language>
-		<projectUrl>https://github.com/milou-se/milou.deployer</projectUrl>
-		<iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
-		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<license type="expression">MIT</license>
-		<copyright>Copyright Milou Communication AB 2015-2020</copyright>
-		<dependencies>
 
-		</dependencies>
-		<references></references>
-		<tags></tags>
-	</metadata>
-	<files>
-		<file src="bin\$configuration$\net472\**\*.*" target="tools\net472" exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
-	</files>
+<package>
+  <metadata>
+    <id>Milou.Deployer.ConsoleClient</id>
+    <version>0.0.1</version>
+    <title>Milou.Deployer.ConsoleClient</title>
+    <authors>Niklas Lundberg, Milou Communication AB</authors>
+    <owners></owners>
+    <description>
+      Milou.Deployer.ConsoleClient
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      Milou.Deployer.ConsoleClient
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/milou-se/milou.deployer</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <copyright>Copyright Niklas Lundberg Milou Communication AB 2015-2021</copyright>
+    <dependencies>
+
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin\$configuration$\net5.0\**\*.*" target="tools\net5.0"
+          exclude="*.vshost*;**\*.vshost*;**\*.trx;**\*.xml;**\*.manifest;**\*.lastcodeanalysissucceeded;**\CodeAnalysisLog.*;**\*.pdb;**\publish\**\*.*" />
+  </files>
 </package>

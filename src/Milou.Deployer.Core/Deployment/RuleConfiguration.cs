@@ -2,19 +2,15 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Deployment.Configuration;
-
 using Serilog;
 
 namespace Milou.Deployer.Core.Deployment
 {
     public class RuleConfiguration
     {
-        private static readonly List<string> DefaultExcludes = new List<string>
+        private static readonly List<string> DefaultExcludes = new()
         {
-            "/locks",
-            "/deployments",
-            "/site/locks/",
-            "/site/deployments/",
+            "/locks", "/deployments", "/site/locks/", "/site/deployments/"
         };
 
         public List<string> Excludes { get; private set; } = DefaultExcludes;
@@ -36,12 +32,12 @@ namespace Milou.Deployer.Core.Deployment
             [NotNull] DeployerConfiguration deployerConfiguration,
             ILogger logger)
         {
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (deployerConfiguration == null)
+            if (deployerConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(deployerConfiguration));
             }

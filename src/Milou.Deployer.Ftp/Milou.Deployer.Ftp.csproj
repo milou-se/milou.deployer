@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Milou.Deployer.Core\IO\TempFile.cs" Link="TempFile.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentFTP" Version="33.1.6" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Milou.Deployer.Core\Milou.Deployer.Core.csproj" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,15 +1,15 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Microsoft.Web.Deployment;
+using Milou.Deployer.Core.Deployment;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Waws
 {
     public static class DeploymentChangeSummaryExtensions
     {
-        public static string ToDisplayValue([NotNull] this DeploymentChangeSummary summary)
+        public static string ToDisplayValue([NotNull] this DeploySummary summary)
         {
-            if (summary == null)
+            if (summary is null)
             {
                 throw new ArgumentNullException(nameof(summary));
             }

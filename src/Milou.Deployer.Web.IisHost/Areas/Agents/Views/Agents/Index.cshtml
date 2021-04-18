@@ -1,0 +1,70 @@
+﻿@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.Core.Html
+@using Milou.Deployer.Web.IisHost.Areas.Agents
+@model Milou.Deployer.Web.IisHost.Areas.Agents.AgentsViewModel
+@inject IAppTime AppTime;
+
+<h1>Agents</h1>
+
+<a href="@Url.RouteUrl(AgentsController.CreateAgentRouteName)">Create new agent</a>
+
+@if (!Model.Agents.Any())
+{
+    <p>There are no registered agents</p>
+}
+
+@if (Model.ConnectedAgents.Any())
+{
+    <h2>Connected</h2>
+    @foreach (var agent in Model.ConnectedAgents)
+    {
+        <h3>@agent.Id</h3>
+        <p>Connected at: @agent.ConnectedAt.ToLocalDateTimeFormat(AppTime)</p>
+        @if (agent.CurrentDeploymentTaskId is { })
+        {
+            <p>Current deployment task id: @agent.CurrentDeploymentTaskId</p>
+        }
+        else
+        {
+            <p>No current deployment task</p>
+        }
+
+        <form method="post" action="@Url.RouteUrl(AgentPoolsController.AssignAgentToPoolRouteName)">
+            @Html.AntiForgeryToken()
+            <select name="AgentPoolId">
+
+                @foreach (var pool in Model.AgentPools)
+                {
+                    <option value="@pool.AgentPoolId" @((Model.CurrentPool(agent.Id) == pool.AgentPoolId).Selected())>@pool.Name</option>
+                }
+
+            </select>
+
+            <input type="hidden" value="@agent.Id.Value" name="agentId"/>
+
+            <button type="submit">Assign agent to pool</button>
+
+        </form>
+    }
+}
+else if (Model.DisconnectedAgents.Any())
+{
+    <h2>Disconnected</h2>
+    @foreach (var agent in Model.DisconnectedAgents)
+    {
+        <h3>@agent.Id</h3>
+    }
+}
+
+@if (Model.UnknownAgents.Any())
+{
+    <h2>Unknown agents</h2>
+
+    <ul>
+        @foreach (var agent in Model.UnknownAgents)
+        {
+            <li>Unknown agent @agent.Key</li>
+            <span>(Connection @agent.Value)</span>
+        }
+    </ul>
+}

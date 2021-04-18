@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment.Ftp
@@ -9,12 +8,12 @@ namespace Milou.Deployer.Core.Deployment.Ftp
     {
         public static string RelativePath([NotNull] FileInfo fileInfo, [NotNull] DirectoryInfo baseDirectory)
         {
-            if (fileInfo == null)
+            if (fileInfo is null)
             {
                 throw new ArgumentNullException(nameof(fileInfo));
             }
 
-            if (baseDirectory == null)
+            if (baseDirectory is null)
             {
                 throw new ArgumentNullException(nameof(baseDirectory));
             }
@@ -28,12 +27,12 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public static string RelativePath([NotNull] DirectoryInfo directoryInfo, [NotNull] DirectoryInfo baseDirectory)
         {
-            if (directoryInfo == null)
+            if (directoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(directoryInfo));
             }
 
-            if (baseDirectory == null)
+            if (baseDirectory is null)
             {
                 throw new ArgumentNullException(nameof(baseDirectory));
             }
@@ -41,7 +40,6 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             string fullName = directoryInfo.FullName;
 
             string baseFullName = baseDirectory.FullName;
-
 
             return GetRelative(fullName, baseFullName);
         }
@@ -53,9 +51,9 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 throw new InvalidOperationException($"The file path '{fullName}' does not start with '{baseFullName}'");
             }
 
-            string substring = fullName.Substring(baseFullName.Length);
+            string substring = fullName[baseFullName.Length..];
 
-            string relative = $"/{substring.Replace("\\", "/").TrimStart('/')}";
+            string relative = $"/{substring.Replace("\\", "/", StringComparison.Ordinal).TrimStart('/')}";
 
             return relative;
         }

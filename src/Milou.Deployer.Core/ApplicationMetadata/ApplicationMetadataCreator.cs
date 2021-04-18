@@ -6,11 +6,11 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
-using Milou.Deployer.Core.Extensions;
 
 using Serilog;
 
@@ -27,32 +27,32 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             [NotNull] EnvironmentPackageResult environmentPackageResult,
             ILogger logger)
         {
-            if (installedPackage == null)
+            if (installedPackage is null)
             {
                 throw new ArgumentNullException(nameof(installedPackage));
             }
 
-            if (targetDirectoryInfo == null)
+            if (targetDirectoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(targetDirectoryInfo));
             }
 
-            if (deploymentExecutionDefinition == null)
+            if (deploymentExecutionDefinition is null)
             {
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
-            if (xmlTransformedFiles == null)
+            if (xmlTransformedFiles is null)
             {
                 throw new ArgumentNullException(nameof(xmlTransformedFiles));
             }
 
-            if (replacedFiles == null)
+            if (replacedFiles is null)
             {
                 throw new ArgumentNullException(nameof(replacedFiles));
             }
 
-            if (environmentPackageResult == null)
+            if (environmentPackageResult is null)
             {
                 throw new ArgumentNullException(nameof(environmentPackageResult));
             }
@@ -116,14 +116,15 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 deployerAssemblyVersion,
                 deployerAssemblyFileVersion,
                 packageId
-            }.ToImmutableArray();
+            };
 
-            if (environmentPackageResult.Version != null)
+            if (environmentPackageResult.Version is {})
             {
                 keys.Add(environmentConfiguration);
             }
 
-            string serialized = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
+            string serialized =
+                JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys.ToImmutableArray()));
 
             File.WriteAllText(applicationMetadataJsonFilePath, serialized, Encoding.UTF8);
 
@@ -132,25 +133,25 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             return applicationMetadataJsonFilePath;
         }
 
-        private static string GetAssemblyFileVersion()
+        private static string? GetAssemblyFileVersion()
         {
             Assembly currentAssembly = typeof(ApplicationMetadataCreator).Assembly;
 
             try
             {
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(currentAssembly.Location);
+                var fvi = FileVersionInfo.GetVersionInfo(currentAssembly.Location);
 
-                string fileVersion = fvi.FileVersion;
+                string? fileVersion = fvi.FileVersion;
 
                 return fileVersion;
             }
-            catch (Exception ex) when(!ex.IsFatal())
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 try
                 {
                     return currentAssembly.ImageRuntimeVersion;
                 }
-                catch (Exception innerEx) when(!innerEx.IsFatal())
+                catch (Exception innerEx) when (!innerEx.IsFatal())
                 {
                     // ignored
                 }
@@ -159,13 +160,13 @@ namespace Milou.Deployer.Core.ApplicationMetadata
             }
         }
 
-        private static string GetAssemblyVersion()
+        private static string? GetAssemblyVersion()
         {
             Assembly currentAssembly = typeof(ApplicationMetadataCreator).Assembly;
 
             AssemblyName assemblyName = currentAssembly.GetName();
 
-            string assemblyVersion = assemblyName.Version.ToString();
+            string? assemblyVersion = assemblyName.Version?.ToString();
 
             return assemblyVersion;
         }
