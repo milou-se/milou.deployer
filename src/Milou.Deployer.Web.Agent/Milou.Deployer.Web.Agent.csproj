@@ -5,12 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.7.0" />
-    <PackageReference Include="Arbor.ModelBinding.Generators" Version="*-*">
+    <PackageReference Include="Arbor.App.Extensions" Version="0.8.0" />
+    <PackageReference Include="Arbor.ModelBinding.Generators" Version="2.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Arbor.ModelBinding.Primitives" Version="*-*" />
+    <PackageReference Include="Arbor.ModelBinding.Primitives" Version="2.0.0" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="1.2.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.13.0" />

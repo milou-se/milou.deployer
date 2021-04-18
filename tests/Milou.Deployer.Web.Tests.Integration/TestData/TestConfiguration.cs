@@ -16,11 +16,12 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
             SiteAppRoot = siteAppRoot;
         }
 
-        public DirectoryInfo BaseDirectory { get; }
+        public DirectoryInfo? BaseDirectory { get; }
 
         public FileInfo NugetConfigFile { get; }
 
         public DirectoryInfo SiteAppRoot { get; }
+
         public string AgentToken { get; set; }
 
         public void Dispose()
@@ -33,6 +34,6 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
         }
 
         public override string ToString() =>
-            $"{nameof(BaseDirectory)}: {BaseDirectory.FullName}, {nameof(NugetConfigFile)}: {NugetConfigFile.FullName}, {nameof(SiteAppRoot)}: {SiteAppRoot.FullName}";
+            $"{nameof(BaseDirectory)}: {BaseDirectory?.FullName}, {nameof(NugetConfigFile)}: {NugetConfigFile.FullName}, {nameof(SiteAppRoot)}: {SiteAppRoot.FullName}";
     }
 }

@@ -28,19 +28,19 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.7.0",
-        "contentHash": "16PW/xJcpNECYlGeno1P46Pcs0db4gf+H7uDzW/B7QyhlYSwBwq2WnHEEm2ZZjkI+r7u44ydvk9KX7sgqwHmsg==",
+        "resolved": "0.8.0",
+        "contentHash": "/Ice263khR/uoQ6/5E3hisWFEyU7GKRKCzaXfbo+kWt1a2Q4Iyl7vmKL23LBEZllQYsOgIafbmCUmDhVBzl/kg==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
           "Arbor.Primitives": "1.2.0",
-          "JetBrains.Annotations": "2020.3.0",
+          "JetBrains.Annotations": "2021.1.0",
           "MediatR": "9.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
           "Microsoft.Extensions.DependencyModel": "5.0.0",
           "Microsoft.Extensions.Http": "5.0.0",
-          "Microsoft.Extensions.Primitives": "5.0.0",
+          "Microsoft.Extensions.Primitives": "5.0.1",
           "Serilog": "2.10.0",
           "Serilog.Sinks.Console": "3.1.1",
           "Serilog.Sinks.Debug": "2.0.0",
@@ -89,11 +89,11 @@
       },
       "Arbor.ModelBinding.Primitives": {
         "type": "Transitive",
-        "resolved": "1.1.0-build.1617741586.systemtextjson",
-        "contentHash": "gwYedRSk8y1CtJI4ssc+qvi9GhVSh9YRGoz0cdBk7WpcTWwJUgbrM/7Axtoq6dZm/cnTd4KQLiL1d3kU91pdew==",
+        "resolved": "2.0.0",
+        "contentHash": "0V/JkW9T/aiyNR1hwW+KLoNIr+rU7tm/hfzG6qdm9qxPblXsktQevT5LuIGIImtkuKJbLCAOzeq9uHtgqVKsYw==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1",
-          "System.Text.Json": "5.0.1"
+          "System.Text.Json": "5.0.2"
         }
       },
       "Arbor.Primitives": {
@@ -616,8 +616,8 @@
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "5.0.1",
-        "contentHash": "/UM3UK1dXKl8Ybysg/21gM4S8DJgkR+yLU8JwqCVbuNqQNImelntgYFAN5QxR8sJJ1kMx//hOUdf0lltosi8cQ=="
+        "resolved": "5.0.2",
+        "contentHash": "I47dVIGiV6SfAyppphxqupertT/5oZkYLDCX6vC3HpOI4ZLjyoKAreUoem2ie6G0RbRuFrlqz/PcTQjfb2DOfQ=="
       },
       "System.Threading": {
         "type": "Transitive",
@@ -656,11 +656,11 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.7.0",
+          "Arbor.App.Extensions": "0.8.0",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "1.0.0-0",
+          "Arbor.ModelBinding.Primitives": "2.0.0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",
           "JetBrains.Annotations": "2021.1.0",

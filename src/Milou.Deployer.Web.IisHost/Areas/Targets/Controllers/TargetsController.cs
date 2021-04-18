@@ -59,7 +59,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
         [HttpGet]
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
-        [HttpGet]
         public async Task<IActionResult> Edit(
             [ValueFromRoute] DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
@@ -137,6 +136,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return View(targetsViewModel);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index(
             [FromRoute] DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
