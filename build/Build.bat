@@ -26,6 +26,7 @@ SET Arbor.Build.NuGet.Package.AllowManifestReWriteEnabled=false
 SET Arbor.Build.BuildNumber.UnixEpochSecondsEnabled=true
 SET Arbor.Build.NuGet.PackageUpload.Enabled=true
 SET Arbor.Build.Tools.External.MSBuild.DotNet.Enabled=true
+SET Arbor.Build.Vcs.Branch.BranchModel=GitFlowBuildOnMain
 
 SET Arbor.Build.NuGet.Package.ExcludesCommaSeparated=Arbor.Build.Bootstrapper.nuspec
 REM SET Arbor.Build.PostScripts=build\docker\build-all.bat
