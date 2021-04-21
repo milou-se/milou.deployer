@@ -1,6 +1,5 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
     <UseBuildConfiguration>release</UseBuildConfiguration>
   </Settings>
 </ProjectConfiguration>

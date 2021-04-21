@@ -5,6 +5,7 @@ using MediatR;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Environments;
+using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Serilog;
 

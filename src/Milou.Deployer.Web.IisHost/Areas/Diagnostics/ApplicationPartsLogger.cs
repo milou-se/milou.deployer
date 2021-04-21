@@ -11,9 +11,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Diagnostics
     public class ApplicationPartsLogger : IHostedService
     {
         private readonly ILogger _logger;
-        private readonly ApplicationPartManager _partManager;
+        private readonly ApplicationPartManager? _partManager;
 
-        public ApplicationPartsLogger(ILogger logger, ApplicationPartManager partManager)
+        public ApplicationPartsLogger(ILogger logger, ApplicationPartManager? partManager = null)
         {
             _logger = logger;
             _partManager = partManager;
@@ -21,6 +21,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Diagnostics
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            if (_partManager is null)
+            {
+                _logger.Debug("Application parts logging is disabled due to missing {Manager}", nameof(ApplicationPartManager));
+                return Task.CompletedTask;
+            }
+
             var applicationParts = _partManager.ApplicationParts.Select(x => x.Name);
 
             var controllerFeature = new ControllerFeature();

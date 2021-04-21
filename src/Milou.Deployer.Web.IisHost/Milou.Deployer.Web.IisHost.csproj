@@ -4,28 +4,6 @@
     <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="App_Data\**" />
-    <Compile Remove="Areas\NuGet\Controllers\**" />
-    <Compile Remove="Areas\Protocols\**" />
-    <Compile Remove="AspNetCore\Hosting\**" />
-    <Compile Remove="logs\**" />
-    <Content Remove="App_Data\**" />
-    <Content Remove="Areas\NuGet\Controllers\**" />
-    <Content Remove="Areas\Protocols\**" />
-    <Content Remove="AspNetCore\Hosting\**" />
-    <Content Remove="logs\**" />
-    <EmbeddedResource Remove="App_Data\**" />
-    <EmbeddedResource Remove="Areas\NuGet\Controllers\**" />
-    <EmbeddedResource Remove="Areas\Protocols\**" />
-    <EmbeddedResource Remove="AspNetCore\Hosting\**" />
-    <EmbeddedResource Remove="logs\**" />
-    <None Remove="App_Data\**" />
-    <None Remove="Areas\NuGet\Controllers\**" />
-    <None Remove="Areas\Protocols\**" />
-    <None Remove="AspNetCore\Hosting\**" />
-    <None Remove="logs\**" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Remove="wwwroot\applicationmetadata.json" />
     <Content Remove="wwwroot\unpkg.json" />
   </ItemGroup>
@@ -35,21 +13,18 @@
   <ItemGroup>
 
     <PackageReference Include="Arbor.App.Extensions" Version="0.8.0" />
-
     <PackageReference Include="Arbor.AspNetCore.Host" Version="0.9.0" />
-
     <PackageReference Include="Arbor.Docker" Version="0.6.0" Condition="'$(Configuration)' == 'Debug'" />
-
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
-    <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="1.*-*" />
+    <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="*" />
     <PackageReference Include="Arbor.Tooler" Version="0.13.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.5" />
@@ -72,9 +47,6 @@
     <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="5.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Areas\Security\Views\Login\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\applicationmetadata.json" />

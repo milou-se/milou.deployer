@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
             _isDisposing = true;
 
-            if (_dockerContext is {})
+            if (_dockerContext is { })
             {
                 await _dockerContext.DisposeAsync();
             }
@@ -121,10 +121,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         private static ContainerArgs CreatePostgres()
         {
-            var postgresVariables = new Dictionary<string, string>
-            {
-                ["POSTGRES_PASSWORD"] = "test"
-            };
+            var postgresVariables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
 
             string[] postgresArgs = {"-v", "deploydata:/var/lib/postgresql/data"};
 

@@ -1,4 +1,5 @@
-﻿using Arbor.KVConfiguration.Core.Metadata;
+﻿#if DEBUG
+using Arbor.KVConfiguration.Core.Metadata;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Docker
 {
@@ -8,3 +9,4 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
         public const string DockerEnabledDefault = DeveloperConfiguration.Urn + ":default:docker-enabled";
     }
 }
+#endif

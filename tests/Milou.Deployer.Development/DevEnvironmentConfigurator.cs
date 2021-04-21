@@ -1,4 +1,5 @@
-using System;
+
+#if DEBUG
 using System.IO;
 using System.Linq;
 using Arbor.Aesculus.Core;
@@ -30,3 +31,4 @@ namespace Milou.Deployer.Development
         }
     }
 }
+#endif

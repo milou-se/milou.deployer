@@ -1,4 +1,5 @@
-﻿using Arbor.KVConfiguration.Urns;
+﻿#if DEBUG
+using Arbor.KVConfiguration.Urns;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Docker
 {
@@ -13,3 +14,4 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
         public bool DockerEnabled { get; }
     }
 }
+#endif

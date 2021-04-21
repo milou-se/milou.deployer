@@ -8,13 +8,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
     [UsedImplicitly]
     public class DistributedCacheModule : IModule
     {
-        private readonly CacheSettings _cacheSettings;
+        private readonly CacheSettings? _cacheSettings;
 
-        public DistributedCacheModule(CacheSettings cacheSettings) => _cacheSettings = cacheSettings;
+        public DistributedCacheModule(CacheSettings? cacheSettings = null) => _cacheSettings = cacheSettings;
 
         public IServiceCollection Register(IServiceCollection builder)
         {
-            if (!string.IsNullOrWhiteSpace(_cacheSettings.Host))
+            if (!string.IsNullOrWhiteSpace(_cacheSettings?.Host))
             {
                 builder.AddStackExchangeRedisCache(options => options.Configuration = _cacheSettings.Host);
             }

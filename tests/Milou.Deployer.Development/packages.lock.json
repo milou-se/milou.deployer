@@ -2351,7 +2351,7 @@
         "dependencies": {
           "Arbor.App.Extensions": "0.8.0",
           "Arbor.AspNetCore.Host": "0.9.0",
-          "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "1.0.0-0",
+          "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.0.0",
           "Arbor.Docker": "0.6.0",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.13.0",

@@ -11,8 +11,10 @@ using JetBrains.Annotations;
 using Marten;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Startup;
+using Milou.Deployer.Web.Marten;
 using Milou.Deployer.Web.Marten.Targets;
 using Serilog;
 
@@ -26,18 +28,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly ILogger _logger;
         private readonly IDocumentStore? _store;
         private readonly TimeoutHelper _timeoutHelper;
+        private readonly IDeploymentTargetReadService _deploymentTargetReadService;
 
         public DataSeedStartupTask(
             IEnumerable<IDataSeeder> dataSeeders,
             IKeyValueConfiguration configuration,
             ILogger logger,
             TimeoutHelper timeoutHelper,
-            IDocumentStore? store)
+            IDeploymentTargetReadService deploymentTargetReadService,
+            IDocumentStore? store = null)
         {
             _dataSeeders = dataSeeders.SafeToImmutableArray();
             _configuration = configuration;
             _logger = logger;
             _timeoutHelper = timeoutHelper;
+            _deploymentTargetReadService = deploymentTargetReadService;
             _store = store;
         }
 
@@ -46,6 +51,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         protected override async Task ExecuteAsync(CancellationToken startupCancellationToken)
         {
             await Task.Yield();
+
+            if (_deploymentTargetReadService is EmptyTargetReadService)
+            {
+                _logger.Warning("Data source is readonly, skipping running seeders");
+                IsCompleted = true;
+                return;
+            }
 
             if (_dataSeeders.Length > 0)
             {

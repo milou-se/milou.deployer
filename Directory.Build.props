@@ -2,10 +2,8 @@
 
 <Project>
   <PropertyGroup>
-    <Deterministic>true</Deterministic>
-    <LangVersion>latest</LangVersion>
+   <LangVersion>latest</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Features>IOperation</Features>
     <EmbedAllSources>true</EmbedAllSources>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>

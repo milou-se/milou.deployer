@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.DependencyInjection;
 using Arbor.KVConfiguration.Core;
@@ -13,6 +16,7 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Json;
+using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.Marten.Abstractions;
 using Milou.Deployer.Web.Marten.DeploymentTasks;
 using Milou.Deployer.Web.Marten.EnvironmentTypes;
@@ -35,6 +39,10 @@ namespace Milou.Deployer.Web.Marten
 
             if (configurations.IsDefaultOrEmpty)
             {
+                builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(EmptyTargetReadService), this);
+                builder.AddSingleton<IApplicationSettingsStore, InMemoryApplicationSettingsStore>();
+
+                builder.AddSingleton<IEnvironmentTypeService, EmptyEnvironmentTypeService>();
                 return builder;
             }
 
@@ -55,6 +63,9 @@ namespace Milou.Deployer.Web.Marten
                 builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(MartenStore), this);
                 builder.AddSingleton(typeof(IDeploymentTargetService), typeof(MartenStore), this);
                 builder.AddSingleton<IDeploymentTaskPackageStore, DeploymentTaskPackageStore>();
+                builder.AddSingleton<IApplicationSettingsStore, MartenSettingsStore>();
+
+                builder.AddSingleton<IEnvironmentTypeService, EnvironmentTypeService>();
 
                 Type[] genericInterfaces = typeof(MartenStore)
                     .GetInterfaces()
@@ -73,8 +84,10 @@ namespace Milou.Deployer.Web.Marten
                         DocumentStore.For(options => ConfigureMarten(options, configuration.ConnectionString)),
                     this);
             }
-
-            builder.AddSingleton<IEnvironmentTypeService, EnvironmentTypeService>();
+            else
+            {
+                builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(EmptyTargetReadService), this);
+            }
 
             return builder;
         }
@@ -92,5 +105,10 @@ namespace Milou.Deployer.Web.Marten
             options.Schema.For<LogItem>().Index(x => x.TaskLogId);
             options.Schema.For<LogItem>().Index(x => x.Level);
         }
+    }
+
+    public class EmptyEnvironmentTypeService : IEnvironmentTypeService
+    {
+        public Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(CancellationToken cancellationToken = default) => Task.FromResult(ImmutableArray<EnvironmentType>.Empty);
     }
 }

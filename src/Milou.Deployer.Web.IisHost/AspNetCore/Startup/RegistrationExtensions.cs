@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Host.Hosting;
@@ -17,6 +19,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Json;
@@ -35,10 +38,10 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     {
         public static IServiceCollection AddDeploymentAuthentication(
             this IServiceCollection serviceCollection,
-            CustomOpenIdConnectConfiguration? openIdConnectConfiguration,
-            MilouAuthenticationConfiguration? milouAuthenticationConfiguration,
             ILogger logger,
-            EnvironmentConfiguration environmentConfiguration)
+            EnvironmentConfiguration environmentConfiguration,
+            MilouAuthenticationConfiguration? milouAuthenticationConfiguration = null,
+            CustomOpenIdConnectConfiguration? openIdConnectConfiguration = null)
         {
             AuthenticationBuilder authenticationBuilder = serviceCollection
                 .AddAuthentication(
@@ -173,12 +176,14 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             ILogger logger,
             IApplicationAssemblyResolver applicationAssemblyResolver)
         {
+            ViewAssemblyLoader.LoadViewAssemblies(logger);
+            var filteredAssemblies = applicationAssemblyResolver.GetAssemblies();
             IMvcBuilder mvcBuilder = services.AddMvc(
                     options =>
                     {
                         options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
                         options.Filters.Add<ModelValidatorFilterAttribute>();
-                    }).SetCompatibilityVersion(CompatibilityVersion.Latest)
+                    })
                 .AddNewtonsoftJson(
                     options =>
                     {
@@ -186,26 +191,31 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
 
-            var filteredAssemblies = applicationAssemblyResolver.GetAssemblies();
-
             foreach (Assembly filteredAssembly in filteredAssemblies)
             {
                 logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
                 mvcBuilder.AddApplicationPart(filteredAssembly);
             }
 
-            services.AddControllers()
-                .AddControllersAsServices();
+            var viewAssemblies = AssemblyLoadContext.Default.Assemblies
+                .Where(assembly => !assembly.IsDynamic && (assembly.GetName().Name?.Contains("View") ?? false))
+                .ToArray();
 
-            IMvcBuilder razorPagesBuilder = services.AddRazorPages();
+            foreach (var item in viewAssemblies )
+            {
+                mvcBuilder.AddApplicationPart(item);
+            }
 
-#if DEBUG
             if (environmentConfiguration.ToHostEnvironment().IsDevelopment()
                 || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled))
             {
-                razorPagesBuilder.AddRazorRuntimeCompilation();
+                mvcBuilder.AddRazorRuntimeCompilation();
             }
-#endif
+
+            mvcBuilder
+                .AddControllersAsServices();
+
+            services.AddAntiforgery();
 
             return services;
         }

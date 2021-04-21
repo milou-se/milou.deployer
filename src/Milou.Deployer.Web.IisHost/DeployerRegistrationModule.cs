@@ -26,8 +26,8 @@ namespace Milou.Deployer.Web.IisHost
             HttpLoggingConfiguration httpLoggingConfiguration =
                 serviceProviderHolder.ServiceProvider.GetRequiredService<HttpLoggingConfiguration>();
 
-            MilouAuthenticationConfiguration milouAuthenticationConfiguration =
-                serviceProviderHolder.ServiceProvider.GetRequiredService<MilouAuthenticationConfiguration>();
+            MilouAuthenticationConfiguration? milouAuthenticationConfiguration =
+                serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
 
             ILogger logger = serviceProviderHolder.ServiceProvider.GetRequiredService<ILogger>();
 
@@ -37,8 +37,11 @@ namespace Milou.Deployer.Web.IisHost
             IKeyValueConfiguration configuration =
                 serviceProviderHolder.ServiceProvider.GetRequiredService<IKeyValueConfiguration>();
 
-            services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger,
-                    environmentConfiguration)
+            services.AddDeploymentAuthentication(
+                    logger,
+                    environmentConfiguration,
+                    milouAuthenticationConfiguration,
+                    openIdConnectConfiguration)
                 .AddDeploymentAuthorization(environmentConfiguration)
                 .AddHttpClientsWithConfiguration(httpLoggingConfiguration)
                 .AddDeploymentSignalR()
