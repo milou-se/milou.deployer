@@ -31,7 +31,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             TargetReadService = targetReadService;
             ConfigurationInfo = configurationInfo;
             RegistrationInstances = registrationInstances
-                .OrderBy(serviceInstance => serviceInstance.RegistrationType.FullName).ToImmutableArray();
+                .OrderBy(serviceInstance => serviceInstance.RegistrationType).ToImmutableArray();
             ServiceRegistrations = serviceRegistrations.OrderBy(serviceRegistrationInfo =>
                     serviceRegistrationInfo.ServiceDescriptorServiceType.FullName)
                 .ToImmutableArray();

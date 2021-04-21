@@ -16,8 +16,10 @@ using Arbor.KVConfiguration.Schema.Json;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -29,13 +31,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
     [UsedImplicitly]
     public class DiagnosticsViewHandler : IRequestHandler<SettingsViewRequest, SettingsViewModel>
     {
+        private readonly IApplicationAssemblyResolver _applicationAssemblyResolver;
         private readonly IConfiguration _aspNetConfiguration;
         private readonly MultiSourceKeyValueConfiguration _configuration;
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
+        private readonly IDistributedCache _distributedCache;
 
-        [NotNull]
-        private readonly EnvironmentConfiguration _environmentConfiguration;
+        [NotNull] private readonly EnvironmentConfiguration _environmentConfiguration;
 
         private readonly ILogger _logger;
 
@@ -45,7 +48,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly IServiceProvider _serviceProvider;
 
         private readonly IApplicationSettingsStore _settingsStore;
-        private readonly IApplicationAssemblyResolver _applicationAssemblyResolver;
 
         public DiagnosticsViewHandler(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -58,7 +60,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             ConfigurationInstanceHolder configurationInstanceHolder,
             ILogger logger,
             IApplicationSettingsStore settingsStore,
-            IApplicationAssemblyResolver applicationAssemblyResolver)
+            IApplicationAssemblyResolver applicationAssemblyResolver,
+            IDistributedCache distributedCache)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -73,6 +76,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _logger = logger;
             _settingsStore = settingsStore;
             _applicationAssemblyResolver = applicationAssemblyResolver;
+            _distributedCache = distributedCache;
         }
 
         public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
@@ -98,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                         pair.Value.MakeAnonymous(pair.Key,
                             ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())));
 
-            ApplicationVersionInfo? applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
+            var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
             var serviceDiagnosticsRegistrations = _serviceDiagnostics.Registrations;
 
@@ -108,14 +112,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             {
                 Type registrationType = serviceRegistrationInfo.ServiceDescriptorServiceType;
 
-                if (serviceRegistrationInfo.ServiceDescriptorImplementationInstance is {})
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationInstance is { })
                 {
                     return new ServiceInstance(registrationType,
                         serviceRegistrationInfo.ServiceDescriptorImplementationInstance,
                         serviceRegistrationInfo.Module);
                 }
 
-                if (serviceRegistrationInfo.Factory is {})
+                if (serviceRegistrationInfo.Factory is { })
                 {
                     try
                     {
@@ -164,10 +168,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
             ImmutableArray<DeploymentTargetWorker> deploymentTargetWorkers = _configurationInstanceHolder
                 .GetInstances<DeploymentTargetWorker>().Values
-                .Where(item => item is {})
+                .Where(item => item is { })
                 .SafeToImmutableArray()!;
 
             ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
+
+            string cacheKey = nameof(serviceDiagnosticsRegistrations);
+            var cached = await _distributedCache.Get<List<ServiceInstance>>(cacheKey, cancellationToken: cancellationToken);
+            List<ServiceInstance>? registrationInstances;
+
+            if (cached is null)
+            {
+                registrationInstances = serviceDiagnosticsRegistrations
+                    .Select(GetInstance)
+                    .NotNull()
+                    .ToList();
+
+                await _distributedCache.Set(cacheKey, registrationInstances, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                registrationInstances = cached;
+            }
 
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,
@@ -175,10 +197,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 configurationValues,
                 serviceDiagnosticsRegistrations,
                 aspNetConfigurationValues,
-                serviceDiagnosticsRegistrations
-                    .Select(GetInstance)
-                    .Where(item => item is {})
-                    .ToImmutableArray(),
+                registrationInstances,
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,
                 applicationMetadata,
@@ -212,7 +231,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 return NoConfiguration.Empty;
             }
 
-            ConfigurationItems? configurationItems = JsonConfigurationSerializer.Deserialize(json);
+            var configurationItems = JsonConfigurationSerializer.Deserialize(json);
 
             if (configurationItems is null)
             {

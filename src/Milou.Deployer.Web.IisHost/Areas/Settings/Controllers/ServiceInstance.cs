@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {
@@ -6,13 +7,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
     {
         public ServiceInstance(Type registrationType, object instance, Type? module)
         {
+            RegistrationType = registrationType.FullName ?? registrationType.Name;
+            Instance = instance.ToString() ?? registrationType.FullName ?? registrationType.Name;
+            Module = module?.FullName ?? module?.Name;
+        }
+
+        [JsonConstructor]
+        [Newtonsoft.Json.JsonConstructor]
+        public ServiceInstance(string registrationType, string instance, string? module = null)
+        {
             RegistrationType = registrationType;
             Instance = instance;
             Module = module;
         }
 
-        public Type RegistrationType { get; }
-        public object Instance { get; }
-        public Type? Module { get; }
+        public string RegistrationType { get; }
+        public string Instance { get; }
+        public string? Module { get; }
     }
 }

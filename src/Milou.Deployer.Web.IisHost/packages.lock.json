@@ -83,6 +83,18 @@
           "Newtonsoft.Json": "13.0.1"
         }
       },
+      "Arbor.Docker": {
+        "type": "Direct",
+        "requested": "[0.6.0, )",
+        "resolved": "0.6.0",
+        "contentHash": "fzwtC/D7Y8zJjemi8wTQnTjeJRi7QV5ZfGNsAvPUyBc0kn+dk9sIzSVzn/JBZ/o4MzAxIHeIjQZMsAgiE37ckw==",
+        "dependencies": {
+          "Arbor.Processing": "0.6.0",
+          "JetBrains.Annotations": "2020.3.0",
+          "Serilog": "2.10.0",
+          "System.Collections.Immutable": "5.0.0"
+        }
+      },
       "Arbor.Processing": {
         "type": "Direct",
         "requested": "[0.6.0, )",
@@ -1724,7 +1736,7 @@
           "DotNext.Threading": "3.0.0",
           "JetBrains.Annotations": "2021.1.0",
           "MailKit": "2.11.1",
-          "Marten": "3.9.0",
+          "Marten": "3.13.4",
           "MediatR": "9.0.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "9.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",

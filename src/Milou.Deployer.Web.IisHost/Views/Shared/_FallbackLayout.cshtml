@@ -1,0 +1,47 @@
+﻿@using Milou.Deployer.Web.Core.Startup
+@using Milou.Deployer.Web.IisHost.Areas.Agents
+@using Milou.Deployer.Web.IisHost.Areas.Deployment
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@inject StartupTaskContext StartupContext
+<!DOCTYPE html>
+<html>
+<head>
+    @RenderSection("headerTop", false)
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milou NuGet Web Package Deployment</title>
+    <link type="text/css" href="~/Content/Site.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+
+            <h1 style="color: white; font-size: 16px;">
+                <span>Milou NuGet Web Package Deployment</span>
+            </h1>
+        </div>
+        <div class="navbar-collapse collapse">
+
+                <div class="tab">
+                    <a href="/#">Diagnose</a>
+                </div>
+
+        </div>
+    </div>
+</div>
+<div class="container body-content">
+    @RenderBody()
+    <hr/>
+    <footer>
+        <p>&copy; @DateTime.Now.Year - Milou Communication AB</p>
+    </footer>
+</div>
+
+<script type="text/javascript" src="~/Scripts/Libs/jquery-3.1.1.js"></script>
+<script type="text/javascript" src="~/Scripts/Site.js"></script>
+@RenderSection("scripts", false)
+</body>
+</html>

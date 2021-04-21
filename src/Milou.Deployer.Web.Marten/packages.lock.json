@@ -1157,7 +1157,7 @@
           "DotNext.Threading": "3.0.0",
           "JetBrains.Annotations": "2021.1.0",
           "MailKit": "2.11.1",
-          "Marten": "3.9.0",
+          "Marten": "3.13.4",
           "MediatR": "9.0.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "9.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
