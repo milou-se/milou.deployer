@@ -10,7 +10,6 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Marten;
 using MediatR;
-using Milou.Deployer.Core;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Pools;
@@ -26,7 +25,6 @@ using Milou.Deployer.Web.Marten.DeploymentTasks;
 using Milou.Deployer.Web.Marten.EnvironmentTypes;
 using Milou.Deployer.Web.Marten.Settings;
 using Milou.Deployer.Web.Marten.Targets;
-using Newtonsoft.Json;
 using Serilog;
 
 namespace Milou.Deployer.Web.Marten
@@ -751,8 +749,8 @@ namespace Milou.Deployer.Web.Marten
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Could not get deployment target from data {Data}",
-                    JsonConvert.SerializeObject(deploymentTargetData));
+                _logger.Error(ex, "Could not get deployment target from data {@Data} for deployment target id {DeploymentTargetId}",
+                    deploymentTargetData, deploymentTargetData.Id);
             }
 
             return deploymentTargetAsync;
@@ -786,6 +784,8 @@ namespace Milou.Deployer.Web.Marten
 
             var agentInstallConfiguration =
                 await _mediator.Send(new CreateAgentInstallConfiguration(request.AgentId), cancellationToken);
+
+            _logger.Information("Created access token for agent id {AgentId}: {Token}", request.AgentId, agentInstallConfiguration.AccessToken);
 
             return new ResetAgentTokenResult(agentInstallConfiguration.AccessToken);
         }

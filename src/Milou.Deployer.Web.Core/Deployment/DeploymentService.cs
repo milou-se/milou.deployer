@@ -189,7 +189,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Error(ex, "Could not get deploy agent");
+                    _logger.Error(ex, "Could not get deploy agent for deployment task id {DeploymentTaskId}, deployment target id {DeploymentTargetId}", deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId);
                     deployExitCode = ExitCode.Failure;
                     deploymentTask.Status = WorkTaskStatus.Failed;
                 }
@@ -305,9 +305,9 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             TempFiles.TryAdd(deploymentTask.DeploymentTaskId, new List<TempFile>());
             TempDirectories.TryAdd(deploymentTask.DeploymentTaskId, new List<DirectoryInfo>());
-            string jobId = "MDep_" + Guid.NewGuid();
+            string jobId = $"MDep_{Guid.NewGuid()}";
 
-            jobLogger.Information("Starting job {JobId}", jobId);
+            jobLogger.Information("Starting job {JobId} for deployment task id {DeploymentTaskId}, deployment target id {DeploymentTargetId}", jobId, deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId);
 
             DeploymentTarget? deploymentTarget;
 
@@ -318,13 +318,11 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                jobLogger.Error(ex, "Could not get deployment target with id {Id}", deploymentTask.DeploymentTargetId);
+                jobLogger.Error(ex, "Could not get deployment target with id {Id} when creating deployment package", deploymentTask.DeploymentTargetId);
                 return ExitCode.Failure;
             }
 
-            if (deploymentTarget is null
-                || string.IsNullOrWhiteSpace(deploymentTarget.TargetDirectory)
-                || deploymentTarget == DeploymentTarget.None)
+            if (deploymentTarget is null || deploymentTarget == DeploymentTarget.None)
             {
                 jobLogger.Error("Could not get deployment target with id {Id}", deploymentTask.DeploymentTargetId);
                 return ExitCode.Failure;
@@ -332,7 +330,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             SetLogging(loggingLevelSwitch);
 
-            string targetDirectoryPath = deploymentTarget.TargetDirectory;
+            string? targetDirectoryPath = deploymentTarget.TargetDirectory;
 
             string? targetEnvironmentConfig = deploymentTarget.GetEnvironmentConfiguration()?.Trim();
 
@@ -477,7 +475,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             if (string.IsNullOrWhiteSpace(targetDirectoryPath) && string.IsNullOrWhiteSpace(publishSettingsXml))
             {
-                _logger.Error("Both target directory path and publish settings XML are empty");
+                _logger.Error("Both target directory path and publish settings XML are empty for deployment target id {DeploymentTargetId}", deploymentTarget.Id);
                 return ExitCode.Failure;
             }
 
@@ -506,7 +504,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             jobLogger.Information("Using definitions JSON: {Json}", manifestJson);
 
             const string manifestFile = "manifest.json";
-            jobLogger.Information("Using temp manifest file '{ManifestFile}'", manifestFile);
+            jobLogger.Debug("Using temp manifest file '{ManifestFile}'", manifestFile);
 
             arguments.Add(manifestFile);
             arguments.Add(Constants.AllowPreRelease);
@@ -522,7 +520,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 arguments.Add($"-deployer-exe={exePath}");
             }
 
-            jobLogger.Verbose("Running Milou Deployer bootstrapper");
+            jobLogger.Verbose("Running Milou Deployer bootstrapper for deployment task id {DeploymentTaskId}", deploymentTask.DeploymentTaskId);
 
             var deploymentTaskPackage = new DeploymentTaskPackage(
                 deploymentTask.DeploymentTaskId,
@@ -536,7 +534,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 PublishSettingsXml = publishSettingsXml
             };
 
-            _logger.Debug("Created deployment task package");
+            _logger.Debug("Created deployment task package for deployment task id {DeploymentTaskId}", deploymentTask.DeploymentTaskId);
 
             await _mediator.Send(new CreateDeploymentTaskPackage(deploymentTaskPackage), cancellationToken);
 
@@ -659,7 +657,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             if (deploymentTarget is null)
             {
-                metadata.AppendLine("Deployment target not found");
+                metadata.AppendLine($"Deployment target not found for deployment target id {deploymentTask.DeploymentTargetId}");
             }
             else
             {
@@ -716,7 +714,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                         {
                             Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()
                         }),
-                    LogEventLevel.Verbose)
+                    _loggingLevelSwitch.MinimumLevel)
                 .WriteTo.Logger(logger);
 
             if (Debugger.IsAttached)
@@ -724,14 +722,17 @@ namespace Milou.Deployer.Web.Core.Deployment
                 loggerConfiguration = loggerConfiguration.WriteTo.Debug();
             }
 
-            loggerConfiguration = loggerConfiguration.MinimumLevel.ControlledBy(_loggingLevelSwitch);
+            loggerConfiguration = loggerConfiguration
+                .Enrich.WithProperty("DeploymentTaskId", deploymentTask.DeploymentTaskId)
+                .Enrich.WithProperty("DeploymentTargetId", deploymentTask.DeploymentTargetId)
+                .MinimumLevel.ControlledBy(_loggingLevelSwitch);
 
             Logger log = loggerConfiguration.CreateLogger();
 
             if (logger.IsEnabled(LogEventLevel.Debug))
             {
                 logger.Debug(
-                    "Preparing deploy {TaskId} for deployment target '{DeploymentTarget}', package '{PackageId}' version {Version}",
+                    "Preparing deployment task id {TaskId} for deployment target '{DeploymentTarget}', package '{PackageId}' version {Version}",
                     deploymentTask.DeploymentTaskId,
                     deploymentTask.DeploymentTargetId,
                     deploymentTask.PackageId,
@@ -746,13 +747,13 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error(ex, "Failed to deploy task {DeploymentTask}", deploymentTask);
+                _logger.Error(ex, "Failed to deployment task {@DeploymentTask}", deploymentTask);
                 exitCode = ExitCode.Failure;
             }
 
             if (!exitCode.IsSuccess)
             {
-                throw new InvalidOperationException("Create deployment package failed");
+                throw new InvalidOperationException($"Create deployment package failed for deployment task id {deploymentTask.DeploymentTaskId}, deployment target id {deploymentTask.DeploymentTargetId}");
             }
 
             return new DeploymentTaskTempData(log, deploymentTask.DeploymentTaskId, logBuilder);
