@@ -149,7 +149,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 string? exceptionLogDirectory = args?.ParseParameter("exceptionDir");
 
-                string logDirectory = (exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory)!;
+                string logDirectory = (exceptionLogDirectory ?? AppContext.BaseDirectory);
 
                 string fatalLogFile = Path.Combine(logDirectory, "Fatal.log");
 

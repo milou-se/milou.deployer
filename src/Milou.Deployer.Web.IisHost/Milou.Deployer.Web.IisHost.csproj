@@ -10,6 +10,11 @@
   <ItemGroup>
     <Content Include="config.user" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Buffer-*.json" />
+    <None Remove="*.bookmark" />
+  </ItemGroup>
   <ItemGroup>
 
     <PackageReference Include="Arbor.App.Extensions" Version="0.8.0" />

@@ -20,6 +20,6 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public string? ConnectionId { get; }
 
-        public string? CurrentDeploymentTaskId { get; set; }
+        public string? CurrentDeploymentTaskId { get; }
     }
 }

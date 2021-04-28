@@ -104,7 +104,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         private async Task<SemanticVersion?> GetCurrentVersionAsync()
         {
             string applicationMetadataPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory!,
+                AppContext.BaseDirectory,
                 "wwwroot",
                 "applicationmetadata.json");
 
