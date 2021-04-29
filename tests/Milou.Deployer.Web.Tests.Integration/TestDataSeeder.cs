@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.AspNetCore.Host;
+using Arbor.KVConfiguration.Core;
 using Arbor.Primitives;
 using JetBrains.Annotations;
 using MediatR;
@@ -22,11 +23,13 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly IMediator _mediator;
         private readonly EnvironmentVariables _environmentVariables;
+        private readonly IKeyValueConfiguration _keyValueConfiguration;
 
-        public TestDataSeeder(IMediator mediator, EnvironmentVariables environmentVariables)
+        public TestDataSeeder(IMediator mediator, EnvironmentVariables environmentVariables, IKeyValueConfiguration keyValueConfiguration)
         {
             _mediator = mediator;
             _environmentVariables = environmentVariables;
+            _keyValueConfiguration = keyValueConfiguration;
         }
 
         public async Task SeedAsync(CancellationToken cancellationToken)
@@ -50,7 +53,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var createTarget = new CreateTarget(testTarget.Id.TargetId, testTarget.Name);
             await _mediator.Send(createTarget, cancellationToken);
 
-            string nugetConfigFile = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests", "Milou.Deployer.Web.Tests.Integration", "TestData", "nuget.config");
+            string nugetConfigFile = _keyValueConfiguration[ConfigurationConstants.NugetConfigFile];
 
             var updateDeploymentTarget = new UpdateDeploymentTarget(
                 testTarget.Id,

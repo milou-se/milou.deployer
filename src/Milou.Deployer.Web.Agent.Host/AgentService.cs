@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Tasks;
+using Arbor.Processing;
 using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
@@ -64,10 +65,35 @@ namespace Milou.Deployer.Web.Agent.Host
 
             var id = new DeploymentTargetId(deploymentTargetId);
 
-            var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, id, _stoppingToken);
+            using CancellationTokenSource cancellationTokenSource =
+                new(TimeSpan.FromMinutes(10));
 
-            var deploymentTaskAgentResult =
-                new DeploymentTaskAgentResult(deploymentTaskId, id, exitCode.IsSuccess);
+            using var source =
+                CancellationTokenSource.CreateLinkedTokenSource(_stoppingToken, cancellationTokenSource.Token);
+
+            DeploymentTaskAgentResult deploymentTaskAgentResult;
+
+            try
+            {
+                var exitCode =
+                    await _deploymentPackageAgent.RunAsync(deploymentTaskId, id, cancellationTokenSource.Token);
+
+                deploymentTaskAgentResult =
+                    new DeploymentTaskAgentResult(deploymentTaskId, id, exitCode.IsSuccess);
+            }
+            catch (Exception ex) when (ex is OperationCanceledException or TaskCanceledException or TimeoutException)
+            {
+                _logger.Error("Build agent {AgentId} timed out for deployment task {DeploymentTaskId}",
+                    _agentConfiguration.AgentId(), deploymentTaskId);
+                deploymentTaskAgentResult =
+                    new DeploymentTaskAgentResult(deploymentTaskId, id, false);
+
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                deploymentTaskAgentResult =
+                    new DeploymentTaskAgentResult(deploymentTaskId, id, false);
+            }
 
             await _mediator.Send(deploymentTaskAgentResult, _stoppingToken);
         }

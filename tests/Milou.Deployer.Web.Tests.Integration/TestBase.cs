@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
@@ -8,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    public abstract class TestBase<T> : IDisposable, IClassFixture<T> where T : class, IAppHost
+    public abstract class TestBase<T> : IDisposable, IClassFixture<T>, IAsyncLifetime where T : class, IAppHost
     {
         protected TestBase([NotNull] T webFixture, [NotNull] ITestOutputHelper output)
         {
@@ -32,9 +33,12 @@ namespace Milou.Deployer.Web.Tests.Integration
         [PublicAPI]
         protected CancellationTokenSource CancellationTokenSource { get; }
 
-        public virtual void Dispose()
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        async Task IAsyncLifetime.DisposeAsync() => await DisposeAsync();
+
+        public async ValueTask DisposeAsync()
         {
-            GC.SuppressFinalize(this);
             Output.WriteLine($"Disposing {nameof(TestBase<T>)}");
 
             if (!CancellationTokenSource.IsCancellationRequested)
@@ -62,7 +66,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 try
                 {
-                    lifeTime.DisposeAsync().Wait();
+                   await lifeTime.DisposeAsync();
                 }
                 catch (AggregateException ex) when (ex.InnerException is ObjectDisposedException)
                 {
@@ -72,10 +76,16 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (WebFixture is IAsyncDisposable asyncDisposable)
             {
-                asyncDisposable.DisposeAsync().GetAwaiter().GetResult();
+               await asyncDisposable.DisposeAsync();
             }
 
+            CancellationTokenSource.SafeDispose();
+
             WebFixture = null!;
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

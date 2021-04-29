@@ -29,10 +29,10 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public ImmutableArray<AgentInfo> Agents => _agents
             .Select(agent => new AgentInfo(agent.Key,
-                agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId))
+                agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId, agent.Value.CurrentDeploymentTargetId))
             .ToImmutableArray();
 
-        public void AgentAssigned(AgentId agentId, string deploymentTaskId)
+        public void AgentAssigned(AgentId agentId, string deploymentTaskId, DeploymentTargetId deploymentTargetId)
         {
             if (!_agents.TryGetValue(agentId, out var state))
             {
@@ -40,6 +40,7 @@ namespace Milou.Deployer.Web.Core.Agents
             }
 
             state.CurrentDeploymentTaskId = deploymentTaskId;
+            state.CurrentDeploymentTargetId = deploymentTargetId;
         }
 
         public void AgentConnected(AgentConnected agentConnected)
@@ -118,6 +119,7 @@ namespace Milou.Deployer.Web.Core.Agents
             }
 
             state.CurrentDeploymentTaskId = default;
+            state.CurrentDeploymentTargetId = default;
         }
 
         public void UnknownAgentConnected(UnknownAgentConnected notification) =>

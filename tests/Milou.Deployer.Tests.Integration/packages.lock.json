@@ -259,22 +259,24 @@
       },
       "Arbor.Tooler": {
         "type": "Transitive",
-        "resolved": "0.13.0",
-        "contentHash": "fixNctSxrr2l521av9JBgDeNoTNYB9iSEWGJc0ftywJiq/Lh2SCbIPI1NKMxcXOHXhC56yEwr1BWyazN2qBHkA==",
+        "resolved": "0.14.0",
+        "contentHash": "eCzc9D8s7MmJrVEHX39bct93EpwUojy+bHCyF9EOLd5CeAb1E7zPCnovqSVFB0mAZget4u4HSYQjXvZdZ5L5qw==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
+          "NewtonSoft.Json": "12.0.1",
+          "NuGet.Configuration": "[5.0.0, 6.0.0)",
+          "NuGet.Protocol": "[5.0.0, 6.0.0)",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
           "Serilog": "[2.8.0, 3.0.0)"
         }
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "33.1.6",
-        "contentHash": "exMA8o6lEpaMJ85ezRGq3Vu63/7Af2HFWci4mGvT5QRlPxpmmfddNltP2a7ShxI6tpYCZlqGavueUzPfcQVmOA==",
+        "resolved": "33.1.8",
+        "contentHash": "xaqIV20YFdQKLTGFFKFA2T68k0UzdkWJKDKduxnIxnfi7gzPnzpBvmwACkgArLYbfRdUD9Hf+fVd9uh/IjDBkQ==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
-          "System.Linq.Async": "5.0.0",
           "System.Net.NameResolution": "4.3.0",
           "System.Net.Sockets": "4.3.0",
           "System.Runtime": "4.3.0",
@@ -520,6 +522,14 @@
           "NuGet.Versioning": "5.9.1",
           "System.Security.Cryptography.Cng": "5.0.0",
           "System.Security.Cryptography.Pkcs": "5.0.0"
+        }
+      },
+      "NuGet.Protocol": {
+        "type": "Transitive",
+        "resolved": "5.9.1",
+        "contentHash": "0FeZZ5Qd6I2Qfr5qtNk0YUQwisttMHvCgE1MfC9viib7zuSZmTfUskl34d9w5mUZLAKl764AXxCNklgQHL0NzA==",
+        "dependencies": {
+          "NuGet.Packaging": "5.9.1"
         }
       },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
@@ -951,11 +961,6 @@
           "System.Runtime": "4.3.0",
           "System.Runtime.Extensions": "4.3.0"
         }
-      },
-      "System.Linq.Async": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "cPtIuuH8TIjVHSi2ewwReWGW1PfChPE0LxPIDlfwVcLuTM9GANFTXiMB7k3aC4sk3f0cQU25LNKzx+jZMxijqw=="
       },
       "System.Linq.Expressions": {
         "type": "Transitive",
@@ -1583,14 +1588,16 @@
           "Arbor.KVConfiguration.Urns": "1.2.0",
           "Arbor.ModelBinding.Primitives": "2.0.0",
           "Arbor.Processing": "0.6.0",
-          "Arbor.Tooler": "0.13.0",
+          "Arbor.Tooler": "0.14.0",
           "JetBrains.Annotations": "2021.1.0",
           "MediatR": "9.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Microsoft.Web.Xdt": "3.1.0",
           "Newtonsoft.Json": "13.0.1",
+          "NuGet.Configuration": "5.9.1",
           "NuGet.Packaging": "5.9.1",
+          "NuGet.Protocol": "5.9.1",
           "NuGet.Versioning": "5.9.1",
           "Serilog": "2.10.0",
           "System.Collections.Immutable": "5.0.0"
@@ -1618,7 +1625,7 @@
       "milou.deployer.ftp": {
         "type": "Project",
         "dependencies": {
-          "FluentFTP": "33.1.6",
+          "FluentFTP": "33.1.8",
           "JetBrains.Annotations": "2021.1.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Core": "1.0.0",

@@ -17,6 +17,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public const string CreateAgentRouteName = nameof(CreateAgentRoute);
         public const string ResetAgentTokenRoute = "~/agents/reset-token";
         public const string ResetAgentTokenRouteName = nameof(ResetAgentTokenRoute);
+        public const string ClearAgentWorkTasksRoute = "~/agents/clear";
+        public const string ClearAgentWorkTasksRouteName = nameof(ClearAgentWorkTasksRoute);
         private readonly AgentsData _agentsData;
 
         public AgentsController(AgentsData agentsData) => _agentsData = agentsData;
@@ -47,12 +49,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         [Route(CreateAgentRoute, Name = CreateAgentRouteName)]
         public IActionResult Create() => View();
 
-        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(ResetAgentTokenRoute, Name = ResetAgentTokenRouteName)]
         public async Task<IActionResult> ResetToken(
             [FromBody] ResetAgentToken resetToken,
             [FromServices] IMediator mediator) =>
             this.ToActionResult(await mediator.Send(resetToken), AgentsRouteName);
+
+        [HttpPost]
+        [Route(ClearAgentWorkTasksRoute, Name = ClearAgentWorkTasksRouteName)]
+        public async Task<IActionResult> ClearAgentWorkTasks(
+            [FromBody] ClearAgentWorkTasks clearAgentWorkTasks,
+            [FromServices] IMediator mediator) =>
+            this.ToActionResult(await mediator.Send(clearAgentWorkTasks), AgentsRouteName);
     }
 }

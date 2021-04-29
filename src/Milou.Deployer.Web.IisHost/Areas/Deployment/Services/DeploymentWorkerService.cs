@@ -27,6 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         IRequestHandler<StartWorker>,
         INotificationHandler<AgentDeploymentDone>,
         INotificationHandler<AgentDeploymentFailed>,
+        IRequestHandler<ClearAgentWorkTasks, ClearAgentWorkTasksResult>,
         IAsyncDisposable
     {
         private readonly AgentsData _agents;
@@ -71,6 +72,29 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _agents.AgentDone(notification.AgentId);
 
             return Task.CompletedTask;
+        }
+
+
+        public async Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request,
+            CancellationToken cancellationToken)
+        {
+            var foundAgent = _agents.Agents.SingleOrDefault(agent => request.AgentId == agent.Id);
+
+            if (foundAgent?.CurrentDeploymentTargetId is {} deploymentTargetId && foundAgent?.CurrentDeploymentTaskId is {} taskId && foundAgent?.Id is {} agentId)
+            {
+                var workerByTargetId = GetWorkerByTargetId(deploymentTargetId);
+
+                if (workerByTargetId is null)
+                {
+                    _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify success", deploymentTargetId);
+                }
+
+                workerByTargetId?.NotifyDeploymentFailed(new AgentDeploymentFailed(taskId, deploymentTargetId, agentId.Value));
+            }
+
+            _agents.AgentDone(request.AgentId);
+
+            return new ClearAgentWorkTasksResult(request.AgentId);
         }
 
         public Task Handle(AgentDeploymentFailed notification, CancellationToken cancellationToken)

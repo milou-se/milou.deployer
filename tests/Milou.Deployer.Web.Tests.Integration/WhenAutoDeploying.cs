@@ -28,9 +28,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        [Fact(Skip = "NuGet source issues")]
+        //[Fact(Skip = "NuGet source issues")]
         [NCrunch.Framework.Timeout(120_000)]
-        //[ConditionalFact]
+        [ConditionalFact]
         public async Task ThenNewVersionShouldBeDeployed()
         {
             SemanticVersion? semanticVersion = null;

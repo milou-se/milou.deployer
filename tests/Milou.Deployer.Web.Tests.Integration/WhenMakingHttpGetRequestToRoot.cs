@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Output.WriteLine($"Response headers: {headers}");
 
-            string body = WebFixture?.ResponseMessage?.Content is {}
+            string body = WebFixture?.ResponseMessage?.Content is { }
                 ? await WebFixture.ResponseMessage.Content!.ReadAsStringAsync()
                 : Constants.NotAvailable;
             Output.WriteLine($"Response body: {body}");
