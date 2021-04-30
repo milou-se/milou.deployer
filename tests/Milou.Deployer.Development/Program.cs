@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Logging;
 using Arbor.Primitives;
+using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.IisHost;
 using Serilog;
@@ -41,6 +42,7 @@ namespace Milou.Deployer.Development
             variables.Add(LoggingConstants.SerilogSeqEnabledDefault, "true");
             variables.Add("urn:arbor:app:web:logging:serilog:default:seqUrl", "http://localhost:5341");
             variables.Add("urn:arbor:app:web:logging:serilog:default:consoleEnabled", "true");
+            variables.Add(ConfigurationKeys.AllowPreReleaseEnvironmentVariable, "true");
 
             using var cancellationTokenSource = new CancellationTokenSource();
             var commonAssemblies = ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});

@@ -74,7 +74,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-
         public async Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request,
             CancellationToken cancellationToken)
         {

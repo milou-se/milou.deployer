@@ -45,6 +45,15 @@
             <button type="submit">Assign agent to pool</button>
 
         </form>
+
+        <form method="post" action="@Url.RouteUrl(AgentsController.ClearAgentWorkTasksRouteName)">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" value="@agent.Id.Value" name="agentId"/>
+
+            <button type="submit">Clear work tasks for agent</button>
+
+        </form>
     }
 }
 else if (Model.DisconnectedAgents.Any())

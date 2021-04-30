@@ -77,9 +77,9 @@
       },
       "Arbor.Tooler": {
         "type": "Direct",
-        "requested": "[0.14.0, )",
-        "resolved": "0.14.0",
-        "contentHash": "eCzc9D8s7MmJrVEHX39bct93EpwUojy+bHCyF9EOLd5CeAb1E7zPCnovqSVFB0mAZget4u4HSYQjXvZdZ5L5qw==",
+        "requested": "[0.14.2, )",
+        "resolved": "0.14.2",
+        "contentHash": "E0PqP4Nx9i8EqXszTEIwSM9Zr3fFmZMleRXoAWIQMGuZ++bJa5RJA+v+7pWSI9F2IQBMWM6iRVeJeqzfeL7MPA==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "NewtonSoft.Json": "12.0.1",

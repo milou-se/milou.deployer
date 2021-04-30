@@ -56,6 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             [FromServices] IMediator mediator) =>
             this.ToActionResult(await mediator.Send(resetToken), AgentsRouteName);
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(ClearAgentWorkTasksRoute, Name = ClearAgentWorkTasksRouteName)]
         public async Task<IActionResult> ClearAgentWorkTasks(

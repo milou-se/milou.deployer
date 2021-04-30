@@ -8,7 +8,7 @@
     <PackageReference Include="Arbor.App.Extensions" Version="0.8.0" />
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="1.2.0" />
     <PackageReference Include="Arbor.KVConfiguration.Schema" Version="1.2.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.14.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.14.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />

@@ -23,7 +23,7 @@
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="*" />
-    <PackageReference Include="Arbor.Tooler" Version="0.14.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.14.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
